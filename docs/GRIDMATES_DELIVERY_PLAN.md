@@ -1,14 +1,26 @@
 # GridMates delivery plan
 
-**Current milestone · v0.11D QA.** Start from `main`. The signed update adds Versus player presence and bundled number styles. The [integration audit](V0.11D_INTEGRATION_AND_QA.md) records the exact upgrade evidence and remaining gates.
+**Current candidate · v1 Beta 1.** The signed Android APK is the direct download for a public beta, and the App Bundle is available for future Play submission. [Beta packages and publishing](GRIDMATES_V1_BETA_RELEASE.md) · [v0.11M Collection swipe QA](V0.11M_COLLECTION_SWIPE_QA.md)
 
-The owner reported a successful basic two-phone test on v0.11B. [Playtest findings](V0.11B_OWNER_PLAYTEST_2026-11-04.md) guided v0.11C's open nearby joining, optional room codes, clearer chat and Woodland portraits. The current build still needs its own physical co-op and Versus pass.
+[Draft PR #33](https://github.com/PlayerEden/SudokuTogether/pull/33) contains v0.11E's Profile, Collection, portable progress transfer and API 36 release preparation. The merged v0.11D QA checkpoint introduced Versus presence and bundled number styles. [v0.11D audit](V0.11D_INTEGRATION_AND_QA.md)
 
-The [native rollout plan](superpowers/plans/2026-11-07-gridmates-native-rollout.md) tracks the delivered font and Versus stages and the planned Profile and Collection improvements.
+The owner reported a successful basic two-phone test on v0.11B and confirmed on November 15 that they play Co-op regularly with their partner. Earlier feedback guided open Nearby joining, optional room codes, clearer chat, and Woodland portraits. New two-phone testing is deferred for this beta. [Earlier playtest findings](V0.11B_OWNER_PLAYTEST_2026-11-04.md) · [Owner Co-op playtest](V0.11L_GARDEN_COSMETICS_QA.md#phone-playtest)
+
+The [native rollout plan](superpowers/plans/2026-11-07-gridmates-native-rollout.md) tracks the delivered font, Versus and Profile and Collection stages.
+
+## First release checklist
+
+| Gate | Status |
+| --- | --- |
+| Player profile and collection | v1 Beta 1 adds Co-op completions to Profile. The swipeable Collection includes the Garden icons and locally bundled board and number styles. [Garden milestones](V0.11L_GARDEN_COSMETICS_QA.md#unlock-goals) |
+| Owner updates and transfer | The signed v0.11M to v1 Beta 1 QA install-over preserved saved progress and cosmetics. The v0.11E split release build restored an exported QA file and reopened the same saved entry and pencil note. [Progress transfer guide](GRIDMATES_UPDATE_AND_SAVE_PREPARATION.md) |
+| Android build and signing | The build targets API 36 and supports devices from API 26. The original production certificate was verified and the App Bundle passed local validation. |
+| Device coverage | The owner confirms regular physical Co-op play. The beta includes scripted Co-op and Versus checks. Physical Versus finish and rematch, modern Android orientation, TalkBack, and Daily rollover remain deferred. [Physical LAN checklist](https://github.com/PlayerEden/SudokuTogether/issues/12) |
+| Direct beta and Play | Upload the signed production APK for itch.io. The later Play path uses the App Bundle and the account's applicable testing and listing requirements. [Beta packages and publishing](GRIDMATES_V1_BETA_RELEASE.md) |
 
 ## Product direction
 
-Keep classic Sudoku, quick offline play, thoughtful nearby multiplayer and a profile worth keeping. Use short visible labels and disclose detail when requested. “Good puzzles. Good company.” is the favored tagline candidate, suitable for share cards/store exploration; final artwork remains open. Preserve the current native palette and icon. Crossword follows Sudoku completion.
+Keep classic Sudoku, quick offline play, thoughtful nearby multiplayer and a profile worth keeping. Use short visible labels and disclose detail when requested. “Good puzzles. Good company.” is the favored tagline candidate for share cards and store listings. Use the native palette and numbered Sudoku mark. GridMates: Word Search is the development focus after this beta.
 
 ## November 5–7 playtest follow-up
 
@@ -16,12 +28,12 @@ The design notes and implementation now share the same source branch. Keep each 
 
 | Work | Direction | Evidence needed |
 | --- | --- | --- |
-| QA updates | Preserve the QA identity and increase the build number for each update. | [v0.11D upgrade rehearsal](V0.11D_INTEGRATION_AND_QA.md) |
+| QA updates | Preserve the QA identity and increase the build number for each update. | [v0.11F upgrade rehearsal](V0.11F_LOCAL_MULTIPLAYER_QA.md) |
 | Font consistency | Bundled faces use the existing `clear`, `serif` and `mono` IDs. Preview follows Classic number display. | Native preview check passed. Compare the same equipped style on two physical phones. |
-| Player interface | Versus identities and progress are in v0.11D. The unified Collection and Profile organization are the next stages in the native rollout. | Validate physical Versus reconnect and compact layouts. Keep older icon selections usable. |
-| Versus results | Start with the result and progress already known to both clients. A later full board comparison requires an authoritatively finished race and consent from both players. | The race still keeps opponent entries private. Declining or disconnecting leaves the results usable. |
-| Co-op board themes | Resolve a common board from the players' equipped themes. Keep authored digits in each player's personal ink/font. | Both phones agree on the board and show legible numbers across themes and reconnects. Final ranking, timing and an accessibility override are open choices. |
-| Coach | Use the Sudoku research for visible proofs of the four supported techniques and helpful endgame guidance. | Verified examples with candidate eliminations, 1–2 cells left, and an earlier incorrect entry. Preserve existing difficulty grades. |
+| Player interface | Versus identities and progress are in v0.11D. The unified Collection and Profile are in v0.11E. | Validate physical Versus reconnect and compact layouts, including large text. |
+| Versus results | v0.11F shows the winner, both filled counts and the local grid at the finish. The host can start a fresh race once both players are present. | Test a complete race and rematch on two phones, including a rival leaving and rejoining at the result. A future two-board comparison requires consent from both players. |
+| Co-op board themes | v0.11F selects from Classic, Linen, Midnight and Circuit in that order of priority. Authored entries keep their personal ink and font, with the existing uniform-number option. | Test both phones across themes, saved-room resume and partner rejoin. Use the device playtest to evaluate a local board override. |
+| Coach | v0.11H shows six deduction patterns, crosses off candidates, and offers one verified digit if its deductions stop short. **Check my work** handles an earlier incorrect entry. | Check the explanations on a phone and continue measuring which valid boards still need a reveal. [Coach QA](V0.11H_COACH_DEPTH_QA.md) |
 | Later design work | Choose a small Daily reward model, consider reusable offline gift codes, and evaluate router-free nearby play separately. | Clear unlock and restore behavior for rewards. Physical connectivity checks before changing the multiplayer transport. |
 
 ## Stages
@@ -30,23 +42,36 @@ The design notes and implementation now share the same source branch. Keep each 
 | --- | --- | --- |
 | 1 — v0.11B, verified QA | Launcher label **Sudoku**; useful Solo/Daily entry checking when an earlier mistake blocks logical hints | Full in-game/app name retained; same icon/package/certificate; explicit solution checks, accurate assisted results, safe Undo/resume, actual v0.11A upgrade test and native UI checks |
 | v0.11C — Nearby/collection refinement | Open nearby joining, optional remembered code, stable header/chat,12 earned Woodland portraits |117 JVM +78 native executions, old-APK continuity and installed-byte proof; renewed physical two-phone testing remains open |
-| 2 — Coach guidance | Clear proof highlights and progressive explanations for supported logical techniques, followed by an explicitly requested single-entry apply action if useful | Real proof from current board; no guesses or note-dependent mathematics; invalidate stale previews; track assistance without double-counting one deduction; no numeric score yet |
+| 2 — Coach guidance | v0.11H adds hidden pairs, X-Wings, **Go to square** and an explicit reveal fallback. v0.11I lets players practice one move per technique on a separate board. | Try both a placement and an elimination on a phone. Use validated stalls to choose and verify the next explainable rule. [Practice QA](V0.11I_COACH_PRACTICE_QA.md) |
 | 3 — Share result | Optional finish-screen button, preview, one polished on-device PNG format and native Android sharing for Solo/Daily | Persisted time/difficulty/assistance; no solution digits, invented score or store link; cancellation/export failure preserves the game; physical share-target acceptance |
-| 4 — Player profile | Chosen avatar/style, earned badge showcase, concise honest statistics; profile-card export afterward | Preserve owned cosmetics/history and legacy records; accessible defaults, empty-state and long-name layouts; editable sharing privacy |
+| 4 — Profile and card | v0.11E delivers the profile, achievements, history and Collection. Profile-card export follows the Solo and Daily result card. | Preserve owned cosmetics and legacy records. Check empty states, long names, large text and editable sharing privacy. |
 | 5 — Scoring | Versioned, calibrated score with a clear optional breakdown | Distinct deduction/tier accounting across Undo/resume; old scores remain unknown; assistance stays unlimited; assisted/unassisted comparisons stay separate; no arbitrary speed bonus |
-| Release work alongside stages | Reconcile stacked source, target API36+, production signing/AAB, modern-device/accessibility QA, Play setup/testing and accurate store materials | Follow the launch guide and actual account eligibility. No publication or source promotion is implied. Basic two-phone co-op is owner-reported successful; the remaining physical lifecycle/complete-game/versus checklist is open |
+| Release work alongside stages | Verify current-build physical co-op and Versus, modern-device accessibility, and Play setup and testing | Use the API 36 and signed App Bundle evidence above. The full physical lifecycle, complete-game and Versus checklist is open. |
 | After a clean beta | Rare between-puzzle ads and optional one-time Remove Ads | The free model is decided; price/frequency remain open. Test consent, purchases/restoration and interruption-free play before live use |
 
-The five new proposal files remain design references. An approved product direction is distinct from implemented, tested or released software. Global leaderboards, remote play, cloud backup, paid randomized cosmetics, Split Clues and framework extraction remain separate future decisions/gates.
+The proposals cover additional work beyond the features in the current QA candidate. Global leaderboards, remote play, cloud backup, paid randomized cosmetics, Split Clues and framework extraction remain future decisions.
 
+## November 8 proposal review
 
-## Post-launch expansion — gated, not part of the offline core release (owner decision November 8, 2026)
+The owner screenshot showed **Easy** on the saved puzzle and **Medium** selected directly below **Continue**. v0.11J names that picker **New puzzle difficulty** and counts entries in editable squares for the saved-puzzle caption. A first-use check on a phone can confirm that the distinction is clear. [First-impression proposal](https://github.com/PlayerEden/SudokuTogether/blob/main/docs/GRIDMATES_HOME_FIRST_IMPRESSION_USABILITY_CONSIDERATIONS.md)
 
-**Prioritize an excellent, complete offline Sudoku game and a clean Google Play release before starting internet multiplayer services.** Local Solo, Daily, LAN/nearby co-op and versus must stand on their own. First release is free-to-install; only **respectful between-puzzle ads and an optional one-time Remove Ads purchase** are approved monetization directions, subject to implementation/QA and policy. Preserve the relationship-focused, no-required-login experience.
+For board and number style pilots, compare distinct light, marine and dark palettes on the same real 9×9 sample. Compare candidate font faces using every digit and pencil marks at phone size. v0.11F already shares an equipped Co-op board while rendering each player's own entries, so new themes need an explicit display priority and contrast checks. Review a durable record of earned unlocks before relying on a larger milestone catalog. [Board and font expansion proposal](https://github.com/PlayerEden/SudokuTogether/blob/main/docs/GRIDMATES_BOARD_THEMES_AND_NUMBER_FONTS_EXPANSION.md)
 
-**Future online services are a separately approved phase**, not an unfulfilled initial launch feature. After release, evaluate player demand, retention, **real net earnings** and prospective ongoing backend/maintenance costs. Set a budget ceiling before any backend prototype; no assumption that downloads will produce sufficient revenue. If reasonable, start with invite-only asynchronous friend challenges, then remote Versus/Co-op, and consider public matchmaking only after an active population exists. Online failure/unavailability must never prevent offline play. [Full online feasibility, cost and readiness gates](GRIDMATES_ONLINE_FRIEND_CHALLENGES_AND_MATCHMAKING_FEASIBILITY.md).
+## Word Search review
 
-Do not defer launch to build cloud accounts, public lobbies, matchmaking queues or server infrastructure. This planning update is not permission to change code, monetize aggressively or provision paid infrastructure.
+The Word Search Bookshelf test gives players **Review saved clues** and **Practice again** on a completed book page. v0.11I uses that approach for six replayable Coach examples on separate practice boards. The current Coach already lets players revisit a recent unchanged board without counting another hint during the session. [Clue review](https://github.com/PlayerEden/GridMates-Word-Search/blob/14b67265ecafd6baa243112e306c63ee95265699/app/src/main/java/com/playereden/gridmates/wordsearch/WordSearchScreen.kt#L278-L330) · [Practice button](https://github.com/PlayerEden/GridMates-Word-Search/blob/14b67265ecafd6baa243112e306c63ee95265699/app/src/main/java/com/playereden/gridmates/wordsearch/BookPageGameplayScreen.kt#L266-L282)
+
+The Word Search font plan previews the actual puzzle letters in Collection. Carry that idea into Sudoku with all nine digits and pencil marks on the same playable sample grid, sized as they appear on a phone. [Word Search font plan](https://github.com/PlayerEden/GridMates-Word-Search/blob/233e8ff27edfef57bc661c936b0e2854fa162a53/docs/WS04D_B5_FONT_ENGINE_AND_FREE_UNLOCKS_2026-11-06.md)
+
+The newer Word Search portrait and font cards show unlock progress while browsing. After the v0.11K phone review, try short remaining goals on Sudoku’s locked tiles, using the same rules as the preview. Include Solo, Co-op and Versus goals and check the text at phone width with large system fonts. [Word Search portrait and font review](https://github.com/PlayerEden/GridMates-Word-Search/blob/28ad2e8ad8039db181f9d919bc1706f2ec4d78db/docs/devlog/2026-11-14_WS16BV_COMPACT_FONTS_AND_PROFILE_V80.md#v80-owner-screenshots--visual-qa-follow-up)
+
+Word Search bundles Literata for headings and Atkinson Hyperlegible for controls. Compare those UI fonts on the Sudoku Home, Profile and Collection when reviewing shared GridMates typography. Keep the puzzle numbers driven by the player’s selected number font. [Word Search typography](https://github.com/PlayerEden/GridMates-Word-Search/blob/28ad2e8ad8039db181f9d919bc1706f2ec4d78db/app/src/main/java/com/playereden/gridmates/wordsearch/GridMatesTheme.kt#L48-L77)
+
+## Online expansion after the offline launch
+
+Start with the offline direct-download beta. Google Play is a separate release path. Solo, Daily, nearby Co-op and Versus work without an account. The game will be free to install. Rare between-puzzle ads and a one-time Remove Ads purchase are the approved monetization directions, subject to testing and store requirements.
+
+A later online phase requires its own approval. Evaluate player demand, retention, net earnings and ongoing service costs after launch. Set a budget ceiling before prototyping. If the phase is sustainable, start with invite-only asynchronous friend challenges, then consider remote Versus and Co-op. Public matchmaking depends on an active player base. Offline play remains available during service outages. [Online feasibility and funding gates](https://github.com/PlayerEden/SudokuTogether/blob/development/docs/GRIDMATES_ONLINE_FRIEND_CHALLENGES_AND_MATCHMAKING_FEASIBILITY.md)
 
 ## First APK scope
 

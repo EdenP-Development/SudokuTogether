@@ -22,14 +22,14 @@ import androidx.compose.ui.unit.*
 @Composable internal fun HomeScreen(
     state: GameUiState, actions: GameActions,
     fresh: () -> Unit, freshSolo: () -> Unit, freshRace: () -> Unit,
-    help: () -> Unit, journal: (JournalTab) -> Unit,
-    markStyle: GridMatesMarkStyle = GridMatesMarkStyle.CONNECTED_TILES
+    help: () -> Unit, profile: () -> Unit,
+    markStyle: GridMatesMarkStyle = GridMatesMarkStyle.SUDOKU_GRID
 ) {
     var mode by rememberSaveable { mutableStateOf("solo") }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 12.dp),
         horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
         Column(Modifier.widthIn(max = 480.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
-            HomeHeader(state, help, { journal(JournalTab.RECORDS) }, markStyle)
+            HomeHeader(state, help, profile, markStyle)
             (state.message ?: state.saveIssue)?.let { Notice(it) }
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 listOf(Triple("solo", "Solo", GameSymbol.PERSON), Triple("together", "Co-op", GameSymbol.PEOPLE),
@@ -49,7 +49,8 @@ import androidx.compose.ui.unit.*
                 }
             }
             val active = state.profile.activeSolo
-            val unfinished = mode == "solo" && state.resumeSolo && active?.completed == false
+            val savedSolo = active?.takeIf { mode == "solo" && state.resumeSolo && !it.completed }
+            val unfinished = savedSolo != null
             Surface(shape = RoundedCornerShape(25.dp), color = NightForest) {
                 Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
                     Text(when {
@@ -59,13 +60,17 @@ import androidx.compose.ui.unit.*
                         else -> "Classic 9×9"
                     }, color = OnForest, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
                         fontSize = 27.sp, lineHeight = 31.sp)
-                    if (unfinished) Text(difficultyName(active?.puzzle?.difficulty) + " · " +
-                        (active?.cells?.count { it.value != 0 } ?: 0) + "/81 · " + formatElapsed(active?.elapsedMs ?: 0L),
+                    if (savedSolo != null) {
+                        val fill = savedSolo.puzzle.fillProgress(savedSolo.cells)
+                        Text("${difficultyName(savedSolo.puzzle.difficulty)} · ${fill.label} · " +
+                            formatElapsed(savedSolo.elapsedMs),
+                            color = OnForest.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
+                        GamePrimaryButton("Continue", { actions.solo(true) },
+                            !state.busy && !state.localSaveBlocked, light = true)
+                        Text("New puzzle difficulty", color = OnForest.copy(alpha = .8f),
+                            style = MaterialTheme.typography.bodyMedium)
+                    } else if (mode != "solo") Text(if (mode == "together") "Same Wi-Fi" else "Private boards · Same Wi-Fi",
                         color = OnForest.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
-                    else if (mode != "solo") Text(if (mode == "together") "Same Wi-Fi" else "Private boards · Same Wi-Fi",
-                        color = OnForest.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
-                    if (unfinished) GamePrimaryButton("Continue", { actions.solo(true) },
-                        !state.busy && !state.localSaveBlocked, light = true)
                     DifficultyPicker(state, actions)
                     if (mode != "solo") Row(Modifier.fillMaxWidth().heightIn(min = 48.dp)
                         .toggleable(state.requireRoomCode, enabled = !state.busy, role = Role.Switch, onValueChange = actions.requireRoomCode)

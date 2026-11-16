@@ -19,13 +19,16 @@ class PlaySmokeTest {
     @Test fun profileCollectionDisplaysUnlockChoices() {
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithTag("nav_collection").assertIsSelected()
+        compose.onNodeWithTag("cosmetic_emblem_tile").assertExists()
+        compose.onNodeWithTag("portrait_woodland_owl").assertExists()
+        compose.onNodeWithText("Boards").performScrollTo().performClick()
+        compose.onNodeWithTag("cosmetic_board_classic").assertExists()
+        compose.onNodeWithText("Numbers").performScrollTo().performClick()
         compose.onNodeWithText("Number colors").assertExists()
-        compose.onNodeWithText("Board styles").assertExists()
         compose.onNodeWithText("Number fonts").assertExists()
-        compose.onNodeWithText("Player emblems").assertExists()
-        compose.onNodeWithText("ACHIEVEMENTS").assertExists()
+        compose.onNodeWithTag("nav_records").performClick()
+        compose.onNodeWithText("View achievements").performScrollTo().performClick()
         compose.onNodeWithText("First Grid").assertExists()
-        assertTrue(compose.onAllNodesWithText("Forest", substring = true).fetchSemanticsNodes().isNotEmpty())
         compose.onNodeWithTag("nav_settings").performClick()
         compose.onNodeWithText("Classic number display").assertExists()
         compose.onNodeWithText("Touch feedback").assertExists()
@@ -96,6 +99,7 @@ class PlaySmokeTest {
         compose.onNodeWithText("Continue").assertExists()
 
         compose.onNodeWithTag("nav_records").performClick()
+        compose.onNodeWithText("Game history").performScrollTo().performClick()
         compose.onNodeWithText("DAILY HISTORY").assertExists()
         val date = com.playereden.sudokutogether.core.DailyChallenge.today()
         compose.onNodeWithTag("daily_history_" + date).performScrollTo().performClick()
@@ -107,6 +111,7 @@ class PlaySmokeTest {
     }
 
     @Test fun soloHintsExplainOneDeductionWithoutPlayingIt() {
+        compose.onNodeWithTag("difficulty_EASY").performScrollTo().performClick()
         compose.onNodeWithText("New puzzle").performScrollTo().assertIsDisplayed().performClick()
         if (compose.onAllNodesWithText("Start new").fetchSemanticsNodes().isNotEmpty()) {
             compose.onNodeWithText("Start new").performClick()
@@ -116,13 +121,36 @@ class PlaySmokeTest {
         compose.runOnUiThread { model = ViewModelProvider(compose.activity)[GameViewModel::class.java] }
         val before = model.state.value.snapshot!!.cells.map { it.copy() }
         val hintsBefore = model.state.value.profile.activeSolo!!.hintsUsed
-        compose.onNodeWithText("Hint").performClick()
-        compose.waitUntil(20000) {
-            compose.onAllNodesWithText("Your next deduction").fetchSemanticsNodes().isNotEmpty()
+        fun openCoach() {
+            compose.onNodeWithText("Hint").performClick()
+            compose.waitUntil(20000) { compose.onAllNodesWithText("Your next deduction").fetchSemanticsNodes().isNotEmpty() }
         }
-        compose.onNodeWithText(model.state.value.hint!!.explanation).assertExists()
-        assertEquals(before,model.state.value.snapshot!!.cells)
-        assertEquals(hintsBefore+1,model.state.value.profile.activeSolo!!.hintsUsed)
+        openCoach()
+        val hint = requireNotNull(model.state.value.hint)
+        compose.onNodeWithTag("coach_cell_${hint.cell}").assertExists()
+        compose.onNodeWithText(hint.explanation).assertDoesNotExist()
+        compose.onNodeWithText("Show why").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithText(hint.explanation).assertExists()
+        assertEquals(before, model.state.value.snapshot!!.cells)
+        assertEquals(hintsBefore + 1, model.state.value.profile.activeSolo!!.hintsUsed)
+        compose.onNodeWithText("Back to puzzle").performClick()
+        openCoach()
+        assertEquals(hintsBefore + 1, model.state.value.profile.activeSolo!!.hintsUsed)
+        compose.onNodeWithText("Back to puzzle").performClick()
+
+        val placement = hint.steps.last()
+        val cell = placement.targetCells.single()
+        val digit = placement.digits.single()
+        compose.runOnUiThread { model.select(cell); model.number(digit) }
+        compose.waitUntil(20000) { model.state.value.snapshot!!.cells[cell].value == digit && model.state.value.canEdit }
+        openCoach()
+        assertEquals(hintsBefore + 2, model.state.value.profile.activeSolo!!.hintsUsed)
+        compose.onNodeWithText("Back to puzzle").performClick()
+        compose.onNodeWithText("Undo").performClick()
+        val originalValues = before.map { it.value }
+        compose.waitUntil(20000) { model.state.value.canEdit && model.state.value.snapshot!!.cells.map { it.value } == originalValues }
+        openCoach()
+        assertEquals(hintsBefore + 2, model.state.value.profile.activeSolo!!.hintsUsed)
         compose.onNodeWithText("Back to puzzle").performClick()
         compose.onNodeWithTag("input_dock").assertIsDisplayed()
     }
@@ -166,6 +194,7 @@ class PlaySmokeTest {
         compose.onNodeWithText("Continue").assertExists()
         compose.onNodeWithTag("nav_records").performClick()
         compose.onNodeWithTag("nav_records").assertIsSelected()
+        compose.onNodeWithText("Statistics").performScrollTo().performClick()
         compose.onNodeWithText("Best unassisted:", substring = true).assertExists()
     }
 

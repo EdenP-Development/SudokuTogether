@@ -7,6 +7,12 @@ Liberation Mono Regular
  Digitized data copyright (c) 2010 Google Corporation with Reserved Font Arimo, Tinos and Cousine.
  Copyright (c) 2012 Red Hat, Inc. with Reserved Font Name Liberation.
 
+Nunito Bold
+Copyright 2014 The Nunito Project Authors (https://github.com/googlefonts/nunito)
+
+Patrick Hand Regular
+Copyright (c) 2010-2012 Patrick Wagesreiter (mail@patrickwagesreiter.at)
+
 SIL OPEN FONT LICENSE Version 1.1 - 26 February 2007
 
 PREAMBLE

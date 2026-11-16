@@ -1,19 +1,27 @@
 package com.playereden.sudokutogether
 
 import android.app.Application
+import android.net.Uri
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.playereden.sudokutogether.core.*
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import java.io.File
+import java.io.IOException
 import java.security.SecureRandom
 import java.util.concurrent.atomic.AtomicLong
 import android.os.SystemClock
+
+internal fun cleanPlayerName(name: String): String =
+    name.filterNot { it.isISOControl() }.take(24).dropLastWhile { Character.isHighSurrogate(it) }
+
+private const val MAX_RECENT_COACH_HINTS = 128
 
 enum class Page { HOME, JOIN, PLAY, PROFILE }
 data class GameUiState(
@@ -31,7 +39,7 @@ data class GameUiState(
     val touchFeedback: Boolean = true,
     val selectedDifficulty: String = "EASY",
     val autoCleanNotes: Boolean = false,
-    val hint: SudokuAssistance.Hint? = null,
+    val hint: SudokuAssistance.CoachHint? = null,
     val dailyDate: String? = null,
     val finishedSolo: SoloProgress? = null,
     val soloClockStartedAt: Long? = null,
@@ -42,6 +50,8 @@ data class GameUiState(
     val requireRoomCode: Boolean = false
 ) {
     val canEdit: Boolean get() = snapshot != null && !snapshot.completed && !busy && pendingId == null && ((role == SOLO && !localSaveBlocked) || (role != SOLO && !status.paused && (snapshot.mode != VERSUS || status.guestActive) && (role == HOST || connected)))
+    internal val canRematch: Boolean get() = role == HOST && !busy && status.hostActive && status.guestActive &&
+        snapshot?.mode == VERSUS && snapshot.completed
 }
 
 class GameViewModel @JvmOverloads constructor(
@@ -60,19 +70,31 @@ class GameViewModel @JvmOverloads constructor(
     private val hostStore = AtomicSessionStore(File(application.filesDir, "host-session.json"))
     private val raceStore = AtomicSessionStore(File(application.filesDir, "host-race-session.json"))
     private val guestStore = AtomicSessionStore(File(application.filesDir, "guest-session.json"))
+    private val playerFile = File(application.filesDir, "local-player.json")
+    private val backupStore = ProgressBackupStore(playerFile, preferences, File(application.dataDir, "shared_prefs/settings.xml"))
     private lateinit var localPlayer: LocalPlayerStore
     private var soloStartedAt: Long? = null
     private var soloElapsedAnchor: Long = 0L
-    private val _state = MutableStateFlow(GameUiState(name = preferences.getString("name", "Player") ?: "Player", busy = true,
+    private fun GameUiState.withStoredPlayerSettings(): GameUiState = copy(
+        name = preferences.getString("name", "Player") ?: "Player",
         uniformNumbers = preferences.getBoolean("uniformNumbers", false),
         touchFeedback = preferences.getBoolean("touchFeedback", true),
         autoCleanNotes = preferences.getBoolean("autoCleanNotes", false),
         requireRoomCode = preferences.getBoolean("requireRoomCode", false),
         selectedDifficulty = preferences.getString("difficulty", "EASY")
-            .let { if (it in listOf("EASY", "MEDIUM", "HARD")) it!! else "EASY" }))
+            .let { if (it in listOf("EASY", "MEDIUM", "HARD")) it!! else "EASY" })
+    private val _state = MutableStateFlow(GameUiState(busy = true).withStoredPlayerSettings())
     val state = _state.asStateFlow()
+    private val _progressBackup = MutableStateFlow(ProgressBackupUiState())
+    internal val progressBackup = _progressBackup.asStateFlow()
+    private val backupLocked: Boolean get() = _progressBackup.value.let { it.working || it.recoveryRequired }
+    private val settingsLocked: Boolean get() = _state.value.busy || backupLocked
     private val generation = AtomicLong()
     private val localStartLock = Any()
+    private val roomPresenceLock = Any()
+    private data class CoachBoard(val sessionId: String, val date: String?, val puzzle: Puzzle, val values: List<Int>)
+    private data class CachedCoach(val hint: SudokuAssistance.CoachHint, val countedAt: Int)
+    private val recentCoach = LinkedHashMap<CoachBoard, CachedCoach>(16, 0.75f, true)
     @Volatile private var server: HostServer? = null
     @Volatile private var guest: GuestClient? = null
     @Volatile private var guestResume: SavedSession? = null
@@ -83,31 +105,122 @@ class GameViewModel @JvmOverloads constructor(
     private val puzzleRandom = SecureRandom()
 
     init { viewModelScope.launch(workDispatcher) {
-        localPlayer = LocalPlayerStore(File(application.filesDir, "local-player.json"))
+        localPlayer = LocalPlayerStore(playerFile)
+        val recoveredRestore = try {
+            backupStore.recoverPendingRestore(localPlayer)
+        } catch (error: ProgressBackupException) {
+            showBackupFailure(error)
+            false
+        }
         val profile = localPlayer.current()
         val hosted = hostStore.load(); val raced = raceStore.load(); val joined = guestStore.load()
         guestResume = when (joined) { is LoadResult.Loaded -> joined.data; is LoadResult.Recovered -> joined.data; else -> null }
-        _state.update { it.copy(busy = false, profile = profile, resumeSolo = profile.activeSolo != null,
-            appearance = savedAppearance(), localSaveBlocked = !localPlayer.canSave,
+        val restoreBlocked = _progressBackup.value.recoveryRequired
+        _state.update { it.withStoredPlayerSettings().copy(busy = restoreBlocked, profile = profile, resumeSolo = profile.activeSolo != null,
+            appearance = savedAppearance(), localSaveBlocked = restoreBlocked || !localPlayer.canSave,
             resumeHost = hosted is LoadResult.Loaded || hosted is LoadResult.Recovered,
             resumeGuest = guestResume != null, resumeRace = raced is LoadResult.Loaded || raced is LoadResult.Recovered,
-            saveIssue = localPlayer.recoveryWarning ?: when (hosted) {
+            message = if (recoveredRestore) "Your progress from before the interrupted restore was recovered." else it.message,
+            saveIssue = _progressBackup.value.message ?: localPlayer.recoveryWarning ?: when (hosted) {
                 is LoadResult.Invalid -> hosted.message
                 is LoadResult.Recovered -> "Your previous backup was recovered. Resume to continue from that saved point."
                 else -> null
             }) }
     } }
 
+    internal fun exportProgressBackup(uri: Uri) = runBackupOperation {
+        val bytes = backupStore.export(localPlayer, BuildConfig.VERSION_NAME)
+        val output = getApplication<Application>().contentResolver.openOutputStream(uri, "wt")
+            ?: throw IOException("Progress destination is unavailable.")
+        output.use { it.write(bytes) }
+        ProgressBackupUiState(message = "Progress backup saved.")
+    }
+
+    internal fun previewProgressBackup(uri: Uri) = runBackupOperation {
+        val input = getApplication<Application>().contentResolver.openInputStream(uri)
+            ?: throw IOException("Progress file is unavailable.")
+        ProgressBackupUiState(preview = input.use(ProgressBackup::decode))
+    }
+
+    internal fun dismissProgressBackupPreview() {
+        if (!backupLocked) _progressBackup.update { it.copy(preview = null) }
+    }
+
+    internal fun confirmProgressBackupRestore() {
+        val preview = _progressBackup.value.preview ?: return
+        runBackupOperation {
+            val restored = synchronized(localStartLock) {
+                backupStore.restore(localPlayer, preview).also { recentCoach.clear() }
+            }
+            _state.update {
+                it.withStoredPlayerSettings().copy(
+                    profile = restored,
+                    resumeSolo = restored.activeSolo != null,
+                    appearance = savedAppearance()
+                )
+            }
+            ProgressBackupUiState(message = "Progress restored.")
+        }
+    }
+
+    private fun runBackupOperation(operation: () -> ProgressBackupUiState) {
+        val before = _state.value
+        if (before.page !in listOf(Page.HOME, Page.PROFILE) || before.busy || backupLocked) return
+        if (before.localSaveBlocked) {
+            showBackupFailure(IOException("Local progress needs recovery."))
+            return
+        }
+        _progressBackup.value = ProgressBackupUiState(working = true)
+        _state.update { it.copy(busy = true) }
+        viewModelScope.launch(workDispatcher) {
+            try {
+                val result = operation()
+                _progressBackup.value = result
+                if (result.message != null) _state.update {
+                    if (it.page == Page.HOME) it.copy(message = result.message) else it
+                }
+            } catch (error: CancellationException) {
+                throw error
+            } catch (error: Exception) {
+                showBackupFailure(error)
+            } finally {
+                _state.update { it.copy(busy = _progressBackup.value.recoveryRequired) }
+            }
+        }
+    }
+
+    private fun showBackupFailure(error: Exception) {
+        val reason = (error as? ProgressBackupException)?.reason
+        val recoveryRequired = reason == ProgressBackupException.Reason.RECOVERY_REQUIRED
+        val message = when (reason) {
+            ProgressBackupException.Reason.TOO_LARGE -> "This progress backup is too large."
+            ProgressBackupException.Reason.INVALID -> "This file could not be read as a GridMates progress backup."
+            ProgressBackupException.Reason.UNSUPPORTED_VERSION -> "This backup needs a newer version of GridMates."
+            ProgressBackupException.Reason.RECOVERY_REQUIRED -> "Progress recovery needs attention. Check phone storage and reopen Sudoku."
+            else -> "Couldn't complete the backup operation. Check phone storage and try again."
+        }
+        _progressBackup.value = ProgressBackupUiState(message = message, recoveryRequired = recoveryRequired)
+        _state.update {
+            it.copy(
+                message = if (it.page == Page.HOME) message else it.message,
+                localSaveBlocked = recoveryRequired || it.localSaveBlocked,
+                saveIssue = if (recoveryRequired) message else it.saveIssue
+            )
+        }
+    }
+
     fun setName(name: String) {
-        val value = name.filterNot { it.isISOControl() }.take(24)
+        if (settingsLocked) return
+        val value = cleanPlayerName(name)
         _state.update { it.copy(name = value) }; preferences.edit().putString("name", value).apply()
     }
     fun setRequireRoomCode(enabled: Boolean) {
-        if (_state.value.busy) return
+        if (settingsLocked) return
         preferences.edit().putBoolean("requireRoomCode", enabled).apply()
         _state.update { it.copy(requireRoomCode = enabled) }
     }
     fun chooseCosmetic(group: String, id: String) {
+        if (settingsLocked) return
         val state = _state.value
         if (!Cosmetics.allowed(id, state.profile.records)) return
         val next = when (group) {
@@ -136,11 +249,12 @@ class GameViewModel @JvmOverloads constructor(
         }
     }
     fun setDifficulty(level: String) {
-        if (level !in listOf("EASY", "MEDIUM", "HARD") || _state.value.busy) return
+        if (level !in listOf("EASY", "MEDIUM", "HARD") || settingsLocked) return
         preferences.edit().putString("difficulty", level).apply()
         _state.update { it.copy(selectedDifficulty = level) }
     }
     fun setAutoCleanNotes(enabled: Boolean) {
+        if (settingsLocked) return
         preferences.edit().putBoolean("autoCleanNotes", enabled).apply()
         _state.update { it.copy(autoCleanNotes = enabled) }
     }
@@ -175,9 +289,20 @@ class GameViewModel @JvmOverloads constructor(
             try {
                 if (generation.get() != token) return@launch
                 val progress = progressFor(localPlayer.current(), before.dailyDate)
-                val hint = if (progress != null && progress.id == expectedId &&
-                    progress.moves.toLong() == expectedMoves && !progress.completed)
-                    SudokuAssistance.nextHint(progress.puzzle, progress.cells.map { it.value }) else null
+                if (progress == null || progress.id != expectedId || progress.moves.toLong() != expectedMoves || progress.completed) {
+                    publishAssistance(token, before) { it.copy(busy = false, message = "Your puzzle changed. Try again.") }
+                    return@launch
+                }
+                val values = progress.cells.map { it.value }
+                val board = CoachBoard(expectedId, before.dailyDate, progress.puzzle, values)
+                val cached = synchronized(localStartLock) {
+                    recentCoach[board]?.takeIf { progress.hintsUsed >= it.countedAt }
+                }
+                if (cached != null) {
+                    publishAssistance(token, before) { it.copy(busy = false, hint = cached.hint, selected = cached.hint.cell) }
+                    return@launch
+                }
+                val hint = SudokuAssistance.nextCoachHint(progress.puzzle, values)
                 if (hint == null) {
                     publishAssistance(token, before) { it.copy(busy = false,
                         hintUnavailable = true, message = null) }
@@ -196,6 +321,8 @@ class GameViewModel @JvmOverloads constructor(
                     }
                     val confirmed = progressFor(updated, before.dailyDate)
                     if (accepted && confirmed?.id == expectedId && confirmed.moves.toLong() == expectedMoves) {
+                        recentCoach[board] = CachedCoach(hint, confirmed.hintsUsed)
+                        if (recentCoach.size > MAX_RECENT_COACH_HINTS) recentCoach.remove(recentCoach.keys.first())
                         publishAssistance(token, before) { it.copy(profile = updated, busy = false, hint = hint, selected = hint.cell) }
                     } else publishAssistance(token, before) { it.copy(busy = false) }
                 }
@@ -254,10 +381,12 @@ class GameViewModel @JvmOverloads constructor(
         }
     }
     fun setTouchFeedback(enabled: Boolean) {
+        if (settingsLocked) return
         preferences.edit().putBoolean("touchFeedback", enabled).apply()
         _state.update { it.copy(touchFeedback = enabled) }
     }
     fun setUniformNumbers(enabled: Boolean) {
+        if (settingsLocked) return
         preferences.edit().putBoolean("uniformNumbers", enabled).apply()
         _state.update { it.copy(uniformNumbers = enabled) }
     }
@@ -279,7 +408,7 @@ class GameViewModel @JvmOverloads constructor(
             }
         }
     }
-    @Synchronized private fun nextPuzzle(level: String): Puzzle {
+    @Synchronized private fun nextPuzzle(level: String, token: Long): Puzzle {
         // History is deliberately independent of saved solo/host/guest sessions:
         // installing this update doesn't modify or invalidate unfinished games.
         val recent = preferences.getString("recentPuzzleIds", "")
@@ -292,8 +421,12 @@ class GameViewModel @JvmOverloads constructor(
         }
         val puzzle = PuzzleSupply.nextRated(grade, recent, puzzleRandom::nextLong).puzzle
         val updated = PuzzleSupply.remember(recent, puzzle.id).joinToString("|")
-        check(preferences.edit().putString("recentPuzzleIds", updated).commit()) {
-            "Could not save your puzzle history"
+        synchronized(localStartLock) {
+            if (generation.get() == token && !backupLocked) {
+                check(preferences.edit().putString("recentPuzzleIds", updated).commit()) {
+                    "Could not save your puzzle history"
+                }
+            }
         }
         return puzzle
     }
@@ -337,7 +470,7 @@ class GameViewModel @JvmOverloads constructor(
                 if (generation.get() != current) return@launch
                 val existing = localPlayer.current().activeSolo
                 val prepared = if (resume && existing != null) existing
-                    else PersonalPlay.newSolo(nextPuzzle(difficulty), System.currentTimeMillis())
+                    else PersonalPlay.newSolo(nextPuzzle(difficulty, current), System.currentTimeMillis())
                 synchronized(localStartLock) {
                     if (generation.get() != current) return@launch
                     val saved = localPlayer.update { data ->
@@ -419,7 +552,7 @@ class GameViewModel @JvmOverloads constructor(
         return current
     }
     fun home() {
-        if (!::localPlayer.isInitialized) return
+        if (!::localPlayer.isInitialized || backupLocked) return
         stopSoloClock()
         closeRoom()
         val saved = localPlayer.current()
@@ -435,7 +568,7 @@ class GameViewModel @JvmOverloads constructor(
     fun hostRace(resume: Boolean) = hostInternal(resume, versus = true)
 
     private fun recordMultiplayer(snapshot: Snapshot, role: String) {
-        if (!snapshot.completed) return
+        if (!snapshot.completed || backupLocked) return
         if (snapshot.mode == VERSUS && snapshot.winner == null) return
         val id = snapshot.sessionId + ":" + snapshot.epoch + ":" + role
         // Presence changes and chat also emit room events. A finished match
@@ -473,7 +606,13 @@ class GameViewModel @JvmOverloads constructor(
                 val session = if (resume) {
                     val saved = when (val loaded = store.load()) { is LoadResult.Loaded -> loaded.data; is LoadResult.Recovered -> loaded.data; else -> error("The saved puzzle is unavailable. It has not been replaced.") }
                     GameSession(saved, store::save).also { it.setAppearance(HOST, selectedStyle) }
-                } else GameSession.create(nextPuzzle(_state.value.selectedDifficulty), name, store::save, if (versus) VERSUS else COOP, selectedStyle, requireCode)
+                } else {
+                    val puzzle = nextPuzzle(_state.value.selectedDifficulty, current)
+                    synchronized(localStartLock) {
+                        if (generation.get() != current) return@launch
+                        GameSession.create(puzzle, name, store::save, if (versus) VERSUS else COOP, selectedStyle, requireCode)
+                    }
+                }
                 if (generation.get() != current) return@launch
                 val hosted = HostServer(session) { event -> if (generation.get() == current) {
                     recordMultiplayer(event.snapshot, HOST)
@@ -488,7 +627,7 @@ class GameViewModel @JvmOverloads constructor(
                             unreadChat = if (previous.chatVisible) 0 else previous.unreadChat + if (event.chat?.player == GUEST) 1 else 0)
                     }
                 } }
-                server = hosted; val port = hosted.start(); hosted.setForeground(visible)
+                server = hosted; val port = hosted.start(); publishRoomPresence()
                 if (generation.get() != current) { hosted.close(); return@launch }
                 val address = discovery.localAddresses().firstOrNull()?.let { "$it:$port" } ?: "Connect this phone to home Wi-Fi"
                 _state.update { it.copy(busy = false, roomCode = if (session.requiresCode) hosted.code else "", address = address, resumeHost = if (versus) it.resumeHost else true, resumeRace = if (versus) true else it.resumeRace, saveIssue = null) }
@@ -547,9 +686,10 @@ class GameViewModel @JvmOverloads constructor(
                 }
             }
             try {
-                guest = client; client.connect(endpoint.host, endpoint.port, code, name, identity?.token, _state.value.appearance)
+                guest = client
+                client.connect(endpoint.host, endpoint.port, code, name, identity?.token, _state.value.appearance)
                 if (generation.get() != current) { client.close(); return@launch }
-                client.setForeground(visible)
+                publishRoomPresence()
                 val formatted = if (endpoint.host.contains(':')) "[${endpoint.host}]:${endpoint.port}" else "${endpoint.host}:${endpoint.port}"
                 preferences.edit().putString("lastAddress", formatted).apply()
             } catch (e: Exception) {
@@ -624,23 +764,64 @@ class GameViewModel @JvmOverloads constructor(
         if (active && _state.value.page == Page.HOME) {
             _state.update { it.copy(todayDate = DailyChallenge.today()) }
         }
-        viewModelScope.launch(workDispatcher) { server?.setForeground(active); guest?.setForeground(active) }
+        viewModelScope.launch(workDispatcher) { publishRoomPresence() }
+    }
+    private fun publishRoomPresence() = synchronized(roomPresenceLock) {
+        val active = visible
+        server?.setForeground(active)
+        guest?.setForeground(active)
     }
     fun replacePartner() { viewModelScope.launch(workDispatcher) {
         try { server?.replaceGuest() } catch (_: Exception) { _state.update { it.copy(message = "Couldn't save the partner change. Try again.") } }
     } }
-    fun newPuzzle() { if (_state.value.role == SOLO) {
-        if (_state.value.dailyDate != null) home() else solo(false)
-        return
-    }; _state.update { it.copy(busy = true, message = null) }; viewModelScope.launch(workDispatcher) {
-        try { server?.let { host ->
-            val difficulty = host.session.snapshot().puzzle.difficulty
-                ?.takeIf { it in listOf("EASY", "MEDIUM", "HARD") }
-                ?: _state.value.selectedDifficulty
-            host.newPuzzle(nextPuzzle(difficulty))
-        } } catch (_: Exception) { _state.update { it.copy(message = "Couldn't save a new puzzle. Your current puzzle is still here.") } }
-        finally { _state.update { it.copy(busy = false) } }
-    } }
+    fun newPuzzle() {
+        val before = _state.value
+        if (before.busy) return
+        if (before.role == SOLO) {
+            if (before.dailyDate != null) home() else solo(false)
+            return
+        }
+        if (before.role == HOST && !(before.snapshot?.mode == VERSUS && before.snapshot.completed)) {
+            startNextRoomPuzzle(before)
+        }
+    }
+    fun rematch(epoch: String) {
+        val before = _state.value
+        if (before.canRematch && before.snapshot?.epoch == epoch) startNextRoomPuzzle(before)
+    }
+    private fun startNextRoomPuzzle(before: GameUiState) {
+        val snapshot = before.snapshot ?: return
+        val token = generation.get()
+        _state.update { it.copy(busy = true, message = null) }
+        viewModelScope.launch(workDispatcher) {
+            try {
+                val host = server ?: return@launch
+                val difficulty = snapshot.puzzle.difficulty
+                    ?.takeIf { it in listOf("EASY", "MEDIUM", "HARD") }
+                    ?: before.selectedDifficulty
+                val puzzle = nextPuzzle(difficulty, token)
+                if (generation.get() != token) return@launch
+                if (snapshot.mode != VERSUS) {
+                    host.newPuzzle(puzzle)
+                    return@launch
+                }
+                val started = host.nextRace(snapshot.epoch, puzzle, afterFinish = snapshot.completed) {
+                    generation.get() == token && (!snapshot.completed || visible)
+                }
+                if (!started && snapshot.completed && visible) _state.update {
+                    if (generation.get() == token && it.snapshot?.epoch == snapshot.epoch)
+                        it.copy(message = "Wait for your rival to return, then try again.")
+                    else it
+                }
+            } catch (_: Exception) {
+                if (generation.get() == token) {
+                    _state.update { it.copy(message = "Couldn't save a new puzzle. Your current puzzle is still here.") }
+                }
+            } finally {
+                if (generation.get() == token) _state.update { it.copy(busy = false) }
+            }
+        }
+    }
     override fun onCleared() { stopSoloClock(); closeRoom(); super.onCleared() }
     private fun explain(code: ResultCode): String = when (code) {
         ResultCode.STALE -> "Your partner changed that square. Check the updated square and try again."

@@ -1,8 +1,28 @@
 # GridMates: Sudoku
 
-The full Android source, tests and design history live on `main`. [Start here](CONTINUE_HERE.md) · [Project handoff](docs/PROJECT_HANDOFF.md) · [Delivery plan](docs/GRIDMATES_DELIVERY_PLAN.md)
+**Beta 1 source location (November 16, 2026):** This branch (`feat/gridmates-v1-beta`, [draft PR #42](https://github.com/PlayerEden/SudokuTogether/pull/42)) contains the **latest Beta 1 Android source**. The default `main` branch currently has the earlier v0.11D QA baseline; do not build `main` expecting the latest public beta until the integration is approved and merged. The exact recorded Beta APK was built from [source commit `76cbfc1`](https://github.com/PlayerEden/SudokuTogether/commit/76cbfc149569938b97286f3efe4ad44e08c5934f); subsequent commits include documentation. See [Beta release and verification](docs/GRIDMATES_V1_BETA_RELEASE.md), [the repository health audit on main](https://github.com/PlayerEden/SudokuTogether/blob/main/docs/SUDOKU_REPO_HEALTH_AND_BETA_STEWARDSHIP_2026-11-16.md), and [active issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). **No production merge or fresh APK verification is implied by this README note.**
+
+[Start here](CONTINUE_HERE.md) · [Project handoff](docs/PROJECT_HANDOFF.md) · [Delivery plan](docs/GRIDMATES_DELIVERY_PLAN.md)
+
+**v1 Beta 1** brings a consistent board progress count, shorter help with direct access to Coach practice, and Co-op solves on Profile. [Beta packages and publishing](docs/GRIDMATES_V1_BETA_RELEASE.md)
 
 **v0.11D QA** adds both players' identities and progress to the Versus screen, reconnect feedback, and consistent bundled number styles. The signed update uses the installed Sudoku QA app's identity. [Repository audit and upgrade evidence](docs/V0.11D_INTEGRATION_AND_QA.md)
+
+**v0.11M** adds a swipeable row for player icon sets in Collection. [Collection swipe and signed update QA](docs/V0.11M_COLLECTION_SWIPE_QA.md)
+
+**v0.11L** adds four Garden portraits, three number colors, and the Rounded and Pencil fonts. Existing completed games count toward the new unlocks. [Garden collection and update QA](docs/V0.11L_GARDEN_COSMETICS_QA.md)
+
+**v0.11K** brings a compact Profile card, available items above locked ones in Collection, board thumbnails, and a choice of number colors or fonts. [Profile and Collection QA](docs/V0.11K_PROFILE_COLLECTION_QA.md)
+
+**v0.11I** adds six one-move lessons in Coach practice. Open **How to play → Coach practice** from Home. [Practice and signed upgrade evidence](docs/V0.11I_COACH_PRACTICE_QA.md)
+
+**v0.11H** adds hidden-pair and X-Wing explanations, a direct return to the suggested square and an optional one-number reveal on a stalled board. [Coach and signed upgrade evidence](docs/V0.11H_COACH_DEPTH_QA.md)
+
+**v0.11G** adds Coach proof steps and six Ocean portraits. [QA evidence](docs/V0.11G_COACH_OCEAN_QA.md) · [Delivery plan](docs/GRIDMATES_DELIVERY_PLAN.md)
+
+**v0.11F** introduced shared Co-op themes, Versus finish summaries and a same-room rematch. [QA evidence](docs/V0.11F_LOCAL_MULTIPLAYER_QA.md)
+
+**v0.11E** introduced Profile and Collection, portable progress backup, and the Android 16 build and signing path. [Candidate PR #33](https://github.com/PlayerEden/SudokuTogether/pull/33) · [QA evidence](docs/V0.11E_PROFILE_PROGRESS_QA.md)
 
 ## Earlier QA milestones
 
@@ -78,7 +98,7 @@ Play multiplayer on a trusted home network. Optional room codes control who can 
 
 ## Build
 
-Install JDK 17 and Android SDK platform 35/build-tools 35.0.0. Set `ANDROID_HOME` to the SDK directory (or use an untracked `local.properties`).
+Install JDK 17, Android SDK Platform 36 and Build Tools 35.0.0. Set `ANDROID_HOME` to the SDK directory (or use an untracked `local.properties`).
 
 ```bash
 ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
