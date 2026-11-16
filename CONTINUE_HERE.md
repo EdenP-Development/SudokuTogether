@@ -1,6 +1,8 @@
 # Continue GridMates: Sudoku
 
-The v1 Beta 1 branch brings the signed v0.11M candidate and current `main` together. [Beta source](https://github.com/PlayerEden/SudokuTogether/tree/feat/gridmates-v1-beta) · [Beta packages and publishing](docs/GRIDMATES_V1_BETA_RELEASE.md)
+**Current starting point:** The **v1 Beta 1 Sudoku application source is now on `main`** after [PR #42's merge](https://github.com/PlayerEden/SudokuTogether/pull/42) on November 16, 2026. The individual v0.11E–M draft PRs were superseded, with their milestone commits preserved. New Sudoku bug fixes should branch from **`main`**, not the older stacked branches. The signed itch.io production APK was built from **source `76cbfc1`**, not from the documentation-only follow-up commits, so a fresh binary/CI check is a separate task. The owner confirms installing/launching the public itch APK and QA build on a real phone, while checksum and larger device/multiplayer verification remain open in [issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43).
+
+[Beta packages and publishing](docs/GRIDMATES_V1_BETA_RELEASE.md) · [Project health/history audit](docs/SUDOKU_REPO_HEALTH_AND_BETA_STEWARDSHIP_2026-11-16.md)
 
 - [Current handoff](docs/PROJECT_HANDOFF.md) and [delivery plan](docs/GRIDMATES_DELIVERY_PLAN.md)
 - [v0.11L Garden collection, fonts and update QA](docs/V0.11L_GARDEN_COSMETICS_QA.md)
