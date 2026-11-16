@@ -34,6 +34,9 @@ fun inkFor(id: String, darkBoard: Boolean): Color = when (id) {
     "amber" -> if (darkBoard) Color(0xFFFFD386) else Color(0xFF986018)
     "rose" -> if (darkBoard) Color(0xFFFFA8B9) else Color(0xFFB34B68)
     "violet" -> if (darkBoard) Color(0xFFD4B3FF) else Color(0xFF7644A5)
+    "lagoon" -> if (darkBoard) Color(0xFF8DE3DB) else Color(0xFF156567)
+    "clay" -> if (darkBoard) Color(0xFFFFC1AD) else Color(0xFF9D362D)
+    "slate" -> if (darkBoard) Color(0xFFBBCDE8) else Color(0xFF4B5D76)
     else -> if (darkBoard) Color(0xFF8DE8BB) else Forest
 }
 
@@ -62,7 +65,7 @@ fun styleLabel(a: Appearance): String = listOf(
 ).joinToString(" · ")
 
 private enum class CollectionCategory(val label: String) { ICONS("Player icons"), BOARDS("Boards"), NUMBERS("Numbers") }
-private enum class IconFamily(val label: String) { ALL("All"), BASIC("Basic"), WOODLAND("Woodland"), OCEAN("Ocean") }
+private enum class IconFamily(val label: String) { ALL("All"), BASIC("Basic"), WOODLAND("Woodland"), OCEAN("Ocean"), GARDEN("Garden") }
 private enum class NumberCategory(val label: String) { COLORS("Number colors"), FONTS("Number fonts") }
 
 private enum class CosmeticGroup(val key: String, val label: String, val useLabel: String) {
@@ -90,7 +93,8 @@ private data class CollectionItem(val cosmetic: Cosmetic, val group: CosmeticGro
 
 private val iconItems = Cosmetics.emblems.map { CollectionItem(it, CosmeticGroup.EMBLEM, IconFamily.BASIC) } +
     Cosmetics.woodlandPortraits.map { CollectionItem(it, CosmeticGroup.PORTRAIT, IconFamily.WOODLAND) } +
-    Cosmetics.oceanPortraits.map { CollectionItem(it, CosmeticGroup.PORTRAIT, IconFamily.OCEAN) }
+    Cosmetics.oceanPortraits.map { CollectionItem(it, CosmeticGroup.PORTRAIT, IconFamily.OCEAN) } +
+    Cosmetics.gardenPortraits.map { CollectionItem(it, CosmeticGroup.PORTRAIT, IconFamily.GARDEN) }
 private val boardItems = Cosmetics.boards.map { CollectionItem(it, CosmeticGroup.BOARD) }
 private val inkItems = Cosmetics.inks.map { CollectionItem(it, CosmeticGroup.INK) }
 private val fontItems = Cosmetics.fonts.map { CollectionItem(it, CosmeticGroup.FONT) }
@@ -170,6 +174,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable private fun <T> CollectionChoices(values: List<T>, choice: T, label: (T) -> String, role: Role, select: (T) -> Unit) {
+    val horizontalPadding = if (role == Role.RadioButton) 8.dp else 11.dp
     FlowRow(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(6.dp),
         verticalArrangement = Arrangement.spacedBy(4.dp)) {
         values.forEach { value ->
@@ -177,7 +182,8 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
             val shape = RoundedCornerShape(13.dp)
             Box(Modifier.clip(shape).background(if (selected) Forest else Paper).border(1.dp, if (selected) Forest else Rule, shape)
                 .selectable(selected, role = role, onClick = { select(value) })
-                .heightIn(min = 48.dp).padding(horizontal = 11.dp, vertical = 7.dp), contentAlignment = Alignment.Center) {
+                .sizeIn(minWidth = 48.dp, minHeight = 48.dp).padding(horizontal = horizontalPadding, vertical = 7.dp),
+                contentAlignment = Alignment.Center) {
                 Text(label(value), style = MaterialTheme.typography.labelLarge, color = if (selected) OnForest else Forest)
             }
         }
@@ -289,7 +295,8 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                 MilestoneTrack(progress.current, progress.target)
             }
             if (item.family == null) {
-                StylePreview(sample, state.uniformNumbers && item.group == CosmeticGroup.BOARD)
+                StylePreview(sample, state.uniformNumbers && item.group == CosmeticGroup.BOARD,
+                    allEntries = item.group == CosmeticGroup.FONT)
                 if (state.uniformNumbers && item.group != CosmeticGroup.BOARD) {
                     Text("Turn off Classic number display in Settings to see this style in a puzzle.",
                         style = MaterialTheme.typography.bodySmall, color = Muted)
@@ -312,11 +319,11 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
 }
 
 /** A labeled visual sample, never a generated or scored game board. */
-@Composable internal fun StylePreview(look: Appearance, uniformNumbers: Boolean) {
+@Composable internal fun StylePreview(look: Appearance, uniformNumbers: Boolean, allEntries: Boolean = false) {
     val numberLook = look.withNumberDisplay(uniformNumbers)
     Column(verticalArrangement = Arrangement.spacedBy(9.dp)) {
         Text("STYLE PREVIEW", color = Muted, fontSize = 10.sp, letterSpacing = 1.sp)
-        StyleSampleBoard(look, numberLook, Modifier.fillMaxWidth().height(144.dp))
+        StyleSampleBoard(look, numberLook, Modifier.fillMaxWidth().height(144.dp), allEntries = allEntries)
         Text(styleLabel(numberLook), color = Muted, fontSize = 12.sp, lineHeight = 18.sp)
         if (uniformNumbers) {
             Text("Classic number display is on. Turn it off in Settings to use your equipped font and ink.",
@@ -325,7 +332,9 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     }
 }
 
-@Composable private fun StyleSampleBoard(look: Appearance, numberLook: Appearance, modifier: Modifier, compact: Boolean = false) {
+@Composable private fun StyleSampleBoard(
+    look: Appearance, numberLook: Appearance, modifier: Modifier, compact: Boolean = false, allEntries: Boolean = false
+) {
     val entryFont = fontFor(numberLook.font)
     val clueFont = fontFor(Appearance().font)
     val dark = look.board in listOf("midnight", "circuit")
@@ -343,8 +352,9 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         for (r in 0..2) Row(Modifier.weight(1f).fillMaxWidth()) {
             for (c in 0..2) Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
                 if (!compact || r == c) {
-                    val entered = (r + c) % 2 == 0
-                    Text((r * 3 + c + 1).toString(), fontFamily = if (entered) entryFont else clueFont,
+                    val entered = allEntries || (r + c) % 2 == 0
+                    Text((r * 3 + c + 1).toString(), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
+                        maxLines = 1, softWrap = false, fontFamily = if (entered) entryFont else clueFont,
                         fontSize = digitSize, lineHeight = digitSize, fontWeight = if (entered) FontWeight.Normal else FontWeight.Bold,
                         color = if (entered) inkFor(numberLook.ink, dark) else if (dark) OnForest else Ink)
                 }

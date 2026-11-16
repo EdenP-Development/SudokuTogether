@@ -35,12 +35,16 @@ class TransportTest {
     }
     @Test fun hostAndGuestShareRealEditsAndDuplicateRequestsDoNotRepeat() {
         val hostEvents = LinkedBlockingQueue<HostEvent>(); val events = LinkedBlockingQueue<ClientEvent>()
-        HostServer(GameSession.create(fixture()), hostEvents::offer).use { server ->
+        val hostLook = Appearance(ink = "clay", font = "rounded", portrait = "garden_ladybug")
+        val guestLook = Appearance(ink = "lagoon", font = "pencil", portrait = "garden_honeybee")
+        HostServer(GameSession.create(fixture(), hostAppearance = hostLook), hostEvents::offer).use { server ->
             val port = server.start()
             GuestClient(listener = events::offer).use { guest ->
-                guest.connect("127.0.0.1", port, server.code, "Partner")
+                guest.connect("127.0.0.1", port, server.code, "Partner", appearance = guestLook)
                 val joined = await(events) { it.token != null }.snapshot!!
                 assertEquals("Partner", joined.guestName)
+                assertEquals(hostLook, joined.hostAppearance)
+                assertEquals(guestLook, joined.guestAppearance)
                 assertTrue(server.submitLocal(joined.move(0)).accepted)
                 val afterHost = await(events) { it.snapshot?.cells?.get(0)?.value == 1 }.snapshot!!
                 val operation = afterHost.move(1, number = 2)

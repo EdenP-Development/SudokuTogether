@@ -10,7 +10,6 @@ import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.text.TextLayoutResult
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.playereden.sudokutogether.core.*
@@ -31,12 +30,14 @@ class MultiplayerPolishUiTest {
 
     @Test fun bothCoopPlayersSeeTheSharedBoardAndKeepAuthoredNumbers() {
         val base = polishState()
-        val host = Appearance(board = "linen", ink = "rose", font = "serif")
-        val guest = Appearance(board = "midnight", ink = "cobalt", font = "mono")
+        val host = Appearance(board = "linen", ink = "clay", font = "rounded")
+        val guest = Appearance(board = "midnight", ink = "lagoon", font = "pencil")
         val initial = requireNotNull(base.snapshot)
         val cells = initial.cells.toMutableList().apply {
             this[2] = Cell(4, owner = HOST)
             this[3] = Cell(6, owner = GUEST)
+            this[6] = Cell(notes = 511, owner = HOST)
+            this[7] = Cell(notes = 511, owner = GUEST)
         }
         val shared = initial.copy(cells = cells, hostAppearance = host, guestAppearance = guest)
         val state = mutableStateOf(base.copy(snapshot = shared, appearance = host))
@@ -46,11 +47,16 @@ class MultiplayerPolishUiTest {
             val pixels = compose.onNodeWithTag("cell_5").captureToImage().toPixelMap()
             assertEquals(boardFillFor(theme), pixels[pixels.width / 2, pixels.height / 2])
         }
-        fun digitStyle(cell: Int, number: String): TextStyle {
+        fun digitLayout(cell: Int, number: String): TextLayoutResult {
             val layout = mutableListOf<TextLayoutResult>()
             compose.onNode(hasText(number) and hasAnyAncestor(hasTestTag("cell_$cell")), useUnmergedTree = true)
                 .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layout) }
-            return layout.single().layoutInput.style
+            return layout.single()
+        }
+        fun checkFont(cell: Int, digit: String, font: String) {
+            val layout = digitLayout(cell, digit)
+            assertEquals(fontFor(font), layout.layoutInput.style.fontFamily)
+            assertFalse("Cell $cell should fit $digit in $font", layout.hasVisualOverflow)
         }
         fun checkInk(cell: Int, ink: String) {
             val pixels = compose.onNodeWithTag("cell_$cell").captureToImage().toPixelMap()
@@ -66,18 +72,24 @@ class MultiplayerPolishUiTest {
 
         compose.onNodeWithText("Shared board · Midnight").assertIsDisplayed()
         checkBoard("midnight")
-        assertEquals(fontFor("serif"), digitStyle(2, "4").fontFamily)
-        assertEquals(fontFor("mono"), digitStyle(3, "6").fontFamily)
-        checkInk(2, "rose")
-        checkInk(3, "cobalt")
+        checkFont(2, "4", "rounded")
+        checkFont(3, "6", "pencil")
+        checkInk(2, "clay")
+        checkInk(3, "lagoon")
+        for (digit in '1'..'9') {
+            checkFont(6, digit.toString(), "rounded")
+            checkFont(7, digit.toString(), "pencil")
+        }
         compose.runOnIdle { state.value = state.value.copy(role = GUEST, appearance = guest, connected = false) }
         checkBoard("midnight")
-        assertEquals(fontFor("serif"), digitStyle(2, "4").fontFamily)
-        assertEquals(fontFor("mono"), digitStyle(3, "6").fontFamily)
+        checkFont(2, "4", "rounded")
+        checkFont(3, "6", "pencil")
 
         compose.runOnIdle { state.value = state.value.copy(uniformNumbers = true) }
-        assertEquals(fontFor("clear"), digitStyle(2, "4").fontFamily)
-        assertEquals(fontFor("clear"), digitStyle(3, "6").fontFamily)
+        checkFont(2, "4", "clear")
+        checkFont(3, "6", "clear")
+        checkFont(6, "4", "clear")
+        checkFont(7, "6", "clear")
         checkInk(2, "forest")
         checkInk(3, "forest")
         compose.runOnIdle { state.value = base.copy(snapshot = shared.copy(mode = VERSUS), appearance = host) }

@@ -13,6 +13,7 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.text.font.FontWeight
 import com.playereden.sudokutogether.core.Appearance
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 
@@ -38,6 +39,29 @@ class NumberFontPreviewTest {
         compose.onNodeWithText("Rose · Linen · Bookish").performScrollTo().assertIsDisplayed()
         assertEquals(fontFor("serif"), previewDigit("1").layoutInput.style.fontFamily)
         assertEquals(fontFor("clear"), previewDigit("2").layoutInput.style.fontFamily)
+    }
+
+    @Test fun newFontsPreviewAllNineDigitsInTheSelectedTypeface() {
+        compose.setContent {
+            SudokuTogetherTheme { SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {}) }
+        }
+        compose.onNodeWithTag("nav_collection").performClick()
+        compose.onNodeWithText("Numbers").performClick()
+        compose.onNodeWithText("Number fonts").performClick()
+        for (font in listOf("rounded", "pencil")) {
+            compose.onNodeWithTag("cosmetic_font_$font").performScrollTo().performClick()
+            for (digit in '1'..'9') {
+                val layout = previewDigit(digit.toString())
+                assertEquals(fontFor(font), layout.layoutInput.style.fontFamily)
+                assertFalse(
+                    "$font digit $digit clips at ${layout.size}, bounds ${layout.getBoundingBox(0)}, " +
+                        "width overflow ${layout.didOverflowWidth}, height overflow ${layout.didOverflowHeight}, " +
+                        "constraints ${layout.layoutInput.constraints}",
+                    layout.hasVisualOverflow
+                )
+            }
+            compose.onNodeWithText("Close").performClick()
+        }
     }
 
     private fun previewDigit(digit: String): TextLayoutResult {

@@ -12,9 +12,11 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.playereden.sudokutogether.core.Appearance
+import com.playereden.sudokutogether.core.COOP
 import com.playereden.sudokutogether.core.GameRecord
 import com.playereden.sudokutogether.core.LocalPlayerData
 import com.playereden.sudokutogether.core.VERSUS
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
@@ -53,10 +55,10 @@ class CollectionPolishUiTest {
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
 
         compose.onNodeWithTag("nav_collection").performClick()
-        compose.onNodeWithText("6 of 24 available").assertIsDisplayed()
+        compose.onNodeWithText("7 of 28 available").assertIsDisplayed()
         val equipped = compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
         val starter = compose.onNodeWithTag("cosmetic_emblem_tile")
-        val lastAvailable = compose.onNodeWithTag("portrait_ocean_octopus")
+        val lastAvailable = compose.onNodeWithTag("portrait_garden_honeybee")
         val firstLocked = compose.onNodeWithTag("cosmetic_emblem_leaf")
         val equippedBounds = equipped.getUnclippedBoundsInRoot()
         val starterBounds = starter.getUnclippedBoundsInRoot()
@@ -69,7 +71,7 @@ class CollectionPolishUiTest {
             lastAvailable.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
 
         compose.runOnIdle { state.value = state.value.copy(profile = data.copy(records = emptyList())) }
-        compose.onNodeWithText("5 of 24 available").assertIsDisplayed()
+        compose.onNodeWithText("6 of 28 available").assertIsDisplayed()
         equipped.assertIsSelected().assertIsDisplayed()
         assertTrue(equipped.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
     }
@@ -85,5 +87,31 @@ class CollectionPolishUiTest {
         compose.onNodeWithText("Number fonts").performClick().assertIsSelected()
         compose.onNodeWithTag("cosmetic_font_clear").assertIsSelected()
         compose.onNodeWithTag("cosmetic_ink_forest").assertDoesNotExist()
+    }
+
+    @Test fun gardenFilterShowsExistingProgressAndEquipsTheHoneybee() {
+        val records = List(3) { GameRecord("coop-$it", COOP, "SOLVED", "p", 1000, 1, 1000) }
+        val data = LocalPlayerData(records = records)
+        val state = mutableStateOf(GameUiState(page = Page.PROFILE, profile = data))
+        val actions = polishActions(cosmetic = { group, id ->
+            assertEquals("portrait", group)
+            state.value = state.value.copy(appearance = state.value.appearance.copy(portrait = id))
+        })
+        compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, actions, {}) } }
+
+        compose.onNodeWithTag("nav_collection").performClick()
+        compose.onNodeWithText("Garden").performScrollTo().performClick()
+        compose.onNodeWithText("1 of 4 available").assertIsDisplayed()
+        compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
+        compose.onNodeWithTag("portrait_garden_ladybug").performScrollTo().performClick()
+        compose.onNodeWithText("Complete 4 puzzles").assertIsDisplayed()
+        compose.onNodeWithText("3 of 4 completed").assertIsDisplayed()
+        compose.onNodeWithText("Use icon").assertDoesNotExist()
+        compose.onNodeWithText("Close").performClick()
+
+        compose.onNodeWithTag("portrait_garden_honeybee").performScrollTo().performClick()
+        compose.onNodeWithText("Use icon").performClick()
+        compose.onNodeWithTag("portrait_garden_honeybee").assertIsSelected().assertIsDisplayed()
+        compose.onNodeWithText("Honeybee · Garden").assertIsDisplayed()
     }
 }

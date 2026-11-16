@@ -73,7 +73,7 @@ class NearbyAdmissionTest {
         HostServer(game).use { host ->
             Socket("127.0.0.1", host.start()).use { socket ->
                 socket.soTimeout = 3000
-                Protocol.write(socket.getOutputStream(), Message("hello", version = 6, name = "Taylor"))
+                Protocol.write(socket.getOutputStream(), Message("hello", version = 7, name = "Taylor"))
                 val reply = Protocol.read(socket.getInputStream())
                 assertEquals("error", reply.type)
                 assertTrue(reply.text.contains("same app version"))
@@ -90,10 +90,10 @@ class NearbyAdmissionTest {
         HostServer(game).use { host ->
             Socket("127.0.0.1", host.start()).use { socket ->
                 socket.soTimeout = 3000
-                Protocol.write(socket.getOutputStream(), Message("hello", version = 7, name = "Taylor", appearance = guestLook))
+                Protocol.write(socket.getOutputStream(), Message("hello", name = "Taylor", appearance = guestLook))
                 val reply = Protocol.read(socket.getInputStream())
                 assertEquals("welcome", reply.type)
-                assertEquals(7, reply.version)
+                assertEquals(WIRE_PROTOCOL_VERSION, reply.version)
                 assertEquals(hostLook, reply.snapshot?.hostAppearance)
                 assertEquals(guestLook, reply.snapshot?.guestAppearance)
             }

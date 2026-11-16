@@ -533,7 +533,8 @@ private fun roomStatusText(state: GameUiState): String {
                     }
                 Box(Modifier.weight(1f).fillMaxHeight().background(background).then(outline).then(click).then(semantics),
                     contentAlignment = Alignment.Center) {
-                    if (cell.value != 0) Text(cell.value.toString(), style = digitStyle.copy(fontFamily = authoredFont),
+                    if (cell.value != 0) Text(cell.value.toString(), modifier = Modifier.fillMaxWidth(),
+                        style = digitStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
                         maxLines = 1, softWrap = false, fontWeight = if (given) FontWeight.Bold else FontWeight.Normal,
                         color = if (i in conflicts) (if (darkBoard) Color(0xFFFFB7A6) else Brick) else if (given) neutralInk else authoredInk)
                     else if (cell.notes != 0) Column(Modifier.fillMaxSize().padding(1.dp)) {
@@ -548,7 +549,8 @@ private fun roomStatusText(state: GameUiState): String {
                                             darkBoard -> authoredInk
                                             else -> Muted
                                         }
-                                        Text(n.toString(), color = color, style = noteStyle.copy(fontFamily = authoredFont),
+                                        Text(n.toString(), modifier = Modifier.fillMaxWidth(), color = color,
+                                            style = noteStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
                                             textDecoration = if (removed) TextDecoration.LineThrough else null,
                                             maxLines = 1, softWrap = false)
                                     }

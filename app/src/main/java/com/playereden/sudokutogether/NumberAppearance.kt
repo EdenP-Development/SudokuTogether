@@ -11,11 +11,15 @@ private val clearNumbers = FontFamily(
 )
 private val bookishNumbers = FontFamily(Font(R.font.noto_serif_regular))
 private val terminalNumbers = FontFamily(Font(R.font.liberation_mono_regular))
+private val roundedNumbers = FontFamily(Font(R.font.nunito_bold))
+private val pencilNumbers = FontFamily(Font(R.font.patrick_hand_regular))
 private val defaultAppearance = Appearance()
 
 internal fun fontFor(id: String): FontFamily = when (id) {
     "serif" -> bookishNumbers
     "mono" -> terminalNumbers
+    "rounded" -> roundedNumbers
+    "pencil" -> pencilNumbers
     else -> clearNumbers
 }
 

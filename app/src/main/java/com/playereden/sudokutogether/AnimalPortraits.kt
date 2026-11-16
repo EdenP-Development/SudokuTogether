@@ -34,10 +34,15 @@ private fun animalDrawable(id: String): Int? = when (id) {
     "ocean_manta_ray" -> R.drawable.ocean_manta_ray
     "ocean_jellyfish" -> R.drawable.ocean_jellyfish
     "ocean_narwhal" -> R.drawable.ocean_narwhal
+    "garden_honeybee" -> R.drawable.garden_honeybee
+    "garden_ladybug" -> R.drawable.garden_ladybug
+    "garden_butterfly" -> R.drawable.garden_butterfly
+    "garden_dragonfly" -> R.drawable.garden_dragonfly
     else -> null
 }
 
 internal fun identityStyleName(appearance: Appearance): String {
+    Cosmetics.gardenPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Garden" }
     Cosmetics.oceanPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Ocean" }
     Cosmetics.woodlandPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Woodland" }
     return "${emblemName(appearance.emblem)} · Basic"
