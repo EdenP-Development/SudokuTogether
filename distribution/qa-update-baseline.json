@@ -3,10 +3,10 @@
   "channel": "qa",
   "application_id": "com.playereden.sudokutogether.qa",
   "signer_sha256": "949731a60cb187405282efc8233d6e68ab5b46e9bf6765f70aa2b60dcc543b2c",
-  "version_code": 28,
+  "version_code": 29,
   "minimum_sdk": 26,
-  "apk_sha256": "1d507678ee481fcaa117a69a18e4dfea2de4b070589871ff6668c47f566eb80c",
-  "product_source_commit": "d5d334565a955e88bca89aa317f0905a45f3cfa8",
-  "evidence": "docs/V0.11L_GARDEN_COSMETICS_QA.md",
-  "purpose": "Verified v0.11L owner QA candidate, rehearsed as an in-place update from v0.11K."
+  "apk_sha256": "6989bfd8a9e8dfd2fc4a8804b136b952bbc1db93366477e26843b5982ba41512",
+  "product_source_commit": "329d0ca10cfefb7ceff84f0142dfb52e6e40775f",
+  "evidence": "docs/V0.11M_COLLECTION_SWIPE_QA.md",
+  "purpose": "Verified v0.11M owner QA candidate, rehearsed as an in-place update from v0.11L."
 }

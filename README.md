@@ -4,7 +4,9 @@ The full Android source, tests and design history live on `main`. [Start here](C
 
 **v0.11D QA** adds both players' identities and progress to the Versus screen, reconnect feedback, and consistent bundled number styles. The signed update uses the installed Sudoku QA app's identity. [Repository audit and upgrade evidence](docs/V0.11D_INTEGRATION_AND_QA.md)
 
-**v0.11L test candidate** adds four Garden portraits, three number colors, and the Rounded and Pencil fonts. Existing completed games count toward the new unlocks. [Garden collection and update QA](docs/V0.11L_GARDEN_COSMETICS_QA.md)
+**v0.11M test candidate** adds a swipeable row for player icon sets in Collection. [Collection swipe and signed update QA](docs/V0.11M_COLLECTION_SWIPE_QA.md)
+
+**v0.11L** adds four Garden portraits, three number colors, and the Rounded and Pencil fonts. Existing completed games count toward the new unlocks. [Garden collection and update QA](docs/V0.11L_GARDEN_COSMETICS_QA.md)
 
 **v0.11K** brings a compact Profile card, available items above locked ones in Collection, board thumbnails, and a choice of number colors or fonts. [Profile and Collection QA](docs/V0.11K_PROFILE_COLLECTION_QA.md)
 
