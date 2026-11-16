@@ -1,10 +1,14 @@
 # GridMates: Sudoku — Project handoff
 
-Start from `main`, the canonical Android source and documentation. The [delivery plan](GRIDMATES_DELIVERY_PLAN.md) tracks the next product work. The [v0.11D integration audit](V0.11D_INTEGRATION_AND_QA.md) records exact source, APK and verification details.
+**Current canonical source (November 16, 2026):** `main` now includes the complete **GridMates: Sudoku v1 Beta 1** Android source. [PR #42](https://github.com/PlayerEden/SudokuTogether/pull/42) merged as [`9256a5f`](https://github.com/PlayerEden/SudokuTogether/commit/9256a5f239e232b9211aa5589a9e4383e96fea80). The staged v0.11E–M PRs are incorporated and closed/superseded; their branches and evidence remain available for rollback. **Start new Sudoku maintenance work from `main`, not those older feature branches.** The exact shipped Beta APK was built from source [`76cbfc1`](https://github.com/PlayerEden/SudokuTogether/commit/76cbfc149569938b97286f3efe4ad44e08c5934f), and no rebuild or extra Android tests have been run as part of the documentation/merge cleanup.
 
-The owner is preparing the offline game for a public beta before moving development focus to GridMates: Word Search. The signed Android APK gives the beta a direct download path. Play and online services can follow the offline release. [Release and expansion gates](GRIDMATES_DELIVERY_PLAN.md#online-expansion-after-the-offline-launch)
+**Distribution/verification:** the owner reports downloading the public APK from [itch.io](https://sir-spudacus.itch.io/gridmates-sudoku), installing and launching it on a real phone, and also installing the QA build. Exact download hash, production signer, broader device coverage, and current-build physical Versus/reconnect remain tracked in [issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). The recorded [Beta 1 QA/release receipt](GRIDMATES_V1_BETA_RELEASE.md) and [delivery plan](GRIDMATES_DELIVERY_PLAN.md) contain known limitations. Do not overstate these as complete QA acceptance.
 
-## Current candidate — v1 Beta 1
+The Work chat is currently developing **GridMates: Word Search** separately; this chat owns **Sudoku** audit, incremental improvements, source organization and future expansion planning. Online multiplayer remains a later optional step once the offline game is mature and demand/revenue justify it. [Offline-first release gates](GRIDMATES_DELIVERY_PLAN.md#online-expansion-after-the-offline-launch)
+
+**Historical sections below retain their original milestone labels and are not current branch/release instructions.** Older QA details—including [v0.11D](V0.11D_INTEGRATION_AND_QA.md)—remain useful for troubleshooting but should not override Beta 1.
+
+## Current integrated baseline — v1 Beta 1
 
 Consistent puzzle progress, shorter help, and Co-op completion totals finish the beta polish. The production APK is for public download, and the QA APK updates the owner's installed test build. [Beta packages, publishing, and verification](GRIDMATES_V1_BETA_RELEASE.md)
 
