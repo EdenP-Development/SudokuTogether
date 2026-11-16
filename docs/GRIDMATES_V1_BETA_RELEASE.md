@@ -20,6 +20,10 @@ The public app supports Android 8.0 and later and targets Android 16. The QA and
 
 ## Publishing
 
+**itch.io publishing preparation:** [Copy-ready Beta 1 page, screenshots, AI disclosure and public APK device checklist](GRIDMATES_ITCH_IO_BETA_PUBLISHING_KIT.md). Keep the project Draft until the **public** APK launches successfully on a real phone and the itch download itself is checked; the Android emulator production-launch timeout remains unresolved in the report.
+
+
+
 For itch.io, upload the public APK as a downloadable file and mark it for Android. Set the page visibility when the listing is ready. [Your first itch.io page](https://itch.io/docs/creators/getting-started) · [Android uploads](https://itch.io/updates/android-is-now-an-available-platform)
 
 Google Play takes the App Bundle for a new app. Personal accounts created after November 13, 2023 need at least 12 testers opted into a closed test for 14 continuous days before applying for production access. To support install-over updates from itch.io to Play, supply the same production app-signing key when setting up Play App Signing. [Play release setup](https://support.google.com/googleplay/android-developer/answer/9859348) · [Personal-account testing](https://support.google.com/googleplay/android-developer/answer/14151465) · [App signing across stores](https://developer.android.com/studio/publish/app-signing)
