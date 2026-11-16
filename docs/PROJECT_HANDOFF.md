@@ -2,9 +2,13 @@
 
 Start from `main`, the canonical Android source and documentation. The [delivery plan](GRIDMATES_DELIVERY_PLAN.md) tracks the next product work. The [v0.11D integration audit](V0.11D_INTEGRATION_AND_QA.md) records exact source, APK and verification details.
 
-The November 8 owner decision puts the offline launch first. Complete local play, device QA and Play testing before evaluating a budget for online services. Future service work starts with separately approved, invite-only friend challenges when adoption and earnings can support it. [Release and expansion gates](GRIDMATES_DELIVERY_PLAN.md#online-expansion-after-the-offline-launch)
+The owner is preparing the offline game for a public beta before moving development focus to GridMates: Word Search. The signed Android APK gives the beta a direct download path. Play and online services can follow the offline release. [Release and expansion gates](GRIDMATES_DELIVERY_PLAN.md#online-expansion-after-the-offline-launch)
 
-## Current candidate — v0.11M
+## Current candidate — v1 Beta 1
+
+Consistent puzzle progress, shorter help, and Co-op completion totals finish the beta polish. The production APK is for public download, and the QA APK updates the owner's installed test build. [Beta packages, publishing, and verification](GRIDMATES_V1_BETA_RELEASE.md)
+
+## v0.11M Collection swipe candidate
 
 The player icon sets in Collection sit on one swipeable row. Tap a set to filter the gallery. The signed update preserved local progress in the v0.11L to v0.11M rehearsal. [Collection swipe and signed update QA](V0.11M_COLLECTION_SWIPE_QA.md)
 

@@ -2,9 +2,11 @@
 
 The full Android source, tests and design history live on `main`. [Start here](CONTINUE_HERE.md) · [Project handoff](docs/PROJECT_HANDOFF.md) · [Delivery plan](docs/GRIDMATES_DELIVERY_PLAN.md)
 
+**v1 Beta 1** brings a consistent board progress count, shorter help with direct access to Coach practice, and Co-op solves on Profile. [Beta packages and publishing](docs/GRIDMATES_V1_BETA_RELEASE.md)
+
 **v0.11D QA** adds both players' identities and progress to the Versus screen, reconnect feedback, and consistent bundled number styles. The signed update uses the installed Sudoku QA app's identity. [Repository audit and upgrade evidence](docs/V0.11D_INTEGRATION_AND_QA.md)
 
-**v0.11M test candidate** adds a swipeable row for player icon sets in Collection. [Collection swipe and signed update QA](docs/V0.11M_COLLECTION_SWIPE_QA.md)
+**v0.11M** adds a swipeable row for player icon sets in Collection. [Collection swipe and signed update QA](docs/V0.11M_COLLECTION_SWIPE_QA.md)
 
 **v0.11L** adds four Garden portraits, three number colors, and the Rounded and Pencil fonts. Existing completed games count toward the new unlocks. [Garden collection and update QA](docs/V0.11L_GARDEN_COSMETICS_QA.md)
 

@@ -1,10 +1,10 @@
 # GridMates delivery plan
 
-**Current candidate · v0.11M.** Swipe the player icon set row and tap a set to filter the gallery. [v0.11M Collection swipe QA](V0.11M_COLLECTION_SWIPE_QA.md) · [v0.11L Garden cosmetics QA](V0.11L_GARDEN_COSMETICS_QA.md)
+**Current candidate · v1 Beta 1.** The signed Android APK is the direct download for a public beta, and the App Bundle is available for future Play submission. [Beta packages and publishing](GRIDMATES_V1_BETA_RELEASE.md) · [v0.11M Collection swipe QA](V0.11M_COLLECTION_SWIPE_QA.md)
 
 [Draft PR #33](https://github.com/PlayerEden/SudokuTogether/pull/33) contains v0.11E's Profile, Collection, portable progress transfer and API 36 release preparation. The merged v0.11D QA checkpoint introduced Versus presence and bundled number styles. [v0.11D audit](V0.11D_INTEGRATION_AND_QA.md)
 
-The owner reported a successful basic two-phone test on v0.11B and confirmed on November 15 that they play Co-op regularly with their partner. Earlier feedback guided open Nearby joining, optional room codes, clearer chat, and Woodland portraits. Check style display when both phones update to v0.11L, and record a physical Versus finish and rematch. [Earlier playtest findings](V0.11B_OWNER_PLAYTEST_2026-11-04.md) · [Current playtest](V0.11L_GARDEN_COSMETICS_QA.md#phone-playtest)
+The owner reported a successful basic two-phone test on v0.11B and confirmed on November 15 that they play Co-op regularly with their partner. Earlier feedback guided open Nearby joining, optional room codes, clearer chat, and Woodland portraits. New two-phone testing is deferred for this beta. [Earlier playtest findings](V0.11B_OWNER_PLAYTEST_2026-11-04.md) · [Owner Co-op playtest](V0.11L_GARDEN_COSMETICS_QA.md#phone-playtest)
 
 The [native rollout plan](superpowers/plans/2026-11-07-gridmates-native-rollout.md) tracks the delivered font, Versus and Profile and Collection stages.
 
@@ -12,15 +12,15 @@ The [native rollout plan](superpowers/plans/2026-11-07-gridmates-native-rollout.
 
 | Gate | Status |
 | --- | --- |
-| Player profile and collection | v0.11M adds swipeable icon sets. v0.11L introduced Garden icons, three inks, and two fonts. Honeybee and Lagoon are available immediately. [Garden milestones](V0.11L_GARDEN_COSMETICS_QA.md#unlock-goals) |
-| Owner updates and transfer | The signed v0.11L to v0.11M install-over preserved saved progress and cosmetics. The v0.11E split release build restored an exported QA file and reopened the same saved entry and pencil note. [Progress transfer guide](GRIDMATES_UPDATE_AND_SAVE_PREPARATION.md) |
+| Player profile and collection | v1 Beta 1 adds Co-op completions to Profile. The swipeable Collection includes the Garden icons and locally bundled board and number styles. [Garden milestones](V0.11L_GARDEN_COSMETICS_QA.md#unlock-goals) |
+| Owner updates and transfer | The signed v0.11M to v1 Beta 1 QA install-over preserved saved progress and cosmetics. The v0.11E split release build restored an exported QA file and reopened the same saved entry and pencil note. [Progress transfer guide](GRIDMATES_UPDATE_AND_SAVE_PREPARATION.md) |
 | Android build and signing | The build targets API 36 and supports devices from API 26. The original production certificate was verified and the App Bundle passed local validation. |
-| Device acceptance | The owner confirms regular physical Co-op play. Check v0.11L styles on the same pair, confirm Versus finish and rematch on two phones, and check modern Android orientation, TalkBack, and Daily rollover. [LAN gate](https://github.com/PlayerEden/SudokuTogether/issues/12) |
-| Play Console | Confirm signing enrollment, listing and declarations, and run the required testing track. [Launch guide](GOOGLE_PLAY_FROM_SCRATCH_LAUNCH_GUIDE.md) |
+| Device coverage | The owner confirms regular physical Co-op play. The beta includes scripted Co-op and Versus checks. Physical Versus finish and rematch, modern Android orientation, TalkBack, and Daily rollover remain deferred. [Physical LAN checklist](https://github.com/PlayerEden/SudokuTogether/issues/12) |
+| Direct beta and Play | Upload the signed production APK for itch.io. The later Play path uses the App Bundle and the account's applicable testing and listing requirements. [Beta packages and publishing](GRIDMATES_V1_BETA_RELEASE.md) |
 
 ## Product direction
 
-Keep classic Sudoku, quick offline play, thoughtful nearby multiplayer and a profile worth keeping. Use short visible labels and disclose detail when requested. “Good puzzles. Good company.” is the favored tagline candidate, suitable for share cards/store exploration; final artwork remains open. Use the native palette and numbered Sudoku mark. Crossword follows Sudoku completion.
+Keep classic Sudoku, quick offline play, thoughtful nearby multiplayer and a profile worth keeping. Use short visible labels and disclose detail when requested. “Good puzzles. Good company.” is the favored tagline candidate for share cards and store listings. Use the native palette and numbered Sudoku mark. GridMates: Word Search is the development focus after this beta.
 
 ## November 5–7 playtest follow-up
 
@@ -69,7 +69,7 @@ Word Search bundles Literata for headings and Atkinson Hyperlegible for controls
 
 ## Online expansion after the offline launch
 
-The November 8 owner decision puts the complete offline game and a clean Google Play release first. Solo, Daily, nearby Co-op and Versus work without an account. The game will be free to install. Rare between-puzzle ads and a one-time Remove Ads purchase are the approved monetization directions, subject to testing and store requirements.
+Start with the offline direct-download beta. Google Play is a separate release path. Solo, Daily, nearby Co-op and Versus work without an account. The game will be free to install. Rare between-puzzle ads and a one-time Remove Ads purchase are the approved monetization directions, subject to testing and store requirements.
 
 A later online phase requires its own approval. Evaluate player demand, retention, net earnings and ongoing service costs after launch. Set a budget ceiling before prototyping. If the phase is sustainable, start with invite-only asynchronous friend challenges, then consider remote Versus and Co-op. Public matchmaking depends on an active player base. Offline play remains available during service outages. [Online feasibility and funding gates](https://github.com/PlayerEden/SudokuTogether/blob/development/docs/GRIDMATES_ONLINE_FRIEND_CHALLENGES_AND_MATCHMAKING_FEASIBILITY.md)
 

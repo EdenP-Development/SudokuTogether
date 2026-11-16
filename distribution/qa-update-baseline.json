@@ -3,10 +3,10 @@
   "channel": "qa",
   "application_id": "com.playereden.sudokutogether.qa",
   "signer_sha256": "949731a60cb187405282efc8233d6e68ab5b46e9bf6765f70aa2b60dcc543b2c",
-  "version_code": 29,
+  "version_code": 30,
   "minimum_sdk": 26,
-  "apk_sha256": "6989bfd8a9e8dfd2fc4a8804b136b952bbc1db93366477e26843b5982ba41512",
-  "product_source_commit": "329d0ca10cfefb7ceff84f0142dfb52e6e40775f",
-  "evidence": "docs/V0.11M_COLLECTION_SWIPE_QA.md",
-  "purpose": "Verified v0.11M owner QA candidate, rehearsed as an in-place update from v0.11L."
+  "apk_sha256": "0b630ccd5bca9f367325da373c36f1671646bb8e82ae520e651283ada25fdd59",
+  "product_source_commit": "76cbfc149569938b97286f3efe4ad44e08c5934f",
+  "evidence": "docs/GRIDMATES_V1_BETA_RELEASE.md",
+  "purpose": "Verified v1 Beta 1 owner QA build, rehearsed as an in-place update from v0.11M."
 }
