@@ -14,6 +14,18 @@
 
 **Source-selection rule:** For maintenance and Beta 1 regression work, inspect PR #42 and its target/base relationships *first*; for historical recovery, consult `main` and specifically named checkpoints. **Do not tell a new implementer to build the latest public Beta from `main` without checking promotion status.**
 
+## November 16 follow-up: verified Git topology and documentation-only conflict prevention
+
+The full PR #42 commit list includes **the 20 stage commits from v0.11E through v0.11M**, followed by Beta 1 implementation/QA/publishing documentation commits (24 commits in the PR, as observed). The intermediate draft PRs #33–#41 are therefore already represented in the combined Beta candidate's ancestry; **do not merge their changes separately**. This is not yet an exhaustive proof that every historic bug fix is behaviorally verified in Beta.
+
+The Beta PR lists **98 changed files** against the integrated main baseline: core/app/test changes, new portrait assets and fonts, QA workflows, and staged docs. Its head was `8d8ed09305a7a7a459b272c652dfb51e56c860ff`. No check-runs or commit statuses were attached to that head during this audit; treat the release document's 147 JVM and 13 package checks as **recorded Work evidence**, not independently completed GitHub CI.
+
+After this audit was created, two overlapping `CONTINUE_HERE.md` notes were briefly committed on `main`; that file is also modified by PR #42. GitHub temporarily reported the Beta PR as **dirty/unmergeable** following those updates. To avoid a self-inflicted documentation conflict, the `main` copy of `CONTINUE_HERE.md` was restored to its exact pre-audit content, retaining these Beta-specific warnings in **this standalone audit** and [issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). This **did not** change Android code, Beta source, signed artifacts or the PR state. GitHub mergeability may need asynchronous recomputation; don't equate a brief `unknown` result with approval or an all-clear. If any other conflict remains, inspect current base/head and solve with a reviewed integration change later.
+
+**Recommended next owner action:** Confirm whether the **exact public production APK** downloaded from itch.io launches on a real phone (and which APK/version is on the phone); no GitHub API record can substitute for the player's actual device installation. Only then review readiness for promoting #42 to main.
+
+---
+
 ## 2. Current branch/PR topology — preserve until safely consolidated
 
 The following **ten PRs are open** as of the audit; most are explicitly draft, staged development milestones:
@@ -73,7 +85,7 @@ From the v1 Beta 1 QA report in PR #42 (these are **recorded Work-chat results**
 
 **Cleanup candidates for later review (not automatic):**
 - `docs/PROJECT_HANDOFF.md` is a large accumulated timeline and contains historical “latest” statements; make the new top section authoritative and archive old content cleanly.
-- `CONTINUE_HERE.md` currently says start from `main`/v0.11D; supplement with explicit Beta 1 source branch and integration status (this audit updates it).
+- `CONTINUE_HERE.md` currently says start from `main`/v0.11D; **do not edit its overlapping intro on main while #42 is pending**. This audit and [active issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43) give the Beta-specific source direction until the integration is approved.
 - `README.md` similarly highlights v0.11D; do **not** edit blindly before #42 is merged, because PR #42 already changes README.
 - Some future proposal docs describe **features subsequently implemented** (e.g. co-op shared themes, Ocean/Garden icons, hint improvements, native fonts). Mark portions superseded or implemented **only after checking exact current code**, while retaining open design alternatives.
 - Public itch page copy, image assets and marketing reference should indicate which visuals are **authentic screen captures** versus **promotional illustration**; don't substitute AI-recreated gameplay grids as factual screenshots.
