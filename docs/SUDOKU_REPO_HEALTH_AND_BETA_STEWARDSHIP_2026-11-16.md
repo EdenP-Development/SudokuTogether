@@ -61,6 +61,7 @@ From the v1 Beta 1 QA report in PR #42 (these are **recorded Work-chat results**
 - The owner's older successful physical two-phone Co-op smoke test is valuable. It is **not** proof that every Beta 1 Versus rematch, reconnect or newer Android accessibility scenario passed.
 - Deferred: current-build physical Versus/rematch, modern Android device compatibility/accessibility, broad TalkBack, Daily rollover and other edge cases.
 - The currently queried GitHub Actions history shows historical workflows but **no branch-specific successful GitHub Actions run for this Beta 1 commit**. Local Work QA evidence still counts as evidence, but GitHub's Actions tab is not an authoritative current Beta 1 success badge.
+- **Why no checks appear automatically:** the current Beta branch's `android.yml`, `qa-debug.yml`, and `visual-qa.yml` use `workflow_dispatch` rather than `pull_request`/`push`. They intentionally consume GitHub Actions minutes **only when manually triggered**, and the signed-build workflows require private keys. Do not turn on automatic signed builds or assume CI gate coverage without an owner-approved, cost-conscious, secret-free design. A future **manual** run on an exact source ref, or an approved small pull-request JVM-only validation job, is an option.
 
 **Release-device checklist (initial gate):**
 - [ ] Download the **exact public APK** from the actual itch.io page, not QA, not AAB and not a promotional mockup.
