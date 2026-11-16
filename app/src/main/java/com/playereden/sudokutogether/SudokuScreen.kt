@@ -13,6 +13,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.playereden.sudokutogether.core.Cell
+import com.playereden.sudokutogether.core.Puzzle
 import com.playereden.sudokutogether.core.SOLO
 import com.playereden.sudokutogether.core.VERSUS
 
@@ -81,29 +83,11 @@ data class GameActions(
                 GameNavigation(state.page, journalTab, actions.home, { journal(it) }, enabled = !state.busy && !settingsLocked)
         }
     }
-    if (helpOpen) AlertDialog(
-        onDismissRequest = { helpOpen = false },
-        title = { Text("How to play Sudoku", color = Forest, fontFamily = FontFamily.Serif) },
-        text = {
-            Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Fill each row, column and 3×3 box with the numbers 1 through 9. Each number appears only once in each.", color = Ink)
-                Text("Tap a square, then a number. The small counter under each number shows how many of that digit are still missing. Notes lets you pencil in candidates.", color = Ink)
-                Text("Erase clears a square. Undo reverses your most recent safe move.", color = Ink)
-                Text("Hint explains your next step in Solo and Daily. If the Coach runs out of deductions, you can reveal one number.", color = Ink)
-                Text("Check my work can identify an earlier mistake. Erase entry is optional and Undo restores it.", color = Ink)
-                Text("Optional Clean pencil marks is in Settings. It removes matching notes near a placed number; Undo restores them. It's off by default.", color = Ink)
-                Text("Hints, solution checks or automatic note cleanup mark a finish Assisted. Unassisted best times stay separate.", color = Ink)
-                Text("Daily Challenge: one offline Easy puzzle per local calendar date. It saves separately from regular Solo and you can return throughout the day.", color = Ink)
-                Text("Co-op: share one board over the same Wi-Fi. Versus: race on private boards. Assistance is Solo-only.", color = Ink)
-            }
-        },
-        confirmButton = { TextButton(onClick = { helpOpen = false }) { Text("Got it") } },
-        dismissButton = {
-            if (state.page == Page.HOME) {
-                TextButton(onClick = { helpOpen = false; practiceOpen = true }, enabled = !state.busy,
-                    modifier = Modifier.heightIn(min = 48.dp)) { Text("Coach practice") }
-            }
-        }
+    if (helpOpen) SudokuHelpDialog(
+        close = { helpOpen = false },
+        openPractice = if (state.page == Page.HOME && !state.busy) {
+            { helpOpen = false; practiceOpen = true }
+        } else null
     )
     if (practiceOpen) CoachPracticeDialog(state.appearance, state.uniformNumbers) { practiceOpen = false }
     confirmation?.let { kind ->
@@ -122,6 +106,62 @@ data class GameActions(
             }) { Text(if (kind == "leave") "Leave room" else if (kind == "partner") "Replace partner" else "Start new") } },
             dismissButton = { TextButton(onClick = { confirmation = null }) { Text("Keep playing") } })
     }
+}
+
+@Composable private fun SudokuHelpDialog(close: () -> Unit, openPractice: (() -> Unit)?) {
+    var more by rememberSaveable { mutableStateOf(false) }
+    AlertDialog(
+        onDismissRequest = { if (more) more = false else close() },
+        title = {
+            Text(if (more) "Rules and controls" else "How to play Sudoku", color = Forest, fontFamily = FontFamily.Serif)
+        },
+        text = {
+            val scroll = key(more) { rememberScrollState() }
+            Column(Modifier.verticalScroll(scroll), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                if (more) {
+                    SectionTitle("Board controls")
+                    Text("The counter under each number shows how many are still missing. Erase clears a square. Undo reverses your last safe move.", color = Ink)
+                    SectionTitle("Solo and Daily help")
+                    Text("Hint explains a deduction. If the Coach runs out of steps, you can reveal one number. Check my work can find an earlier mistake and lets you choose whether to erase it.", color = Ink)
+                    Text("Clean pencil marks in Settings removes matching notes when you enter a number. Undo restores the notes. Hints, checks, and automatic cleanup mark a finish Assisted. Unassisted best times stay separate.", color = Ink)
+                    SectionTitle("Daily puzzle")
+                    Text("There is one offline Easy puzzle per day. It saves separately from your Solo puzzle.", color = Ink)
+                    SectionTitle("Nearby play")
+                    Text("Both players use the same Wi-Fi. In Co-op, you share one board. In Versus, each player races on their own board.", color = Ink)
+                } else {
+                    Text("Place 1–9 once in each row, column, and 3×3 box.", color = Ink)
+                    Text("Tap a square, then a number. Use Notes to pencil in possibilities.", color = Ink)
+                    Text("Tap Hint in Solo or Daily for help with your next move.", color = Ink)
+                    TextButton(onClick = { more = true }, modifier = Modifier.heightIn(min = 48.dp),
+                        contentPadding = PaddingValues(horizontal = 0.dp, vertical = 8.dp)) {
+                        Text("More rules and controls")
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            when {
+                more -> TextButton(onClick = { more = false }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Back to basics") }
+                openPractice != null -> Button(onClick = openPractice, modifier = Modifier.heightIn(min = 48.dp),
+                    shape = RoundedCornerShape(14.dp)) { Text("Coach practice") }
+                else -> TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp)) { Text("Got it") }
+            }
+        },
+        dismissButton = {
+            if (!more && openPractice != null)
+                TextButton(onClick = close, modifier = Modifier.heightIn(min = 48.dp)) { Text("Got it") }
+        }
+    )
+}
+
+internal data class PuzzleFill(val filled: Int, val target: Int) {
+    val label get() = "$filled of $target filled"
+    val fraction get() = filled.toFloat() / target.coerceAtLeast(1)
+}
+
+internal fun Puzzle.fillProgress(cells: List<Cell>): PuzzleFill {
+    val editable = clues.indices.filter { clues[it] == 0 }
+    return PuzzleFill(editable.count { cells[it].value != 0 }, editable.size)
 }
 
 internal fun difficultyName(level: String?): String = when (level) {

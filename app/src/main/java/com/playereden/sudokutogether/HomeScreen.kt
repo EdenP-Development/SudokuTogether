@@ -61,9 +61,8 @@ import androidx.compose.ui.unit.*
                     }, color = OnForest, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
                         fontSize = 27.sp, lineHeight = 31.sp)
                     if (savedSolo != null) {
-                        val editable = savedSolo.puzzle.clues.indices.filter { savedSolo.puzzle.clues[it] == 0 }
-                        val entered = editable.count { savedSolo.cells[it].value != 0 }
-                        Text("${difficultyName(savedSolo.puzzle.difficulty)} · $entered of ${editable.size} filled · " +
+                        val fill = savedSolo.puzzle.fillProgress(savedSolo.cells)
+                        Text("${difficultyName(savedSolo.puzzle.difficulty)} · ${fill.label} · " +
                             formatElapsed(savedSolo.elapsedMs),
                             color = OnForest.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
                         GamePrimaryButton("Continue", { actions.solo(true) },

@@ -269,18 +269,23 @@ import kotlinx.coroutines.delay
 
 @Composable private fun PuzzleMeta(state: GameUiState) {
     val snapshot = state.snapshot ?: return
-    val filled = snapshot.cells.count { it.value != 0 }
+    val fill = snapshot.puzzle.fillProgress(snapshot.cells)
     Column(verticalArrangement = Arrangement.spacedBy(7.dp)) {
         if (state.role == SOLO) {
             if (LocalDensity.current.fontScale > 1.3f) Column(verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                Text("$filled/81 squares filled", color = Muted, fontSize = 11.sp)
+                Text(fill.label, color = Muted, fontSize = 11.sp)
                 SoloTimer(state.soloElapsedMs, state.soloClockStartedAt)
             } else Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("$filled/81 squares filled", color = Muted, fontSize = 11.sp)
+                Text(fill.label, color = Muted, fontSize = 11.sp)
                 SoloTimer(state.soloElapsedMs, state.soloClockStartedAt)
             }
-        } else Text("You · shared grid · " + if (state.partnerCell >= 0) "Partner: R${state.partnerCell / 9 + 1} C${state.partnerCell % 9 + 1}" else "Partner", color = Forest, fontSize = 11.sp)
-        LinearProgressIndicator(progress = { filled / 81f }, modifier = Modifier.fillMaxWidth().height(3.dp), color = Forest, trackColor = Rule.copy(alpha = .6f))
+        } else {
+            val sharedStatus = if (state.partnerCell >= 0)
+                "Partner at R${state.partnerCell / 9 + 1} C${state.partnerCell % 9 + 1}" else "Shared grid"
+            Text("${fill.label} · $sharedStatus", color = Forest, fontSize = 11.sp)
+        }
+        LinearProgressIndicator(progress = { fill.fraction }, modifier = Modifier.fillMaxWidth().height(3.dp),
+            color = Forest, trackColor = Rule.copy(alpha = .6f))
     }
 }
 
@@ -435,11 +440,7 @@ private fun roomStatusText(state: GameUiState): String {
                         }
                     }
                 }
-                if (numbers.size == 4) Box(Modifier.weight(1f).height(keypadHeight),
-                    contentAlignment = Alignment.Center) {
-                    if (snapshot.mode != VERSUS)
-                        Text("${snapshot.cells.count { it.value != 0 }}/81", fontSize = 11.sp, color = Muted)
-                }
+                if (numbers.size == 4) Spacer(Modifier.weight(1f))
             }
         }
     }

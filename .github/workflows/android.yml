@@ -73,7 +73,7 @@ jobs:
             GridMates-Sudoku.aab
             GridMates-Sudoku.aab.sha256
           if-no-files-found: error
-          retention-days: 30
+          retention-days: 14
       - name: Remove temporary signing files
         if: always()
         run: rm -rf "$RUNNER_TEMP/sudoku-signing"

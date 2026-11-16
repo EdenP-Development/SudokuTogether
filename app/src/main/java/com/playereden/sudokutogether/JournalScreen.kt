@@ -103,17 +103,22 @@ internal enum class ProfileSection(val title: String) {
             Text("Welcome! Your first puzzle finish will appear here.", style = MaterialTheme.typography.bodyMedium, color = Muted)
         } else {
             val highlights = listOf("Solo solved" to stats.soloWins,
-                "Daily finished" to DailyChallenge.completedDays(records), "Versus wins" to stats.versusWins)
+                "Daily finished" to DailyChallenge.completedDays(records),
+                "Co-op solved" to stats.coopCompletions, "Versus wins" to stats.versusWins)
             if (LocalDensity.current.fontScale > 1.3f) {
                 highlights.forEach { (label, count) ->
-                    Text("$label: $count", style = MaterialTheme.typography.bodyMedium, color = Ink)
+                    Text("$label · $count", style = MaterialTheme.typography.bodyMedium, color = Ink)
                 }
             } else {
-                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    highlights.forEach { (label, count) ->
-                        Column(Modifier.weight(1f)) {
-                            Text(count.toString(), style = MaterialTheme.typography.titleLarge, color = Forest)
-                            Text(label, style = MaterialTheme.typography.bodySmall, color = Muted)
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    highlights.chunked(2).forEach { pair ->
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            pair.forEach { (label, count) ->
+                                Column(Modifier.weight(1f)) {
+                                    Text(count.toString(), style = MaterialTheme.typography.titleLarge, color = Forest)
+                                    Text(label, style = MaterialTheme.typography.bodySmall, color = Muted)
+                                }
+                            }
                         }
                     }
                 }
