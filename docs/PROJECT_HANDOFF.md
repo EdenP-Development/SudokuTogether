@@ -4,7 +4,11 @@ Start from `main`, the canonical Android source and documentation. The [delivery
 
 The November 8 owner decision puts the offline launch first. Complete local play, device QA and Play testing before evaluating a budget for online services. Future service work starts with separately approved, invite-only friend challenges when adoption and earnings can support it. [Release and expansion gates](GRIDMATES_DELIVERY_PLAN.md#online-expansion-after-the-offline-launch)
 
-## Current candidate — v0.11J
+## Current candidate — v0.11K
+
+The Profile card pairs an edit pencil with the player name and has a dedicated **Change icon** row. Collection puts equipped and available styles above locked ones, shows boards with miniature grids, and gives number colors and fonts their own views. [Profile and Collection QA](V0.11K_PROFILE_COLLECTION_QA.md)
+
+## v0.11J focused audit candidate
 
 The launcher, Home and About use a numbered green-and-gold 3×3 mark. Home counts the player’s filled squares and labels the difficulty for the next puzzle. Profile uses an opaque achievements tint. [Focused audit and signed upgrade](V0.11J_FOCUSED_AUDIT_QA.md)
 

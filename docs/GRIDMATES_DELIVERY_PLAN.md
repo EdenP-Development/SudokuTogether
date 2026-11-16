@@ -1,6 +1,6 @@
 # GridMates delivery plan
 
-**Current candidate · v0.11J.** A numbered Sudoku mark, clearer Home progress, and an even Profile achievements tint follow the owner’s phone screenshots. [v0.11J audit and QA](V0.11J_FOCUSED_AUDIT_QA.md) · [v0.11I Coach practice](V0.11I_COACH_PRACTICE_QA.md) · [v0.11G Ocean collection](V0.11G_COACH_OCEAN_QA.md#ocean)
+**Current candidate · v0.11K.** Profile puts editing beside the player name. Collection shows equipped and available items first and gives number colors and fonts their own views. [v0.11K Profile and Collection QA](V0.11K_PROFILE_COLLECTION_QA.md) · [v0.11J focused audit](V0.11J_FOCUSED_AUDIT_QA.md) · [v0.11I Coach practice](V0.11I_COACH_PRACTICE_QA.md)
 
 [Draft PR #33](https://github.com/PlayerEden/SudokuTogether/pull/33) contains v0.11E's Profile, Collection, portable progress transfer and API 36 release preparation. The merged v0.11D QA checkpoint introduced Versus presence and bundled number styles. [v0.11D audit](V0.11D_INTEGRATION_AND_QA.md)
 
@@ -12,8 +12,8 @@ The [native rollout plan](superpowers/plans/2026-11-07-gridmates-native-rollout.
 
 | Gate | Status |
 | --- | --- |
-| Player profile and collection | v0.11E added Profile and Collection. v0.11G adds six Ocean portraits that use the existing completion history. [Ocean milestones](V0.11G_COACH_OCEAN_QA.md#ocean) |
-| Owner updates and transfer | The signed v0.11I to v0.11J install-over passed. The v0.11E split release build restored an exported QA file and reopened the same saved entry and pencil note. [Progress transfer guide](GRIDMATES_UPDATE_AND_SAVE_PREPARATION.md) |
+| Player profile and collection | v0.11K reorganizes the galleries and gives **Change icon** a direct path to **Player icons**. Six Ocean portraits use the existing completion history. [Ocean milestones](V0.11G_COACH_OCEAN_QA.md#ocean) |
+| Owner updates and transfer | The signed v0.11J to v0.11K install-over passed with saved progress and cosmetics retained. The v0.11E split release build restored an exported QA file and reopened the same saved entry and pencil note. [Progress transfer guide](GRIDMATES_UPDATE_AND_SAVE_PREPARATION.md) |
 | Android build and signing | The build targets API 36 and supports devices from API 26. The original production certificate was verified and the App Bundle passed local validation. |
 | Device acceptance | Finish current-build co-op and Versus on two physical phones, plus modern Android orientation, TalkBack, and Daily rollover. [LAN gate](https://github.com/PlayerEden/SudokuTogether/issues/12) |
 | Play Console | Confirm signing enrollment, listing and declarations, and run the required testing track. [Launch guide](GOOGLE_PLAY_FROM_SCRATCH_LAUNCH_GUIDE.md) |
@@ -62,6 +62,10 @@ For board and number style pilots, compare distinct light, marine and dark palet
 The Word Search Bookshelf test gives players **Review saved clues** and **Practice again** on a completed book page. v0.11I uses that approach for six replayable Coach examples on separate practice boards. The current Coach already lets players revisit a recent unchanged board without counting another hint during the session. [Clue review](https://github.com/PlayerEden/GridMates-Word-Search/blob/14b67265ecafd6baa243112e306c63ee95265699/app/src/main/java/com/playereden/gridmates/wordsearch/WordSearchScreen.kt#L278-L330) · [Practice button](https://github.com/PlayerEden/GridMates-Word-Search/blob/14b67265ecafd6baa243112e306c63ee95265699/app/src/main/java/com/playereden/gridmates/wordsearch/BookPageGameplayScreen.kt#L266-L282)
 
 The Word Search font plan previews the actual puzzle letters in Collection. Carry that idea into Sudoku with all nine digits and pencil marks on the same playable sample grid, sized as they appear on a phone. [Word Search font plan](https://github.com/PlayerEden/GridMates-Word-Search/blob/233e8ff27edfef57bc661c936b0e2854fa162a53/docs/WS04D_B5_FONT_ENGINE_AND_FREE_UNLOCKS_2026-11-06.md)
+
+The newer Word Search portrait and font cards show unlock progress while browsing. After the v0.11K phone review, try short remaining goals on Sudoku’s locked tiles, using the same rules as the preview. Include Solo, Co-op and Versus goals and check the text at phone width with large system fonts. [Word Search portrait and font review](https://github.com/PlayerEden/GridMates-Word-Search/blob/28ad2e8ad8039db181f9d919bc1706f2ec4d78db/docs/devlog/2026-11-14_WS16BV_COMPACT_FONTS_AND_PROFILE_V80.md#v80-owner-screenshots--visual-qa-follow-up)
+
+Word Search bundles Literata for headings and Atkinson Hyperlegible for controls. Compare those UI fonts on the Sudoku Home, Profile and Collection when reviewing shared GridMates typography. Keep the puzzle numbers driven by the player’s selected number font. [Word Search typography](https://github.com/PlayerEden/GridMates-Word-Search/blob/28ad2e8ad8039db181f9d919bc1706f2ec4d78db/app/src/main/java/com/playereden/gridmates/wordsearch/GridMatesTheme.kt#L48-L77)
 
 ## Online expansion after the offline launch
 

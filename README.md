@@ -4,7 +4,7 @@ The full Android source, tests and design history live on `main`. [Start here](C
 
 **v0.11D QA** adds both players' identities and progress to the Versus screen, reconnect feedback, and consistent bundled number styles. The signed update uses the installed Sudoku QA app's identity. [Repository audit and upgrade evidence](docs/V0.11D_INTEGRATION_AND_QA.md)
 
-**v0.11J test candidate** uses a numbered Sudoku box for the launcher and Home mark, clarifies saved-puzzle progress, and smooths the Profile achievements fill. [Focused audit and signed upgrade evidence](docs/V0.11J_FOCUSED_AUDIT_QA.md)
+**v0.11K test candidate** brings a compact Profile card, available items above locked ones in Collection, board thumbnails, and a choice of number colors or fonts. [Profile and Collection QA](docs/V0.11K_PROFILE_COLLECTION_QA.md)
 
 **v0.11I** adds six one-move lessons in Coach practice. Open **How to play → Coach practice** from Home. [Practice and signed upgrade evidence](docs/V0.11I_COACH_PRACTICE_QA.md)
 
