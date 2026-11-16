@@ -4,6 +4,18 @@
 **Purpose:** Give this dedicated Sudoku development chat and future contributors one reliable starting point for **auditing, refining, expanding, and organizing Sudoku**, without conflating it with the separate GridMates: Word Search project.
 **Status:** Repository/QA planning audit. **No gameplay source, save files, APKs, tags, releases, pull requests or branches were merged, deleted, rebuilt or signed by this audit.** No complete independent build or device test was run.
 
+## Post-audit reconciliation (November 16, 2026) — current status supersedes historical findings below
+
+**Completed with owner approval:** [GridMates: Sudoku Beta 1 PR #42](https://github.com/PlayerEden/SudokuTogether/pull/42) was merged to canonical **`main`** as [`9256a5f`](https://github.com/PlayerEden/SudokuTogether/commit/9256a5f239e232b9211aa5589a9e4383e96fea80), using a merge commit that preserves the v0.11E–M development ancestry. The [staged v0.11E PR #33](https://github.com/PlayerEden/SudokuTogether/pull/33) was automatically recognized as merged; **draft PRs #34–#41 were closed as superseded** after their exact head commits were verified in the merged PR #42 history. Each closed PR has a traceability comment. **No old source branches or recovery checkpoints were deleted.**
+
+The root [README](../README.md), [CONTINUE_HERE](../CONTINUE_HERE.md), [project handoff](PROJECT_HANDOFF.md), and [delivery plan](GRIDMATES_DELIVERY_PLAN.md) now point to the merged Beta 1 baseline. New Sudoku bug fixes and feature work should start from `main`. The *exact previously built and packaged* Beta source remains [`76cbfc1`](https://github.com/PlayerEden/SudokuTogether/commit/76cbfc149569938b97286f3efe4ad44e08c5934f); the merge and later documentation updates **are not a new build** and no new runtime verification is implied.
+
+**Real-device confirmation:** the owner reports downloading the public APK from itch.io and installing/launching it successfully, along with the QA build. No independent download SHA-256, production-signature verification, full Android device matrix, or completed two-phone Versus/reconnect verification was performed in this audit. The remaining acceptance and optional future GitHub tag/Release are tracked in [issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). The repo still uses manual-run Android workflows by design; the 147 passing JVM and 13 preflight tests are recorded Work QA evidence, not newly executed GitHub CI.
+
+**Historical note:** Sections below describe repository state **before** PR #42 merged. Statements such as “main still v0.11D,” “ten PRs open,” or “don't merge #42” describe the original audit snapshot and no longer reflect the live repository.
+
+---
+
 ## 1. Source truth — read this first
 
 - Repository: [PlayerEden/SudokuTogether](https://github.com/PlayerEden/SudokuTogether); default branch **`main`**.
