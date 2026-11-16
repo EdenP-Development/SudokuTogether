@@ -1,6 +1,8 @@
 # GridMates: Sudoku
 
-The full Android source, tests and design history live on `main`. [Start here](CONTINUE_HERE.md) · [Project handoff](docs/PROJECT_HANDOFF.md) · [Delivery plan](docs/GRIDMATES_DELIVERY_PLAN.md)
+**Beta 1 source location (November 16, 2026):** This branch (`feat/gridmates-v1-beta`, [draft PR #42](https://github.com/PlayerEden/SudokuTogether/pull/42)) contains the **latest Beta 1 Android source**. The default `main` branch currently has the earlier v0.11D QA baseline; do not build `main` expecting the latest public beta until the integration is approved and merged. The exact recorded Beta APK was built from [source commit `76cbfc1`](https://github.com/PlayerEden/SudokuTogether/commit/76cbfc149569938b97286f3efe4ad44e08c5934f); subsequent commits include documentation. See [Beta release and verification](docs/GRIDMATES_V1_BETA_RELEASE.md), [the repository health audit on main](https://github.com/PlayerEden/SudokuTogether/blob/main/docs/SUDOKU_REPO_HEALTH_AND_BETA_STEWARDSHIP_2026-11-16.md), and [active issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). **No production merge or fresh APK verification is implied by this README note.**
+
+[Start here](CONTINUE_HERE.md) · [Project handoff](docs/PROJECT_HANDOFF.md) · [Delivery plan](docs/GRIDMATES_DELIVERY_PLAN.md)
 
 **v1 Beta 1** brings a consistent board progress count, shorter help with direct access to Coach practice, and Co-op solves on Profile. [Beta packages and publishing](docs/GRIDMATES_V1_BETA_RELEASE.md)
 
