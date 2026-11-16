@@ -2,6 +2,12 @@
 
 Play a classic 9×9 Sudoku, try the offline Daily puzzle, or connect two Android phones on the same Wi-Fi for a shared Co-op board or a Versus race. Coach practice teaches one move at a time. Finished puzzles unlock player icons, number styles, and boards.
 
+## GitHub source integration — November 16, 2026
+
+With the owner's approval, the consolidated [Beta 1 PR #42](https://github.com/PlayerEden/SudokuTogether/pull/42) was merged into `main` as [commit `9256a5f`](https://github.com/PlayerEden/SudokuTogether/commit/9256a5f239e232b9211aa5589a9e4383e96fea80). Its history includes the v0.11E–M development milestone commits. PR #33 was automatically recognized as merged, and drafts #34–#41 were closed as superseded after confirming their exact head commits occur in PR #42's commit history; their source branches remain available.
+
+**Reproducibility note:** The public/QA APKs described below were built from **`76cbfc149569938b97286f3efe4ad44e08c5934f`**. Moving the source into `main` and subsequent documentation edits did **not** rebuild, retest or redistribute those APKs. The owner confirmed public itch.io and QA versions installed and launched on a real phone; independent checksum of the itch download and wider physical QA remain open in [issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). No GitHub tag/Release was created during consolidation.
+
 ## Beta polish
 
 - Home and the board count the squares players have filled. The board shows the count once above the grid.
