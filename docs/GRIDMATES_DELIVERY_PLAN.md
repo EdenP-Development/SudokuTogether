@@ -1,8 +1,8 @@
 # GridMates delivery plan
 
-**Current candidate · v1 Beta 1.** The signed Android APK is the direct download for a public beta, and the App Bundle is available for future Play submission. [Beta packages and publishing](GRIDMATES_V1_BETA_RELEASE.md) · [v0.11M Collection swipe QA](V0.11M_COLLECTION_SWIPE_QA.md)
+**Current integrated source · v1 Beta 1 (November 16, 2026).** [PR #42](https://github.com/PlayerEden/SudokuTogether/pull/42) is merged into `main`, preserving v0.11E–M history. The signed production Android APK is available via the owner's [itch.io page](https://sir-spudacus.itch.io/gridmates-sudoku) and the owner confirms a successful physical download/install/launch. This does **not** independently confirm the downloadable hash or comprehensive QA. The App Bundle is reserved for future Google Play submission. [Exact Beta 1 receipt](GRIDMATES_V1_BETA_RELEASE.md) · [Active stabilization gate #43](https://github.com/PlayerEden/SudokuTogether/issues/43).
 
-[Draft PR #33](https://github.com/PlayerEden/SudokuTogether/pull/33) contains v0.11E's Profile, Collection, portable progress transfer and API 36 release preparation. The merged v0.11D QA checkpoint introduced Versus presence and bundled number styles. [v0.11D audit](V0.11D_INTEGRATION_AND_QA.md)
+The staged [PR #33](https://github.com/PlayerEden/SudokuTogether/pull/33) and [PRs #34–#41](https://github.com/PlayerEden/SudokuTogether/pulls?q=is%3Apr+is%3Aclosed+GridMates+v0.11) are now historical/superseded; don't merge them again. The older v0.11D QA checkpoint remains a useful signed-update reference. [v0.11D audit](V0.11D_INTEGRATION_AND_QA.md)
 
 The owner reported a successful basic two-phone test on v0.11B and confirmed on November 15 that they play Co-op regularly with their partner. Earlier feedback guided open Nearby joining, optional room codes, clearer chat, and Woodland portraits. New two-phone testing is deferred for this beta. [Earlier playtest findings](V0.11B_OWNER_PLAYTEST_2026-11-04.md) · [Owner Co-op playtest](V0.11L_GARDEN_COSMETICS_QA.md#phone-playtest)
 
@@ -16,7 +16,7 @@ The [native rollout plan](superpowers/plans/2026-11-07-gridmates-native-rollout.
 | Owner updates and transfer | The signed v0.11M to v1 Beta 1 QA install-over preserved saved progress and cosmetics. The v0.11E split release build restored an exported QA file and reopened the same saved entry and pencil note. [Progress transfer guide](GRIDMATES_UPDATE_AND_SAVE_PREPARATION.md) |
 | Android build and signing | The build targets API 36 and supports devices from API 26. The original production certificate was verified and the App Bundle passed local validation. |
 | Device coverage | The owner confirms regular physical Co-op play. The beta includes scripted Co-op and Versus checks. Physical Versus finish and rematch, modern Android orientation, TalkBack, and Daily rollover remain deferred. [Physical LAN checklist](https://github.com/PlayerEden/SudokuTogether/issues/12) |
-| Direct beta and Play | Upload the signed production APK for itch.io. The later Play path uses the App Bundle and the account's applicable testing and listing requirements. [Beta packages and publishing](GRIDMATES_V1_BETA_RELEASE.md) |
+| Direct beta and Play | Owner confirms downloading/installing/launching the public itch.io APK. Reconfirm exact artifact SHA-256/signature and broader device checks separately. The later Play path uses the App Bundle and the account's applicable testing and listing requirements. [Beta packages and publishing](GRIDMATES_V1_BETA_RELEASE.md) |
 
 ## Product direction
 
