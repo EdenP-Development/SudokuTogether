@@ -106,6 +106,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     var numbers by rememberSaveable { mutableStateOf(NumberCategory.COLORS) }
     var stylePreviewOpen by rememberSaveable { mutableStateOf(false) }
     var previewId by rememberSaveable { mutableStateOf<String?>(null) }
+    val familyScroll = rememberScrollState()
     val scope = rememberCoroutineScope()
     val records = state.profile.records
     val progress = remember(records) {
@@ -129,7 +130,8 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     }
     val items = when (category) {
         CollectionCategory.ICONS -> {
-            CollectionChoices(IconFamily.entries, family, { it.label }, Role.RadioButton) { family = it }
+            CollectionChoices(IconFamily.entries, family, { it.label }, Role.RadioButton,
+                horizontalScrollState = familyScroll) { family = it }
             iconItems.filter { family == IconFamily.ALL || it.family == family }
         }
         CollectionCategory.BOARDS -> boardItems
@@ -173,10 +175,16 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
 }
 
 @OptIn(ExperimentalLayoutApi::class)
-@Composable private fun <T> CollectionChoices(values: List<T>, choice: T, label: (T) -> String, role: Role, select: (T) -> Unit) {
+@Composable private fun <T> CollectionChoices(
+    values: List<T>,
+    choice: T,
+    label: (T) -> String,
+    role: Role,
+    horizontalScrollState: ScrollState? = null,
+    select: (T) -> Unit
+) {
     val horizontalPadding = if (role == Role.RadioButton) 8.dp else 11.dp
-    FlowRow(Modifier.fillMaxWidth().selectableGroup(), horizontalArrangement = Arrangement.spacedBy(6.dp),
-        verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    val buttons: @Composable () -> Unit = {
         values.forEach { value ->
             val selected = value == choice
             val shape = RoundedCornerShape(13.dp)
@@ -187,6 +195,13 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                 Text(label(value), style = MaterialTheme.typography.labelLarge, color = if (selected) OnForest else Forest)
             }
         }
+    }
+    val group = Modifier.fillMaxWidth().selectableGroup()
+    val spacing = Arrangement.spacedBy(6.dp)
+    if (horizontalScrollState != null) {
+        Row(group.horizontalScroll(horizontalScrollState), horizontalArrangement = spacing) { buttons() }
+    } else {
+        FlowRow(group, horizontalArrangement = spacing, verticalArrangement = Arrangement.spacedBy(4.dp)) { buttons() }
     }
 }
 

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.playereden.sudokutogether.core.*
@@ -30,7 +31,10 @@ class WoodlandUiTest {
         compose.onNodeWithText("1 of 15 completed").assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
-        compose.onNodeWithText("Basic").performScrollTo().performClick()
+        // Bring the set picker back into view before scrolling within it.
+        compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.HorizontalScrollAxisRange))
+            .performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Basic").performScrollTo().assertIsDisplayed().performClick().assertIsSelected()
         compose.onNodeWithTag("portrait_woodland_cat").assertDoesNotExist()
         compose.onNodeWithTag("cosmetic_emblem_tile").performScrollTo().performClick()
         compose.onNodeWithText("Use icon").performClick()

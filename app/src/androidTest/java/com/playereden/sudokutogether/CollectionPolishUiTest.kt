@@ -7,6 +7,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.unit.Density
@@ -87,6 +88,47 @@ class CollectionPolishUiTest {
         compose.onNodeWithText("Number fonts").performClick().assertIsSelected()
         compose.onNodeWithTag("cosmetic_font_clear").assertIsSelected()
         compose.onNodeWithTag("cosmetic_ink_forest").assertDoesNotExist()
+    }
+
+    @Test fun iconFamiliesStayOnOneRowAndCanBeSwipedBothWays() {
+        compose.setContent {
+            SudokuTogetherTheme {
+                Box(Modifier.width(320.dp).fillMaxHeight()) {
+                    SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {})
+                }
+            }
+        }
+
+        compose.onNodeWithTag("nav_collection").performClick()
+        val all = compose.onNodeWithText("All").assertIsSelected()
+        val garden = compose.onNodeWithText("Garden")
+        assertEquals(
+            "The last icon set belongs in the same row as the first",
+            all.getUnclippedBoundsInRoot().top,
+            garden.getUnclippedBoundsInRoot().top
+        )
+
+        val picker = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.HorizontalScrollAxisRange))
+        val viewport = picker.getUnclippedBoundsInRoot()
+        assertTrue(garden.getUnclippedBoundsInRoot().right > viewport.right)
+        picker.performTouchInput { swipeLeft() }
+        assertTrue(garden.getUnclippedBoundsInRoot().right <= viewport.right)
+        all.assertIsSelected()
+        garden.assertIsDisplayed().performClick().assertIsSelected()
+        compose.onNodeWithText("1 of 4 available").assertIsDisplayed()
+        compose.onNodeWithTag("portrait_garden_honeybee").assertIsDisplayed()
+        compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
+
+        compose.onNodeWithText("Boards").performClick()
+        compose.onNodeWithText("Player icons").performClick()
+        garden.assertIsDisplayed().assertIsSelected()
+        assertTrue(garden.getUnclippedBoundsInRoot().right <= viewport.right)
+
+        picker.performTouchInput { swipeRight() }
+        assertTrue(all.getUnclippedBoundsInRoot().left >= viewport.left)
+        all.assertIsDisplayed().performClick().assertIsSelected()
+        compose.onNodeWithTag("cosmetic_emblem_tile").assertIsDisplayed()
+        compose.onNodeWithTag("portrait_ocean_octopus").assertExists()
     }
 
     @Test fun gardenFilterShowsExistingProgressAndEquipsTheHoneybee() {
