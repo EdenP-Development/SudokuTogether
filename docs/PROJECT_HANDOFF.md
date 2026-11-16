@@ -4,7 +4,11 @@ Start from `main`, the canonical Android source and documentation. The [delivery
 
 The November 8 owner decision puts the offline launch first. Complete local play, device QA and Play testing before evaluating a budget for online services. Future service work starts with separately approved, invite-only friend challenges when adoption and earnings can support it. [Release and expansion gates](GRIDMATES_DELIVERY_PLAN.md#online-expansion-after-the-offline-launch)
 
-## Current candidate — v0.11K
+## Current candidate — v0.11L
+
+Garden adds Honeybee, Ladybug, Butterfly, and Dragonfly. Numbers adds Lagoon, Clay, and Slate inks plus Rounded and Pencil fonts. Completed games already in a player's history count toward the new milestones. The owner confirms regular Co-op play with their partner. Update both phones to use the v0.11L cosmetic catalog in Nearby rooms. [Garden collection and update QA](V0.11L_GARDEN_COSMETICS_QA.md)
+
+## v0.11K Profile and Collection candidate
 
 The Profile card pairs an edit pencil with the player name and has a dedicated **Change icon** row. Collection puts equipped and available styles above locked ones, shows boards with miniature grids, and gives number colors and fonts their own views. [Profile and Collection QA](V0.11K_PROFILE_COLLECTION_QA.md)
 

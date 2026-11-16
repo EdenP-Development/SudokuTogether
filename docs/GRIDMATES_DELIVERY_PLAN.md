@@ -1,10 +1,10 @@
 # GridMates delivery plan
 
-**Current candidate · v0.11K.** Profile puts editing beside the player name. Collection shows equipped and available items first and gives number colors and fonts their own views. [v0.11K Profile and Collection QA](V0.11K_PROFILE_COLLECTION_QA.md) · [v0.11J focused audit](V0.11J_FOCUSED_AUDIT_QA.md) · [v0.11I Coach practice](V0.11I_COACH_PRACTICE_QA.md)
+**Current candidate · v0.11L.** Collection adds four Garden player icons, three inks, and two bundled number fonts. Earlier completed games count toward the new milestones. [v0.11L Garden cosmetics QA](V0.11L_GARDEN_COSMETICS_QA.md) · [v0.11K Profile and Collection QA](V0.11K_PROFILE_COLLECTION_QA.md)
 
 [Draft PR #33](https://github.com/PlayerEden/SudokuTogether/pull/33) contains v0.11E's Profile, Collection, portable progress transfer and API 36 release preparation. The merged v0.11D QA checkpoint introduced Versus presence and bundled number styles. [v0.11D audit](V0.11D_INTEGRATION_AND_QA.md)
 
-The owner reported a successful basic two-phone test on v0.11B. [Playtest findings](V0.11B_OWNER_PLAYTEST_2026-11-04.md) guided v0.11C's open nearby joining, optional room codes, clearer chat and Woodland portraits. The current build still needs its own physical co-op and Versus pass.
+The owner reported a successful basic two-phone test on v0.11B and confirmed on November 15 that they play Co-op regularly with their partner. Earlier feedback guided open Nearby joining, optional room codes, clearer chat, and Woodland portraits. Check style display when both phones update to v0.11L, and record a physical Versus finish and rematch. [Earlier playtest findings](V0.11B_OWNER_PLAYTEST_2026-11-04.md) · [Current playtest](V0.11L_GARDEN_COSMETICS_QA.md#phone-playtest)
 
 The [native rollout plan](superpowers/plans/2026-11-07-gridmates-native-rollout.md) tracks the delivered font, Versus and Profile and Collection stages.
 
@@ -12,10 +12,10 @@ The [native rollout plan](superpowers/plans/2026-11-07-gridmates-native-rollout.
 
 | Gate | Status |
 | --- | --- |
-| Player profile and collection | v0.11K reorganizes the galleries and gives **Change icon** a direct path to **Player icons**. Six Ocean portraits use the existing completion history. [Ocean milestones](V0.11G_COACH_OCEAN_QA.md#ocean) |
-| Owner updates and transfer | The signed v0.11J to v0.11K install-over passed with saved progress and cosmetics retained. The v0.11E split release build restored an exported QA file and reopened the same saved entry and pencil note. [Progress transfer guide](GRIDMATES_UPDATE_AND_SAVE_PREPARATION.md) |
+| Player profile and collection | v0.11L adds Garden icons, three inks, and two fonts. Honeybee and Lagoon are available immediately. [Garden milestones](V0.11L_GARDEN_COSMETICS_QA.md#unlock-goals) |
+| Owner updates and transfer | The signed v0.11K to v0.11L install-over passed with saved progress and cosmetics retained. The v0.11E split release build restored an exported QA file and reopened the same saved entry and pencil note. [Progress transfer guide](GRIDMATES_UPDATE_AND_SAVE_PREPARATION.md) |
 | Android build and signing | The build targets API 36 and supports devices from API 26. The original production certificate was verified and the App Bundle passed local validation. |
-| Device acceptance | Finish current-build co-op and Versus on two physical phones, plus modern Android orientation, TalkBack, and Daily rollover. [LAN gate](https://github.com/PlayerEden/SudokuTogether/issues/12) |
+| Device acceptance | The owner confirms regular physical Co-op play. Check v0.11L styles on the same pair, confirm Versus finish and rematch on two phones, and check modern Android orientation, TalkBack, and Daily rollover. [LAN gate](https://github.com/PlayerEden/SudokuTogether/issues/12) |
 | Play Console | Confirm signing enrollment, listing and declarations, and run the required testing track. [Launch guide](GOOGLE_PLAY_FROM_SCRATCH_LAUNCH_GUIDE.md) |
 
 ## Product direction
