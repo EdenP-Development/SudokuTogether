@@ -1,10 +1,6 @@
 # Continue GridMates: Sudoku
 
-**Current source notice (November 16, 2026):** `main` contains the integrated **v0.11D QA baseline**, but the newer **v1 Beta 1 Android candidate** is in [draft PR #42](https://github.com/PlayerEden/SudokuTogether/pull/42) on `feat/gridmates-v1-beta`. Before editing or building the current Beta, inspect that PR and [the Beta 1 source/QA receipt](https://github.com/PlayerEden/SudokuTogether/blob/feat/gridmates-v1-beta/docs/GRIDMATES_V1_BETA_RELEASE.md), rather than assuming `main` contains the latest player-facing version. **Do not merge, delete, re-sign, or replace saved data based only on this notice.** The [November 16 repository health and consolidation audit](docs/SUDOKU_REPO_HEALTH_AND_BETA_STEWARDSHIP_2026-11-16.md) explains the staged PRs, evidence gaps and safe next steps.
-
-**Current Sudoku housekeeping tracker:** [Issue #43 — Beta 1 stabilization, source consolidation and GitHub organization](https://github.com/PlayerEden/SudokuTogether/issues/43).
-
-The original `main`-based instructions below describe the older integrated source and remain useful for historical QA/recovery.
+The full Android game, tests and design history are on `main`. Use it as the starting point for new work.
 
 - [Current handoff](docs/PROJECT_HANDOFF.md) and [delivery plan](docs/GRIDMATES_DELIVERY_PLAN.md)
 - [v0.11D repository audit and signed upgrade evidence](docs/V0.11D_INTEGRATION_AND_QA.md)
