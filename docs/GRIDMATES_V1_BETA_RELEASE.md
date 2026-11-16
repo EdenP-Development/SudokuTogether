@@ -28,6 +28,12 @@ For itch.io, upload the public APK as a downloadable file and mark it for Androi
 
 Google Play takes the App Bundle for a new app. Personal accounts created after November 13, 2023 need at least 12 testers opted into a closed test for 14 continuous days before applying for production access. To support install-over updates from itch.io to Play, supply the same production app-signing key when setting up Play App Signing. [Play release setup](https://support.google.com/googleplay/android-developer/answer/9859348) · [Personal-account testing](https://support.google.com/googleplay/android-developer/answer/14151465) · [App signing across stores](https://developer.android.com/studio/publish/app-signing)
 
+## Owner device confirmation after itch.io upload (November 16, 2026)
+
+The owner confirms that they **downloaded the public APK from the itch.io page, installed it and successfully launched it on their own Android phone**. They also confirmed installing and launching the **QA build**. This closes the *basic physical installation/launch smoke concern* raised by the earlier emulator timeout, **but it is a user-reported result, not independent verification of the exact downloadable file's checksum, signer, package/version, or all gameplay paths**. The earlier emulator timeouts remain historical QA evidence; this newer device confirmation does not retroactively change those test results.
+
+The broader Solo/Daily, save/restore, two-phone Versus/reconnect, Android-version coverage and APK hash verification checklist remains open in [Sudoku Beta stabilization issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). Device make/model, Android API and public APK hash were not supplied, so don't invent them or silently mark their checks complete.
+
 ## Build and package verification
 
 - Source [`76cbfc149569938b97286f3efe4ad44e08c5934f`](https://github.com/PlayerEden/SudokuTogether/commit/76cbfc149569938b97286f3efe4ad44e08c5934f), built November 16, 2026.
