@@ -1,0 +1,30 @@
+name: Sudoku palette mapping compile (one-off)
+
+# Temporary branch-only check for PR #51. No signing, no APK output.
+# Delete this file after passing; do not merge this trigger.
+on:
+  push:
+    branches:
+      - refactor/sudoku-board-ink-palettes
+    paths:
+      - .github/workflows/oneoff-sudoku-palettes-compile.yml
+
+permissions:
+  contents: read
+
+jobs:
+  palette-compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install declared Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Verify palette mappings, Android unit code and Kotlin compilation
+        run: ./gradlew :core:test :app:compileDebugKotlin :app:testDebugUnitTest --no-daemon --max-workers=2 --console=plain
