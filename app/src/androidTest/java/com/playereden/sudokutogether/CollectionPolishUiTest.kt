@@ -39,7 +39,10 @@ class CollectionPolishUiTest {
         val edit = compose.onNodeWithContentDescription("Edit name").assertIsDisplayed()
         val editBounds = edit.getUnclippedBoundsInRoot()
         val editWidth = editBounds.right - editBounds.left
-        assertTrue("Edit name target must be at least 48dp; actual=$editWidth, bounds=$editBounds", editWidth >= 48.dp)
+        // The pixel-to-dp conversion can report exactly 48dp as 47.999985dp.
+        // Tolerate numerical precision only, never an appreciably smaller target.
+        assertTrue("Edit name target must be 48dp; actual=$editWidth, bounds=$editBounds",
+            editWidth + 0.001.dp >= 48.dp)
         edit.performClick()
         compose.onNodeWithTag("player_name").performTextReplacement("Puzzle partner")
         compose.onNodeWithText("Save").performClick()
