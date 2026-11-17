@@ -78,3 +78,16 @@ Evidence: owner screenshots noted a clipped icon-family tab; the present `Collec
 - [Earlier v0.11J on-device observations](V0.11J_FOCUSED_AUDIT_QA.md)
 
 The first A1 source changes are scoped to the existing Collection UI and its Android instrumentation tests; this plan alone is not evidence that A2–E have passed.
+
+## Phase A2 first source-review observations (not device findings)
+
+| Area | Confirmed in source | Next evidence required |
+| --- | --- | --- |
+| Home | A vertical scroll container, large Solo/Co-op/Versus targets, editable-only `fillProgress`, and the previously added `New puzzle difficulty` label for an active Solo puzzle | Watch a first-time player navigate new vs resumed puzzles; 320dp/200% text and portrait-to-landscape checks |
+| Playing grid | `PlayGridViewport` measures metadata and a bounded grid in one layout pass; `DockTool` gives keypad/action buttons a >=52dp minimum height | On-device 81-cell tap targets, note density, proof/error colors, and keypad reachability on short landscape screens |
+| Collection | Family chips are one horizontally scrolling row; gallery renders available then locked items; preview uses a stylized **3×3** sample instead of a real 9×9 puzzle | Validate visual match between thumbnail, preview and actual 9×9 board, plus clipped/selected family handling |
+| Profile | Personal statistics distinguish assisted/unassisted Solo and Daily; achievements derive from local records | Empty/long-name/200% font screenshots and no-regression backup checks |
+| Settings | Classic number display, touch feedback and Solo note cleanup already exist | Confirm toggles and descriptions match actual gameplay, especially classic-number appearance |
+| Multiplayer | Co-op board selection and Versus presence/result states exist | Real two-phone finished results, restart/rematch and reconnect sequence—**not** established by code review |
+
+These observations set a test itinerary, not permission to redesign all six areas. Record an issue only after an actual reproducible defect, usability observation, or failed regression.
