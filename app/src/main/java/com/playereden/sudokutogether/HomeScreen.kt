@@ -137,7 +137,7 @@ import androidx.compose.ui.unit.*
                         GameIcon(if (currentDayDone) GameSymbol.CHECK else GameSymbol.RIGHT, modifier = Modifier.size(19.dp))
                     }
                     HorizontalDivider(color = Gold.copy(alpha = .2f))
-                    Text("$" + "{finishedDays} of the last 7 days completed", color = Forest,
+                    Text("${finishedDays} of the last 7 days completed", color = Forest,
                         style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("daily_seven_day_summary"))
                     if (LocalDensity.current.fontScale <= 1.3f) {
                         Row(Modifier.fillMaxWidth().testTag("daily_seven_day_history"),
@@ -145,7 +145,7 @@ import androidx.compose.ui.unit.*
                             recentDays.forEach { day ->
                                 Column(Modifier.weight(1f)
                                     .clearAndSetSemantics {
-                                        contentDescription = "$" + "{day.date}: " +
+                                        contentDescription = "${day.date}: " +
                                             (if (day.complete) "completed" else if (day.inProgress) "in progress" else "not completed")
                                     }, horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.spacedBy(4.dp)) {
