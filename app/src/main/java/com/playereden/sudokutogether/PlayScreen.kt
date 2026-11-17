@@ -427,7 +427,7 @@ private fun roomStatusText(state: GameUiState): String {
                     val highlighted = number == chosenValue
                     // Tell the player what a note tap will do in the selected square.
                     // Remaining counts describe placed values, not pencil marks.
-                    val notePresent = selectedCell?.notes?.and(1 shl (number - 1)) != 0
+                    val notePresent = ((selectedCell?.notes ?: 0) and (1 shl (number - 1))) != 0
                     val spokenAction = if (state.notes) {
                         if (notePresent) "Remove pencil mark $number" else "Add pencil mark $number"
                     } else "Number $number, $remaining remaining"
