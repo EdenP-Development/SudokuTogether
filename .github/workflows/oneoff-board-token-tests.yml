@@ -1,0 +1,29 @@
+name: Sudoku complete board palette regression (one-off)
+
+# One-time PR #52 verification. Remove after the test; don't merge CI trigger.
+on:
+  push:
+    branches:
+      - refactor/sudoku-complete-board-tokens
+    paths:
+      - .github/workflows/oneoff-board-token-tests.yml
+
+permissions:
+  contents: read
+
+jobs:
+  board-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install declared Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Compile app and test board state color mappings
+        run: ./gradlew :core:test :app:compileDebugKotlin :app:testDebugUnitTest --no-daemon --max-workers=2 --console=plain
