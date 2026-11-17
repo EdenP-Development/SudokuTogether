@@ -399,14 +399,14 @@ private fun roomStatusText(state: GameUiState): String {
                         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             Eyebrow("EARNED WITH THIS PUZZLE")
                             earned.achievements.take(2).forEach { title ->
-                                Text("Achievement · $"+ "{title}", style = MaterialTheme.typography.bodySmall, color = Forest)
+                                Text("Achievement · ${title}", style = MaterialTheme.typography.bodySmall, color = Forest)
                             }
                             earned.cosmetics.take(2).forEach { title ->
-                                Text("Collection unlock · $"+ "{title}", style = MaterialTheme.typography.bodySmall, color = Forest)
+                                Text("Collection unlock · ${title}", style = MaterialTheme.typography.bodySmall, color = Forest)
                             }
                             val more = (earned.achievements.size - 2).coerceAtLeast(0) +
                                 (earned.cosmetics.size - 2).coerceAtLeast(0)
-                            if (more > 0) Text("+$"+ "{more} more earned", style = MaterialTheme.typography.bodySmall, color = Muted)
+                            if (more > 0) Text("+${more} more earned", style = MaterialTheme.typography.bodySmall, color = Muted)
                         }
                     }
                 }
