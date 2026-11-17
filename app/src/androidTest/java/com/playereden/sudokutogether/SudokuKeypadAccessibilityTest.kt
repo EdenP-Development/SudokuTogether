@@ -62,5 +62,18 @@ class SudokuKeypadAccessibilityTest {
         compose.runOnIdle { state.value = state.value.copy(notes = false) }
         one.assertContentDescriptionEquals("Number 1, 1 remaining")
         compose.onNodeWithTag("number_remaining_1").assertExists()
+
+        // Filling a non-clue square makes note edits invalid in both Solo
+        // and multiplayer rules, while number replacement stays available.
+        compose.runOnIdle {
+            val old = requireNotNull(state.value.snapshot)
+            state.value = state.value.copy(notes = true, snapshot = old.copy(cells = old.cells.mapIndexed { index, cell ->
+                if (index == 0) cell.copy(value = 1, notes = 0) else cell
+            }))
+        }
+        one.assertIsNotEnabled()
+        compose.onNodeWithText("R1 · C1 · Erase entry before adding pencil marks").assertIsDisplayed()
+        compose.runOnIdle { state.value = state.value.copy(notes = false) }
+        one.assertIsEnabled()
     }
 }
