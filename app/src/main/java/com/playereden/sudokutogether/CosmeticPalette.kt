@@ -77,6 +77,16 @@ internal val boardPalettes: Map<String, BoardPalette> = linkedMapOf(
         proofOutline = Color(0xFF775218), conflictInk = Color(0xFF8D362B),
         previewRule = Color(0xFFC9BAA3)
     ),
+    "ocean" to BoardPalette(
+        fill = Color(0xFFF1F8FA), dark = false,
+        thinRule = Color(0xFFB3CFD2), thickRule = Color(0xFF346F7D),
+        clueInk = Color(0xFF263F49),
+        selectedCell = Color(0xFFF9FCFF), partnerCell = Color(0xFFF6FCFA),
+        conflictCell = Color(0xFFFFF2EB),
+        matchingNumberCell = Color(0xFFFAFCFB), relatedCell = Color(0xFFF6FBFC),
+        proofOutline = Color(0xFF8B5E26), conflictInk = Color(0xFF963B34),
+        previewRule = Color(0xFFB3CFD2)
+    ),
     "graphite" to BoardPalette(
         fill = Color(0xFF293137), dark = true,
         thinRule = Color(0xFF58646B), thickRule = Color(0xFFA9B7BC),
@@ -97,7 +107,9 @@ internal val inkPalettes: Map<String, InkPalette> = linkedMapOf(
     "violet" to InkPalette(Color(0xFF7644A5), Color(0xFFD4B3FF)),
     "lagoon" to InkPalette(Color(0xFF156567), Color(0xFF8DE3DB)),
     "clay" to InkPalette(Color(0xFF9D362D), Color(0xFFFFC1AD)),
-    "slate" to InkPalette(Color(0xFF4B5D76), Color(0xFFBBCDE8))
+    "slate" to InkPalette(Color(0xFF4B5D76), Color(0xFFBBCDE8)),
+    "sepia" to InkPalette(Color(0xFF76513D), Color(0xFFE9C29D)),
+    "indigo" to InkPalette(Color(0xFF3D4FA0), Color(0xFFC1CEFF))
 )
 
 internal fun boardPalette(id: String): BoardPalette = boardPalettes[id] ?: boardPalettes.getValue("classic")

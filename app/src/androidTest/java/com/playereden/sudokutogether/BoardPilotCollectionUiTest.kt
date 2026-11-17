@@ -16,7 +16,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Rule
 import org.junit.Test
 
-/** Phone-width Collection regression for the two new Android board styles. */
+/** Phone-width Collection regression for Beta 1.2 Android board pilots. */
 class BoardPilotCollectionUiTest {
     @get:Rule val compose = createComposeRule()
 
@@ -35,7 +35,7 @@ class BoardPilotCollectionUiTest {
         }
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("Boards").performClick().assertIsSelected()
-        compose.onNodeWithText("1 of 6 available").assertIsDisplayed()
+        compose.onNodeWithText("1 of 7 available").assertIsDisplayed()
         compose.onNodeWithTag("cosmetic_board_parchment").performScrollTo().performClick()
         compose.onNodeWithText("Solve 8 solo puzzles").assertIsDisplayed()
         compose.onNodeWithText("Use board").assertDoesNotExist()
@@ -45,10 +45,15 @@ class BoardPilotCollectionUiTest {
             GameRecord("solo-$index", SOLO, "SOLVED", "p", 1000L, 1, 1000L)
         }
         compose.runOnIdle { state.value = state.value.copy(profile = LocalPlayerData(records = eight)) }
-        compose.onNodeWithText("4 of 6 available").assertIsDisplayed()
+        compose.onNodeWithText("4 of 7 available").assertIsDisplayed()
         compose.onNodeWithTag("cosmetic_board_parchment").performScrollTo().performClick()
         compose.onNodeWithText("Use board").performClick()
         compose.onNodeWithTag("cosmetic_board_parchment").assertIsSelected()
+
+        compose.onNodeWithTag("cosmetic_board_ocean").performScrollTo().performClick()
+        compose.onNodeWithText("Solve 12 solo puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Use board").assertDoesNotExist()
+        compose.onNodeWithText("Close").performClick()
 
         compose.onNodeWithTag("cosmetic_board_graphite").performScrollTo().performClick()
         compose.onNodeWithText("Complete 20 puzzles").assertIsDisplayed()
@@ -59,7 +64,7 @@ class BoardPilotCollectionUiTest {
             GameRecord("solo-$index", SOLO, "SOLVED", "p", 1000L, 1, 1000L)
         }
         compose.runOnIdle { state.value = state.value.copy(profile = LocalPlayerData(records = twenty)) }
-        compose.onNodeWithText("5 of 6 available").assertIsDisplayed()
+        compose.onNodeWithText("6 of 7 available").assertIsDisplayed()
         compose.onNodeWithTag("cosmetic_board_graphite").performScrollTo().performClick()
         compose.onNodeWithText("Use board").performClick()
         compose.onNodeWithTag("cosmetic_board_graphite").assertIsSelected()
