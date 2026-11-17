@@ -10,6 +10,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
 import java.io.File
+import java.io.FileInputStream
 
 /**
  * Synthetic, repeatable visual audit only; never reads personal game data.
@@ -31,6 +32,16 @@ class BoardCoachVisualAuditTest {
         }
         image.recycle()
         assertTrue("Screenshot missing or empty", output.length() > 10000)
+        // Android instrumentation may remove the target app's external-files
+        // directory at test completion. Export while the test is still active.
+        val export = "/sdcard/Download/GridMates-Beta12-Visual"
+        val command = "mkdir -p $export && cp '${output.absolutePath}' $export/$name.png " +
+            "&& test -s $export/$name.png && echo EXPORTED"
+        val stdout = InstrumentationRegistry.getInstrumentation().uiAutomation
+            .executeShellCommand(command).use { pfd ->
+                FileInputStream(pfd.fileDescriptor).bufferedReader().use { it.readText() }
+            }
+        check("EXPORTED" in stdout) { "Failed to export $name: $stdout" }
     }
 
     @Test fun capturesActualPuzzleBoardWithNotesOnClassicAndMidnight() {
