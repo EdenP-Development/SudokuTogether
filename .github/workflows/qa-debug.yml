@@ -1,8 +1,15 @@
 name: GridMates — verified QA update APK
 
-# Manual only: preserve Actions minutes and build exactly the selected ref.
+# Normally manual-only. The one-time Beta 1.1 candidate below triggers only
+# on this exact QA branch when THIS workflow file changes. Never merge this
+# temporary push trigger into main; signed production workflows are unchanged.
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - qa/sudoku-beta11-candidate-20261116
+    paths:
+      - .github/workflows/qa-debug.yml
 
 permissions:
   contents: read
