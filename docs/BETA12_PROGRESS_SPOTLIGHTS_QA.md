@@ -15,3 +15,7 @@ The owner-phone Beta 1.2 preview has strong readable game screens, but first-use
 - Re-run existing Profile/Collection navigation, 200% font and equipped-state Android emulator checks.
 - Ensure new card remains legible on 320–430dp phones and large fonts; emulator is not owner visual approval.
 - Remove temporary UI workflow after all checks pass.
+
+## Integration checkpoint
+- Predecessor [PR #64](https://github.com/PlayerEden/SudokuTogether/pull/64) merged into main as `41f8b60` after passing 3/3 API 36 screenshot-driven input-feedback regressions. This new PR is retargeted to `main` and does not modify the fixed-clue or keypad feedback logic.
+- Profile/Collection instrumentation is required before merging this progression presentation. Do not claim physical-screen review is complete merely because the emulator tests pass.
