@@ -2,6 +2,8 @@ package com.playereden.sudokutogether
 
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.relocation.BringIntoViewRequester
+import androidx.compose.foundation.relocation.bringIntoViewRequester
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -169,8 +171,15 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     val buttons: @Composable () -> Unit = {
         values.forEach { value ->
             val selected = value == choice
+            val selectedItem = remember(value) { BringIntoViewRequester() }
+            // The selected family can otherwise be hidden after changing screens
+            // or restoring the Collection on a narrower phone.
+            if (selected && horizontalScrollState != null) {
+                LaunchedEffect(value, horizontalScrollState) { selectedItem.bringIntoView() }
+            }
             val shape = RoundedCornerShape(13.dp)
-            Box(Modifier.clip(shape).background(if (selected) Forest else Paper).border(1.dp, if (selected) Forest else Rule, shape)
+            Box(Modifier.bringIntoViewRequester(selectedItem)
+                .clip(shape).background(if (selected) Forest else Paper).border(1.dp, if (selected) Forest else Rule, shape)
                 .selectable(selected, role = role, onClick = { select(value) })
                 .sizeIn(minWidth = 48.dp, minHeight = 48.dp).padding(horizontal = horizontalPadding, vertical = 7.dp),
                 contentAlignment = Alignment.Center) {
@@ -181,7 +190,16 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     val group = Modifier.fillMaxWidth().selectableGroup()
     val spacing = Arrangement.spacedBy(6.dp)
     if (horizontalScrollState != null) {
-        Row(group.horizontalScroll(horizontalScrollState), horizontalArrangement = spacing) { buttons() }
+        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Row(group.horizontalScroll(horizontalScrollState), horizontalArrangement = spacing) { buttons() }
+            // The clipped edge of a chip is too subtle a scroll affordance.
+            // Show a short hint only when the family row actually overflows.
+            if (horizontalScrollState.maxValue > 0) {
+                Text("Swipe for more icon sets ↔",
+                    modifier = Modifier.align(Alignment.End).testTag("collection_family_scroll_hint"),
+                    style = MaterialTheme.typography.labelSmall, color = Muted)
+            }
+        }
     } else {
         FlowRow(group, horizontalArrangement = spacing, verticalArrangement = Arrangement.spacedBy(4.dp)) { buttons() }
     }

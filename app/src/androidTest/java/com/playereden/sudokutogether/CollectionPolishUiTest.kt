@@ -38,7 +38,11 @@ class CollectionPolishUiTest {
 
         val edit = compose.onNodeWithContentDescription("Edit name").assertIsDisplayed()
         val editBounds = edit.getUnclippedBoundsInRoot()
-        assertTrue(editBounds.right - editBounds.left >= 48.dp)
+        val editWidth = editBounds.right - editBounds.left
+        // The pixel-to-dp conversion can report exactly 48dp as 47.999985dp.
+        // Tolerate numerical precision only, never an appreciably smaller target.
+        assertTrue("Edit name target must be 48dp; actual=$editWidth, bounds=$editBounds",
+            editWidth + 0.001.dp >= 48.dp)
         edit.performClick()
         compose.onNodeWithTag("player_name").performTextReplacement("Puzzle partner")
         compose.onNodeWithText("Save").performClick()
@@ -109,6 +113,7 @@ class CollectionPolishUiTest {
         )
 
         val picker = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.HorizontalScrollAxisRange))
+        compose.onNodeWithTag("collection_family_scroll_hint").assertIsDisplayed()
         val viewport = picker.getUnclippedBoundsInRoot()
         assertTrue(garden.getUnclippedBoundsInRoot().right > viewport.right)
         picker.performTouchInput { swipeLeft() }
@@ -129,6 +134,20 @@ class CollectionPolishUiTest {
         all.assertIsDisplayed().performClick().assertIsSelected()
         compose.onNodeWithTag("cosmetic_emblem_tile").assertIsDisplayed()
         compose.onNodeWithTag("portrait_ocean_octopus").assertExists()
+    }
+
+    @Test fun iconFamilyHintDoesNotWasteSpaceWhenAllOptionsFit() {
+        compose.setContent {
+            SudokuTogetherTheme {
+                Box(Modifier.width(600.dp).fillMaxHeight()) {
+                    SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {})
+                }
+            }
+        }
+        compose.onNodeWithTag("nav_collection").performClick()
+        compose.onNodeWithText("All").assertIsSelected()
+        compose.onNodeWithText("Garden").assertIsDisplayed()
+        compose.onNodeWithTag("collection_family_scroll_hint").assertDoesNotExist()
     }
 
     @Test fun gardenFilterShowsExistingProgressAndEquipsTheHoneybee() {
