@@ -53,7 +53,9 @@ const val MAX_RECORDS = 10_000
     val playerId: String = UUID.randomUUID().toString(),
     val activeSolo: SoloProgress? = null,
     val records: List<GameRecord> = emptyList(),
-    val dailyProgress: List<DailyProgress> = emptyList()
+    val dailyProgress: List<DailyProgress> = emptyList(),
+    /** Durable locally earned cosmetic IDs; optional for all existing Beta 1 saves. */
+    val ownedCosmeticIds: List<String> = emptyList()
 )
 
 data class PersonalStats(

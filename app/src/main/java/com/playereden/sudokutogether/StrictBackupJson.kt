@@ -2,6 +2,7 @@ package com.playereden.sudokutogether
 
 import android.util.JsonReader
 import android.util.JsonToken
+import com.playereden.sudokutogether.core.Cosmetics
 import com.playereden.sudokutogether.core.DailyChallenge
 import com.playereden.sudokutogether.core.MAX_RECORDS
 import com.playereden.sudokutogether.core.PuzzleSupply
@@ -64,7 +65,9 @@ internal object StrictBackupJson {
                     "SoloUndo" -> 128
                     "DailyProgress" -> DailyChallenge.MAX_SAVED_DAYS
                     "GameRecord" -> MAX_RECORDS
-                    "String" -> PuzzleSupply.RECENT_LIMIT
+                    // Recent-puzzle IDs stay limited to 64 by semantic validation.
+                    // Earned Collection IDs may grow as future themes arrive.
+                    "String" -> maxOf(PuzzleSupply.RECENT_LIMIT, Cosmetics.knownIds.size)
                     else -> error("Unexpected backup array type.")
                 }
                 beginArray()

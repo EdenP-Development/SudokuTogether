@@ -16,8 +16,8 @@ import kotlinx.serialization.Serializable
 
 data class Cosmetic(val id: String, val name: String, val requirement: String)
 
-data class CosmeticProgress(val current: Int, val target: Int) {
-    val unlocked: Boolean get() = current >= target
+data class CosmeticProgress(val current: Int, val target: Int, val earned: Boolean = false) {
+    val unlocked: Boolean get() = earned || current >= target
 }
 
 object Cosmetics {
@@ -109,6 +109,15 @@ object Cosmetics {
     val fonts = fontEntries.map(CatalogEntry::cosmetic)
     val emblems = emblemEntries.map(CatalogEntry::cosmetic)
 
+    /** Ownership survives record retention and later tuning of unlock thresholds. */
+    val knownIds: Set<String> get() = entries.keys
+
+    fun preserveEarned(profile: LocalPlayerData): LocalPlayerData {
+        val fromCurrentRecords = progressAll(profile.records).filterValues { it.unlocked && it.target > 0 }.keys
+        val owned = (profile.ownedCosmeticIds + fromCurrentRecords).distinct().sorted()
+        return if (profile.ownedCosmeticIds == owned) profile else profile.copy(ownedCosmeticIds = owned)
+    }
+
     /** The room's display priority is independent of either player's unlocks. */
     fun sharedCoopBoard(hostBoard: String, guestBoard: String?): String =
         sharedBoardOrder[maxOf(0, sharedBoardOrder.indexOf(hostBoard), sharedBoardOrder.indexOf(guestBoard))]
@@ -132,7 +141,7 @@ object Cosmetics {
         return Totals(finish, solo, coop, race)
     }
 
-    private fun progress(entry: CatalogEntry, totals: Totals): CosmeticProgress {
+    private fun progress(entry: CatalogEntry, totals: Totals, earned: Boolean = false): CosmeticProgress {
         // Starter items retain 0/0 progress, even for veteran profiles.
         val current = if (entry.target == 0) 0 else when (entry.milestone) {
             Milestone.FINISH -> totals.finish
@@ -140,31 +149,32 @@ object Cosmetics {
             Milestone.COOP -> totals.coop
             Milestone.RACE -> totals.race
         }
-        return CosmeticProgress(current, entry.target)
+        return CosmeticProgress(current, entry.target, earned)
     }
 
     fun completedPuzzles(records: List<GameRecord>): Int = totals(records).finish
 
     /** The same milestone controls the preview and the equip permission. */
-    fun progress(id: String, records: List<GameRecord>): CosmeticProgress? =
-        entries[id]?.let { progress(it, totals(records)) }
+    fun progress(id: String, records: List<GameRecord>, owned: Collection<String> = emptyList()): CosmeticProgress? =
+        entries[id]?.let { progress(it, totals(records), id in owned) }
 
     /** Collection-wide progress with one record scan, even as new items arrive. */
-    fun progressAll(records: List<GameRecord>): Map<String, CosmeticProgress> {
+    fun progressAll(records: List<GameRecord>, owned: Collection<String> = emptyList()): Map<String, CosmeticProgress> {
         val counts = totals(records)
-        return entries.mapValues { (_, entry) -> progress(entry, counts) }
+        return entries.mapValues { (id, entry) -> progress(entry, counts, id in owned) }
     }
 
     fun valid(a: Appearance): Boolean = inks.any { it.id == a.ink } &&
         boards.any { it.id == a.board } && fonts.any { it.id == a.font } &&
         emblems.any { it.id == a.emblem } && (a.portrait.isEmpty() || portraits.any { it.id == a.portrait })
-    fun allowed(id: String, records: List<GameRecord>): Boolean = progress(id, records)?.unlocked == true
-    fun accessible(a: Appearance, records: List<GameRecord>): Appearance = Appearance(
-        ink = a.ink.takeIf { allowed(it, records) } ?: "forest",
-        board = a.board.takeIf { allowed(it, records) } ?: "classic",
-        font = a.font.takeIf { allowed(it, records) } ?: "clear",
-        emblem = a.emblem.takeIf { allowed(it, records) } ?: "tile",
-        portrait = a.portrait.takeIf { it.isEmpty() || (portraits.any { item -> item.id == it } && allowed(it, records)) } ?: ""
+    fun allowed(id: String, records: List<GameRecord>, owned: Collection<String> = emptyList()): Boolean =
+        progress(id, records, owned)?.unlocked == true
+    fun accessible(a: Appearance, records: List<GameRecord>, owned: Collection<String> = emptyList()): Appearance = Appearance(
+        ink = a.ink.takeIf { allowed(it, records, owned) } ?: "forest",
+        board = a.board.takeIf { allowed(it, records, owned) } ?: "classic",
+        font = a.font.takeIf { allowed(it, records, owned) } ?: "clear",
+        emblem = a.emblem.takeIf { allowed(it, records, owned) } ?: "tile",
+        portrait = a.portrait.takeIf { it.isEmpty() || (portraits.any { item -> item.id == it } && allowed(it, records, owned)) } ?: ""
     )
 }
 

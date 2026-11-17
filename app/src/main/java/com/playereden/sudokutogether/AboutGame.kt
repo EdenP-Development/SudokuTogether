@@ -24,12 +24,15 @@ import androidx.compose.ui.unit.dp
                 }
                 Text("Version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall)
                 HorizontalDivider()
-                Text("Progress is stored on this phone. Uninstalling or clearing app data can erase it.")
+                Text("Good puzzles. Good company.")
+                Text("Play Solo and Daily offline. Nearby Co-op and Versus connect phones directly on the same Wi-Fi; no account is needed.")
+                Text("Your puzzles, progress, and earned Collection items are stored on this phone. Before uninstalling or changing phones, use Settings → Progress → Back up progress. Active multiplayer rooms are not included in that backup.")
+                Text("Nearby game messages and chat travel on the local Wi-Fi network without encryption. Play together on networks you trust.")
                 if (share != null) {
                     OutlinedButton(share, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                         GameIcon(GameSymbol.SHARE, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
-                        Text("Share APK")
+                        Text("Share game installer")
                     }
                 }
             }

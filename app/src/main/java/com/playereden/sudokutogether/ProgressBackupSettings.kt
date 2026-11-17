@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -32,7 +33,9 @@ internal data class ProgressBackupUiState(
 ) {
     GamePanel(Modifier.fillMaxWidth()) {
         Text("Progress", fontFamily = FontFamily.Serif, fontSize = 21.sp, color = Forest)
-        Text("Save your Solo and Daily puzzles, game records, and settings to a file.", color = Muted)
+        Text("Keep your Solo and Daily puzzles, records, earned Collection items, and settings safe in a backup file.", color = Muted)
+        Text("Back up before changing phones or uninstalling. Active nearby multiplayer rooms are not included.",
+            color = Muted, style = MaterialTheme.typography.bodySmall)
         OutlinedButton(export, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
             Text("Back up progress")
         }

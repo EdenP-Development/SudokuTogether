@@ -5,6 +5,8 @@ import androidx.test.platform.app.InstrumentationRegistry
 import com.playereden.sudokutogether.core.*
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.jsonObject
 import org.junit.After
 import org.junit.Assert.*
 import org.junit.Before
@@ -174,5 +176,37 @@ class LocalPlayerStoreTest {
         val text=Json.encodeToString(original.copy(records=listOf(record)));val file=target().also { it.writeText(text) }
         assertFalse(LocalPlayerStore(file).canSave)
         assertEquals(text,file.readText())
+    }
+
+    @Test fun legacySavedProfileMigratesEarnedRewardsWithoutResettingExistingSaves() {
+        val matches = (1..5).map {
+            GameRecord("solo-$it", SOLO, "SOLVED", "standard-0123456789abcdef", 1000L, 30, it.toLong(), "EASY")
+        }
+        val legacy = LocalPlayerData(playerId = "wife-test-profile", records = matches)
+        val jsonObject = json.parseToJsonElement(json.encodeToString(legacy)).jsonObject.toMutableMap()
+        jsonObject.remove("ownedCosmeticIds")
+        val originalBytes = JsonObject(jsonObject).toString()
+        val file = target().also { it.writeText(originalBytes) }
+        val store = LocalPlayerStore(file)
+        assertEquals("wife-test-profile", store.current().playerId)
+        assertEquals(matches, store.current().records)
+        assertTrue("rose" in store.current().ownedCosmeticIds)
+        assertEquals("Migration does not eagerly overwrite the original save", originalBytes, file.readText())
+        store.update { it.copy(records = emptyList(), ownedCosmeticIds = emptyList()) } // Simulate archival retention and an old caller that forgot the new field.
+        val reopened = LocalPlayerStore(file).current()
+        assertEquals("wife-test-profile", reopened.playerId)
+        assertTrue(Cosmetics.allowed("rose", reopened.records, reopened.ownedCosmeticIds))
+        assertTrue("woodland_robin" in reopened.ownedCosmeticIds)
+    }
+
+    @Test fun aTamperedCosmeticOwnershipListCannotReplaceExistingProgress() {
+        val original = saved()
+        val file = target().also { it.writeText(json.encodeToString(original)) }
+        val store = LocalPlayerStore(file)
+        assertThrows(IllegalArgumentException::class.java) {
+            store.update { it.copy(ownedCosmeticIds = listOf("not-in-catalog")) }
+        }
+        assertEquals(original, store.current())
+        assertEquals(original, json.decodeFromString<LocalPlayerData>(file.readText()))
     }
 }
