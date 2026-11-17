@@ -473,7 +473,8 @@ private fun roomStatusText(state: GameUiState): String {
     val digitSize = (size.value / 9 * .64f * correction).sp
     // A 3x3 pencil glyph should be readable on small Coach boards as well as full puzzles.
     // At .82 of the note slot height, nine candidates still fit without overlap.
-    val noteSize = ((size.value / 9 - 2f) / 3 * .82f * correction).sp
+    val noteSlot = (size.value / 9 - 2f) / 3 * correction
+    val noteSize = (noteSlot * .82f).sp
     val digitStyle = TextStyle(fontSize = digitSize, lineHeight = digitSize, platformStyle = PlatformTextStyle(includeFontPadding = false))
     val noteStyle = TextStyle(fontSize = noteSize, lineHeight = noteSize, platformStyle = PlatformTextStyle(includeFontPadding = false))
     val conflicts = remember(snapshot.cells) { Sudoku.conflicts(snapshot.cells.map { it.value }) }
@@ -561,6 +562,20 @@ private fun roomStatusText(state: GameUiState): String {
                         // Keep the equipped color. If a dark-board highlight makes
                         // small pencil marks too faint, lift their contrast locally.
                         val pencilColor = pencilNoteInk(authoredInk, background, palette)
+                        // A dense 3x3 pencil grid must fit every bundled font.
+                        // Compact Coach grids and taller hand/rounded typefaces use
+                        // the conservative fitting size; Clear and Serif can be
+                        // slightly larger on the full board. Mono is narrow enough
+                        // to retain the enlarged note size on full boards.
+                        val fitFactor = when {
+                            size <= 300.dp -> .68f
+                            authored.font == "mono" -> .82f
+                            authored.font == "clear" || authored.font == "serif" -> .72f
+                            else -> .68f
+                        }
+                        val fittedSize = (noteSlot * fitFactor).sp
+                        val inkNoteStyle = noteStyle.copy(fontFamily = authoredFont,
+                            fontSize = fittedSize, lineHeight = fittedSize)
                         for (r in 0..2) Row(Modifier.weight(1f).fillMaxWidth()) {
                             for (c in 0..2) {
                                 val n = r * 3 + c + 1
@@ -569,7 +584,7 @@ private fun roomStatusText(state: GameUiState): String {
                                         val removed = n in crossedOff
                                         val color = if (removed) crossedOffNoteInk(background, palette) else pencilColor
                                         Text(n.toString(), modifier = Modifier.fillMaxWidth(), color = color,
-                                            style = noteStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
+                                            style = inkNoteStyle, textAlign = TextAlign.Center,
                                             textDecoration = if (removed) TextDecoration.LineThrough else null,
                                             maxLines = 1, softWrap = false)
                                     }
