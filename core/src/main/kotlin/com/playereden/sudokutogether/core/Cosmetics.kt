@@ -64,7 +64,10 @@ object Cosmetics {
         CatalogEntry("violet", "Violet", 2, Milestone.RACE),
         CatalogEntry("lagoon", "Lagoon"),
         CatalogEntry("clay", "Clay", 4, Milestone.FINISH),
-        CatalogEntry("slate", "Slate", 10, Milestone.FINISH)
+        CatalogEntry("slate", "Slate", 10, Milestone.FINISH),
+        // Beta 1.2 color candidates, both available without multiplayer.
+        CatalogEntry("sepia", "Sepia", 6, Milestone.SOLO),
+        CatalogEntry("indigo", "Indigo", 14, Milestone.FINISH)
     )
     private val boardEntries = listOf(
         CatalogEntry("classic", "Classic"),
@@ -73,6 +76,7 @@ object Cosmetics {
         CatalogEntry("circuit", "Circuit", 3, Milestone.RACE),
         // Beta 1.2 pilot boards. Both are obtainable by playing Solo.
         CatalogEntry("parchment", "Parchment", 8, Milestone.SOLO),
+        CatalogEntry("ocean", "Ocean", 12, Milestone.SOLO),
         CatalogEntry("graphite", "Graphite", 20, Milestone.FINISH)
     )
     // Co-op display priority follows the curated board catalog order.
