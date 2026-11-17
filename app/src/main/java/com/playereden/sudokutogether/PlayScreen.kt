@@ -460,15 +460,16 @@ private fun roomStatusText(state: GameUiState): String {
     val noteStyle = TextStyle(fontSize = noteSize, lineHeight = noteSize, platformStyle = PlatformTextStyle(includeFontPadding = false))
     val conflicts = remember(snapshot.cells) { Sudoku.conflicts(snapshot.cells.map { it.value }) }
     val selectedValue = snapshot.cells.getOrNull(selected)?.value ?: 0
-    val darkBoard = boardIsDark(boardTheme)
+    val palette = boardPalette(boardTheme)
+    val darkBoard = palette.dark
     val defaultStyle = Appearance()
     val soloNumbers = localStyle.withNumberDisplay(uniformNumbers)
     val hostNumbers = snapshot.hostAppearance.withNumberDisplay(uniformNumbers)
     val guestNumbers = snapshot.guestAppearance.withNumberDisplay(uniformNumbers)
-    val boardPaper = boardFillFor(boardTheme)
-    val boardRule = if (darkBoard) Color(0xFF49616B) else Rule
-    val boardEdge = if (darkBoard) Color(0xFFA9C8C3) else Forest
-    val neutralInk = if (darkBoard) Color(0xFFF2F2E9) else Ink
+    val boardPaper = palette.fill
+    val boardRule = palette.thinRule
+    val boardEdge = palette.thickRule
+    val neutralInk = palette.clueInk
     Column(Modifier.size(size).clip(RoundedCornerShape(3.dp)).background(boardPaper).drawWithContent {
         drawContent()
         val step = this.size.width / 9
@@ -501,17 +502,17 @@ private fun roomStatusText(state: GameUiState): String {
                     (row / 3 == selected / 27 && col / 3 == (selected % 9) / 3)
                 )
                 val background = when {
-                    proofSource -> if (darkBoard) Color(0xFF305C55) else TealLight
-                    proofTarget -> if (darkBoard) Color(0xFF555336) else AmberLight
-                    i == selected -> if (darkBoard) Color(0xFF555336) else AmberLight
-                    i == partner -> if (darkBoard) Color(0xFF305C55) else TealLight
-                    i in conflicts -> if (darkBoard) Color(0xFF63362C) else Color(0xFFF8E7DF)
-                    selectedValue != 0 && selectedValue == cell.value -> if (darkBoard) Color(0xFF37473B) else Color(0xFFF5EEDB)
-                    sameHouse -> if (darkBoard) Color(0xFF213B3E) else Color(0xFFF0F3EB)
+                    proofSource -> palette.partnerCell
+                    proofTarget -> palette.selectedCell
+                    i == selected -> palette.selectedCell
+                    i == partner -> palette.partnerCell
+                    i in conflicts -> palette.conflictCell
+                    selectedValue != 0 && selectedValue == cell.value -> palette.matchingNumberCell
+                    sameHouse -> palette.relatedCell
                     else -> boardPaper
                 }
                 val outline = when {
-                    proofTarget -> Modifier.border(2.dp, if (darkBoard) Color(0xFFFFD386) else Gold)
+                    proofTarget -> Modifier.border(2.dp, palette.proofOutline)
                     i == partner || i == selected -> Modifier.border(2.dp, boardEdge)
                     else -> Modifier
                 }
@@ -537,7 +538,7 @@ private fun roomStatusText(state: GameUiState): String {
                     if (cell.value != 0) Text(cell.value.toString(), modifier = Modifier.fillMaxWidth(),
                         style = digitStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
                         maxLines = 1, softWrap = false, fontWeight = if (given) FontWeight.Bold else FontWeight.Normal,
-                        color = if (i in conflicts) (if (darkBoard) Color(0xFFFFB7A6) else Brick) else if (given) neutralInk else authoredInk)
+                        color = if (i in conflicts) palette.conflictInk else if (given) neutralInk else authoredInk)
                     else if (cell.notes != 0) Column(Modifier.fillMaxSize().padding(1.dp)) {
                         for (r in 0..2) Row(Modifier.weight(1f).fillMaxWidth()) {
                             for (c in 0..2) {
@@ -546,7 +547,7 @@ private fun roomStatusText(state: GameUiState): String {
                                     if (n in noteNumbers) {
                                         val removed = n in crossedOff
                                         val color = when {
-                                            removed -> if (darkBoard) Color(0xFFFFB7A6) else Brick
+                                            removed -> palette.conflictInk
                                             darkBoard -> authoredInk
                                             else -> Muted
                                         }
