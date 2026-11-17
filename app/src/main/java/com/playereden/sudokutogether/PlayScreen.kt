@@ -562,13 +562,16 @@ private fun roomStatusText(state: GameUiState): String {
                         // Keep the equipped color. If a dark-board highlight makes
                         // small pencil marks too faint, lift their contrast locally.
                         val pencilColor = pencilNoteInk(authoredInk, background, palette)
-                        // Nunito Rounded has taller glyph bounds than the other
-                        // curated digits. At .82 it overflows one candidate slot
-                        // on the standard Co-op board; keep its tested .68 fit.
-                        val inkNoteStyle = if (authored.font == "rounded") {
-                            val roundedSize = (noteSlot * .68f).sp
-                            noteStyle.copy(fontFamily = authoredFont, fontSize = roundedSize, lineHeight = roundedSize)
-                        } else noteStyle.copy(fontFamily = authoredFont)
+                        // A full set of nine notes can overflow the tight 3x3
+                        // slot in compact Coach grids (including the Clear font).
+                        // Nunito Rounded and Patrick Hand also have taller bounds
+                        // on the full game board. Preserve the larger .82 notes
+                        // where there is room, but use the previous fitting .68
+                        // for narrow grids and these taller typefaces.
+                        val fitFactor = if (size <= 300.dp || authored.font == "rounded" || authored.font == "pencil") .68f else .82f
+                        val fittedSize = (noteSlot * fitFactor).sp
+                        val inkNoteStyle = noteStyle.copy(fontFamily = authoredFont,
+                            fontSize = fittedSize, lineHeight = fittedSize)
                         for (r in 0..2) Row(Modifier.weight(1f).fillMaxWidth()) {
                             for (c in 0..2) {
                                 val n = r * 3 + c + 1
