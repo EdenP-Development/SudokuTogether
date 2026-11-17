@@ -9,6 +9,44 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class SessionStoreTest {
+    @Test fun finishedVersusRaceSurvivesRestoreAndNextRaceRejectsOldMoves() {
+        val store = AtomicSessionStore(file())
+        val game = GameSession.create(fixture(), persist = store::save, mode = VERSUS)
+        val partner = game.admitGuest("Rival")
+        game.setPresence()
+
+        for ((cell, digit) in listOf(0 to 1, 1 to 2, 9 to 4, 10 to 5)) {
+            assertTrue(game.submit(HOST, game.snapshot().move(cell, number = digit)).accepted)
+        }
+        val finished = game.snapshot()
+        assertTrue(finished.completed)
+        assertEquals(HOST, finished.winner)
+        val saved = (store.load() as LoadResult.Loaded).data
+        assertEquals(finished, saved.snapshot)
+
+        val resumed = GameSession(saved, store::save)
+        assertEquals(partner, resumed.admitGuest("Rival", partner.token))
+        resumed.setPresence()
+        assertEquals(ResultCode.COMPLETE,
+            resumed.submit(GUEST, resumed.snapshotForGuest().move(0, number = 1)).code)
+
+        val nextPuzzle = fixture().copy(id = "new-race-after-restore")
+        resumed.newPuzzle(nextPuzzle)
+        val next = resumed.snapshot()
+        assertNotEquals(finished.epoch, next.epoch)
+        assertEquals(finished.sessionId, next.sessionId)
+        assertEquals(nextPuzzle, next.puzzle)
+        assertEquals(partner.name, next.guestName)
+        assertFalse(next.completed)
+        assertNull(next.winner)
+        assertEquals(nextPuzzle.clues.count { it != 0 }, next.hostProgress)
+        assertEquals(next.hostProgress, next.guestProgress)
+        assertTrue(next.guestCells.isNotEmpty())
+        assertEquals(ResultCode.WRONG_GAME,
+            resumed.submit(HOST, finished.move(0, number = 1)).code)
+        assertEquals(next, (store.load() as LoadResult.Loaded).data.snapshot)
+    }
+
     @get:Rule val folder = TemporaryFolder()
     private fun file() = File(folder.root, "session.json")
     @Test fun roundTripPreservesSharedWorkHistoryAndGuestIdentity() {
