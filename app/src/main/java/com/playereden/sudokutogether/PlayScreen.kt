@@ -556,17 +556,16 @@ private fun roomStatusText(state: GameUiState): String {
                         maxLines = 1, softWrap = false, fontWeight = if (given) FontWeight.Bold else FontWeight.Normal,
                         color = if (i in conflicts) palette.conflictInk else if (given) neutralInk else authoredInk)
                     else if (cell.notes != 0) Column(Modifier.fillMaxSize().padding(1.dp)) {
+                        // Keep the equipped color. If a dark-board highlight makes
+                        // small pencil marks too faint, lift their contrast locally.
+                        val pencilColor = pencilNoteInk(authoredInk, background, palette)
                         for (r in 0..2) Row(Modifier.weight(1f).fillMaxWidth()) {
                             for (c in 0..2) {
                                 val n = r * 3 + c + 1
                                 Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
                                     if (n in noteNumbers) {
                                         val removed = n in crossedOff
-                                        val color = when {
-                                            removed -> palette.conflictInk
-                                            darkBoard -> authoredInk
-                                            else -> Muted
-                                        }
+                                        val color = if (removed) palette.conflictInk else pencilColor
                                         Text(n.toString(), modifier = Modifier.fillMaxWidth(), color = color,
                                             style = noteStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
                                             textDecoration = if (removed) TextDecoration.LineThrough else null,
