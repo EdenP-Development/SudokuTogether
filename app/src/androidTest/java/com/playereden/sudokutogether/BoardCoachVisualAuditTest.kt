@@ -1,6 +1,8 @@
 package com.playereden.sudokutogether
 
 import android.graphics.Bitmap
+import android.content.ContentValues
+import android.provider.MediaStore
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
@@ -9,8 +11,7 @@ import com.playereden.sudokutogether.core.*
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
-import java.io.File
-import java.io.FileInputStream
+import java.io.ByteArrayOutputStream
 
 /**
  * Synthetic, repeatable visual audit only; never reads personal game data.
@@ -24,24 +25,30 @@ class BoardCoachVisualAuditTest {
     private fun screenshot(name: String) {
         compose.waitForIdle()
         val image = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
-        val dir = requireNotNull(target.getExternalFilesDir("beta12-visual-review"))
-        check(dir.exists() || dir.mkdirs())
-        val output = File(dir, "$name.png")
-        output.outputStream().use {
-            assertTrue("Unable to encode $name", image.compress(Bitmap.CompressFormat.PNG, 100, it))
+        val bytes = ByteArrayOutputStream().use { stream ->
+            assertTrue("Unable to encode $name", image.compress(Bitmap.CompressFormat.PNG, 100, stream))
+            stream.toByteArray()
         }
         image.recycle()
-        assertTrue("Screenshot missing or empty", output.length() > 10000)
-        // Android instrumentation may remove the target app's external-files
-        // directory at test completion. Export while the test is still active.
-        val export = "/sdcard/Download/GridMates-Beta12-Visual"
-        val command = "mkdir -p $export && cp '${output.absolutePath}' $export/$name.png " +
-            "&& test -s $export/$name.png && echo EXPORTED"
-        val stdout = InstrumentationRegistry.getInstrumentation().uiAutomation
-            .executeShellCommand(command).use { pfd ->
-                FileInputStream(pfd.fileDescriptor).bufferedReader().use { it.readText() }
-            }
-        check("EXPORTED" in stdout) { "Failed to export $name: $stdout" }
+        assertTrue("Screenshot missing or empty", bytes.size > 10000)
+
+        // Save through Android's scoped-storage API. Instrumentation may clear
+        // app-private external files after testing, and shell cannot reliably
+        // copy Android/data on API 36.
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.DISPLAY_NAME, "$name.png")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/GridMates-Beta12-Visual")
+            put(MediaStore.Images.Media.IS_PENDING, 1)
+        }
+        val resolver = target.contentResolver
+        val uri = requireNotNull(resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)) {
+            "Unable to create MediaStore screenshot $name"
+        }
+        requireNotNull(resolver.openOutputStream(uri)).use { it.write(bytes) }
+        resolver.update(uri, ContentValues().apply {
+            put(MediaStore.Images.Media.IS_PENDING, 0)
+        }, null, null)
     }
 
     @Test fun capturesActualPuzzleBoardWithNotesOnClassicAndMidnight() {
