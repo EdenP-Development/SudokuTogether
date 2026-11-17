@@ -1,0 +1,172 @@
+name: GridMates Sudoku Beta 1.2 unified isolated phone preview
+
+# One-off owner review, not a public release or same-identity QA update.
+on:
+  push:
+    branches:
+      - qa/beta12-unified-owner-review-20261117
+    paths:
+      - '.github/workflows/beta12-unified-owner-preview.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sudoku-beta12-unified-preview
+  cancel-in-progress: false
+
+jobs:
+  isolated-owner-review:
+    name: Test, smoke-launch and verify separate Beta 1.2 APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      SOURCE_MAIN_SHA: 84db607673e9183b6db0f7f8d825a6c485729c96
+      PREVIEW_PACKAGE: com.playereden.sudokutogether.qa.beta12unified
+      APK_NAME: GridMates-Sudoku-Beta12-Unified-Review.apk
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prove game sources equal merged main checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "$SOURCE_MAIN_SHA^{commit}"
+          changed="$(git diff --name-only "$SOURCE_MAIN_SHA" HEAD)"
+          test "$changed" = '.github/workflows/beta12-unified-owner-preview.yml' || {
+            echo "Refusing unexpected source changes on preview branch:" >&2
+            echo "$changed" >&2
+            exit 1
+          }
+          echo "Game source is exact merged main commit $SOURCE_MAIN_SHA" >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install declared Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Apply isolated identity on runner only
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          gradle = Path("app/build.gradle.kts")
+          content = gradle.read_text()
+          token = 'applicationIdSuffix = ".qa"'
+          assert content.count(token) == 1, "Unexpected debug package declaration"
+          gradle.write_text(content.replace(token, 'applicationIdSuffix = ".qa.beta12unified"'))
+          strings = Path("app/src/main/res/values/strings.xml")
+          text = strings.read_text()
+          for before, after in (
+              ('<string name="app_name">GridMates: Sudoku</string>',
+               '<string name="app_name">GridMates Beta 1.2 Unified</string>'),
+              ('<string name="launcher_name">Sudoku</string>',
+               '<string name="launcher_name">Sudoku B1.2 Review</string>'),
+          ):
+              assert text.count(before) == 1, "Unexpected launcher strings"
+              text = text.replace(before, after)
+          strings.write_text(text)
+          PY
+      - name: Test build-safety scripts
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Core, Android unit, lint and final preview assembly
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug --no-daemon --max-workers=2 --console=plain
+      - name: Verify APK package, ephemeral signature, and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p review
+          cp app/build/outputs/apk/debug/app-debug.apk "review/$APK_NAME"
+          apk="review/$APK_NAME"
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          "$tools/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > review/signature.txt
+          "$tools/aapt" dump badging "$apk" > review/package.txt
+          unzip -t "$apk" >/dev/null
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os, re
+          apk = Path("review") / os.environ["APK_NAME"]
+          meta = Path("review/package.txt").read_text()
+          sig = Path("review/signature.txt").read_text()
+          pkg = re.search(r"^package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'", meta, re.M)
+          sdk = re.search(r"^sdkVersion:'([^']+)'", meta, re.M)
+          signer = re.findall(r"^Signer #[0-9]+ certificate SHA-256 digest: ([0-9a-fA-F:]+)", sig, re.M)
+          launcher = re.search(r"^launchable-activity: name='([^']+)'  label='([^']*)'", meta, re.M)
+          assert pkg and sdk and len(signer) == 1 and launcher, "Incomplete Android manifest / signer evidence"
+          assert pkg.group(1) == os.environ["PREVIEW_PACKAGE"], "Wrong package: risk of overwriting an installed game"
+          assert pkg.group(2) == "30" and sdk.group(1) == "26", "Unexpected version or SDK"
+          assert launcher.group(2) == "Sudoku B1.2 Review", "Wrong launcher label"
+          policy = json.loads(Path("distribution/qa-update-baseline.json").read_text())
+          cert = signer[0].replace(":", "").lower()
+          assert cert != policy["signer_sha256"], "Preview must not impersonate original QA signer"
+          assert cert != "d362dab018a255ccb313582df1e3cf836246e7da1778a198eb1da03a7cfe7cd1", "Preview must not impersonate production"
+          digest = hashlib.sha256(apk.read_bytes()).hexdigest()
+          receipt = {
+              "type": "isolated_owner_visual_review_not_qa_or_public_update",
+              "source_main_commit": os.environ["SOURCE_MAIN_SHA"],
+              "preview_workflow_commit": os.environ["GITHUB_SHA"],
+              "package": pkg.group(1),
+              "version_code": int(pkg.group(2)),
+              "version_name": pkg.group(3),
+              "min_sdk": int(sdk.group(1)),
+              "launcher": launcher.group(2),
+              "signer_sha256": cert,
+              "apk_name": apk.name,
+              "apk_size_bytes": apk.stat().st_size,
+              "apk_sha256": digest,
+              "local_data": "Isolated install; does not access saved progress in production, QA, or previous isolated previews",
+              "install_over_previous_preview": False,
+              "physical_owner_phone_verified": False
+          }
+          Path("review/receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+          Path("review/SHA256.txt").write_text(digest + "  " + apk.name + "\n")
+          print(json.dumps(receipt, indent=2))
+          PY
+      - name: Enable Android emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Smoke-install and launch exact packaged APK on Android 36
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
+          disable-animations: true
+          script: |
+            adb install -r "review/$APK_NAME"
+            adb shell am start -W -n "$PREVIEW_PACKAGE/com.playereden.sudokutogether.MainActivity"
+            for i in $(seq 1 20); do
+              if adb shell pidof "$PREVIEW_PACKAGE" | grep -q '[0-9]'; then
+                echo 'Preview app process is running'
+                exit 0
+              fi
+              sleep 1
+            done
+            echo 'Preview did not stay running after launch' >&2
+            exit 1
+      - name: Upload verified preview and receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta12-Unified-Phone-Review
+          path: review/
+          if-no-files-found: error
+          retention-days: 14
+      - name: Keep test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta12-Unified-Preview-Failures
+          path: |
+            core/build/reports/tests/**
+            app/build/reports/tests/**
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: ignore
+          retention-days: 3
