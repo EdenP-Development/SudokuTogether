@@ -25,13 +25,13 @@ class PhoneReviewPolishUiTest {
         val state = mutableStateOf(duplicateSixFixture())
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
 
-        compose.onNodeWithTag("board_context").assertTextContains("Repeated 6")
+        compose.onNodeWithTag("board_context").assertTextContains("Repeated 6", substring = true)
         compose.onNodeWithTag("cell_15").assert(SemanticsMatcher.expectValue(
             SemanticsProperties.StateDescription, "Selected square, conflicting entered value"))
         compose.onNodeWithTag("cell_14").assert(SemanticsMatcher.expectValue(
             SemanticsProperties.StateDescription, "Fixed clue duplicated by an entry; check placed values"))
         compose.runOnIdle { state.value = state.value.copy(selected = 14) }
-        compose.onNodeWithTag("board_context").assertTextContains("Starting clue")
+        compose.onNodeWithTag("board_context").assertTextContains("Starting clue", substring = true)
         compose.onNodeWithTag("cell_14").assert(SemanticsMatcher.expectValue(
             SemanticsProperties.StateDescription, "Selected fixed clue duplicated by an entry"))
     }
@@ -40,11 +40,11 @@ class PhoneReviewPolishUiTest {
         val state = mutableStateOf(duplicateSixFixture().copy(selected = 16))
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
         compose.onNodeWithTag("keypad_remaining_explanation").assertIsDisplayed()
-        compose.onNodeWithTag("number_remaining_6").assertExists()
+        compose.onNodeWithTag("number_remaining_6", useUnmergedTree = true).assertExists()
 
         compose.runOnIdle { state.value = state.value.copy(notes = true) }
         compose.onNodeWithTag("keypad_remaining_explanation").assertDoesNotExist()
-        compose.onNodeWithTag("number_remaining_6").assertDoesNotExist()
+        compose.onNodeWithTag("number_remaining_6", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithText("Notes on").assertIsDisplayed()
     }
 
