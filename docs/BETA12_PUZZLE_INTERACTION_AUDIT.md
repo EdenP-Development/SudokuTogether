@@ -14,7 +14,7 @@
 ## Current tiny refinement
 
 - Notes off: screen-reader description remains `Number N, X remaining`.
-- Notes on: announces `Toggle pencil mark N` instead.
+- Notes on (initial Phase B): announces `Toggle pencil mark N` instead. A follow-up refinement now announces `Add pencil mark N` or `Remove pencil mark N` based on whether the selected square contains that note; the keypad hides the placed-digit remaining count while Notes is active.
 - No changes to number placement, note masks, saved records, scoring, Coach, multiplayer sync, screen layouts, or cosmetics.
 - `SudokuKeypadAccessibilityTest` uses a valid Solo grid, switches Notes on/off, asserts the corresponding descriptions, and confirms tapping still sends the same number action.
 
