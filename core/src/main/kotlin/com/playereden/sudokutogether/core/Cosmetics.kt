@@ -72,7 +72,9 @@ object Cosmetics {
         CatalogEntry("midnight", "Midnight", 5),
         CatalogEntry("circuit", "Circuit", 3, Milestone.RACE)
     )
-    private val sharedBoardOrder = listOf("classic", "linen", "midnight", "circuit")
+    // Co-op display priority follows the curated board catalog order.
+    // New board IDs cannot be accidentally omitted from a second list.
+    private val sharedBoardOrder = boardEntries.map { it.id }
     private val fontEntries = listOf(
         CatalogEntry("clear", "Clear"),
         CatalogEntry("serif", "Bookish", 1),
@@ -104,25 +106,46 @@ object Cosmetics {
     fun sharedCoopBoard(hostBoard: String, guestBoard: String?): String =
         sharedBoardOrder[maxOf(0, sharedBoardOrder.indexOf(hostBoard), sharedBoardOrder.indexOf(guestBoard))]
 
-    fun completedPuzzles(records: List<GameRecord>): Int = records.distinctBy { it.id }.count {
-        when (it.mode) {
-            SOLO, DAILY, COOP -> it.result == "SOLVED"
-            VERSUS -> it.result == "WIN"
-            else -> false
+    private data class Totals(val finish: Int, val solo: Int, val coop: Int, val race: Int)
+
+    /** One deduplicated pass across durable records, regardless of catalog size. */
+    private fun totals(records: List<GameRecord>): Totals {
+        var finish = 0
+        var solo = 0
+        var coop = 0
+        var race = 0
+        for (record in records.distinctBy { it.id }) {
+            when {
+                record.mode == SOLO && record.result == "SOLVED" -> { finish++; solo++ }
+                record.mode == DAILY && record.result == "SOLVED" -> finish++
+                record.mode == COOP && record.result == "SOLVED" -> { finish++; coop++ }
+                record.mode == VERSUS && record.result == "WIN" -> { finish++; race++ }
+            }
         }
+        return Totals(finish, solo, coop, race)
     }
 
-    /** The same milestone controls the preview and the equip permission. */
-    fun progress(id: String, records: List<GameRecord>): CosmeticProgress? {
-        val entry = entries[id] ?: return null
-        if (entry.target == 0) return CosmeticProgress(0, 0)
-        val current = when (entry.milestone) {
-            Milestone.FINISH -> completedPuzzles(records)
-            Milestone.SOLO -> records.asSequence().distinctBy { it.id }.count { it.mode == SOLO && it.result == "SOLVED" }
-            Milestone.COOP -> records.asSequence().distinctBy { it.id }.count { it.mode == COOP && it.result == "SOLVED" }
-            Milestone.RACE -> records.asSequence().distinctBy { it.id }.count { it.mode == VERSUS && it.result == "WIN" }
+    private fun progress(entry: CatalogEntry, totals: Totals): CosmeticProgress {
+        // Starter items retain 0/0 progress, even for veteran profiles.
+        val current = if (entry.target == 0) 0 else when (entry.milestone) {
+            Milestone.FINISH -> totals.finish
+            Milestone.SOLO -> totals.solo
+            Milestone.COOP -> totals.coop
+            Milestone.RACE -> totals.race
         }
         return CosmeticProgress(current, entry.target)
+    }
+
+    fun completedPuzzles(records: List<GameRecord>): Int = totals(records).finish
+
+    /** The same milestone controls the preview and the equip permission. */
+    fun progress(id: String, records: List<GameRecord>): CosmeticProgress? =
+        entries[id]?.let { progress(it, totals(records)) }
+
+    /** Collection-wide progress with one record scan, even as new items arrive. */
+    fun progressAll(records: List<GameRecord>): Map<String, CosmeticProgress> {
+        val counts = totals(records)
+        return entries.mapValues { (_, entry) -> progress(entry, counts) }
     }
 
     fun valid(a: Appearance): Boolean = inks.any { it.id == a.ink } &&
