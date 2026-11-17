@@ -39,9 +39,9 @@ internal class ProgressBackupStore(
             checkReady(player)
             val previous = player.current()
             val snapshot = RecoverySnapshot(JOURNAL_SCHEMA, previous.playerId, BackupProgress(previous), preferencesSnapshot())
-            val next = preview.progress.forInstallation(previous.playerId)
+            val next = Cosmetics.preserveEarned(preview.progress.forInstallation(previous.playerId))
             val newSettings = preview.settings.copy(
-                appearance = Cosmetics.accessible(preview.settings.appearance, next.records)
+                appearance = Cosmetics.accessible(preview.settings.appearance, next.records, next.ownedCosmeticIds)
             ).preferenceValues()
             prepareJournal(snapshot)
             try {
