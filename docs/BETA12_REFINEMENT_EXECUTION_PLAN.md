@@ -17,10 +17,10 @@
 Evidence: owner screenshots noted a clipped icon-family tab; the present `CollectionChoices` uses one horizontal `Row` with `rememberScrollState`, but no explicit affordance or selected-item visibility request.
 
 - [x] Existing swipe row and family filters confirmed in `CosmeticUi.kt` and `CollectionPolishUiTest.kt`
-- [ ] Only when the family row overflows, show a compact swipe cue
-- [ ] When a family is selected/restored, bring it into view; preserve one-row swipe and selection while returning from Boards/Numbers
-- [ ] Verify 320dp overflow and wide-screen no-hint UI behavior
-- [ ] Preserve current gallery order, unlocks, equipped states and scroll-to-top on equip
+- [x] Only when the family row overflows, show a compact swipe cue (merged PR #55)
+- [x] When a family is selected/restored, bring it into view; preserve one-row swipe and selection while returning from Boards/Numbers (PR #55)
+- [x] Verify 320dp overflow and wide-screen no-hint UI behavior (six API 36 Collection UI tests passed in CI)
+- [x] Preserve current gallery order, unlocks, equipped states and scroll-to-top on equip (unchanged implementation and passing existing UI regressions)
 
 ### A2 — Consistency/accessibility audit (observation before edits)
 
