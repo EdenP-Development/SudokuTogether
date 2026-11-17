@@ -160,14 +160,30 @@ internal enum class ProfileSection(val title: String) {
     }
 
     val milestones = Achievements.progress(records)
-    val earned = milestones.filter { it.unlocked }
+    val earned = milestones.count { it.unlocked }
+    // Spotlight an actual saved-record milestone instead of inventing points,
+    // daily streaks or a second progression system.
+    val upcoming = milestones.firstOrNull { !it.unlocked }
     GamePanel(Modifier.fillMaxWidth(), color = GoldTint.copy(alpha = .55f).compositeOver(Cream), padding = 14.dp) {
-        SectionTitle("Achievements", "${earned.size} of ${milestones.size} earned")
-        earned.firstOrNull()?.let {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                GameIcon(GameSymbol.TROPHY, Gold, Modifier.size(20.dp))
-                Text(it.title, style = MaterialTheme.typography.bodyMedium, color = Ink)
+        SectionTitle("Achievements", "$" + "{earned} of $" + "{milestones.size} earned")
+        if (upcoming != null) {
+            Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
+                .background(Paper.copy(alpha = .7f)).padding(12.dp)
+                .testTag("profile_next_achievement"),
+                verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                Eyebrow("NEXT MILESTONE")
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    GameIcon(GameSymbol.TROPHY, Gold, Modifier.size(20.dp))
+                    Text(upcoming.title, style = MaterialTheme.typography.titleSmall, color = Forest,
+                        modifier = Modifier.weight(1f))
+                    Text("$" + "{upcoming.current} of $" + "{upcoming.target}",
+                        style = MaterialTheme.typography.bodySmall, color = Muted)
+                }
+                Text(upcoming.description, style = MaterialTheme.typography.bodySmall, color = Muted)
+                MilestoneTrack(upcoming.current, upcoming.target)
             }
+        } else {
+            Text("All achievements earned — nicely done!", style = MaterialTheme.typography.bodyMedium, color = Forest)
         }
         GamePrimaryButton("View achievements", { openSection(ProfileSection.ACHIEVEMENTS) })
     }
