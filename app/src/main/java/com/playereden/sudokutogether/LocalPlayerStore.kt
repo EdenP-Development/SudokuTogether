@@ -81,7 +81,13 @@ class LocalPlayerStore(file: File) {
 
     @Synchronized fun update(transform: (LocalPlayerData) -> LocalPlayerData): LocalPlayerData {
         if (!canSave) throw IOException("Existing local progress needs recovery. It has not been replaced.")
-        val next = Cosmetics.preserveEarned(transform(data))
+        val proposed = transform(data)
+        // Normal updates are monotonic for earned rewards: even a future caller
+        // rebuilding a profile cannot accidentally drop previous ownership.
+        // Explicit, confirmed portable restore uses replaceForRestore instead.
+        val next = Cosmetics.preserveEarned(proposed.copy(
+            ownedCosmeticIds = (data.ownedCosmeticIds + proposed.ownedCosmeticIds).distinct()
+        ))
         require(next.playerId == data.playerId)
         validateLocalPlayerData(next)
         if (next == data && !needsRepair) return data
