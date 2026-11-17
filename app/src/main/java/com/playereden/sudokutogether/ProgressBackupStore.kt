@@ -30,7 +30,7 @@ internal class ProgressBackupStore(
         storageOperation {
             checkReady(player)
             val profile = player.current()
-            ProgressBackup.encode(profile, readSettings(profile.records), appVersion)
+            ProgressBackup.encode(profile, readSettings(profile), appVersion)
         }
     }
 
@@ -194,7 +194,7 @@ internal class ProgressBackupStore(
         if (!editor.commit() || preferencesSnapshot() != values) throw IOException("Restored settings could not be reloaded.")
     }
 
-    private fun readSettings(records: List<GameRecord>): BackupSettings {
+    private fun readSettings(profile: LocalPlayerData): BackupSettings {
         val values = defaultPreferences + preferencesSnapshot()
         fun value(key: String) = values.getValue(key).content
         fun cosmetic(key: String, group: List<Cosmetic>): String =
@@ -204,7 +204,7 @@ internal class ProgressBackupStore(
             cosmetic("cosmeticPortrait", Cosmetics.portraits))
         return BackupSettings(
             name = cleanPlayerName(value("name")),
-            appearance = Cosmetics.accessible(appearance, records),
+            appearance = Cosmetics.accessible(appearance, profile.records, profile.ownedCosmeticIds),
             uniformNumbers = value("uniformNumbers").toBooleanStrict(),
             touchFeedback = value("touchFeedback").toBooleanStrict(),
             autoCleanNotes = value("autoCleanNotes").toBooleanStrict(),
