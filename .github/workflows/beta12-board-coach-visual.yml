@@ -42,7 +42,7 @@ jobs:
           script: |
             ./gradlew :app:connectedDebugAndroidTest --no-daemon --max-workers=2 --console=plain -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.BoardCoachVisualAuditTest
             mkdir -p visual-review
-            adb pull /sdcard/Download/GridMates-Beta12-Visual/. visual-review/
+            adb pull /sdcard/Pictures/GridMates-Beta12-Visual/. visual-review/
             test "$(find visual-review -name '*.png' | wc -l)" -eq 4
             ls -lh visual-review
       - name: Upload screenshots for human inspection
