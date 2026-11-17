@@ -405,7 +405,8 @@ private fun roomStatusText(state: GameUiState): String {
 @Composable private fun SudokuInputDock(snapshot: Snapshot, state: GameUiState, actions: GameActions, tick: () -> Unit) {
     val keypadHeight = maxOf(48.dp, (40 * LocalDensity.current.fontScale).dp)
     val editable = state.selected in 0..80 && snapshot.puzzle.clues[state.selected] == 0
-    val chosenValue = snapshot.cells.getOrNull(state.selected)?.value
+    val selectedCell = snapshot.cells.getOrNull(state.selected)
+    val chosenValue = selectedCell?.value
     Column(Modifier.fillMaxWidth().background(Paper, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
         .border(1.dp, Rule, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
         .testTag("input_dock")
@@ -424,10 +425,12 @@ private fun roomStatusText(state: GameUiState): String {
                 for (number in numbers) {
                     val remaining = (9 - snapshot.cells.count { it.value == number }).coerceAtLeast(0)
                     val highlighted = number == chosenValue
-                    // Screen readers must distinguish placing a value from toggling a note.
+                    // Tell the player what a note tap will do in the selected square.
                     // Remaining counts describe placed values, not pencil marks.
-                    val spokenAction = if (state.notes) "Toggle pencil mark $number"
-                        else "Number $number, $remaining remaining"
+                    val notePresent = selectedCell?.notes?.and(1 shl (number - 1)) != 0
+                    val spokenAction = if (state.notes) {
+                        if (notePresent) "Remove pencil mark $number" else "Add pencil mark $number"
+                    } else "Number $number, $remaining remaining"
                     OutlinedButton(onClick = { tick(); actions.number(number) },
                         enabled = state.canEdit && editable,
                         modifier = Modifier.weight(1f).height(keypadHeight).testTag("number_$number")
@@ -440,7 +443,11 @@ private fun roomStatusText(state: GameUiState): String {
                             verticalArrangement = Arrangement.Center) {
                             Text(number.toString(), fontSize = 21.sp, lineHeight = 22.sp,
                                 fontWeight = FontWeight.SemiBold)
-                            Text(remaining.toString(), fontSize = 10.sp, lineHeight = 11.sp, color = Muted)
+                            // A placed-digit count is misleading while editing pencil notes.
+                            if (!state.notes) {
+                                Text(remaining.toString(), modifier = Modifier.testTag("number_remaining_$number"),
+                                    fontSize = 10.sp, lineHeight = 11.sp, color = Muted)
+                            } else Spacer(Modifier.height(11.dp))
                         }
                     }
                 }
