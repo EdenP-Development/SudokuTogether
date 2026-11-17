@@ -19,3 +19,8 @@ The owner-phone Beta 1.2 preview has strong readable game screens, but first-use
 ## Integration checkpoint
 - Predecessor [PR #64](https://github.com/PlayerEden/SudokuTogether/pull/64) merged into main as `41f8b60` after passing 3/3 API 36 screenshot-driven input-feedback regressions. This new PR is retargeted to `main` and does not modify the fixed-clue or keypad feedback logic.
 - Profile/Collection instrumentation is required before merging this progression presentation. Do not claim physical-screen review is complete merely because the emulator tests pass.
+
+## Final focused QA
+- [Android run 44189522918](https://github.com/PlayerEden/SudokuTogether/actions/runs/44189522918): Kotlin compilation, core JVM tests, Android unit tests, **4/4 ProfileNavigationUiTest** and **9/9 CollectionPolishUiTest** passed on API 36 emulator (13/13 UI tests, zero skipped, zero failed).
+- Tests cover the real-record First Grid → Steady Hand milestone transition, first Collection unlock preview with its existing lock behavior, profile navigation at 200% font size, current style previews, responsive gallery columns, selection, categories and unlock order.
+- No physical owner-phone presentation test has yet been performed on this new progression change, and the prior isolated APK does not contain it.
