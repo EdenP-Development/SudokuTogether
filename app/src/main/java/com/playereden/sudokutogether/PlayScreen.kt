@@ -560,10 +560,12 @@ private fun roomStatusText(state: GameUiState): String {
                             proofTarget && proofSource -> "Hint target and proof square"
                             proofTarget -> "Hint target"
                             proofSource -> "Proof square"
+                            i in conflicts && given -> if (i == selected) "Selected fixed clue duplicated by an entry"
+                                else "Fixed clue duplicated by an entry; check placed values"
+                            i in conflicts -> if (i == selected) "Selected square, conflicting entered value"
+                                else "Conflicting entered value"
                             i == selected -> "Selected square"
                             i == partner -> "Partner's selected square"
-                            i in conflicts && given -> "Fixed clue matching a conflicting entry; check placed values"
-                            i in conflicts -> "Conflicting entered value"
                             else -> "Puzzle square"
                         }
                     }
