@@ -1,13 +1,10 @@
 name: Sudoku Beta 1.1 isolated phone preview
 
-# ONE-OFF branch-specific preview. NOT an update for the established QA app.
-# This workflow is intentionally absent from main and has no signing secrets.
+# Completed one-time isolated preview. Manual-only from now on:
+# no further preview builds should launch on ordinary branch changes.
+# NOT an update for the established QA app; no signing secrets.
 on:
-  push:
-    branches:
-      - qa/sudoku-beta11-isolated-preview
-    paths:
-      - .github/workflows/sudoku-beta11-isolated-preview.yml
+  workflow_dispatch:
 
 permissions:
   contents: read
