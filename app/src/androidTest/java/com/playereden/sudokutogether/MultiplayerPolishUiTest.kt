@@ -104,27 +104,32 @@ class MultiplayerPolishUiTest {
             if (index == 2) Cell(notes = 511) else cell
         })
         val font = mutableStateOf("clear")
+        val boardSize = mutableStateOf(280.dp)
         compose.setContent {
             SudokuTogetherTheme {
                 SudokuBoard(
-                    snapshot = withNotes, selected = 2, partner = -1, size = 280.dp,
+                    snapshot = withNotes, selected = 2, partner = -1, size = boardSize.value,
                     select = {}, boardTheme = "classic", localStyle = Appearance(font = font.value),
                     solo = true, uniformNumbers = false
                 )
             }
         }
-        for (id in listOf("clear", "serif", "mono", "rounded", "pencil")) {
-            compose.runOnIdle { font.value = id }
-            for (digit in 1..9) {
-                val layout = mutableListOf<TextLayoutResult>()
-                compose.onNode(
-                    hasText(digit.toString()) and hasAnyAncestor(hasTestTag("cell_2")),
-                    useUnmergedTree = true
-                ).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layout) }
-                assertFalse("Font $id note $digit must fit its 3x3 Coach slot",
-                    layout.single().hasVisualOverflow)
+        val overflows = mutableListOf<String>()
+        for (size in listOf(280.dp, 360.dp)) {
+            compose.runOnIdle { boardSize.value = size }
+            for (id in listOf("clear", "serif", "mono", "rounded", "pencil")) {
+                compose.runOnIdle { font.value = id }
+                for (digit in 1..9) {
+                    val layout = mutableListOf<TextLayoutResult>()
+                    compose.onNode(
+                        hasText(digit.toString()) and hasAnyAncestor(hasTestTag("cell_2")),
+                        useUnmergedTree = true
+                    ).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layout) }
+                    if (layout.single().hasVisualOverflow) overflows.add("$size/$id/$digit")
+                }
             }
         }
+        assertTrue("Dense pencil candidate overflow: " + overflows.joinToString(), overflows.isEmpty())
     }
 
     @Test fun unreadCountDoesNotSplitTheRoomTitleAtNormalPhoneWidth() {
