@@ -14,7 +14,8 @@
 ## Current tiny refinement
 
 - Notes off: screen-reader description remains `Number N, X remaining`.
-- Notes on (initial Phase B): announces `Toggle pencil mark N` instead. A follow-up refinement now announces `Add pencil mark N` or `Remove pencil mark N` based on whether the selected square contains that note; the keypad hides the placed-digit remaining count while Notes is active.
+- Notes on (initial Phase B): announces `Toggle pencil mark N` instead. The Phase B follow-up announces `Add pencil mark N` or `Remove pencil mark N` based on the selected square's note mask; placed-digit remaining counts are hidden while Notes is active.
+- **Observed invalid input path:** both `PersonalPlay.edit` and `GameSession` reject pencil marks on an already-filled square, but the input dock used to keep its number keys enabled there. In Notes mode those keys are now disabled for filled squares and the board caption says to erase the entry first. Number replacement remains possible with Notes off.
 - No changes to number placement, note masks, saved records, scoring, Coach, multiplayer sync, screen layouts, or cosmetics.
 - `SudokuKeypadAccessibilityTest` uses a valid Solo grid, switches Notes on/off, asserts the corresponding descriptions, and confirms tapping still sends the same number action.
 
