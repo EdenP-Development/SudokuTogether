@@ -20,7 +20,7 @@ class SudokuKeypadAccessibilityTest {
             .map(Char::digitToInt)
         val clues = solution.mapIndexed { index, digit -> if (index == 0) 0 else digit }
         val puzzle = Puzzle("keypad-accessibility", clues, "EASY")
-        val snapshot = Snapshot("keypad", "keypad-epoch", puzzle, clues.map { Cell(it) })
+        val snapshot = Snapshot("keypad", "keypad-epoch", puzzle, clues.map { Cell(it) }, mode = SOLO)
         val state = mutableStateOf(GameUiState(page = Page.PLAY, role = SOLO, snapshot = snapshot, selected = 0))
         var lastPressed = -1
         val actions = GameActions(
