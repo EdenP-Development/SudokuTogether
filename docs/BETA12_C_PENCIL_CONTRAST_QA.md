@@ -18,10 +18,12 @@
 
 ## Acceptance checks
 
-- [ ] `BoardPilotPaletteTest`: test all 7 boards × all 10 inks across background, selected, partner, matching, related and conflict surfaces; all rendered pencil marks >=4.5:1
-- [ ] Coach eliminated-candidate notes >=4.5:1 across the same board states; original palette values remain unchanged
-- [ ] Existing core, Android compile and Android unit tests pass
-- [ ] Existing `CoachProofUiTest` passes on API 36 emulator (deduction order and hidden answers remain intact)
+- [x] `BoardPilotPaletteTest`: test all 7 boards × all 10 inks across background, selected, partner, matching, related and conflict surfaces; all rendered pencil marks >=4.5:1
+- [x] Coach eliminated-candidate notes >=4.5:1 across the same board states; original palette values remain unchanged
+- [x] Existing core, Android compile and Android unit tests pass
+- [x] Existing `CoachProofUiTest` passes on API 36 emulator (deduction order and hidden answers remain intact)
 - [ ] Physical 320dp/360dp/430dp checks for tiny pencil marks, Coach strikethrough and font families before final artwork signoff
 
 **No APK in this PR; no install-over guarantee.** If Android tests fail, fix the regression on the feature branch and do not merge prematurely. See [the overall refinement plan](BETA12_REFINEMENT_EXECUTION_PLAN.md) and [the gameplay audit](BETA12_PUZZLE_INTERACTION_AUDIT.md).
+
+**Automated result (November 17, 2026):** [GitHub Actions run 44120831973](https://github.com/PlayerEden/SudokuTogether/actions/runs/44120831973) succeeded, including core JVM tests, Android compilation and unit tests, the full `BoardPilotPaletteTest` additions, and **three of three** existing `CoachProofUiTest` tests on API 36. This is a source/emulator check only: visual approval and a real-phone tiny-note review remain open.
