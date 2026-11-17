@@ -204,7 +204,7 @@ class CollectionPolishUiTest {
     }
 
     @Test fun playerIconGalleryUsesThreeColumnsOnlyWhenThereIsRoom() {
-        val width = mutableStateOf(430.dp)
+        val width = mutableStateOf(390.dp)
         compose.setContent {
             SudokuTogetherTheme {
                 Box(Modifier.width(width.value).fillMaxHeight()) {
