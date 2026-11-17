@@ -40,6 +40,17 @@ The owner confirms that they **downloaded the public APK from the itch.io page, 
 
 The broader Solo/Daily, save/restore, two-phone Versus/reconnect, Android-version coverage and APK hash verification checklist remains open in [Sudoku Beta stabilization issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). Device make/model, Android API and public APK hash were not supplied, so don't invent them or silently mark their checks complete.
 
+## Physical Versus session — owner screenshots (November 16, 2026)
+
+The owner shared **three Android screenshots from a Versus match played against their spouse**. On the owner's device the game displayed:
+- An **Easy · Classic 9×9** Versus board, individual **local/rival** progress panels, and Game details/Chat controls.
+- Early race progress changing from **0/45 each** to **4/45 local versus 2/45 rival**, consistent with independently updating player counts.
+- A final **“Race complete / Your rival won”** state showing **40/45 local versus 45/45 rival**, the owner's unfinished grid captioned **“Your grid at the finish”**, and **“Your host can start another race.”**
+
+**Evidence scope:** This is an owner-reported real two-person session documented by screenshots **from one device**. The screenshots substantiate an observed rival victory result and changing displayed progress, but do **not** independently prove which of the public versus QA Beta packages was running, the exact APK SHA-256, whether the second phone rendered the same final state, whether a next-race button successfully started a rematch, or disconnect/reconnect behavior. Do not close those outstanding physical regression gates on this evidence alone. [Track remaining tasks in issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43).
+
+**Visual polish consideration:** A longer player name with a trailing emoji wrapped the emoji onto a separate line in the local participant panel. Consider testing long names/emoji/font scaling with a responsive card layout. The result screen is serviceable and readable; optional restrained finish/rematch emphasis can be explored without claiming a game bug.
+
 ## Build and package verification
 
 - Source [`76cbfc149569938b97286f3efe4ad44e08c5934f`](https://github.com/PlayerEden/SudokuTogether/commit/76cbfc149569938b97286f3efe4ad44e08c5934f), built November 16, 2026.
