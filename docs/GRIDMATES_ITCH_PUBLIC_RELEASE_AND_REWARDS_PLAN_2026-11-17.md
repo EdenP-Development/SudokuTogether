@@ -73,3 +73,11 @@ Existing game **already uses direct host-to-guest TCP on the same Wi-Fi**. No de
 - Public APK certificate/version/SHA and first-launch smoke validated, and original app data preserved.
 - Human review of public-facing screens and text; privacy/update links and release notes accurate.
 - No obligation to repeat two-phone testing immediately; keep optional owner gate documented, do not represent untested post-update LAN changes as physically approved.
+
+## Implementation / QA receipt — Nov 17
+- [Draft PR #67](https://github.com/PlayerEden/SudokuTogether/pull/67) implements the additive `ownedCosmeticIds` profile ledger, non-destructive migration on ordinary local saves, monotonic normal updates, validated portable export/import, and preserved equipped styles when earlier earning records have been pruned. All 50 current thresholds and IDs remain unchanged.
+- [Core JVM run 44201848290](https://github.com/PlayerEden/SudokuTogether/actions/runs/44201848290): passed the full core test suite, including new earned-ownership tests.
+- [Permanent Android app PR run 44201848027](https://github.com/PlayerEden/SudokuTogether/actions/runs/44201848027): passed Kotlin/Android test compilation, core and app JVM tests, lint and unsigned debug assembly.
+- [Focused emulator run 44201848003](https://github.com/PlayerEden/SudokuTogether/actions/runs/44201848003): API 36 emulator passed **16/16 LocalPlayerStoreTest** and **11/11 ProgressBackupTest** (27/27, zero failed). Tested legacy local JSON missing ownership field, initial preservation without eager overwrite, normal save even if a caller accidentally omits ownership, backup old-schema decode, copied entitled styles with trimmed history, and current recovery/rollback suites.
+- One earlier compile failure was caused by missing `MaterialTheme` and `Cosmetics` imports, corrected before the final passing checks. These are *not* unsolved feature regressions.
+- **Not yet tested:** exact old public itch APK → new Beta 2 update on the same physical Android phone using original certificate. Until that passes, there is **no public APK or install-over recommendation** from this work.
