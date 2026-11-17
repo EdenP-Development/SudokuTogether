@@ -79,7 +79,10 @@ class ProofInvariantTest {
                     }
                     val placement = hint.steps.lastOrNull { it.technique in placementTechniques }
                     if (placement != null) {
-                        visible[placement.targetCells.single()] = placement.digits.single()
+                        val target = placement.targetCells.single()
+                        assertEquals("Coach must use an editable original square", 0, puzzle.clues[target])
+                        assertEquals("Coach must not overwrite an already-filled square", 0, visible[target])
+                        visible[target] = placement.digits.single()
                     } else {
                         break
                     }
