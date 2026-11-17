@@ -109,6 +109,9 @@ import com.playereden.sudokutogether.core.Snapshot
         border = BorderStroke(1.dp, Rule)
     ) {
         Column(Modifier.padding(8.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            // Reserve the narrow portrait row for the role label. Put the full
+            // player name beneath it so a trailing emoji does not end up alone
+            // on a second line on an ordinary phone-width Versus card.
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 if (player != null) {
                     AnimalPortrait(player.appearance, Modifier.size(32.dp).clearAndSetSemantics {})
@@ -117,12 +120,11 @@ import com.playereden.sudokutogether.core.Snapshot
                         GameIcon(GameSymbol.PERSON, Muted, Modifier.size(18.dp))
                     }
                 }
-                Column(Modifier.weight(1f)) {
-                    Text(label, color = Muted, fontSize = 11.sp, lineHeight = 14.sp)
-                    Text(player?.name ?: "Open seat", color = Ink, fontSize = 13.sp, lineHeight = 16.sp,
-                        fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                }
+                Text(label, color = Muted, fontSize = 11.sp, lineHeight = 14.sp)
             }
+            Text(player?.name ?: "Open seat", modifier = Modifier.fillMaxWidth(),
+                color = Ink, fontSize = 13.sp, lineHeight = 16.sp,
+                fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
             Text(
                 if (player == null) "Join over Wi-Fi" else "${player.filled} of $target filled",
                 color = Ink, fontSize = 11.sp, lineHeight = 14.sp
