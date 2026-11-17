@@ -336,7 +336,12 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     val canUse = progress.unlocked && !equipped
     AlertDialog(onDismissRequest = close, title = { Text(item.cosmetic.name) }, text = {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            if (item.family != null) AnimalPortrait(sample, Modifier.size(78.dp).clearAndSetSemantics {})
+            if (item.family != null) {
+                Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(GreenTint)
+                    .padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                    AnimalPortrait(sample, Modifier.size(96.dp).clearAndSetSemantics {})
+                }
+            }
             Text(item.previewLabel, color = Muted, style = MaterialTheme.typography.bodySmall)
             Text(when { equipped -> "Equipped"; progress.unlocked -> "Available to use"; else -> "Locked" },
                 color = Forest, style = MaterialTheme.typography.titleSmall)
