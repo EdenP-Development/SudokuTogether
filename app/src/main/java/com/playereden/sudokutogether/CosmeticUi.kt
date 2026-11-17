@@ -96,7 +96,9 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     val records = state.profile.records
     // Compute durable milestone totals once per profile, not once per
     // portrait/board/ink/font. Keep rendering smooth as collections expand.
-    val progress = remember(records) { Cosmetics.progressAll(records) }
+    val progress = remember(records, state.profile.ownedCosmeticIds) {
+        Cosmetics.progressAll(records, state.profile.ownedCosmeticIds)
+    }
     val look = state.appearance
     val open: (CollectionItem) -> Unit = { previewId = it.id }
 
