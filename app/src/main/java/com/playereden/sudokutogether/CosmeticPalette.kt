@@ -137,10 +137,14 @@ internal fun pencilNoteInk(authoredInk: Color, cellBackground: Color, palette: B
     val target = 4.52f // A tiny buffer above 4.5:1 for rounding.
     if (contrastRatio(authoredInk, cellBackground) >= target) return authoredInk
 
-    // All registered dark-board clue inks pass this target on their cell states.
-    // Blend only as much as needed, retaining the chosen ink's original hue.
-    val legible = palette.clueInk
-    if (contrastRatio(legible, cellBackground) < target) return legible
+    // Prefer the board's neutral clue ink; retain a safe fallback if another
+    // dark theme is added later with a brighter highlighted cell.
+    val legible = if (contrastRatio(palette.clueInk, cellBackground) >= target) {
+        palette.clueInk
+    } else {
+        if (contrastRatio(Color.White, cellBackground) >= contrastRatio(Color.Black, cellBackground))
+            Color.White else Color.Black
+    }
     var low = 0f
     var high = 1f
     repeat(12) {
