@@ -4,6 +4,8 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
+import com.playereden.sudokutogether.core.DailyActivity
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -113,21 +115,51 @@ import androidx.compose.ui.unit.*
                 }
             }
             val today = state.profile.dailyProgress.firstOrNull { it.date == state.todayDate }?.solo
+            val recentDays = remember(state.todayDate, state.profile.records, state.profile.dailyProgress) {
+                DailyActivity.recentSevenDays(state.todayDate, state.profile.records, state.profile.dailyProgress)
+            }
+            val finishedDays = recentDays.count { it.complete }
+            val currentDayDone = recentDays.lastOrNull()?.complete == true
             Surface(onClick = actions.daily, enabled = !state.busy && !state.localSaveBlocked,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 68.dp).testTag("daily_challenge"),
                 shape = RoundedCornerShape(19.dp), color = GoldTint.copy(alpha = .65f), border = BorderStroke(1.dp, Rule)) {
-                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Box(Modifier.size(38.dp).background(Paper, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
-                        GameIcon(GameSymbol.CALENDAR, Gold)
+                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Box(Modifier.size(38.dp).background(Paper, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
+                            GameIcon(GameSymbol.CALENDAR, Gold)
+                        }
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text("Daily puzzle", color = Forest, fontSize = 15.sp, lineHeight = 19.sp, fontWeight = FontWeight.SemiBold)
+                            Text(when { currentDayDone -> "Completed"; today != null -> "In progress"; else -> "Ready" },
+                                color = Forest, fontSize = 11.sp, lineHeight = 15.sp)
+                            Text(state.todayDate + " · Easy", color = Muted, fontSize = 10.sp, lineHeight = 14.sp)
+                        }
+                        GameIcon(if (currentDayDone) GameSymbol.CHECK else GameSymbol.RIGHT, modifier = Modifier.size(19.dp))
                     }
-                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                        Text("Daily puzzle", color = Forest, fontSize = 15.sp, lineHeight = 19.sp, fontWeight = FontWeight.SemiBold)
-                        Text(when { today?.completed == true -> "Completed"; today != null -> "In progress"; else -> "Ready" },
-                            color = Forest, fontSize = 11.sp, lineHeight = 15.sp)
-                        Text(state.todayDate + " · Easy", color = Muted, fontSize = 10.sp, lineHeight = 14.sp)
+                    HorizontalDivider(color = Gold.copy(alpha = .2f))
+                    Text("${finishedDays} of the last 7 days completed", color = Forest,
+                        style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("daily_seven_day_summary"))
+                    if (LocalDensity.current.fontScale <= 1.3f) {
+                        Row(Modifier.fillMaxWidth().testTag("daily_seven_day_history"),
+                            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            recentDays.forEach { day ->
+                                Column(Modifier.weight(1f)
+                                    .clearAndSetSemantics {
+                                        contentDescription = "${day.date}: " +
+                                            (if (day.complete) "completed" else if (day.inProgress) "in progress" else "not completed")
+                                    }, horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                    Text(day.weekday, fontSize = 10.sp, lineHeight = 14.sp, color = Muted)
+                                    Box(Modifier.size(25.dp).background(
+                                        if (day.complete) Forest else if (day.inProgress) AmberLight else Paper, CircleShape),
+                                        contentAlignment = Alignment.Center) {
+                                        if (day.complete) GameIcon(GameSymbol.CHECK, OnForest, Modifier.size(14.dp))
+                                        else if (day.inProgress) Text("·", color = Forest, fontSize = 18.sp)
+                                    }
+                                }
+                            }
+                        }
                     }
-                    GameIcon(if (today?.completed == true) GameSymbol.CHECK else GameSymbol.RIGHT, modifier = Modifier.size(19.dp))
                 }
             }
 
