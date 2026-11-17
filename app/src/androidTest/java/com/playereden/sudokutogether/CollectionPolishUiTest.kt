@@ -38,7 +38,8 @@ class CollectionPolishUiTest {
 
         val edit = compose.onNodeWithContentDescription("Edit name").assertIsDisplayed()
         val editBounds = edit.getUnclippedBoundsInRoot()
-        assertTrue(editBounds.right - editBounds.left >= 48.dp)
+        val editWidth = editBounds.right - editBounds.left
+        assertTrue("Edit name target must be at least 48dp; actual=$editWidth, bounds=$editBounds", editWidth >= 48.dp)
         edit.performClick()
         compose.onNodeWithTag("player_name").performTextReplacement("Puzzle partner")
         compose.onNodeWithText("Save").performClick()
