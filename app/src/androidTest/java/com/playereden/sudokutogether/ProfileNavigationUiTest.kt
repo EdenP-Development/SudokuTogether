@@ -14,6 +14,9 @@ import androidx.compose.ui.text.TextLayoutResult
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.playereden.sudokutogether.core.Appearance
+import com.playereden.sudokutogether.core.GameRecord
+import com.playereden.sudokutogether.core.LocalPlayerData
+import com.playereden.sudokutogether.core.SOLO
 import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
@@ -80,5 +83,20 @@ class ProfileNavigationUiTest {
             .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(result) }
         assertFalse("Profile name must remain readable at 200% font size", result.single().hasVisualOverflow)
         compose.onNodeWithContentDescription("Edit name").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test fun nextAchievementReflectsStoredPuzzleCompletions() {
+        val state = mutableStateOf(GameUiState(page = Page.PROFILE))
+        compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
+        compose.onNodeWithTag("profile_next_achievement").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("NEXT MILESTONE").assertIsDisplayed()
+        compose.onNodeWithText("First Grid").assertIsDisplayed()
+
+        compose.runOnIdle {
+            val solved = GameRecord("finished-solo", SOLO, "SOLVED", "EASY", 650000L, 0, 123L)
+            state.value = state.value.copy(profile = LocalPlayerData(records = listOf(solved)))
+        }
+        compose.onNodeWithText("Steady Hand").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("First Grid").assertDoesNotExist()
     }
 }
