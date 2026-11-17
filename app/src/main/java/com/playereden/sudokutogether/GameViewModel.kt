@@ -23,6 +23,10 @@ internal fun cleanPlayerName(name: String): String =
 
 private const val MAX_RECENT_COACH_HINTS = 128
 
+/** A new LAN room/epoch is a new board, even when the same two players remain connected. */
+internal fun GameUiState.isNewMultiplayerRound(next: Snapshot): Boolean =
+    snapshot?.let { it.sessionId != next.sessionId || it.epoch != next.epoch } ?: true
+
 enum class Page { HOME, JOIN, PLAY, PROFILE }
 data class GameUiState(
     val page: Page = Page.HOME, val name: String = "Player", val role: String = HOST,
@@ -602,7 +606,7 @@ class GameViewModel @JvmOverloads constructor(
         val store = if (versus) raceStore else hostStore
         val selectedStyle = _state.value.appearance
         val requireCode = _state.value.requireRoomCode
-        _state.update { it.copy(page = Page.PLAY, role = HOST, snapshot = null, busy = true, pendingId = null, selected = -1, partnerCell = -1, message = null) }
+        _state.update { it.copy(page = Page.PLAY, role = HOST, snapshot = null, busy = true, pendingId = null, selected = -1, notes = false, partnerCell = -1, message = null) }
         viewModelScope.launch(workDispatcher) {
             try {
                 val session = if (resume) {
@@ -619,9 +623,11 @@ class GameViewModel @JvmOverloads constructor(
                 val hosted = HostServer(session) { event -> if (generation.get() == current) {
                     recordMultiplayer(event.snapshot, HOST)
                     _state.update { previous ->
-                        val changed = previous.snapshot?.epoch != event.snapshot.epoch
+                        val changed = previous.isNewMultiplayerRound(event.snapshot)
                         previous.copy(snapshot = event.snapshot, status = event.status, connected = event.status.guestActive,
-                            partnerCell = event.partnerCell, selected = if (changed) -1 else previous.selected,
+                            partnerCell = if (changed) -1 else event.partnerCell,
+                            selected = if (changed) -1 else previous.selected,
+                            notes = if (changed) false else previous.notes,
                             pendingId = if (changed || event.outcome?.operationId == previous.pendingId) null else previous.pendingId,
                             message = if (event.outcome != null) event.outcome?.let { if (it.accepted) null else explain(it.code) } else if (changed) null else previous.message,
                             resumeRace = if (versus) true else previous.resumeRace,
@@ -641,7 +647,7 @@ class GameViewModel @JvmOverloads constructor(
         if (_state.value.busy) return
         stopSoloClock()
         val current = closeRoom()
-        _state.update { it.copy(page = Page.JOIN, role = GUEST, snapshot = null, busy = false, rooms = emptyList(), pendingId = null,
+        _state.update { it.copy(page = Page.JOIN, role = GUEST, snapshot = null, busy = false, rooms = emptyList(), pendingId = null, notes = false, selected = -1, partnerCell = -1,
             resumingGuest = resume && guestResume != null, address = if (resume) preferences.getString("lastAddress", "") ?: "" else "", message = null) }
         val expectedSession = if (resume) guestResume?.snapshot?.sessionId else null
         discovery.discover { found ->
@@ -654,7 +660,7 @@ class GameViewModel @JvmOverloads constructor(
         val identity = if (resume) guestResume?.guest else null
         val expectedSession = if (resume) guestResume?.snapshot?.sessionId else null
         val current = closeRoom(); val name = cleanName(_state.value.name, "Partner")
-        _state.update { it.copy(busy = true, role = GUEST, connected = false, pendingId = null, message = null, selected = -1, partnerCell = -1, chat = emptyList(), unreadChat = 0, chatVisible = false) }
+        _state.update { it.copy(busy = true, role = GUEST, connected = false, pendingId = null, message = null, selected = -1, notes = false, partnerCell = -1, chat = emptyList(), unreadChat = 0, chatVisible = false) }
         viewModelScope.launch(workDispatcher) {
             var savedToken = identity?.token
             val client = GuestClient(socketFactory = discovery::newWifiSocket) { event ->
@@ -673,12 +679,13 @@ class GameViewModel @JvmOverloads constructor(
                         try { guestStore.save(mirror); guestResume = mirror } catch (_: Exception) { saveMessage = "This phone couldn't save its rejoin information. Your host still has the shared puzzle." }
                     }
                     _state.update { previous ->
-                        val changed = snapshot != null && previous.snapshot?.epoch != snapshot.epoch
+                        val changed = snapshot != null && previous.isNewMultiplayerRound(snapshot)
                         previous.copy(page = if (snapshot != null || previous.snapshot != null) Page.PLAY else previous.page,
                             snapshot = snapshot ?: previous.snapshot, status = if (event.disconnected) previous.status.copy(guestActive = false, reserved = true) else event.status ?: previous.status,
                             connected = if (event.disconnected) false else if (snapshot != null) true else previous.connected,
                             busy = false, resumeGuest = guestResume != null,
                             selected = if (changed) -1 else previous.selected,
+                            notes = if (changed) false else previous.notes,
                             partnerCell = if (changed || event.disconnected) -1 else event.selected ?: previous.partnerCell,
                             pendingId = if (changed || event.disconnected || event.outcome?.operationId == previous.pendingId) null else previous.pendingId,
                             message = when { saveMessage != null -> saveMessage; event.message != null -> event.message; event.outcome != null -> event.outcome?.let { if (it.accepted) null else explain(it.code) }; changed -> null; else -> previous.message },
