@@ -202,4 +202,28 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("portrait_garden_honeybee").assertIsSelected().assertIsDisplayed()
         compose.onNodeWithText("Honeybee · Garden").assertIsDisplayed()
     }
+
+    @Test fun playerIconGalleryUsesThreeColumnsOnlyWhenThereIsRoom() {
+        val width = mutableStateOf(430.dp)
+        compose.setContent {
+            SudokuTogetherTheme {
+                Box(Modifier.width(width.value).fillMaxHeight()) {
+                    SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {})
+                }
+            }
+        }
+        compose.onNodeWithTag("nav_collection").performClick()
+        val leaf = compose.onNodeWithTag("cosmetic_emblem_leaf")
+        val duo = compose.onNodeWithTag("cosmetic_emblem_duo")
+        val flash = compose.onNodeWithTag("cosmetic_emblem_flash")
+        leaf.performScrollTo()
+        assertEquals(leaf.getUnclippedBoundsInRoot().top, duo.getUnclippedBoundsInRoot().top)
+        assertEquals(duo.getUnclippedBoundsInRoot().top, flash.getUnclippedBoundsInRoot().top)
+
+        compose.runOnIdle { width.value = 320.dp }
+        leaf.performScrollTo()
+        assertEquals(leaf.getUnclippedBoundsInRoot().top, duo.getUnclippedBoundsInRoot().top)
+        assertTrue("The third icon must wrap on a narrow screen",
+            flash.getUnclippedBoundsInRoot().top > duo.getUnclippedBoundsInRoot().top)
+    }
 }
