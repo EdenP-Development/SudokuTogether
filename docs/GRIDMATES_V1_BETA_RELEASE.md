@@ -8,6 +8,17 @@ With the owner's approval, the consolidated [Beta 1 PR #42](https://github.com/P
 
 **Reproducibility note:** The public/QA APKs described below were built from **`76cbfc149569938b97286f3efe4ad44e08c5934f`**. Moving the source into `main` and subsequent documentation edits did **not** rebuild, retest or redistribute those APKs. The owner confirmed public itch.io and QA versions installed and launched on a real phone; independent checksum of the itch download and wider physical QA remain open in [issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). No GitHub tag/Release was created during consolidation.
 
+## Beta 1.1 source/CI progress — November 16–17, 2026
+
+These commits are **future Beta 1.1 source preparation** and **do not change the delivered Beta 1 public or QA APK**. The exact released Beta 1 artifact provenance and hashes below remain unchanged.
+
+- [Core JVM CI PR #46](https://github.com/PlayerEden/SudokuTogether/pull/46) merged and [its first run passed](https://github.com/PlayerEden/SudokuTogether/actions/runs/43996910731). Path-filtered, 15-minute, read-only, unsigned test workflow.
+- [Solver/Coach proof tests PR #45](https://github.com/PlayerEden/SudokuTogether/pull/45) merged after [full core JVM tests passed](https://github.com/PlayerEden/SudokuTogether/actions/runs/43997216944). Tests verify sample technique placements and Coach eliminations against unique puzzle solutions; these do not establish real-world difficulty calibration.
+- [Versus name layout PR #44](https://github.com/PlayerEden/SudokuTogether/pull/44) merged as [`4cfe132`](https://github.com/PlayerEden/SudokuTogether/commit/4cfe1321d554833fde39a9ec639d8955666bb433). The nickname gets the card's full width below the portrait/role heading, to avoid an orphaned trailing emoji. A new focused Android UI workflow [completed 5/5 API 36 emulator tests successfully](https://github.com/PlayerEden/SudokuTogether/actions/runs/43999395717): 0 failures, 0 skipped, including 320-dp emoji, 200%-text layout, result/reconnect/rematch presentation. Initial workflow runs failed **before UI tests** owing to SDK command-path and shell command-format mistakes; both were corrected before the passing run.
+- [Android CI maintenance PR #47](https://github.com/PlayerEden/SudokuTogether/pull/47) repaired explicit SDK-tool initialization in the three older **manually dispatched** Android build/QA/visual workflows, without changing signing, packages, distribution or gameplay.
+
+**Not yet verified for Beta 1.1:** physical install-over of an update using the original QA signing identity; real-phone visual and two-phone reconnect/rematch regression; actual public APK hash cross-check; a newly produced QA APK; Play submission. The relevant steps remain in [issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). The existing [same-identity QA update workflow](https://github.com/PlayerEden/SudokuTogether/actions/workflows/qa-debug.yml) is manual-only and must use the original private QA key, baseline policy and a new version code. **Never reinstall/uninstall or clear player data merely to move to a new QA build.**
+
 ## Beta polish
 
 - Home and the board count the squares players have filled. The board shows the count once above the grid.
