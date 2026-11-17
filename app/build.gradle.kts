@@ -42,8 +42,12 @@ android {
         debug {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
-            applicationIdSuffix = ".qa"
-            versionNameSuffix = if (qaVersion != null) "-qa.$qaVersion" else "-qa"
+            // ONLY ON THE TEMPORARY ISOLATED PREVIEW BRANCH:
+            // distinct application ID, disposable data, ordinary runner debug
+            // signer. Never try to install over the established .qa app.
+            applicationIdSuffix = ".qa.preview"
+            versionNameSuffix = "-beta11-isolated-preview"
+            if (qaVersion != null) error("Isolated preview must not use the established QA update signing mode")
             if (qaVersion != null) signingConfig = signingConfigs.getByName("qaContinuity")
         }
         release {
