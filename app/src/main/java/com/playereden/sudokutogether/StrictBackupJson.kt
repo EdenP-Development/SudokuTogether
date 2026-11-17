@@ -64,7 +64,9 @@ internal object StrictBackupJson {
                     "SoloUndo" -> 128
                     "DailyProgress" -> DailyChallenge.MAX_SAVED_DAYS
                     "GameRecord" -> MAX_RECORDS
-                    "String" -> PuzzleSupply.RECENT_LIMIT
+                    // Recent-puzzle IDs stay limited to 64 by semantic validation.
+                    // Earned Collection IDs may grow as future themes arrive.
+                    "String" -> maxOf(PuzzleSupply.RECENT_LIMIT, Cosmetics.knownIds.size)
                     else -> error("Unexpected backup array type.")
                 }
                 beginArray()
