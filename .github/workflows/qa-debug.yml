@@ -63,6 +63,8 @@ jobs:
           printf 'SUDOKU_QA_KEYSTORE_FILE=%s\n' "$SUDOKU_QA_KEYSTORE_FILE" >> "$GITHUB_ENV"
       - name: Configure Gradle cache
         uses: gradle/actions/setup-gradle@v4
+      - name: Set up Android SDK command-line tools
+        uses: android-actions/setup-android@v4
       - name: Install the declared Android build tools
         run: |
           set -euo pipefail
