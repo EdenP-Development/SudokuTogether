@@ -118,23 +118,30 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         CollectionCategory.NUMBERS -> if (state.uniformNumbers)
             "Classic number display is on" else "Preview your current numbers"
     }
-    Surface(onClick = { stylePreviewOpen = true }, modifier = Modifier.fillMaxWidth().testTag("collection_current_style_preview"),
-        color = GreenTint, shape = RoundedCornerShape(15.dp), border = BorderStroke(1.dp, Rule)) {
-        Row(Modifier.heightIn(min = 60.dp).padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+    // Treat the equipped look as a small showcase rather than another item
+    // in the unlock catalog. Its preview continues to reflect the active tab.
+    val showcaseSize = if (LocalDensity.current.fontScale > 1.3f) 48.dp else 62.dp
+    Surface(onClick = { stylePreviewOpen = true }, modifier = Modifier.fillMaxWidth()
+        .testTag("collection_current_style_preview")
+        .semantics { contentDescription = "Preview equipped style" },
+        color = GreenTint, shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, Rule)) {
+        Row(Modifier.heightIn(min = 82.dp).padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             when (category) {
-                CollectionCategory.ICONS -> AnimalPortrait(look, Modifier.size(38.dp).clearAndSetSemantics {})
+                CollectionCategory.ICONS -> AnimalPortrait(look, Modifier.size(showcaseSize).clearAndSetSemantics {})
                 CollectionCategory.BOARDS -> StyleSampleBoard(look, displayedNumbers,
-                    Modifier.size(42.dp).clearAndSetSemantics {}, compact = true)
+                    Modifier.size(showcaseSize).clearAndSetSemantics {}, compact = true)
                 CollectionCategory.NUMBERS -> Box(
-                    Modifier.size(42.dp).clip(RoundedCornerShape(10.dp)).background(Cream).clearAndSetSemantics {},
+                    Modifier.size(showcaseSize).clip(RoundedCornerShape(12.dp))
+                        .background(Cream).clearAndSetSemantics {},
                     contentAlignment = Alignment.Center
                 ) {
                     Text("59", fontFamily = fontFor(displayedNumbers.font),
                         color = inkFor(displayedNumbers.ink, false), fontSize = 22.sp)
                 }
             }
-            Column(Modifier.weight(1f)) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text("EQUIPPED", color = Muted, fontSize = 10.sp, letterSpacing = 1.sp)
                 Text(previewTitle, style = MaterialTheme.typography.titleSmall, color = Forest)
                 Text(previewSubtitle, style = MaterialTheme.typography.bodySmall, color = Muted)
             }
@@ -160,12 +167,12 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     val (available, locked) = items.partition { it.isEquipped(look) || progress.getValue(it.id).unlocked }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         SectionTitle("${available.size} of ${items.size} available")
-        CosmeticGrid(available.sortedByDescending { it.isEquipped(look) }, progress, look, !state.busy, open)
+        CosmeticGrid(available.sortedByDescending { it.isEquipped(look) }, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
     }
     if (locked.isNotEmpty()) {
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             SectionTitle("Locked")
-            CosmeticGrid(locked, progress, look, !state.busy, open)
+            CosmeticGrid(locked, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
         }
     }
     if (stylePreviewOpen) {
@@ -235,11 +242,12 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
 }
 
 @Composable private fun CosmeticGrid(items: List<CollectionItem>, progress: Map<String, CosmeticProgress>,
-    look: Appearance, enabled: Boolean, open: (CollectionItem) -> Unit) {
+    look: Appearance, enabled: Boolean, iconGallery: Boolean, open: (CollectionItem) -> Unit) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val scale = LocalDensity.current.fontScale
         val columns = when {
             scale > 1.3f || maxWidth < 260.dp -> 1
+            iconGallery && maxWidth >= 360.dp -> 3
             maxWidth >= 430.dp -> 3
             else -> 2
         }
@@ -248,7 +256,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     row.forEach { item ->
                         CosmeticCard(item, progress.getValue(item.id), look, enabled, columns == 1,
-                            Modifier.weight(1f), open = { open(item) })
+                            iconGallery, Modifier.weight(1f), open = { open(item) })
                     }
                     repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
                 }
@@ -258,7 +266,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
 }
 
 @Composable private fun CosmeticCard(item: CollectionItem, progress: CosmeticProgress, look: Appearance, enabled: Boolean,
-    singleColumn: Boolean, modifier: Modifier, open: () -> Unit) {
+    singleColumn: Boolean, iconGallery: Boolean, modifier: Modifier, open: () -> Unit) {
     val equipped = item.isEquipped(look)
     val status = when { equipped -> "Equipped"; progress.unlocked -> "Available"; else -> "Locked" }
     val family = item.family?.label
@@ -295,10 +303,10 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                 statusIcon(Modifier)
             }
         } else {
-            Box(Modifier.fillMaxWidth().heightIn(min = 110.dp).padding(10.dp)) {
+            Box(Modifier.fillMaxWidth().heightIn(min = if (iconGallery) 126.dp else 110.dp).padding(8.dp)) {
                 Column(Modifier.fillMaxWidth().align(Alignment.Center), verticalArrangement = Arrangement.spacedBy(6.dp),
                     horizontalAlignment = Alignment.CenterHorizontally) {
-                    CosmeticSwatch(item, sample, Modifier.size(50.dp))
+                    CosmeticSwatch(item, sample, Modifier.size(if (iconGallery) 62.dp else 50.dp))
                     label()
                 }
                 statusIcon(Modifier.align(Alignment.TopEnd))
