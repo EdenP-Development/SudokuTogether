@@ -27,13 +27,15 @@ class LocalPlayerStore(file: File) {
         val backup = runCatching { read(recovery) }.getOrNull()
         val loaded = primary ?: backup
         if (loaded != null) {
-            data = loaded
+            // Old saves remain readable. Keep already-earned unlocks in memory;
+            // only write the upgraded profile during a normal verified save.
+            data = Cosmetics.preserveEarned(loaded)
             val preserve = buildList {
                 if (primary == null || hasSidecars(atomic)) addAll(sources(atomic))
                 if (backup == null || hasSidecars(recovery)) addAll(sources(recovery))
             }
             canSave = preserveSources(preserve)
-            needsRepair = primary == null || preserve.isNotEmpty()
+            needsRepair = primary == null || preserve.isNotEmpty() || data != loaded
             recoveryWarning = when {
                 !canSave -> "Saved progress was recovered, but saving is paused because the damaged file could not be preserved. Check phone storage and reopen the app."
                 primary == null -> "Your last healthy local backup was recovered. Recent changes may be missing."
@@ -79,7 +81,7 @@ class LocalPlayerStore(file: File) {
 
     @Synchronized fun update(transform: (LocalPlayerData) -> LocalPlayerData): LocalPlayerData {
         if (!canSave) throw IOException("Existing local progress needs recovery. It has not been replaced.")
-        val next = transform(data)
+        val next = Cosmetics.preserveEarned(transform(data))
         require(next.playerId == data.playerId)
         validateLocalPlayerData(next)
         if (next == data && !needsRepair) return data
@@ -95,13 +97,14 @@ class LocalPlayerStore(file: File) {
         }
         // Only replaying our private journal can recover an identity that had not yet been saved.
         require(rollback || next.playerId == data.playerId)
-        validateLocalPlayerData(next)
+        val migrated = Cosmetics.preserveEarned(next)
+        validateLocalPlayerData(migrated)
         // The separate transaction journal protects the previous pair. Both normal
         // profile copies must agree with the settings after the restore commits.
-        writeProfile(recovery, next)
-        writeProfile(atomic, next)
-        if (read(atomic) != next || read(recovery) != next) throw IOException("Restored progress could not be reloaded.")
-        data = next
+        writeProfile(recovery, migrated)
+        writeProfile(atomic, migrated)
+        if (read(atomic) != migrated || read(recovery) != migrated) throw IOException("Restored progress could not be reloaded.")
+        data = migrated
         needsRepair = false
         canSave = true
         recoveryWarning = null
@@ -137,6 +140,9 @@ internal fun writeVerifiedAtomic(file: AtomicFile, bytes: ByteArray) {
 
 internal fun validateLocalPlayerData(saved: LocalPlayerData) {
     require(saved.schema == 1 && saved.playerId.length in 1..128 && saved.records.size <= MAX_RECORDS)
+    require(saved.ownedCosmeticIds.size <= Cosmetics.knownIds.size &&
+        saved.ownedCosmeticIds.toSet().size == saved.ownedCosmeticIds.size &&
+        saved.ownedCosmeticIds.all { it in Cosmetics.knownIds })
     fun validCell(cell: Cell): Boolean = cell.value in 0..9 && cell.notes in 0..511 &&
         cell.revision >= 0 && (cell.value == 0 || cell.notes == 0)
     fun validateProgress(solo: SoloProgress) {
