@@ -15,11 +15,18 @@ Full-size clue digits, board hierarchy and selected-square outlines read clearly
 
 ## Verification checklist
 
-- [ ] Core and Android unit regression checks pass
-- [ ] Four real emulator captures exported with all images nonblank and named according to the actual scene
-- [ ] On the normal Classic and Midnight boards, small notes stay individually identifiable without overlapping each other or grid rules
-- [ ] Coach "Show why" shows target/proof distinctions and crossed-off candidate notes clearly
+- [x] Core and Android unit regression checks pass
+- [x] Four real emulator captures exported with all images nonblank and named according to the actual scene
+- [x] On the normal Classic and Midnight boards, small notes stay individually identifiable without overlapping each other or grid rules
+- [x] Coach "Show why" shows target/proof distinctions and crossed-off candidate notes clearly
 - [ ] Physical Android review remains open: multiple phone widths, larger text, actual earned font and theme combinations
 - [ ] No new APK or production/QA signer changes in this PR
 
 The changes are limited to presentation. **Screenshot QA is not visual approval on a physical device.**
+
+## Verified screenshot comparison
+
+- **Before:** [API 36 capture run 44146363596](https://github.com/PlayerEden/SudokuTogether/actions/runs/44146363596).
+- **After:** [PR #60 core/Android, screenshot run 44147830951](https://github.com/PlayerEden/SudokuTogether/actions/runs/44147830951) — all checks passed, four expected PNGs exported, and the screen-label verification accepted Classic, Midnight/Rose and both Coach states.
+- **Reviewed:** 1/3/5/7 handwriting samples on the Midnight selected square, ordinary notes throughout the Classic board and small 7 candidates in Coach’s outlined elimination cells. New glyphs are visibly larger without overlapping neighboring cells or 3×3 candidate slots in these snapshots; full-sized board digits and control placement are unchanged.
+- **Remaining:** all nine candidate digits together, large-text accessibility on physical Android devices, unusual font/theme combinations and owner approval. The updated QA code does **not** migrate or update installed games.
