@@ -358,6 +358,8 @@ private fun roomStatusText(state: GameUiState): String {
                 Box(Modifier.size(52.dp).background(Forest, RoundedCornerShape(16.dp)), contentAlignment = Alignment.Center) {
                     GameIcon(GameSymbol.TROPHY, OnForest, Modifier.size(29.dp))
                 }
+                Eyebrow(if (state.dailyDate != null) "DAILY PAGE FINISHED"
+                    else if (state.role == SOLO) "ONE MORE PUZZLE SOLVED" else "A SHARED VICTORY")
                 Text(when {
                     state.dailyDate != null -> "Daily challenge complete"
                     state.role == SOLO -> "Puzzle completed"
@@ -386,7 +388,34 @@ private fun roomStatusText(state: GameUiState): String {
                                 color = Muted, fontSize = 11.sp)
                     }
                 }
+                // Only announce unlocks recorded with the completed match.
+                // Re-opening this finish can safely show the same earned items.
+                val earned = remember(state.profile.records, snapshot.sessionId) {
+                    CompletionRewards.forRecord(state.profile.records, snapshot.sessionId)
+                }
+                if (earned.hasNewRewards) {
+                    Surface(Modifier.fillMaxWidth().testTag("finish_new_rewards"),
+                        color = Paper, shape = RoundedCornerShape(13.dp), border = BorderStroke(1.dp, Rule)) {
+                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Eyebrow("EARNED WITH THIS PUZZLE")
+                            earned.achievements.take(2).forEach { title ->
+                                Text("Achievement · $"+ "{title}", style = MaterialTheme.typography.bodySmall, color = Forest)
+                            }
+                            earned.cosmetics.take(2).forEach { title ->
+                                Text("Collection unlock · $"+ "{title}", style = MaterialTheme.typography.bodySmall, color = Forest)
+                            }
+                            val more = (earned.achievements.size - 2).coerceAtLeast(0) +
+                                (earned.cosmetics.size - 2).coerceAtLeast(0)
+                            if (more > 0) Text("+$"+ "{more} more earned", style = MaterialTheme.typography.bodySmall, color = Muted)
+                        }
+                    }
+                }
                 if (state.dailyDate != null) {
+                    val completedDays = DailyChallenge.completedDays(state.profile.records)
+                    if (completedDays > 0) Text("${completedDays} daily puzzle" +
+                        (if (completedDays == 1) " completed" else "s completed"),
+                        color = Forest, style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.testTag("finish_daily_total"))
                     Text(if (state.dailyDate == state.todayDate) "New puzzle tomorrow."
                         else "Today's puzzle is on Home.", color = Muted, fontSize = 12.sp)
                     Button(onClick = actions.home,
