@@ -1,0 +1,97 @@
+name: GridMates Beta 1.2 refreshed notes owner review APK
+
+# One-off source-preview workflow. Not a QA update and not a release.
+on:
+  push:
+    branches:
+      - qa/beta12-notes-review-20261117
+
+permissions:
+  contents: read
+
+jobs:
+  isolated-preview:
+    name: Verify and assemble isolated Beta 1.2 phone APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 22
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Apply one-off separate preview identity (runner only)
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          gradle = Path('app/build.gradle.kts')
+          old = 'applicationIdSuffix = ".qa"'
+          source = gradle.read_text()
+          assert source.count(old) == 1, 'Refuse ambiguous debug application ID change'
+          gradle.write_text(source.replace(old, 'applicationIdSuffix = ".qa.beta12notesreview"'))
+          strings = Path('app/src/main/res/values/strings.xml')
+          content = strings.read_text()
+          assert content.count('<string name="app_name">GridMates: Sudoku</string>') == 1
+          assert content.count('<string name="launcher_name">Sudoku</string>') == 1
+          content = content.replace('<string name="app_name">GridMates: Sudoku</string>',
+                                    '<string name="app_name">GridMates B1.2 Notes</string>')
+          content = content.replace('<string name="launcher_name">Sudoku</string>',
+                                    '<string name="launcher_name">Sudoku B1.2+ </string>')
+          strings.write_text(content)
+          PY
+      - name: Core tests, Android units, lint and isolated debug assembly
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug --no-daemon --max-workers=2 --console=plain
+      - name: Verify install identity, signature and generate receipt
+        run: |
+          set -euo pipefail
+          mkdir -p review
+          cp app/build/outputs/apk/debug/app-debug.apk review/GridMates-Sudoku-Beta12-Notes-Review.apk
+          apk=review/GridMates-Sudoku-Beta12-Notes-Review.apk
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          "$tools/apksigner" verify --print-certs "$apk" > review/signature.txt
+          "$tools/aapt" dump badging "$apk" > review/package.txt
+          echo "APK package descriptor:"
+          grep '^package:' review/package.txt
+          echo "APK labels:"
+          grep '^application-label' review/package.txt || true
+          actual_package=$(sed -n "s/^package: name='\\([^']*\\)'.*/\\1/p" review/package.txt)
+          if [ "$actual_package" != "com.playereden.sudokutogether.qa.beta12notesreview" ]; then
+            echo "Refusing download: unexpected Android applicationId $actual_package" >&2
+            exit 1
+          fi
+          grep -q "versionCode='30'" review/package.txt
+          unzip -t "$apk" >/dev/null
+          sha256sum "$apk" > review/SHA256.txt
+          SOURCE_MAIN_SHA="f40f9275f66dc4eca8019ec301c36c292b1723e0" python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json, os
+          p=Path("review/GridMates-Sudoku-Beta12-Notes-Review.apk")
+          details={
+            "purpose":"Isolated phone visual review only; NOT a public or QA upgrade",
+            "game_source_sha":os.environ["SOURCE_MAIN_SHA"],
+            "preview_workflow_sha":os.environ["GITHUB_SHA"],
+            "package":"com.playereden.sudokutogether.qa.beta12notesreview",
+            "version_code":30,
+            "preview_signer":"Ephemeral GitHub Actions Android debug identity; not compatible with prior signed apps",
+            "apk_name":p.name,
+            "size_bytes":p.stat().st_size,
+            "sha256":hashlib.sha256(p.read_bytes()).hexdigest(),
+            "local_data":"Separate sandbox; does not read or upgrade QA/production saves",
+            "install_warning":"Install alongside existing Sudoku apps; never uninstall or clear data to use this preview"
+          }
+          Path("review/receipt.json").write_text(json.dumps(details,indent=2)+"\n")
+          print(json.dumps(details,indent=2))
+          PY
+      - name: Upload isolated preview APK and verification receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta12-Notes-Review-${{ github.run_id }}
+          path: review/
+          if-no-files-found: error
+          retention-days: 7
