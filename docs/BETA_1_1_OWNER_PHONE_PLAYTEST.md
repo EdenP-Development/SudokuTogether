@@ -2,6 +2,12 @@
 
 **Status:** Pre-test plan; **not executed**, and **not a downloadable APK**. The current public itch.io release is still Beta 1. This checklist is for a future **same-signature QA update** of `com.playereden.sudokutogether.qa`, **not** the separate production package.
 
+## Available now: isolated Beta 1.1 preview (does not replace QA)
+
+The [November 17 isolated preview APK](https://github.com/PlayerEden/SudokuTogether/actions/runs/44003023663) is a **new, separately installed** Android app named **Sudoku Preview** (`com.playereden.sudokutogether.qa.preview`). GitHub built and verified the APK, but it **does not contain or update your saved QA/production progress**, and it is not signed with the existing QA key. The original QA install-over workflow is blocked until its existing signing secret can be privately restored.
+
+For **this preview only**, leave existing QA/production apps untouched. Download and install the **same APK on both phones**, then do the gameplay/Versus/co-op/emoji/rematch tests from Sections 1–3 below with **new preview data**. Skip any assertions about earlier QA save continuity, and report those as **not tested**. Section 0 below applies to the **future verified same-signature QA update**, not this isolated preview.
+
 ## 0. Protect existing progress before installing
 
 1. On both devices, note the installed QA version, your names, your current Solo/Daily progress and the approximate number of Profile records/unlocked cosmetics. Keep a few screenshots for comparison.
