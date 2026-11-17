@@ -1,0 +1,103 @@
+name: Sudoku Beta 1.1 isolated phone preview
+
+# ONE-OFF branch-specific preview. NOT an update for the established QA app.
+# This workflow is intentionally absent from main and has no signing secrets.
+on:
+  push:
+    branches:
+      - qa/sudoku-beta11-isolated-preview
+    paths:
+      - .github/workflows/sudoku-beta11-isolated-preview.yml
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sudoku-beta11-isolated-preview
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    name: Test and package separate preview APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    steps:
+      - name: Checkout exact preview source
+        uses: actions/checkout@v4
+      - name: Check packaging safety scripts
+        run: python3 -m unittest discover -s scripts/tests -v
+      - name: Configure Java 17 and Gradle caching
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Set up Android SDK command-line tools
+        uses: android-actions/setup-android@v4
+      - name: Install declared Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Test rules, Android unit code, and lint; assemble isolated preview
+        run: ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug --no-daemon --max-workers=2 --console=plain
+      - name: Verify package identity, APK signer and SHA-256
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp app/build/outputs/apk/debug/app-debug.apk GridMates-Sudoku-Beta11-IsolatedPreview.apk
+          python3 - <<'PY'
+          import hashlib, json, os, re, subprocess
+          from pathlib import Path
+          apk = Path("GridMates-Sudoku-Beta11-IsolatedPreview.apk")
+          aapt = os.environ["ANDROID_HOME"] + "/build-tools/35.0.0/aapt"
+          signer = os.environ["ANDROID_HOME"] + "/build-tools/35.0.0/apksigner"
+          badging = subprocess.check_output([aapt, "dump", "badging", str(apk)], text=True)
+          certs = subprocess.check_output([signer, "verify", "--min-sdk-version", "26",
+                                           "--print-certs", str(apk)], text=True)
+          package = re.search(r"^package: name='([^']+)' versionCode='([^']+)' versionName='([^']+)'", badging, re.MULTILINE)
+          sdk = re.search(r"^sdkVersion:'([^']+)'", badging, re.MULTILINE)
+          digest = re.findall(r"^Signer #[0-9]+ certificate SHA-256 digest: ([0-9a-fA-F:]+)", certs, re.MULTILINE)
+          assert package and sdk and len(digest) == 1, "Missing APK package, SDK, or single signer"
+          assert package.group(1) == "com.playereden.sudokutogether.qa.preview", "Wrong app ID: do not distribute!"
+          assert package.group(2) == "30" and sdk.group(1) == "26", "Preview version/SDK unexpected"
+          qa = json.loads(Path("distribution/qa-update-baseline.json").read_text())
+          signer_hash = digest[0].replace(":", "").lower()
+          assert signer_hash != qa["signer_sha256"], "Preview must never be confused with same-signature QA update"
+          receipt = {
+            "type": "separate_disposable_preview_not_qa_update",
+            "application_id": package.group(1),
+            "version_code": int(package.group(2)),
+            "version_name": package.group(3),
+            "min_sdk": int(sdk.group(1)),
+            "signer_sha256": signer_hash,
+            "apk_sha256": hashlib.sha256(apk.read_bytes()).hexdigest(),
+            "source_commit": os.environ["GITHUB_SHA"],
+            "existing_qa_unchanged": True,
+            "production_app_unchanged": True,
+            "install_over_existing_qa": False,
+            "physical_install_tested": False
+          }
+          Path("GridMates-Sudoku-Beta11-Preview.receipt.json").write_text(json.dumps(receipt, indent=2) + "\n")
+          Path("GridMates-Sudoku-Beta11-Preview.apk.sha256").write_text(
+              receipt["apk_sha256"] + "  " + apk.name + "\n")
+          print("Isolated app verified. SHA-256:", receipt["apk_sha256"])
+          PY
+      - name: Upload separate preview APK and identity receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Sudoku-Beta11-Isolated-Preview
+          path: |
+            GridMates-Sudoku-Beta11-IsolatedPreview.apk
+            GridMates-Sudoku-Beta11-Preview.apk.sha256
+            GridMates-Sudoku-Beta11-Preview.receipt.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Upload reports if packaging fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta11-preview-failure-reports
+          path: |
+            core/build/reports/tests/**
+            app/build/reports/tests/**
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: ignore
+          retention-days: 3
