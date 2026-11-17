@@ -28,3 +28,9 @@
 - [ ] Run full source, Android and emulator QA for any changes; review or revert if regressions occur
 
 The authoring plan is [Beta 1.2 refinement execution](BETA12_REFINEMENT_EXECUTION_PLAN.md), which will merge separately through Phase A PR #55.
+
+## Related Phase C legibility check (do not conflate with this keypad fix)
+
+A source-color relative-luminance calculation found existing **Rose** and **Violet** dark-board inks at approximately **4.14:1** and **4.19:1** respectively against the older partner-selection highlight, below the usual 4.5:1 text target. Other existing combinations were deliberately accepted under a lower legacy floor; the colors are unchanged by this PR. These ratios are **computed**, not owner phone or TalkBack evidence. Physically inspect tiny notes and related selected/partner highlights before choosing a targeted contrast correction in Phase C. Do not recolor all existing cosmetic palettes merely to close a checklist.
+
+**Phase B follow-up QA:** [PR #57](https://github.com/PlayerEden/SudokuTogether/pull/57) focused API 36 emulator [run 44117992119](https://github.com/PlayerEden/SudokuTogether/actions/runs/44117992119) passed core, Android units and keypad UI assertions on the source revision `f5daaf8`. No phone APK or physical review was performed.
