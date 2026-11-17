@@ -40,7 +40,7 @@ jobs:
           content = content.replace('<string name="app_name">GridMates: Sudoku</string>',
                                     '<string name="app_name">GridMates B1.2 Notes</string>')
           content = content.replace('<string name="launcher_name">Sudoku</string>',
-                                    '<string name="launcher_name">Sudoku B1.2+ </string>')
+                                    '<string name="launcher_name">Sudoku B1.2+</string>')
           strings.write_text(content)
           PY
       - name: Core tests, Android units, lint and isolated debug assembly
