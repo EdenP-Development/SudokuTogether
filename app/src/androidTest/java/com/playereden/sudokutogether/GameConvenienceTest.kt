@@ -3,10 +3,14 @@ package com.playereden.sudokutogether
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.lifecycle.ViewModelProvider
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertNotEquals
 import org.junit.runner.RunWith
 
 /** Player-visible navigation/layout contracts, exercised through the real Activity. */
@@ -31,6 +35,39 @@ class GameConvenienceTest {
         if (compose.onAllNodesWithText("Start new").fetchSemanticsNodes().isNotEmpty())
             compose.onNodeWithText("Start new").performClick()
         compose.waitUntil(30000) { compose.onAllNodesWithTag("input_dock").fetchSemanticsNodes().isNotEmpty() }
+    }
+
+    @Test fun freshPuzzleConfirmationProtectsOldNotesAndResetsInputModeAfterAcceptance() {
+        newSolo()
+        val model = ViewModelProvider(compose.activity)[GameViewModel::class.java]
+        val original = requireNotNull(model.state.value.snapshot).sessionId
+        compose.onNodeWithText("Notes").assertIsDisplayed().performClick()
+        compose.onNodeWithText("Notes on").assertIsDisplayed()
+        assertTrue(model.state.value.notes)
+
+        // Asking for a replacement must not discard the in-progress puzzle
+        // until the player confirms. The cancelled dialog keeps Notes mode.
+        compose.onNodeWithText("New puzzle").performScrollTo().performClick()
+        compose.onNodeWithText("Start a new puzzle?").assertIsDisplayed()
+        compose.onNodeWithText("Keep playing").performClick()
+        compose.runOnIdle {
+            assertEquals(original, model.state.value.snapshot?.sessionId)
+            assertTrue(model.state.value.notes)
+        }
+
+        compose.onNodeWithText("New puzzle").performScrollTo().performClick()
+        compose.onNodeWithText("Start new").performClick()
+        compose.waitUntil(60000) {
+            val now = model.state.value
+            now.page == Page.PLAY && !now.busy && now.snapshot != null &&
+                now.snapshot!!.sessionId != original
+        }
+        compose.runOnIdle {
+            assertNotEquals(original, model.state.value.snapshot!!.sessionId)
+            assertFalse("A fresh puzzle must enter numbers, not pencil marks", model.state.value.notes)
+        }
+        compose.onNodeWithText("Notes").assertIsDisplayed()
+        compose.onNodeWithText("Notes on").assertDoesNotExist()
     }
 
     @Test fun resumeIsVisibleWithoutScrolling() {
