@@ -8,6 +8,24 @@ With the owner's approval, the consolidated [Beta 1 PR #42](https://github.com/P
 
 **Reproducibility note:** The public/QA APKs described below were built from **`76cbfc149569938b97286f3efe4ad44e08c5934f`**. Moving the source into `main` and subsequent documentation edits did **not** rebuild, retest or redistribute those APKs. The owner confirmed public itch.io and QA versions installed and launched on a real phone; independent checksum of the itch download and wider physical QA remain open in [issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43). No GitHub tag/Release was created during consolidation.
 
+## Beta 1.1 isolated phone-preview artifact — November 17, 2026
+
+**A separate preview test app is now downloadable; it is not the original QA app's update.** The original same-identity QA workflow [run 44002680103](https://github.com/PlayerEden/SudokuTogether/actions/runs/44002680103) correctly stopped before assembling because the GitHub Actions secret `SUDOKU_QA_KEYSTORE_BASE64` (original private QA signing key) was missing. This is a key-custody blocker, not an Android test failure; no incompatible signed QA APK was emitted. The one-time trigger was removed after the attempt.
+
+To provide a safe playable candidate without erasing existing games, [run 44003023663](https://github.com/PlayerEden/SudokuTogether/actions/runs/44003023663) built an **isolated Sudoku Preview** on temporary branch `qa/sudoku-beta11-isolated-preview`, at exact source commit `15c14dde3611df2c67ad2c906ff2955856bec06e`. The run passed the packaging script tests, `:core:test`, `:app:testDebugUnitTest`, `:app:lintDebug` and `:app:assembleDebug`, verified app ID/minSdk/signature/SHA-256, and uploaded the APK plus receipt. The downloaded artifact's APK bytes were independently checked against the receipt.
+
+| Artifact property | Verified value |
+| --- | --- |
+| APK | `GridMates-Sudoku-Beta11-IsolatedPreview.apk` (14,453,602 bytes) |
+| App ID | `com.playereden.sudokutogether.qa.preview` |
+| Version | `1.0.0-beta.1-beta11-isolated-preview` / Android code `30` |
+| Minimum Android | API 26 (Android 8.0) |
+| SHA-256 | `579e95861da993e4320b2cdcced787c155702f2baa68894d1798815581a8b6e3` |
+| Artifact | [GitHub Actions download](https://github.com/PlayerEden/SudokuTogether/actions/runs/44003023663) (artifact `14293063060`, expected expiry 2026-12-01) |
+| Install behavior | **New app, separate data; does not install over QA or production** |
+
+**For the owner playtest:** install this exact preview APK on both phones, check Solo/Daily/Coach, new Co-op and Versus matches, emoji-name layout, match finish, host rematch, return after backgrounding, and Wi-Fi rejoin. Do not uninstall/clear either original game. Because this preview deliberately starts with independent data, it **cannot establish old-save or same-signature update continuity**. Those gates remain open in [issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43), and the original QA signer must be restored privately before the true in-place update can be built. The one-time preview push trigger has been deactivated.
+
 ## Beta 1.1 source/CI progress — November 16–17, 2026
 
 These commits are **future Beta 1.1 source preparation** and **do not change the delivered Beta 1 public or QA APK**. The exact released Beta 1 artifact provenance and hashes below remain unchanged.
