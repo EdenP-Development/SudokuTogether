@@ -8,7 +8,7 @@ class DailyActivityTest {
         fun completed(id: String, date: String) =
             GameRecord(id, DAILY, "SOLVED", "p", 1000L, 3, 2000L, "EASY", dailyDate = date)
         val puzzle = Puzzle("p", List(81) { 0 }, "EASY")
-        val inProgress = DailyProgress("2026-11-17", PersonalPlay.newSolo(puzzle, 1000L))
+        val inProgress = DailyProgress("2026-11-17", SoloProgress("saved-daily", puzzle, List(81) { Cell() }, 1000L))
         val records = listOf(
             completed("one", "2026-11-16"), completed("one", "2026-11-16"),
             completed("old", "2026-11-01"), completed("two", "2026-11-12"))
@@ -25,7 +25,7 @@ class DailyActivityTest {
 
     @Test fun aRetainedCompletedDayStillShowsAsCompleteWithoutARecentRecord() {
         val puzzle = Puzzle("p", List(81) { 0 }, "EASY")
-        val finished = PersonalPlay.newSolo(puzzle, 1000L).copy(finishedAtMs = 2000L)
+        val finished = SoloProgress("finished-daily", puzzle, List(81) { Cell() }, 1000L, finishedAtMs = 2000L)
         val saved = DailyProgress("2026-11-17", finished)
         val day = DailyActivity.recentSevenDays("2026-11-17", emptyList(), listOf(saved)).last()
         assertTrue(day.complete)
