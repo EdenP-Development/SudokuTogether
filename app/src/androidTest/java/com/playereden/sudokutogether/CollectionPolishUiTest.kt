@@ -95,7 +95,9 @@ class CollectionPolishUiTest {
     }
 
     @Test fun currentStylePreviewFollowsTheCollectionTab() {
-        val state = mutableStateOf(GameUiState(page = Page.PROFILE))
+        // The installed phone review has Owl equipped; bare GameUiState defaults to Gridkeeper.
+        val state = mutableStateOf(GameUiState(page = Page.PROFILE,
+            appearance = Appearance(portrait = "woodland_owl")))
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
         compose.onNodeWithTag("nav_collection").performClick()
 
