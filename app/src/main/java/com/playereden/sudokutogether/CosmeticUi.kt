@@ -17,6 +17,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.compositeOver
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
@@ -170,8 +171,34 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         CosmeticGrid(available.sortedByDescending { it.isEquipped(look) }, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
     }
     if (locked.isNotEmpty()) {
+        // Surface one attainable goal using the *existing* durable unlock
+        // counts. Browsing and equipping still use the usual preview dialog.
+        val next = locked.minByOrNull {
+            val goal = progress.getValue(it.id)
+            (goal.target - goal.current).coerceAtLeast(0)
+        }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             SectionTitle("Locked")
+            if (next != null) {
+                val goal = progress.getValue(next.id)
+                Surface(onClick = { open(next) }, enabled = !state.busy,
+                    modifier = Modifier.fillMaxWidth().testTag("collection_next_unlock"),
+                    color = GoldTint.copy(alpha = .45f).compositeOver(Cream),
+                    shape = RoundedCornerShape(15.dp), border = BorderStroke(1.dp, Rule)) {
+                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        CosmeticSwatch(next, next.group.withItem(look, next.id), Modifier.size(48.dp))
+                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                            Eyebrow("NEXT TO UNLOCK")
+                            Text(next.cosmetic.name, style = MaterialTheme.typography.titleSmall, color = Forest)
+                            Text("${goal.current} of ${goal.target} · ${next.cosmetic.requirement}",
+                                style = MaterialTheme.typography.bodySmall, color = Muted)
+                            MilestoneTrack(goal.current, goal.target)
+                        }
+                        GameIcon(GameSymbol.RIGHT, Forest, Modifier.size(18.dp))
+                    }
+                }
+            }
             CosmeticGrid(locked, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
         }
     }

@@ -226,4 +226,16 @@ class CollectionPolishUiTest {
         assertTrue("The third icon must wrap on a narrow screen",
             flash.getUnclippedBoundsInRoot().top > duo.getUnclippedBoundsInRoot().top)
     }
+
+    @Test fun nextUnlockUsesRealProgressAndOpensExistingLockedPreview() {
+        compose.setContent { SudokuTogetherTheme { SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {}) } }
+        compose.onNodeWithTag("nav_collection").performClick()
+        val next = compose.onNodeWithTag("collection_next_unlock").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("NEXT TO UNLOCK").assertIsDisplayed()
+        compose.onNodeWithText("0 of 1 · Solve 1 solo puzzle").assertIsDisplayed()
+        next.performClick()
+        compose.onNodeWithText("Solve 1 solo puzzle").assertIsDisplayed()
+        compose.onNodeWithText("Use icon").assertDoesNotExist()
+        compose.onNodeWithText("Close").performClick()
+    }
 }
