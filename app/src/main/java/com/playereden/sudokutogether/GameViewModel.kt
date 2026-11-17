@@ -464,7 +464,9 @@ class GameViewModel @JvmOverloads constructor(
         val difficulty = _state.value.selectedDifficulty
         stopSoloClock()
         val current = closeRoom()
-        _state.update { it.copy(page = Page.PLAY, role = SOLO, dailyDate = null, finishedSolo = null, snapshot = null, busy = true, selected = -1, pendingId = null, partnerCell = -1, message = null, hint = null, chat = emptyList(), unreadChat = 0, chatVisible = false) }
+        // Opening a different Solo board must start with value entry, just like Daily.
+        // Notes are per-board input mode, not a saved preference or pencil data.
+        _state.update { it.copy(page = Page.PLAY, role = SOLO, dailyDate = null, finishedSolo = null, snapshot = null, busy = true, selected = -1, notes = false, pendingId = null, partnerCell = -1, message = null, hint = null, chat = emptyList(), unreadChat = 0, chatVisible = false) }
         viewModelScope.launch(workDispatcher) {
             try {
                 if (generation.get() != current) return@launch
