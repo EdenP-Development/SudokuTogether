@@ -2,6 +2,7 @@ package com.playereden.sudokutogether
 
 import android.util.JsonReader
 import android.util.JsonToken
+import com.playereden.sudokutogether.core.Cosmetics
 import com.playereden.sudokutogether.core.DailyChallenge
 import com.playereden.sudokutogether.core.MAX_RECORDS
 import com.playereden.sudokutogether.core.PuzzleSupply
