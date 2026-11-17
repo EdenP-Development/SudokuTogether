@@ -32,6 +32,8 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: gradle
+      - name: Set up Android SDK command-line tools
+        uses: android-actions/setup-android@v4
       - name: Install declared Android build SDK
         run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Prepare Android emulator acceleration
