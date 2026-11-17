@@ -334,12 +334,13 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
 ) {
     val entryFont = fontFor(numberLook.font)
     val clueFont = fontFor(Appearance().font)
-    val dark = boardIsDark(look.board)
+    val palette = boardPalette(look.board)
+    val dark = palette.dark
     val scale = LocalDensity.current.fontScale.coerceAtLeast(1f)
     val digitSize = ((if (compact) 11f else 25f) / scale).sp
-    val edge = if (dark) Color(0xFF789690) else Rule
+    val edge = palette.previewRule
     val shape = RoundedCornerShape(if (compact) 7.dp else 12.dp)
-    Column(modifier.clip(shape).background(boardFillFor(look.board)).border(1.dp, edge, shape).drawWithContent {
+    Column(modifier.clip(shape).background(palette.fill).border(1.dp, edge, shape).drawWithContent {
         drawContent()
         for (i in 1..2) {
             drawLine(edge, Offset(size.width * i / 3, 0f), Offset(size.width * i / 3, size.height), 1.dp.toPx())
@@ -353,7 +354,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                     Text((r * 3 + c + 1).toString(), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
                         maxLines = 1, softWrap = false, fontFamily = if (entered) entryFont else clueFont,
                         fontSize = digitSize, lineHeight = digitSize, fontWeight = if (entered) FontWeight.Normal else FontWeight.Bold,
-                        color = if (entered) inkFor(numberLook.ink, dark) else if (dark) OnForest else Ink)
+                        color = if (entered) inkFor(numberLook.ink, dark) else palette.clueInk)
                 }
             }
         }
