@@ -4,6 +4,22 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class GameSessionTest {
+    @Test fun truncatedMultiplayerNamesNeverEndWithHalfAnEmoji() {
+        val longEmojiName = "A".repeat(23) + "😎"
+        val safeName = cleanName(longEmojiName, "Player")
+        assertEquals("A".repeat(23), safeName)
+        assertFalse(safeName.last().isHighSurrogate())
+        assertEquals("A".repeat(22) + "😎", cleanName("A".repeat(22) + "😎", "Player"))
+        assertEquals("Player", cleanName("  \n\t  ", "Player"))
+
+        val game = GameSession.create(fixture(), hostName = longEmojiName)
+        assertEquals(safeName, game.snapshot().hostName)
+        val guest = game.admitGuest(longEmojiName)
+        assertEquals(safeName, guest.name)
+        assertEquals(safeName, game.snapshot().guestName)
+        validateSaved(game.saved())
+    }
+
     @Test fun consecutiveOwnUndosOnOneSquareRestoreEveryEarlierState() {
         val game = session()
         game.submit(HOST, game.snapshot().move(0, Kind.NOTE, 2))
