@@ -1,6 +1,8 @@
 package com.playereden.sudokutogether
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 
 /**
  * A complete, curated board appearance shared by the playable 9x9 grid
@@ -120,4 +122,40 @@ fun boardFillFor(id: String): Color = boardPalette(id).fill
 fun inkFor(id: String, darkBoard: Boolean): Color {
     val palette = inkPalettes[id] ?: inkPalettes.getValue("forest")
     return if (darkBoard) palette.dark else palette.light
+}
+
+
+/**
+ * Contrast-safe pencil marks on a dark board.
+ *
+ * Regular entered digits and the saved cosmetic ink are not changed. Only the
+ * small 3x3 pencil glyph adapts, and only when its current cell highlight would
+ * make it too faint. The normal light-board pencil color stays unchanged.
+ */
+internal fun pencilNoteInk(authoredInk: Color, cellBackground: Color, palette: BoardPalette): Color {
+    if (!palette.dark) return Muted
+    val target = 4.52f // A tiny buffer above 4.5:1 for rounding.
+    if (contrastRatio(authoredInk, cellBackground) >= target) return authoredInk
+
+    // All registered dark-board clue inks pass this target on their cell states.
+    // Blend only as much as needed, retaining the chosen ink's original hue.
+    val legible = palette.clueInk
+    if (contrastRatio(legible, cellBackground) < target) return legible
+    var low = 0f
+    var high = 1f
+    repeat(12) {
+        val mix = (low + high) / 2f
+        if (contrastRatio(lerp(authoredInk, legible, mix), cellBackground) >= target) {
+            high = mix
+        } else {
+            low = mix
+        }
+    }
+    return lerp(authoredInk, legible, high)
+}
+
+private fun contrastRatio(foreground: Color, background: Color): Float {
+    val a = foreground.luminance()
+    val b = background.luminance()
+    return (maxOf(a, b) + .05f) / (minOf(a, b) + .05f)
 }
