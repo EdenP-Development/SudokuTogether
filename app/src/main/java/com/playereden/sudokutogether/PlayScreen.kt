@@ -221,6 +221,8 @@ import kotlinx.coroutines.delay
         snapshot.completed -> "Your finished grid"
         state.selected !in 0..80 -> "Tap a square, then choose a number."
         snapshot.puzzle.clues[state.selected] != 0 -> "R${state.selected / 9 + 1} · C${state.selected % 9 + 1} · Starting clue"
+        state.notes && snapshot.cells[state.selected].value != 0 ->
+            "R${state.selected / 9 + 1} · C${state.selected % 9 + 1} · Erase entry before adding pencil marks"
         state.notes -> "R${state.selected / 9 + 1} · C${state.selected % 9 + 1} · Pencil marks"
         else -> "R${state.selected / 9 + 1} · C${state.selected % 9 + 1} · Enter a number"
     }
@@ -406,6 +408,9 @@ private fun roomStatusText(state: GameUiState): String {
     val keypadHeight = maxOf(48.dp, (40 * LocalDensity.current.fontScale).dp)
     val editable = state.selected in 0..80 && snapshot.puzzle.clues[state.selected] == 0
     val selectedCell = snapshot.cells.getOrNull(state.selected)
+    // Both Solo and LAN rules reject note edits on filled squares. Disable
+    // the keypad first rather than surfacing a misleading failed-save message.
+    val noteTargetOpen = !state.notes || selectedCell?.value == 0
     val chosenValue = selectedCell?.value
     Column(Modifier.fillMaxWidth().background(Paper, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
         .border(1.dp, Rule, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
@@ -432,7 +437,7 @@ private fun roomStatusText(state: GameUiState): String {
                         if (notePresent) "Remove pencil mark $number" else "Add pencil mark $number"
                     } else "Number $number, $remaining remaining"
                     OutlinedButton(onClick = { tick(); actions.number(number) },
-                        enabled = state.canEdit && editable,
+                        enabled = state.canEdit && editable && noteTargetOpen,
                         modifier = Modifier.weight(1f).height(keypadHeight).testTag("number_$number")
                             .semantics { contentDescription = spokenAction },
                         shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(0.dp),
