@@ -100,14 +100,43 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     val open: (CollectionItem) -> Unit = { previewId = it.id }
 
     CollectionChoices(CollectionCategory.entries, category, { it.label }, Role.Tab) { category = it }
-    Surface(onClick = { stylePreviewOpen = true }, modifier = Modifier.fillMaxWidth(),
+    // The same full-style dialog is reachable from every tab, but its entry
+    // point should show the style component a player is currently browsing.
+    val displayedNumbers = look.withNumberDisplay(state.uniformNumbers)
+    val previewTitle = when (category) {
+        CollectionCategory.ICONS -> identityStyleName(look)
+        CollectionCategory.BOARDS -> (Cosmetics.boards.firstOrNull { it.id == look.board }?.name ?: "Classic") + " · Board"
+        CollectionCategory.NUMBERS -> {
+            val inkName = Cosmetics.inks.firstOrNull { it.id == displayedNumbers.ink }?.name ?: "Forest"
+            val fontName = Cosmetics.fonts.firstOrNull { it.id == displayedNumbers.font }?.name ?: "Clear"
+            "$inkName · $fontName"
+        }
+    }
+    val previewSubtitle = when (category) {
+        CollectionCategory.ICONS -> "Preview your style"
+        CollectionCategory.BOARDS -> "Preview your current board"
+        CollectionCategory.NUMBERS -> if (state.uniformNumbers)
+            "Classic number display is on" else "Preview your current numbers"
+    }
+    Surface(onClick = { stylePreviewOpen = true }, modifier = Modifier.fillMaxWidth().testTag("collection_current_style_preview"),
         color = GreenTint, shape = RoundedCornerShape(15.dp), border = BorderStroke(1.dp, Rule)) {
         Row(Modifier.heightIn(min = 60.dp).padding(horizontal = 12.dp, vertical = 8.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            AnimalPortrait(look, Modifier.size(38.dp).clearAndSetSemantics {})
+            when (category) {
+                CollectionCategory.ICONS -> AnimalPortrait(look, Modifier.size(38.dp).clearAndSetSemantics {})
+                CollectionCategory.BOARDS -> StyleSampleBoard(look, displayedNumbers,
+                    Modifier.size(42.dp).clearAndSetSemantics {}, compact = true)
+                CollectionCategory.NUMBERS -> Box(
+                    Modifier.size(42.dp).clip(RoundedCornerShape(10.dp)).background(Cream).clearAndSetSemantics {},
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("59", fontFamily = fontFor(displayedNumbers.font),
+                        color = inkFor(displayedNumbers.ink, false), fontSize = 22.sp)
+                }
+            }
             Column(Modifier.weight(1f)) {
-                Text(identityStyleName(look), style = MaterialTheme.typography.titleSmall, color = Forest)
-                Text("Style preview", style = MaterialTheme.typography.bodySmall, color = Muted)
+                Text(previewTitle, style = MaterialTheme.typography.titleSmall, color = Forest)
+                Text(previewSubtitle, style = MaterialTheme.typography.bodySmall, color = Muted)
             }
             GameIcon(GameSymbol.RIGHT, Forest, Modifier.size(18.dp))
         }

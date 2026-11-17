@@ -94,6 +94,33 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("cosmetic_ink_forest").assertDoesNotExist()
     }
 
+    @Test fun currentStylePreviewFollowsTheCollectionTab() {
+        // The installed phone review has Owl equipped; bare GameUiState defaults to Gridkeeper.
+        val state = mutableStateOf(GameUiState(page = Page.PROFILE,
+            appearance = Appearance(portrait = "woodland_owl")))
+        compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
+        compose.onNodeWithTag("nav_collection").performClick()
+
+        compose.onNodeWithText("Owl · Woodland").assertIsDisplayed()
+        compose.onNodeWithText("Preview your style").assertIsDisplayed()
+
+        compose.onNodeWithText("Boards").performClick()
+        compose.onNodeWithText("Classic · Board").assertIsDisplayed()
+        compose.onNodeWithText("Preview your current board").assertIsDisplayed()
+        compose.onNodeWithText("Owl · Woodland").assertDoesNotExist()
+        compose.onNodeWithTag("collection_current_style_preview").performClick()
+        compose.onNodeWithText("Your style").assertIsDisplayed()
+        compose.onNodeWithText("Close").performClick()
+
+        compose.onNodeWithText("Numbers").performClick()
+        compose.onNodeWithText("Forest · Clear").assertIsDisplayed()
+        compose.onNodeWithText("Preview your current numbers").assertIsDisplayed()
+
+        compose.runOnIdle { state.value = state.value.copy(uniformNumbers = true) }
+        compose.onNodeWithText("Classic number display is on").assertIsDisplayed()
+        compose.onNodeWithText("Forest · Clear").assertIsDisplayed()
+    }
+
     @Test fun iconFamiliesStayOnOneRowAndCanBeSwipedBothWays() {
         compose.setContent {
             SudokuTogetherTheme {
