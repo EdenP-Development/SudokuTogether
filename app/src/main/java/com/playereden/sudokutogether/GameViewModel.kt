@@ -69,7 +69,7 @@ class GameViewModel @JvmOverloads constructor(
             preferences.getString("cosmeticFont", "clear") ?: "clear",
             preferences.getString("cosmeticEmblem", "tile") ?: "tile",
             preferences.getString("cosmeticPortrait", "") ?: ""
-        ), localPlayer.current().records
+        ), localPlayer.current().records, localPlayer.current().ownedCosmeticIds
     )
     private val hostStore = AtomicSessionStore(File(application.filesDir, "host-session.json"))
     private val raceStore = AtomicSessionStore(File(application.filesDir, "host-race-session.json"))
@@ -226,7 +226,7 @@ class GameViewModel @JvmOverloads constructor(
     fun chooseCosmetic(group: String, id: String) {
         if (settingsLocked) return
         val state = _state.value
-        if (!Cosmetics.allowed(id, state.profile.records)) return
+        if (!Cosmetics.allowed(id, state.profile.records, state.profile.ownedCosmeticIds)) return
         val next = when (group) {
             "ink" -> state.appearance.copy(ink = id)
             "board" -> state.appearance.copy(board = id)
