@@ -1,0 +1,30 @@
+name: Sudoku Collection source compile (one-off)
+
+# Temporary PR #49 branch test. Removed after confirmation, never merge this
+# push trigger into main. No signing, APK publishing, or private keys.
+on:
+  push:
+    branches:
+      - refactor/sudoku-cosmetics-catalog-progress
+    paths:
+      - .github/workflows/collection-oneoff-compile.yml
+
+permissions:
+  contents: read
+
+jobs:
+  collection-compile:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install declared Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Compile current Collection UI and run Android unit tests
+        run: ./gradlew :core:test :app:compileDebugKotlin :app:testDebugUnitTest --no-daemon --max-workers=2 --console=plain
