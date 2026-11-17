@@ -23,3 +23,7 @@
 ## Wider finding (separate future check)
 
 A newly started *multiplayer* round also needs an input-mode transition review; it is not changed by this Solo-specific patch. Do not claim two-device rematch correctness from a Solo-only emulator test.
+
+## Automated verification (Nov 17, 2026)
+
+[GitHub Actions run 44152100241](https://github.com/PlayerEden/SudokuTogether/actions/runs/44152100241) **passed** core JVM tests, Android Kotlin compilation and unit tests, and **all 4/4** `GameConvenienceTest` Android 36 emulator tests (including the new fresh-puzzle cancellation/Notes test). No failing/skipped test cases reported. This is emulator evidence only: no new physical device test, APK release, saved-data migration or two-phone review.
