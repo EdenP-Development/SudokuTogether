@@ -119,7 +119,10 @@ internal enum class ProfileSection(val title: String) {
         ) {
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text("Change icon", style = MaterialTheme.typography.labelLarge, color = actionColor)
-                Text("Explore portraits, boards & numbers", style = MaterialTheme.typography.bodySmall, color = Muted)
+                Text(if (state.appearance.portrait.isEmpty() && state.appearance.emblem == "tile")
+                    "Try Owl, Fox, Octopus or Honeybee — all ready to use"
+                else "Explore portraits, boards & numbers",
+                    style = MaterialTheme.typography.bodySmall, color = Muted)
             }
             GameIcon(GameSymbol.RIGHT, actionColor, Modifier.size(18.dp))
         }
