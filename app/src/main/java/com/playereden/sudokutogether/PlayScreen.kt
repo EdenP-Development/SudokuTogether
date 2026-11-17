@@ -460,7 +460,7 @@ private fun roomStatusText(state: GameUiState): String {
     val noteStyle = TextStyle(fontSize = noteSize, lineHeight = noteSize, platformStyle = PlatformTextStyle(includeFontPadding = false))
     val conflicts = remember(snapshot.cells) { Sudoku.conflicts(snapshot.cells.map { it.value }) }
     val selectedValue = snapshot.cells.getOrNull(selected)?.value ?: 0
-    val darkBoard = boardTheme == "midnight" || boardTheme == "circuit"
+    val darkBoard = boardIsDark(boardTheme)
     val defaultStyle = Appearance()
     val soloNumbers = localStyle.withNumberDisplay(uniformNumbers)
     val hostNumbers = snapshot.hostAppearance.withNumberDisplay(uniformNumbers)
