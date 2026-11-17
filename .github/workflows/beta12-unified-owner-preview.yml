@@ -143,15 +143,8 @@ jobs:
           script: |
             adb install -r "review/$APK_NAME"
             adb shell am start -W -n "$PREVIEW_PACKAGE/com.playereden.sudokutogether.MainActivity"
-            for i in $(seq 1 20); do
-              if adb shell pidof "$PREVIEW_PACKAGE" | grep -q '[0-9]'; then
-                echo 'Preview app process is running'
-                exit 0
-              fi
-              sleep 1
-            done
-            echo 'Preview did not stay running after launch' >&2
-            exit 1
+            adb shell pidof "$PREVIEW_PACKAGE"
+            echo 'Preview app installed, launched, and process is running'
       - name: Upload verified preview and receipt
         uses: actions/upload-artifact@v4
         with:
