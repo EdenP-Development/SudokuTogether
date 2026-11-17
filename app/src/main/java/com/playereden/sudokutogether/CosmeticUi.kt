@@ -29,24 +29,6 @@ import androidx.compose.ui.unit.sp
 import com.playereden.sudokutogether.core.*
 import kotlinx.coroutines.launch
 
-fun inkFor(id: String, darkBoard: Boolean): Color = when (id) {
-    "cobalt" -> if (darkBoard) Color(0xFF97D6FF) else Color(0xFF205BAC)
-    "amber" -> if (darkBoard) Color(0xFFFFD386) else Color(0xFF986018)
-    "rose" -> if (darkBoard) Color(0xFFFFA8B9) else Color(0xFFB34B68)
-    "violet" -> if (darkBoard) Color(0xFFD4B3FF) else Color(0xFF7644A5)
-    "lagoon" -> if (darkBoard) Color(0xFF8DE3DB) else Color(0xFF156567)
-    "clay" -> if (darkBoard) Color(0xFFFFC1AD) else Color(0xFF9D362D)
-    "slate" -> if (darkBoard) Color(0xFFBBCDE8) else Color(0xFF4B5D76)
-    else -> if (darkBoard) Color(0xFF8DE8BB) else Forest
-}
-
-fun boardFillFor(id: String): Color = when (id) {
-    "linen" -> Color(0xFFFFF6DF)
-    "midnight" -> Color(0xFF152A36)
-    "circuit" -> Color(0xFF102A2B)
-    else -> Paper
-}
-
 fun emblemSymbol(id: String): String = when (id) {
     "leaf" -> "✿"
     "duo" -> "◈"
@@ -352,7 +334,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
 ) {
     val entryFont = fontFor(numberLook.font)
     val clueFont = fontFor(Appearance().font)
-    val dark = look.board in listOf("midnight", "circuit")
+    val dark = boardIsDark(look.board)
     val scale = LocalDensity.current.fontScale.coerceAtLeast(1f)
     val digitSize = ((if (compact) 11f else 25f) / scale).sp
     val edge = if (dark) Color(0xFF789690) else Rule
