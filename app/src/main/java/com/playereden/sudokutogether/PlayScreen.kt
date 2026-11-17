@@ -216,6 +216,10 @@ import kotlinx.coroutines.delay
     val sharedBoardName = if (coOp && snapshot.guestName != null && boardTheme != "classic") {
         Cosmetics.boards.firstOrNull { it.id == boardTheme }?.name
     } else null
+    val selectedEntry = snapshot.cells.getOrNull(state.selected)?.value ?: 0
+    val conflictingEntries = remember(snapshot.cells) { Sudoku.conflicts(snapshot.cells.map { it.value }) }
+    val selectedConflict = !snapshot.completed && !state.notes && selectedEntry != 0 &&
+        state.selected in conflictingEntries && snapshot.puzzle.clues.getOrNull(state.selected) == 0
     val caption = when {
         snapshot.completed && snapshot.mode == VERSUS -> if (snapshot.winner == state.role) "Your solved grid" else "Your grid at the finish"
         snapshot.completed -> "Your finished grid"
@@ -223,6 +227,7 @@ import kotlinx.coroutines.delay
         snapshot.puzzle.clues[state.selected] != 0 -> "R${state.selected / 9 + 1} · C${state.selected % 9 + 1} · Starting clue"
         state.notes && snapshot.cells[state.selected].value != 0 ->
             "R${state.selected / 9 + 1} · C${state.selected % 9 + 1} · Erase entry before adding pencil marks"
+        selectedConflict -> "R${state.selected / 9 + 1} · C${state.selected % 9 + 1} · Repeated $selectedEntry — check row, column or box"
         state.notes -> "R${state.selected / 9 + 1} · C${state.selected % 9 + 1} · Pencil marks"
         else -> "R${state.selected / 9 + 1} · C${state.selected % 9 + 1} · Enter a number"
     }
@@ -241,7 +246,9 @@ import kotlinx.coroutines.delay
             }
         }.single().measure(textConstraints)
         val label = subcompose("caption") {
-            Text(caption, color = Muted, fontSize = 11.sp, lineHeight = 16.sp, textAlign = TextAlign.Center)
+            Text(caption, color = if (selectedConflict) Brick else Muted,
+                fontSize = 11.sp, lineHeight = 16.sp, textAlign = TextAlign.Center,
+                modifier = Modifier.testTag("board_context"))
         }.single().measure(textConstraints)
         val gap = 8.dp.roundToPx()
         val frame = gap * 2
@@ -525,7 +532,8 @@ private fun roomStatusText(state: GameUiState): String {
                     proofTarget -> palette.selectedCell
                     i == selected -> palette.selectedCell
                     i == partner -> palette.partnerCell
-                    i in conflicts -> palette.conflictCell
+                    i in conflicts && !given -> palette.conflictCell
+                    i in conflicts && given -> palette.matchingNumberCell
                     selectedValue != 0 && selectedValue == cell.value -> palette.matchingNumberCell
                     sameHouse -> palette.relatedCell
                     else -> boardPaper
@@ -548,7 +556,8 @@ private fun roomStatusText(state: GameUiState): String {
                             proofSource -> "Proof square"
                             i == selected -> "Selected square"
                             i == partner -> "Partner's selected square"
-                            i in conflicts -> "Conflicting value"
+                            i in conflicts && given -> "Fixed clue matching a conflicting entry; check placed values"
+                            i in conflicts -> "Conflicting entered value"
                             else -> "Puzzle square"
                         }
                     }
@@ -557,7 +566,7 @@ private fun roomStatusText(state: GameUiState): String {
                     if (cell.value != 0) Text(cell.value.toString(), modifier = Modifier.fillMaxWidth(),
                         style = digitStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
                         maxLines = 1, softWrap = false, fontWeight = if (given) FontWeight.Bold else FontWeight.Normal,
-                        color = if (i in conflicts) palette.conflictInk else if (given) neutralInk else authoredInk)
+                        color = if (i in conflicts && !given) palette.conflictInk else if (given) neutralInk else authoredInk)
                     else if (cell.notes != 0) Column(Modifier.fillMaxSize().padding(1.dp)) {
                         // Keep the equipped color. If a dark-board highlight makes
                         // small pencil marks too faint, lift their contrast locally.
