@@ -424,10 +424,14 @@ private fun roomStatusText(state: GameUiState): String {
                 for (number in numbers) {
                     val remaining = (9 - snapshot.cells.count { it.value == number }).coerceAtLeast(0)
                     val highlighted = number == chosenValue
+                    // Screen readers must distinguish placing a value from toggling a note.
+                    // Remaining counts describe placed values, not pencil marks.
+                    val spokenAction = if (state.notes) "Toggle pencil mark $number"
+                        else "Number $number, $remaining remaining"
                     OutlinedButton(onClick = { tick(); actions.number(number) },
                         enabled = state.canEdit && editable,
                         modifier = Modifier.weight(1f).height(keypadHeight).testTag("number_$number")
-                            .semantics { contentDescription = "Number $number, $remaining remaining" },
+                            .semantics { contentDescription = spokenAction },
                         shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(0.dp),
                         border = BorderStroke(if (highlighted) 2.dp else 1.dp, if (highlighted) Forest else Rule),
                         colors = ButtonDefaults.outlinedButtonColors(
