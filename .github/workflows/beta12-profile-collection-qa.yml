@@ -1,0 +1,65 @@
+name: Sudoku Beta 1.2 Profile and Collection UI QA (temporary)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/src/main/java/com/playereden/sudokutogether/JournalScreen.kt'
+      - 'app/src/main/java/com/playereden/sudokutogether/CosmeticUi.kt'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/ProfileNavigationUiTest.kt'
+      - '.github/workflows/beta12-profile-collection-qa.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sudoku-profile-collection-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  profile-collection:
+    name: Core and Android profile / Collection UI (API 36)
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install Android SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Verify Kotlin and core / Android unit tests
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:test :app:compileDebugKotlin :app:testDebugUnitTest --no-daemon --max-workers=2 --console=plain
+      - name: Enable emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Verify profile, Collection and large-font navigation
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
+          disable-animations: true
+          script: |
+            ./gradlew :app:connectedDebugAndroidTest --no-daemon --max-workers=2 --console=plain -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.ProfileNavigationUiTest
+            ./gradlew :app:connectedDebugAndroidTest --no-daemon --max-workers=2 --console=plain -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.CollectionPolishUiTest
+      - name: Keep Android UI reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Sudoku-Beta12-Profile-Collection-QA-Failures
+          path: |
+            app/build/reports/tests/**
+            app/build/reports/androidTests/**
+            app/build/outputs/androidTest-results/**
+          if-no-files-found: warn
+          retention-days: 3
