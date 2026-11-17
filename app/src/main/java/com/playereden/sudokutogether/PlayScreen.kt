@@ -471,7 +471,9 @@ private fun roomStatusText(state: GameUiState): String {
     // while fitting grid glyphs and their line heights inside each square.
     val correction = systemScale.coerceAtMost(1.15f) / systemScale
     val digitSize = (size.value / 9 * .64f * correction).sp
-    val noteSize = ((size.value / 9 - 2f) / 3 * .68f * correction).sp
+    // A 3x3 pencil glyph should be readable on small Coach boards as well as full puzzles.
+    // At .82 of the note slot height, nine candidates still fit without overlap.
+    val noteSize = ((size.value / 9 - 2f) / 3 * .82f * correction).sp
     val digitStyle = TextStyle(fontSize = digitSize, lineHeight = digitSize, platformStyle = PlatformTextStyle(includeFontPadding = false))
     val noteStyle = TextStyle(fontSize = noteSize, lineHeight = noteSize, platformStyle = PlatformTextStyle(includeFontPadding = false))
     val conflicts = remember(snapshot.cells) { Sudoku.conflicts(snapshot.cells.map { it.value }) }
