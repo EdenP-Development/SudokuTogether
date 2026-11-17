@@ -109,6 +109,7 @@ class CollectionPolishUiTest {
         )
 
         val picker = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.HorizontalScrollAxisRange))
+        compose.onNodeWithTag("collection_family_scroll_hint").assertIsDisplayed()
         val viewport = picker.getUnclippedBoundsInRoot()
         assertTrue(garden.getUnclippedBoundsInRoot().right > viewport.right)
         picker.performTouchInput { swipeLeft() }
@@ -129,6 +130,20 @@ class CollectionPolishUiTest {
         all.assertIsDisplayed().performClick().assertIsSelected()
         compose.onNodeWithTag("cosmetic_emblem_tile").assertIsDisplayed()
         compose.onNodeWithTag("portrait_ocean_octopus").assertExists()
+    }
+
+    @Test fun iconFamilyHintDoesNotWasteSpaceWhenAllOptionsFit() {
+        compose.setContent {
+            SudokuTogetherTheme {
+                Box(Modifier.width(600.dp).fillMaxHeight()) {
+                    SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {})
+                }
+            }
+        }
+        compose.onNodeWithTag("nav_collection").performClick()
+        compose.onNodeWithText("All").assertIsSelected()
+        compose.onNodeWithText("Garden").assertIsDisplayed()
+        compose.onNodeWithTag("collection_family_scroll_hint").assertDoesNotExist()
     }
 
     @Test fun gardenFilterShowsExistingProgressAndEquipsTheHoneybee() {
