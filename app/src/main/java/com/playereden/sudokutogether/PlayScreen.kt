@@ -473,7 +473,8 @@ private fun roomStatusText(state: GameUiState): String {
     val digitSize = (size.value / 9 * .64f * correction).sp
     // A 3x3 pencil glyph should be readable on small Coach boards as well as full puzzles.
     // At .82 of the note slot height, nine candidates still fit without overlap.
-    val noteSize = ((size.value / 9 - 2f) / 3 * .82f * correction).sp
+    val noteSlot = (size.value / 9 - 2f) / 3 * correction
+    val noteSize = (noteSlot * .82f).sp
     val digitStyle = TextStyle(fontSize = digitSize, lineHeight = digitSize, platformStyle = PlatformTextStyle(includeFontPadding = false))
     val noteStyle = TextStyle(fontSize = noteSize, lineHeight = noteSize, platformStyle = PlatformTextStyle(includeFontPadding = false))
     val conflicts = remember(snapshot.cells) { Sudoku.conflicts(snapshot.cells.map { it.value }) }
@@ -561,6 +562,13 @@ private fun roomStatusText(state: GameUiState): String {
                         // Keep the equipped color. If a dark-board highlight makes
                         // small pencil marks too faint, lift their contrast locally.
                         val pencilColor = pencilNoteInk(authoredInk, background, palette)
+                        // Nunito Rounded has taller glyph bounds than the other
+                        // curated digits. At .82 it overflows one candidate slot
+                        // on the standard Co-op board; keep its tested .68 fit.
+                        val inkNoteStyle = if (authored.font == "rounded") {
+                            val roundedSize = (noteSlot * .68f).sp
+                            noteStyle.copy(fontFamily = authoredFont, fontSize = roundedSize, lineHeight = roundedSize)
+                        } else noteStyle.copy(fontFamily = authoredFont)
                         for (r in 0..2) Row(Modifier.weight(1f).fillMaxWidth()) {
                             for (c in 0..2) {
                                 val n = r * 3 + c + 1
@@ -569,7 +577,7 @@ private fun roomStatusText(state: GameUiState): String {
                                         val removed = n in crossedOff
                                         val color = if (removed) crossedOffNoteInk(background, palette) else pencilColor
                                         Text(n.toString(), modifier = Modifier.fillMaxWidth(), color = color,
-                                            style = noteStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
+                                            style = inkNoteStyle, textAlign = TextAlign.Center,
                                             textDecoration = if (removed) TextDecoration.LineThrough else null,
                                             maxLines = 1, softWrap = false)
                                     }
