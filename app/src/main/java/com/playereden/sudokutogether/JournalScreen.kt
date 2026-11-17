@@ -158,7 +158,7 @@ internal enum class ProfileSection(val title: String) {
     OutlinedIconButton(
         onClick = edit,
         enabled = enabled,
-        modifier = Modifier.size(48.dp).semantics { contentDescription = "Edit name" },
+        modifier = Modifier.requiredSize(48.dp).semantics { contentDescription = "Edit name" },
         colors = IconButtonDefaults.outlinedIconButtonColors(containerColor = Paper, contentColor = Forest),
         border = BorderStroke(1.dp, Rule)
     ) {
