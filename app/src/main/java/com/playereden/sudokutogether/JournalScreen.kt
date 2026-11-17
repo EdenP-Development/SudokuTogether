@@ -62,36 +62,66 @@ internal enum class ProfileSection(val title: String) {
     state: GameUiState, actions: GameActions, openSection: (ProfileSection) -> Unit, collection: () -> Unit
 ) {
     var draft by rememberSaveable { mutableStateOf<String?>(null) }
+    val largeText = LocalDensity.current.fontScale > 1.3f
+    val iconSize = if (largeText) 68.dp else 76.dp
+    // The actual equipped character is also the shortest route to customization.
+    // Reuse the Collection so unlocks, selection and persistence have one owner.
+    val portrait: @Composable () -> Unit = {
+        Surface(onClick = collection, enabled = !state.busy,
+            modifier = Modifier.size(iconSize).testTag("profile_icon_quick_change")
+                .semantics { contentDescription = "Change player icon" },
+            color = Paper, shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, Rule)) {
+            Box(Modifier.padding(5.dp), contentAlignment = Alignment.Center) {
+                AnimalPortrait(state.appearance, Modifier.fillMaxSize().clearAndSetSemantics {})
+            }
+        }
+    }
+    val editName: @Composable () -> Unit = {
+        OutlinedIconButton(
+            onClick = { draft = state.name },
+            enabled = !state.busy,
+            modifier = Modifier.size(48.dp).semantics { contentDescription = "Edit name" },
+            colors = IconButtonDefaults.outlinedIconButtonColors(containerColor = Paper, contentColor = Forest),
+            border = BorderStroke(1.dp, Rule)
+        ) {
+            GameIcon(GameSymbol.PENCIL, LocalContentColor.current, Modifier.size(20.dp))
+        }
+    }
     GamePanel(Modifier.fillMaxWidth(), color = GreenTint, padding = 14.dp) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-            AnimalPortrait(state.appearance, Modifier.size(52.dp).clearAndSetSemantics {})
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+        // Long names need the full card width when Android's font size is enlarged.
+        if (largeText) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically) {
+                portrait()
+                editName()
+            }
+            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(state.name.ifBlank { "Player" }, style = MaterialTheme.typography.titleLarge, color = Forest)
                 Text(identityStyleName(state.appearance), style = MaterialTheme.typography.bodySmall, color = Muted)
             }
-            OutlinedIconButton(
-                onClick = { draft = state.name },
-                enabled = !state.busy,
-                modifier = Modifier.size(48.dp).semantics { contentDescription = "Edit name" },
-                colors = IconButtonDefaults.outlinedIconButtonColors(containerColor = Paper, contentColor = Forest),
-                border = BorderStroke(1.dp, Rule)
-            ) {
-                GameIcon(GameSymbol.PENCIL, LocalContentColor.current, Modifier.size(20.dp))
+        } else {
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                portrait()
+                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(state.name.ifBlank { "Player" }, style = MaterialTheme.typography.titleLarge, color = Forest)
+                    Text(identityStyleName(state.appearance), style = MaterialTheme.typography.bodySmall, color = Muted)
+                }
+                editName()
             }
         }
-        Column {
-            HorizontalDivider(color = Rule)
-            val actionColor = if (state.busy) Muted else Forest
-            Row(
-                Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
-                    .clickable(enabled = !state.busy, role = Role.Button, onClick = collection)
-                    .heightIn(min = 48.dp).padding(horizontal = 6.dp, vertical = 6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text("Change icon", Modifier.weight(1f), style = MaterialTheme.typography.labelLarge, color = actionColor)
-                GameIcon(GameSymbol.RIGHT, actionColor, Modifier.size(18.dp))
+        HorizontalDivider(color = Rule)
+        val actionColor = if (state.busy) Muted else Forest
+        Row(
+            Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
+                .clickable(enabled = !state.busy, role = Role.Button, onClick = collection)
+                .heightIn(min = 54.dp).padding(horizontal = 6.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text("Change icon", style = MaterialTheme.typography.labelLarge, color = actionColor)
+                Text("Explore portraits, boards & numbers", style = MaterialTheme.typography.bodySmall, color = Muted)
             }
+            GameIcon(GameSymbol.RIGHT, actionColor, Modifier.size(18.dp))
         }
     }
 
