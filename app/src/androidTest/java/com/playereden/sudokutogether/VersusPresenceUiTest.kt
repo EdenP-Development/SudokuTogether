@@ -125,6 +125,27 @@ class VersusPresenceUiTest {
         laneText("versus_rival", "0 of $target filled").assertExists()
     }
 
+    @Test fun anEmojiAfterThePlayerNameFitsOnAStandardPhoneCard() {
+        // Regression for the orphaned trailing emoji seen during a real QA
+        // Versus race. Give the name the full card width instead of squeezing
+        // it beside the portrait; retain the original name for accessibility.
+        val name = "I Play Sudoku 😒"
+        val state = base.copy(snapshot = race.copy(hostName = name))
+        compose.setContent {
+            SudokuTogetherTheme {
+                Box(Modifier.width(320.dp).height(720.dp)) {
+                    PlayScreen(state, polishActions(), {}, {}, {}, {})
+                }
+            }
+        }
+        val layout = mutableListOf<TextLayoutResult>()
+        laneText("versus_you", name).assertIsDisplayed()
+            .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layout) }
+        assertEquals("A short name and its trailing emoji should remain on one line",
+            1, layout.single().lineCount)
+        laneText("versus_rival", "Taylor").assertIsDisplayed()
+    }
+
     @Test fun largeTextOnAShortPhoneKeepsTheBoardAndKeypadReachable() {
         val hostName = "Christopher Longlastname"
         val guestName = "Alexandria Longlastname"
