@@ -63,22 +63,20 @@ internal enum class ProfileSection(val title: String) {
 ) {
     var draft by rememberSaveable { mutableStateOf<String?>(null) }
     GamePanel(Modifier.fillMaxWidth(), color = GreenTint, padding = 14.dp) {
-        // At large Android text scales the name can compete with the edit button.
-        // Give the full 48dp action its own row instead of shrinking its hit area.
-        val reflowNameAction = LocalDensity.current.fontScale > 1.3f
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             AnimalPortrait(state.appearance, Modifier.size(52.dp).clearAndSetSemantics {})
             Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                 Text(state.name.ifBlank { "Player" }, style = MaterialTheme.typography.titleLarge, color = Forest)
                 Text(identityStyleName(state.appearance), style = MaterialTheme.typography.bodySmall, color = Muted)
             }
-            if (!reflowNameAction) {
-                ProfileEditNameButton(!state.busy) { draft = state.name }
-            }
-        }
-        if (reflowNameAction) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                ProfileEditNameButton(!state.busy) { draft = state.name }
+            OutlinedIconButton(
+                onClick = { draft = state.name },
+                enabled = !state.busy,
+                modifier = Modifier.size(48.dp).semantics { contentDescription = "Edit name" },
+                colors = IconButtonDefaults.outlinedIconButtonColors(containerColor = Paper, contentColor = Forest),
+                border = BorderStroke(1.dp, Rule)
+            ) {
+                GameIcon(GameSymbol.PENCIL, LocalContentColor.current, Modifier.size(20.dp))
             }
         }
         Column {
@@ -151,18 +149,6 @@ internal enum class ProfileSection(val title: String) {
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done), keyboardActions = KeyboardActions(onDone = { save() }))
         }, confirmButton = { TextButton(onClick = { save() }) { Text("Save") } },
             dismissButton = { TextButton(onClick = { draft = null }) { Text("Cancel") } })
-    }
-}
-
-@Composable private fun ProfileEditNameButton(enabled: Boolean, edit: () -> Unit) {
-    OutlinedIconButton(
-        onClick = edit,
-        enabled = enabled,
-        modifier = Modifier.requiredSize(48.dp).semantics { contentDescription = "Edit name" },
-        colors = IconButtonDefaults.outlinedIconButtonColors(containerColor = Paper, contentColor = Forest),
-        border = BorderStroke(1.dp, Rule)
-    ) {
-        GameIcon(GameSymbol.PENCIL, LocalContentColor.current, Modifier.size(20.dp))
     }
 }
 
