@@ -109,9 +109,9 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     val familyScroll = rememberScrollState()
     val scope = rememberCoroutineScope()
     val records = state.profile.records
-    val progress = remember(records) {
-        allCollectionItems.associate { it.id to requireNotNull(Cosmetics.progress(it.id, records)) }
-    }
+    // Compute durable milestone totals once per profile, not once per
+    // portrait/board/ink/font. Keep rendering smooth as collections expand.
+    val progress = remember(records) { Cosmetics.progressAll(records) }
     val look = state.appearance
     val open: (CollectionItem) -> Unit = { previewId = it.id }
 
