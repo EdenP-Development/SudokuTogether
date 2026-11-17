@@ -1,13 +1,20 @@
 # GridMates: Sudoku — Beta 1.2 board and digit pilot review
 
 **Prepared:** November 16–17, 2026  
-**Status:** **Visual concepts and measured candidate colors; owner approval pending. Nothing below is implemented as a selectable in-game cosmetic.**
+**Status (November 17, 2026):** **Parchment and Graphite are implemented in Android source as provisional Beta 1.2 board options** in [merged PR #53](https://github.com/PlayerEden/SudokuTogether/pull/53). The original four board skins are unchanged. Ocean, Sepia/Indigo inks, and Typewriter/Editorial font ideas remain concepts. Owner *physical* visual approval and a new APK are still pending.
 
 **Foundation:** [PR #49](https://github.com/PlayerEden/SudokuTogether/pull/49) stabilized milestone calculations and shared Co-op board priority; [PR #51](https://github.com/PlayerEden/SudokuTogether/pull/51) centralized board background/darkness and ink palettes; [PR #52](https://github.com/PlayerEden/SudokuTogether/pull/52) centralized *all current board cell-state display tokens* in `CosmeticPalette.kt`, preserving the original colors in gameplay and Collection. [Android core/Kotlin/unit CI for #52](https://github.com/PlayerEden/SudokuTogether/actions/runs/44008639563) passed. No APK was built in this batch.
 
-A standalone interactive HTML preview, titled **GridMates Beta12 Board Concepts**, was generated in the planning chat for owner review. It compares the same sample 9×9 board in the three candidate palettes, with live ink selection, normal/selected/partner/hint/error states and **browser-only** font approximations. It is *not* an Android implementation, packaged game, source of gameplay logic or test of mobile installation. The candidate color tokens below allow a later Work session to reproduce that preview exactly from this document.
+A standalone interactive HTML preview, titled **GridMates Beta12 Board Concepts**, was generated in the planning chat for owner review. It compares the same sample 9×9 board in the three candidate palettes, with live ink selection, normal/selected/partner/hint/error states and **browser-only** font approximations. It is *not* an Android implementation, packaged game, source of gameplay logic or test of mobile installation. The palette values below are the source of truth for the Android Parchment/Graphite pilot and remain the specification for the unimplemented Ocean candidate.
 
-## Pilot palette proposals (not yet saved IDs)
+
+### Android pilot verification — source only
+
+[PR #53](https://github.com/PlayerEden/SudokuTogether/pull/53) merged as [`a1bd649`](https://github.com/PlayerEden/SudokuTogether/commit/a1bd649307557b1e1a5075b0572465fc891c1ec7). It registers Parchment and Graphite in the curated cosmetic catalog, with full 9×9 board palettes, Collection previews, offline milestones and saved appearance allowlisting. It preserves the four existing boards and old unlocks. [GitHub Actions run 44010252182](https://github.com/PlayerEden/SudokuTogether/actions/runs/44010252182) **passed** core tests, Android compile/unit tests and **1/1 targeted Collection emulator tests** for locked views and equip controls at a phone width. The temporary test workflow was deleted before merge.
+
+**Not verified:** no new Beta 1.2 APK, owner screenshot, full 9×9 physical gameplay with these styles, long text/contrast accessibility on actual devices, new-vs-old app LAN compatibility, or same-signature QA install-over. Physical two-phone regression remains deferred. The original QA signing key is still missing.
+
+## Board color tokens (Parchment and Graphite now registered; Ocean remains a concept)
 
 | Token | Parchment | Ocean | Graphite |
 | --- | --- | --- | --- |
@@ -56,10 +63,10 @@ These remain suggestions. Check that Sepia is distinguishable from existing Clay
 
 ## Owner review questions / go-no-go criteria
 
-1. Choose **two** of Parchment, Ocean, Graphite for the first Android pilot. Keep the third as a later option; if a design feels like an existing board, revise rather than inflating the catalog.
+1. **Parchment and Graphite were provisionally selected for the first Android pilot** in PR #53, with Ocean reserved for a later pass. Review the actual on-device appearance before finalizing them; if either feels too similar to an existing board, revise it rather than inflating the catalog.
 2. Decide whether Sepia/Indigo are distinctive enough; otherwise propose more original colors instead.
 3. Inspect an actual bundled font sample with all nine digits before selecting any final typeface. Typewriter/Editorial are categories, not approved font binary or unlock.
-4. Agree on simple Solo-first unlock thresholds (specific amounts are **not decided**). The new skins cannot affect puzzle rules, Coach, saves, rank or network fairness; shared Co-op board behavior must use the source-of-truth catalog ordering.
+4. Review provisional **Parchment: 8 Solo solves** and **Graphite: 20 completed puzzles** requirements; both are available through Solo play. These thresholds are implemented in the PR #53 source but remain adjustable before the next release. Cosmetics must not affect puzzle rules, Coach, saves, rank or network fairness; Co-op boards use catalog priority.
 5. Run full 9×9 Android UI previews on a narrow phone, selection/conflict/partner/notes highlights, normal/large text, color contrast, save/equip/restore, and peer appearance before producing an updated QA candidate. Physical two-phone tests remain deferred and cannot be inferred from preview.
 
 **The actual published/installed Beta 1.1 preview is unchanged.** The true QA install-over path still requires its **original** signing identity; never replace or bypass the signing baseline. Track approval and remaining implementation in [issue #50](https://github.com/PlayerEden/SudokuTogether/issues/50), and pending release QA in [issue #43](https://github.com/PlayerEden/SudokuTogether/issues/43).
