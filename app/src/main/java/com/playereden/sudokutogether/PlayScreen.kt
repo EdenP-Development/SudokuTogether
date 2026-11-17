@@ -432,6 +432,12 @@ private fun roomStatusText(state: GameUiState): String {
             if (state.role == SOLO) DockTool("Hint", GameSymbol.HELP, state.canEdit, modifier = Modifier.weight(1f),
                 description = "Request a solo Sudoku hint") { actions.hint() }
         }
+        if (!state.notes) {
+            Text("Small numbers show how many of each digit are left",
+                color = Muted, fontSize = 10.sp, lineHeight = 14.sp,
+                modifier = Modifier.testTag("keypad_remaining_explanation"),
+                textAlign = TextAlign.Center)
+        }
         for (numbers in listOf((1..5).toList(), (6..9).toList())) {
             Row(Modifier.widthIn(max = 440.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 for (number in numbers) {
