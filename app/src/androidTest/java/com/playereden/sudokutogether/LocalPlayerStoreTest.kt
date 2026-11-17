@@ -192,7 +192,7 @@ class LocalPlayerStoreTest {
         assertEquals(matches, store.current().records)
         assertTrue("rose" in store.current().ownedCosmeticIds)
         assertEquals("Migration does not eagerly overwrite the original save", originalBytes, file.readText())
-        store.update { it.copy(records = emptyList()) } // Simulate archival retention.
+        store.update { it.copy(records = emptyList(), ownedCosmeticIds = emptyList()) } // Simulate archival retention and an old caller that forgot the new field.
         val reopened = LocalPlayerStore(file).current()
         assertEquals("wife-test-profile", reopened.playerId)
         assertTrue(Cosmetics.allowed("rose", reopened.records, reopened.ownedCosmeticIds))
