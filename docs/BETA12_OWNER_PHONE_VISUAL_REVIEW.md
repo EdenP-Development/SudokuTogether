@@ -23,3 +23,9 @@ Owner supplied screenshots of the isolated **Sudoku B1.2 Review** installation, 
 - A passing emulator test does not make the physical screenshots automatically obsolete. Owner review of the revised APK remains a separate gate.
 - Original QA/public app signers, data formats, core solver, rewards and LAN protocol remain untouched.
 - The unified isolated preview is a separate installation and does not receive this change until a new explicitly versioned preview is built.
+
+## Focused Android QA (November 17)
+- First [run 44177301731](https://github.com/PlayerEden/SudokuTogether/actions/runs/44177301731) exposed two **test selector mistakes**, not a confirmed UI regression. The test report showed that the board already rendered the exact duplicate message; the assertion incorrectly required the entire text to match `Repeated 6`. The remaining count was present in Compose's unmerged semantics tree.
+- Corrected the tests to use substring matching and the unmerged tree for nested number counts, without changing the product logic.
+- Final [run 44187973180](https://github.com/PlayerEden/SudokuTogether/actions/runs/44187973180) passed core and Android unit checks, Kotlin compilation, and **3/3 API 36 PhoneReviewPolishUiTest instrumentation cases** with no failures.
+- Emulator UI success does not demonstrate all phone sizes, physical two-device LAN, or real-device visual approval of these new messages.
