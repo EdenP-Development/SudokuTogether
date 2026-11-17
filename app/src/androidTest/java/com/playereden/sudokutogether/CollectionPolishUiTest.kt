@@ -115,7 +115,7 @@ class CollectionPolishUiTest {
         compose.onNodeWithText("Preview your current numbers").assertIsDisplayed()
 
         compose.runOnIdle { state.value = state.value.copy(uniformNumbers = true) }
-        compose.onNodeWithText("Classic number display is on", substring = true).assertExists()
+        compose.onNodeWithText("Classic number display is on").assertIsDisplayed()
         compose.onNodeWithText("Forest · Clear").assertIsDisplayed()
     }
 
