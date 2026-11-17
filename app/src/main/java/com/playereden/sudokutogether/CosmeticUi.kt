@@ -247,7 +247,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         val scale = LocalDensity.current.fontScale
         val columns = when {
             scale > 1.3f || maxWidth < 260.dp -> 1
-            iconGallery && maxWidth >= 360.dp -> 3
+            iconGallery && maxWidth >= 320.dp -> 3
             maxWidth >= 430.dp -> 3
             else -> 2
         }
