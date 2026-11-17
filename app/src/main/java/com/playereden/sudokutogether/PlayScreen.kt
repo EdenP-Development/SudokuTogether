@@ -562,13 +562,17 @@ private fun roomStatusText(state: GameUiState): String {
                         // Keep the equipped color. If a dark-board highlight makes
                         // small pencil marks too faint, lift their contrast locally.
                         val pencilColor = pencilNoteInk(authoredInk, background, palette)
-                        // A full set of nine notes can overflow the tight 3x3
-                        // slot in compact Coach grids (including the Clear font).
-                        // Nunito Rounded and Patrick Hand also have taller bounds
-                        // on the full game board. Preserve the larger .82 notes
-                        // where there is room, but use the previous fitting .68
-                        // for narrow grids and these taller typefaces.
-                        val fitFactor = if (size <= 300.dp || authored.font == "rounded" || authored.font == "pencil") .68f else .82f
+                        // A dense 3x3 pencil grid must fit every bundled font.
+                        // Compact Coach grids and taller hand/rounded typefaces use
+                        // the conservative fitting size; Clear and Serif can be
+                        // slightly larger on the full board. Mono is narrow enough
+                        // to retain the enlarged note size on full boards.
+                        val fitFactor = when {
+                            size <= 300.dp -> .68f
+                            authored.font == "mono" -> .82f
+                            authored.font == "clear" || authored.font == "serif" -> .72f
+                            else -> .68f
+                        }
                         val fittedSize = (noteSlot * fitFactor).sp
                         val inkNoteStyle = noteStyle.copy(fontFamily = authoredFont,
                             fontSize = fittedSize, lineHeight = fittedSize)
