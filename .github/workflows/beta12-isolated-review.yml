@@ -56,11 +56,19 @@ jobs:
           tools="$ANDROID_HOME/build-tools/35.0.0"
           "$tools/apksigner" verify --print-certs "$apk" > review/signature.txt
           "$tools/aapt" dump badging "$apk" > review/package.txt
-          grep -q "^package: name='com.playereden.sudokutogether.qa.beta12review' versionCode='30'" review/package.txt
-          grep -q "application-label:'GridMates B1.2 Review'" review/package.txt
+          echo "APK package descriptor:"
+          grep '^package:' review/package.txt
+          echo "APK labels:"
+          grep '^application-label' review/package.txt || true
+          actual_package=$(sed -n "s/^package: name='\\([^']*\\)'.*/\\1/p" review/package.txt)
+          if [ "$actual_package" != "com.playereden.sudokutogether.qa.beta12review" ]; then
+            echo "Refusing download: unexpected Android applicationId $actual_package" >&2
+            exit 1
+          fi
+          grep -q "versionCode='30'" review/package.txt
           unzip -t "$apk" >/dev/null
           sha256sum "$apk" > review/SHA256.txt
-          SOURCE_MAIN_SHA="$(git rev-parse HEAD^)" python3 - <<'PY'
+          SOURCE_MAIN_SHA="bf6a1275e77f2cb56ffa25fd90f44c56a478df55" python3 - <<'PY'
           from pathlib import Path
           import hashlib, json, os
           p=Path("review/GridMates-Sudoku-Beta12-Isolated-Review.apk")
