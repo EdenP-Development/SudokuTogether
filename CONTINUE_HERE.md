@@ -18,3 +18,5 @@
 Open the v1 Beta 1 QA APK and tap **Update** for the current v0.11M QA install. For the public beta, use the production APK. [Progress transfer instructions](docs/GRIDMATES_V1_BETA_RELEASE.md#android-downloads)
 
 For another APK, verify the package, original signer and increasing version, then rehearse the update on the actual previously delivered APK with progress saved. Keep signing backups outside Git. [QA update guide](docs/GRIDMATES_UPDATE_AND_SAVE_PREPARATION.md)
+
+**Next visual QA gate (Nov 17, 2026):** [PR #58](https://github.com/PlayerEden/SudokuTogether/pull/58) improves tiny pencil mark contrast (including Coach crossed-off candidates) without modifying palette definitions. [Run 44120831973](https://github.com/PlayerEden/SudokuTogether/actions/runs/44120831973) passed Kotlin/core, Android units and 3/3 Coach emulator UI tests. Treat this as **source/emulator verification only**. Before visual approval, compare 320–430dp displays, Rose/Violet on Midnight/Circuit, Coach crossed-off marks on Classic/Linen, and all three provisional Beta 1.2 board themes. Continue to protect the original QA signer and saved game data.

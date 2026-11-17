@@ -83,6 +83,71 @@ class BoardPilotPaletteTest {
         assertEquals(Color(0xFFC1CEFF), inkFor("indigo", true))
     }
 
+    @Test fun pencilMarksMeetFourPointFiveToOneOnAllRegisteredBoardHighlights() {
+        for ((boardId, board) in boardPalettes) {
+            for (background in listOf(
+                board.fill, board.selectedCell, board.partnerCell,
+                board.matchingNumberCell, board.relatedCell, board.conflictCell
+            )) {
+                // A small pencil mark is often harder to read than a full-size
+                // digit. Check its *rendered* ink, not the unchanged saved ink.
+                for (ink in Cosmetics.inks) {
+                    val original = inkFor(ink.id, board.dark)
+                    val rendered = pencilNoteInk(original, background, board)
+                    assertTrue(
+                        "$boardId / ${ink.id} pencil mark on $background is too faint: " +
+                            contrast(rendered, background),
+                        contrast(rendered, background) >= 4.5f
+                    )
+                    if (!board.dark) {
+                        assertEquals("Light board note colors stay familiar", Muted, rendered)
+                    } else if (contrast(original, background) >= 4.52f) {
+                        assertEquals("Legible dark-board ink must not be altered", original, rendered)
+                    }
+                }
+            }
+        }
+    }
+
+    @Test fun onlyFaintHighlightedPencilMarksReceiveAContrastLift() {
+        val midnight = boardPalette("midnight")
+        val rose = inkFor("rose", true)
+        val violet = inkFor("violet", true)
+        assertTrue(contrast(rose, midnight.partnerCell) < 4.5f)
+        assertTrue(contrast(violet, midnight.partnerCell) < 4.5f)
+        val adjustedRose = pencilNoteInk(rose, midnight.partnerCell, midnight)
+        val adjustedViolet = pencilNoteInk(violet, midnight.partnerCell, midnight)
+        assertNotEquals(rose, adjustedRose)
+        assertNotEquals(violet, adjustedViolet)
+        assertTrue(contrast(adjustedRose, midnight.partnerCell) >= 4.5f)
+        assertTrue(contrast(adjustedViolet, midnight.partnerCell) >= 4.5f)
+        assertEquals(rose, pencilNoteInk(rose, midnight.fill, midnight))
+        assertEquals(Color(0xFFFFA8B9), inkFor("rose", true))
+        assertEquals(Color(0xFFD4B3FF), inkFor("violet", true))
+    }
+
+    @Test fun coachCrossedOffCandidatesStayReadableOnEveryBoardHighlight() {
+        for ((boardId, board) in boardPalettes) {
+            for (background in listOf(
+                board.fill, board.selectedCell, board.partnerCell,
+                board.matchingNumberCell, board.relatedCell, board.conflictCell
+            )) {
+                val color = crossedOffNoteInk(background, board)
+                assertTrue(
+                    "$boardId crossed-off note faint on $background: " + contrast(color, background),
+                    contrast(color, background) >= 4.5f
+                )
+                if (contrast(board.conflictInk, background) >= 4.52f) {
+                    assertEquals("Keep legible Coach red unchanged", board.conflictInk, color)
+                }
+            }
+        }
+        val classic = boardPalette("classic")
+        assertTrue(contrast(classic.conflictInk, classic.selectedCell) < 4.5f)
+        assertNotEquals(classic.conflictInk, crossedOffNoteInk(classic.selectedCell, classic))
+        assertEquals(Brick, classic.conflictInk) // Original board palette stays unchanged.
+    }
+
     private fun contrast(a: Color, b: Color): Float {
         val l1 = a.luminance()
         val l2 = b.luminance()

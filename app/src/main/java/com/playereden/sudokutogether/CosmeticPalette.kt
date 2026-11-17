@@ -1,6 +1,8 @@
 package com.playereden.sudokutogether
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.lerp
+import androidx.compose.ui.graphics.luminance
 
 /**
  * A complete, curated board appearance shared by the playable 9x9 grid
@@ -120,4 +122,45 @@ fun boardFillFor(id: String): Color = boardPalette(id).fill
 fun inkFor(id: String, darkBoard: Boolean): Color {
     val palette = inkPalettes[id] ?: inkPalettes.getValue("forest")
     return if (darkBoard) palette.dark else palette.light
+}
+
+
+/**
+ * Only 3x3 pencil glyphs use adaptive contrast; large digits and all saved
+ * cosmetic colors keep their original palette. The same renderer serves
+ * gameplay and the Coach proof board.
+ */
+internal fun pencilNoteInk(authoredInk: Color, cellBackground: Color, palette: BoardPalette): Color =
+    contrastSafeSmallInk(if (palette.dark) authoredInk else Muted, cellBackground, palette)
+
+/** Coach's crossed-off candidate is also tiny; preserve red until it is faint. */
+internal fun crossedOffNoteInk(cellBackground: Color, palette: BoardPalette): Color =
+    contrastSafeSmallInk(palette.conflictInk, cellBackground, palette)
+
+private fun contrastSafeSmallInk(ink: Color, background: Color, palette: BoardPalette): Color {
+    val target = 4.52f // A tiny buffer above 4.5:1 for rounding.
+    if (contrastRatio(ink, background) >= target) return ink
+
+    // Prefer the board's neutral clue ink; use whichever extreme is more
+    // legible if a future board defines an unusually light highlight.
+    val legible = if (contrastRatio(palette.clueInk, background) >= target) {
+        palette.clueInk
+    } else {
+        if (contrastRatio(Color.White, background) >= contrastRatio(Color.Black, background))
+            Color.White else Color.Black
+    }
+    var low = 0f
+    var high = 1f
+    repeat(12) {
+        val mix = (low + high) / 2f
+        if (contrastRatio(lerp(ink, legible, mix), background) >= target) high = mix
+        else low = mix
+    }
+    return lerp(ink, legible, high)
+}
+
+private fun contrastRatio(foreground: Color, background: Color): Float {
+    val a = foreground.luminance()
+    val b = background.luminance()
+    return (maxOf(a, b) + .05f) / (minOf(a, b) + .05f)
 }
