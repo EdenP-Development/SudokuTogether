@@ -64,7 +64,29 @@ internal val boardPalettes: Map<String, BoardPalette> = linkedMapOf(
     "classic" to lightBoard(Paper),
     "linen" to lightBoard(Color(0xFFFFF6DF)),
     "midnight" to darkBoard(Color(0xFF152A36)),
-    "circuit" to darkBoard(Color(0xFF102A2B))
+    "circuit" to darkBoard(Color(0xFF102A2B)),
+    // Candidate colors from the Beta 1.2 palette review: all states explicitly
+    // defined, no changes to the four original themes.
+    "parchment" to BoardPalette(
+        fill = Color(0xFFFCF4E4), dark = false,
+        thinRule = Color(0xFFC9BAA3), thickRule = Color(0xFF6A5648),
+        clueInk = Color(0xFF3E352B),
+        selectedCell = Color(0xFFFFF9EF), partnerCell = Color(0xFFF5FAF5),
+        conflictCell = Color(0xFFFFF0EA),
+        matchingNumberCell = Color(0xFFFCF9F1), relatedCell = Color(0xFFFAF6ED),
+        proofOutline = Color(0xFF775218), conflictInk = Color(0xFF8D362B),
+        previewRule = Color(0xFFC9BAA3)
+    ),
+    "graphite" to BoardPalette(
+        fill = Color(0xFF293137), dark = true,
+        thinRule = Color(0xFF58646B), thickRule = Color(0xFFA9B7BC),
+        clueInk = Color(0xFFF3F1E8),
+        selectedCell = Color(0xFF3F4748), partnerCell = Color(0xFF34454B),
+        conflictCell = Color(0xFF603B39),
+        matchingNumberCell = Color(0xFF404148), relatedCell = Color(0xFF303B43),
+        proofOutline = Color(0xFFFFE6A8), conflictInk = Color(0xFFFFC0BA),
+        previewRule = Color(0xFF58646B)
+    )
 )
 
 internal val inkPalettes: Map<String, InkPalette> = linkedMapOf(

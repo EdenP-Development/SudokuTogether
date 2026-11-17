@@ -70,7 +70,10 @@ object Cosmetics {
         CatalogEntry("classic", "Classic"),
         CatalogEntry("linen", "Linen", 2),
         CatalogEntry("midnight", "Midnight", 5),
-        CatalogEntry("circuit", "Circuit", 3, Milestone.RACE)
+        CatalogEntry("circuit", "Circuit", 3, Milestone.RACE),
+        // Beta 1.2 pilot boards. Both are obtainable by playing Solo.
+        CatalogEntry("parchment", "Parchment", 8, Milestone.SOLO),
+        CatalogEntry("graphite", "Graphite", 20, Milestone.FINISH)
     )
     // Co-op display priority follows the curated board catalog order.
     // New board IDs cannot be accidentally omitted from a second list.
