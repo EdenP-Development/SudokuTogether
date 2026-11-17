@@ -24,12 +24,48 @@ class BoardCoachVisualAuditTest {
 
     private fun screenshot(name: String) {
         compose.waitForIdle()
-        val image = requireNotNull(InstrumentationRegistry.getInstrumentation().uiAutomation.takeScreenshot())
+        val automation = InstrumentationRegistry.getInstrumentation().uiAutomation
+        automation.waitForIdle(350, 5000)
+        // UIAutomation can return the PREVIOUS compositor frame immediately
+        // after Compose reports idle. Read a warm-up frame and verify the
+        // intended puzzle palette before accepting the exported image.
+        var image: Bitmap? = null
+        var lastDarkFraction = 0f
+        for (attempt in 0..6) {
+            val frame = requireNotNull(automation.takeScreenshot())
+            var dark = 0
+            var sampled = 0
+            for (y in 100 until frame.height - 100 step 16) {
+                for (x in 20 until frame.width - 20 step 16) {
+                    val pixel = frame.getPixel(x, y)
+                    if (android.graphics.Color.red(pixel) < 115 &&
+                        android.graphics.Color.green(pixel) < 115 &&
+                        android.graphics.Color.blue(pixel) < 115) dark++
+                    sampled++
+                }
+            }
+            lastDarkFraction = dark.toFloat() / sampled
+            val sceneReady = when {
+                name.startsWith("01-") -> lastDarkFraction in .01f..10f / 100f
+                name.startsWith("02-") -> lastDarkFraction > .15f
+                else -> lastDarkFraction > .20f
+            }
+            if (attempt > 0 && sceneReady) {
+                image = frame
+                break
+            }
+            frame.recycle()
+            compose.waitForIdle()
+            Thread.sleep(180)
+        }
+        val captured = checkNotNull(image) {
+            "Screenshot did not reach expected scene: $name (dark fraction $lastDarkFraction)"
+        }
         val bytes = ByteArrayOutputStream().use { stream ->
-            assertTrue("Unable to encode $name", image.compress(Bitmap.CompressFormat.PNG, 100, stream))
+            assertTrue("Unable to encode $name", captured.compress(Bitmap.CompressFormat.PNG, 100, stream))
             stream.toByteArray()
         }
-        image.recycle()
+        captured.recycle()
         assertTrue("Screenshot missing or empty", bytes.size > 10000)
 
         // Save through Android's scoped-storage API. Instrumentation may clear
@@ -87,6 +123,8 @@ class BoardCoachVisualAuditTest {
         compose.onNodeWithText("Show why").assertIsDisplayed()
         screenshot("03-coach-introduction")
         compose.onNodeWithText("Show why").performScrollTo().performClick()
+        compose.onNodeWithText("Step 1 of 2").assertIsDisplayed()
+        compose.onNodeWithText("Cross off 7 at row 7, column 9.").assertExists()
         compose.onNodeWithTag("coach_cell_78").assertExists()
         screenshot("04-coach-deduction")
     }
