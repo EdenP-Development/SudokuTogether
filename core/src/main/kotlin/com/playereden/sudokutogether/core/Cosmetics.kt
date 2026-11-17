@@ -113,7 +113,7 @@ object Cosmetics {
     val knownIds: Set<String> get() = entries.keys
 
     fun preserveEarned(profile: LocalPlayerData): LocalPlayerData {
-        val fromCurrentRecords = progressAll(profile.records).filterValues { it.unlocked }.keys
+        val fromCurrentRecords = progressAll(profile.records).filterValues { it.unlocked && it.target > 0 }.keys
         val owned = (profile.ownedCosmeticIds + fromCurrentRecords).distinct().sorted()
         return if (profile.ownedCosmeticIds == owned) profile else profile.copy(ownedCosmeticIds = owned)
     }
