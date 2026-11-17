@@ -126,36 +126,37 @@ fun inkFor(id: String, darkBoard: Boolean): Color {
 
 
 /**
- * Contrast-safe pencil marks on a dark board.
- *
- * Regular entered digits and the saved cosmetic ink are not changed. Only the
- * small 3x3 pencil glyph adapts, and only when its current cell highlight would
- * make it too faint. The normal light-board pencil color stays unchanged.
+ * Only 3x3 pencil glyphs use adaptive contrast; large digits and all saved
+ * cosmetic colors keep their original palette. The same renderer serves
+ * gameplay and the Coach proof board.
  */
-internal fun pencilNoteInk(authoredInk: Color, cellBackground: Color, palette: BoardPalette): Color {
-    if (!palette.dark) return Muted
-    val target = 4.52f // A tiny buffer above 4.5:1 for rounding.
-    if (contrastRatio(authoredInk, cellBackground) >= target) return authoredInk
+internal fun pencilNoteInk(authoredInk: Color, cellBackground: Color, palette: BoardPalette): Color =
+    contrastSafeSmallInk(if (palette.dark) authoredInk else Muted, cellBackground, palette)
 
-    // Prefer the board's neutral clue ink; retain a safe fallback if another
-    // dark theme is added later with a brighter highlighted cell.
-    val legible = if (contrastRatio(palette.clueInk, cellBackground) >= target) {
+/** Coach's crossed-off candidate is also tiny; preserve red until it is faint. */
+internal fun crossedOffNoteInk(cellBackground: Color, palette: BoardPalette): Color =
+    contrastSafeSmallInk(palette.conflictInk, cellBackground, palette)
+
+private fun contrastSafeSmallInk(ink: Color, background: Color, palette: BoardPalette): Color {
+    val target = 4.52f // A tiny buffer above 4.5:1 for rounding.
+    if (contrastRatio(ink, background) >= target) return ink
+
+    // Prefer the board's neutral clue ink; use whichever extreme is more
+    // legible if a future board defines an unusually light highlight.
+    val legible = if (contrastRatio(palette.clueInk, background) >= target) {
         palette.clueInk
     } else {
-        if (contrastRatio(Color.White, cellBackground) >= contrastRatio(Color.Black, cellBackground))
+        if (contrastRatio(Color.White, background) >= contrastRatio(Color.Black, background))
             Color.White else Color.Black
     }
     var low = 0f
     var high = 1f
     repeat(12) {
         val mix = (low + high) / 2f
-        if (contrastRatio(lerp(authoredInk, legible, mix), cellBackground) >= target) {
-            high = mix
-        } else {
-            low = mix
-        }
+        if (contrastRatio(lerp(ink, legible, mix), background) >= target) high = mix
+        else low = mix
     }
-    return lerp(authoredInk, legible, high)
+    return lerp(ink, legible, high)
 }
 
 private fun contrastRatio(foreground: Color, background: Color): Float {
