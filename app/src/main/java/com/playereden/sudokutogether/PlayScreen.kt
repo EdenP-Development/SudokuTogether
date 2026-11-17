@@ -565,7 +565,7 @@ private fun roomStatusText(state: GameUiState): String {
                                 Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
                                     if (n in noteNumbers) {
                                         val removed = n in crossedOff
-                                        val color = if (removed) palette.conflictInk else pencilColor
+                                        val color = if (removed) crossedOffNoteInk(background, palette) else pencilColor
                                         Text(n.toString(), modifier = Modifier.fillMaxWidth(), color = color,
                                             style = noteStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
                                             textDecoration = if (removed) TextDecoration.LineThrough else null,
