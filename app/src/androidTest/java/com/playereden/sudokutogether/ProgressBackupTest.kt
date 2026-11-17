@@ -310,4 +310,21 @@ class ProgressBackupTest {
         val oldBackup = ProgressBackup.decode(JsonObject(original).toString().byteInputStream())
         assertTrue(oldBackup.progress.ownedCosmeticIds.isEmpty())
     }
+
+    @Test fun exportRestoreKeepsEquippedStyleThatWasEarnedBeforeHistoryWasTrimmed() {
+        val sourceFile = File(root, "owned-source.json")
+        val source = LocalPlayerStore(sourceFile)
+        source.update { it.copy(ownedCosmeticIds = listOf("rose"), records = emptyList()) }
+        check(preferences.edit().putString("cosmeticInk", "rose").commit())
+        val backup = ProgressBackupStore(sourceFile, preferences).export(source, "1.0.0-beta.2")
+        val decoded = ProgressBackup.decode(backup.inputStream())
+        assertEquals("rose", decoded.settings.appearance.ink)
+
+        val destinationFile = File(root, "owned-destination.json")
+        val destination = LocalPlayerStore(destinationFile)
+        val restored = ProgressBackupStore(destinationFile, preferences).restore(destination, decoded)
+        assertEquals(listOf("rose"), restored.ownedCosmeticIds)
+        assertEquals("rose", preferences.getString("cosmeticInk", null))
+        assertTrue(Cosmetics.allowed("rose", restored.records, restored.ownedCosmeticIds))
+    }
 }
