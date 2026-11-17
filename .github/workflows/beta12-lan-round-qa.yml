@@ -5,7 +5,9 @@ on:
     branches: [main]
     paths:
       - 'app/src/main/java/com/playereden/sudokutogether/GameViewModel.kt'
+      - 'app/src/main/java/com/playereden/sudokutogether/PlayScreen.kt'
       - 'app/src/androidTest/java/com/playereden/sudokutogether/MultiplayerRoundInputModeTest.kt'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/MultiplayerPolishUiTest.kt'
       - '.github/workflows/beta12-lan-round-qa.yml'
 
 permissions:
@@ -45,9 +47,11 @@ jobs:
           emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
           disable-animations: true
           script: |
+            # Check dense candidate fit first; a failure should not spend
+            # the remaining emulator budget on unrelated already-green tests.
+            ./gradlew :app:connectedDebugAndroidTest --no-daemon --max-workers=2 --console=plain -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.MultiplayerPolishUiTest
             ./gradlew :app:connectedDebugAndroidTest --no-daemon --max-workers=2 --console=plain -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.MultiplayerRoundInputModeTest
             ./gradlew :app:connectedDebugAndroidTest --no-daemon --max-workers=2 --console=plain -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusPresenceUiTest
-            ./gradlew :app:connectedDebugAndroidTest --no-daemon --max-workers=2 --console=plain -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.MultiplayerPolishUiTest
       - name: Keep regression evidence on failures
         if: failure()
         uses: actions/upload-artifact@v4
