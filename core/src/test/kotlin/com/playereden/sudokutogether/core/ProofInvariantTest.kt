@@ -61,8 +61,8 @@ class ProofInvariantTest {
                 // Walk through a few consecutive hints where a placed digit
                 // advances the board. When Coach only eliminates candidates,
                 // stop: the UI's proof overlay does not commit those changes.
-                repeat(4) {
-                    val hint = SudokuAssistance.nextCoachHint(puzzle, visible) ?: return@repeat
+                for (hintNumber in 0 until 4) {
+                    val hint = SudokuAssistance.nextCoachHint(puzzle, visible) ?: break
                     assertTrue(hint.steps.isNotEmpty())
                     for (step in hint.steps) {
                         for ((cell, removed) in step.eliminations) {
@@ -81,11 +81,12 @@ class ProofInvariantTest {
                     if (placement != null) {
                         visible[placement.targetCells.single()] = placement.digits.single()
                     } else {
-                        return@repeat
+                        break
                     }
                 }
-                assertEquals(puzzle.clues.indices.filter { puzzle.clues[it] != 0 }.map { puzzle.clues[it] },
-                    puzzle.clues.indices.filter { puzzle.clues[it] != 0 }.map { visible[it] })
+                for (cell in 0..80) if (puzzle.clues[cell] != 0) {
+                    assertEquals("Coach changed an original clue", puzzle.clues[cell], visible[cell])
+                }
                 assertTrue(Sudoku.conflicts(visible).isEmpty())
             }
         }
