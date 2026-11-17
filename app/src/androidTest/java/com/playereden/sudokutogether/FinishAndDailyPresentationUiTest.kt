@@ -20,7 +20,7 @@ class FinishAndDailyPresentationUiTest {
     private fun finishedState(daily: Boolean = false): GameUiState {
         val puzzle = Puzzle("puzzle", List(81) { 0 }, "EASY")
         val record = completed("just-finished", if (daily) DAILY else SOLO, if (daily) "2026-11-17" else null)
-        val saved = PersonalPlay.newSolo(puzzle, 100L).copy(id = record.id, finishedAtMs = 170_000L, elapsedMs = 120_000L, moves = 3)
+        val saved = SoloProgress(record.id, puzzle, List(81) { Cell() }, 100L, elapsedMs = 120_000L, moves = 3, finishedAtMs = 170_000L)
         return GameUiState(page = Page.PLAY, role = SOLO, todayDate = "2026-11-17",
             dailyDate = if (daily) "2026-11-17" else null,
             snapshot = saved.snapshot(), finishedSolo = saved,
