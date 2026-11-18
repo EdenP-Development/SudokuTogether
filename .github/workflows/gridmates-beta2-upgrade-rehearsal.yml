@@ -1,12 +1,9 @@
-name: GridMates Beta 1 to Beta 2 install-over rehearsal (temporary)
+name: GridMates release upgrade rehearsal (manual, test signer)
 
+# Deliberately manual: builds two generations and starts an emulator.
+# Run before a version update, not on every ordinary pull request.
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - 'app/src/androidTest/java/com/playereden/sudokutogether/Beta1UpgradeSeederTest.kt'
-      - 'app/src/androidTest/java/com/playereden/sudokutogether/Beta2UpgradeVerifierTest.kt'
-      - '.github/workflows/gridmates-beta2-upgrade-rehearsal.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
