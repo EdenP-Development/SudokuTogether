@@ -54,19 +54,18 @@ import androidx.compose.ui.unit.*
             .padding(start = 17.dp, top = 14.dp, bottom = 13.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start) {
-            Text(eyebrow, color = GoldTint,
-                fontWeight = FontWeight.Bold,
-                fontSize = if (largeText) 9.sp else 10.sp,
-                lineHeight = 14.sp,
-                letterSpacing = .8.sp,
-                maxLines = 2,
-                overflow = TextOverflow.Ellipsis)
-            Spacer(Modifier.height(7.dp))
+            if (!largeText) {
+                Text(eyebrow, color = GoldTint,
+                    fontWeight = FontWeight.Bold, fontSize = 10.sp,
+                    lineHeight = 14.sp, letterSpacing = .8.sp,
+                    maxLines = 2, overflow = TextOverflow.Ellipsis)
+                Spacer(Modifier.height(7.dp))
+            }
             Text(heading, color = OnForest,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = if (largeText) 16.sp else 23.sp,
-                lineHeight = if (largeText) 21.sp else 27.sp,
+                fontSize = if (largeText) 15.sp else 23.sp,
+                lineHeight = if (largeText) 19.sp else 27.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis)
         }
