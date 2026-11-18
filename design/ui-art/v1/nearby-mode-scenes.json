@@ -1,0 +1,75 @@
+{
+  "schema": "gridmates.ui-art.v1",
+  "created_date": "2026-11-18",
+  "status": "isolated Android preview; owner-phone visual signoff pending",
+  "source": {
+    "kind": "original generated illustration, manually cropped and optimized",
+    "description": "Two matching forest-and-paper scenes; blank puzzle grids and no baked UI labels, controls, scores, player or collectible identities.",
+    "source_file": "a_wide_landscape_split_banner_illustration_in_a.png",
+    "source_dimensions": [
+      2172,
+      724
+    ],
+    "sha256": "fa4f81bb3dee025d58467d0f110334123bd5e6423adb10c763a90b54fe46f686",
+    "master_pack": "GridMates_Nearby_Mode_Art_Review.zip (separate downloadable review pack)"
+  },
+  "usage": {
+    "consumer": "NearbyModeBanner.kt",
+    "layout": "Illustrated banner with native text, separate Play / Join / code controls",
+    "runtime_network_fetch": false,
+    "collaboration_mode": "same Wi-Fi only",
+    "competitive_mode": "same Wi-Fi only"
+  },
+  "assets": [
+    {
+      "id": "co_op",
+      "res": "gm_mode_coop_scene_v1",
+      "path": "app/src/main/res/drawable-nodpi/gm_mode_coop_scene_v1.webp",
+      "dimensions_px": [
+        320,
+        130
+      ],
+      "byte_size": 3004,
+      "sha256": "a6f0601726daec0a33ca562502c4b3d2d1299818f3b1b2208ecf46f5512716b9",
+      "git_blob_sha1": "dd8f3c6546fcb32d084c9a128e11c189175dab31",
+      "higher_resolution_review_master": {
+        "dimensions_px": [
+          768,
+          312
+        ],
+        "sha256": "5c4216f0ad83e3230ae677c5e91c4a498ede52e0852f62d2553274ee90c91b5a"
+      },
+      "decorative_subject": "Open paper puzzle book with two inward-pointing pencils"
+    },
+    {
+      "id": "versus",
+      "res": "gm_mode_versus_scene_v1",
+      "path": "app/src/main/res/drawable-nodpi/gm_mode_versus_scene_v1.webp",
+      "dimensions_px": [
+        320,
+        130
+      ],
+      "byte_size": 3190,
+      "sha256": "e37322e16a59b9842e4db388143db35db02c0bad127b4866936db582b7592dee",
+      "git_blob_sha1": "656499eada618b7f96a45f5de3203155a81136ab",
+      "higher_resolution_review_master": {
+        "dimensions_px": [
+          768,
+          312
+        ],
+        "sha256": "13b45a18e609be62ddf7a0408b98f3a799a5eb199bc5f804d2bed3f25047035a"
+      },
+      "decorative_subject": "Mirrored blank puzzle grids with central green and gold trophy pennant"
+    }
+  ],
+  "accessibility": [
+    "All mode selection, difficulty, optional room code, Start and Join controls remain native Android Compose with semantic labels.",
+    "Illustrations themselves are decorative and have no content descriptions.",
+    "At 200% font scale, optional upper eyebrow text is omitted to protect the title and actions."
+  ],
+  "limitations": [
+    "Images committed here are 320×130 lightweight review exports; after owner composition approval, update to 768×312 or higher and remeasure APK/memory cost.",
+    "These drawings complement the existing 22 original collectible portraits and do not replace or redraw those characters.",
+    "Do not publish a public Beta2 based on standalone QA signing. The original Beta1-to-Beta2 signer/install-over gate remains unresolved."
+  ]
+}
