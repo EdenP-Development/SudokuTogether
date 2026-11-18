@@ -32,7 +32,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val background = Cream.toArgb()
         enableEdgeToEdge(statusBarStyle = SystemBarStyle.light(background, Forest.toArgb()), navigationBarStyle = SystemBarStyle.light(background, Forest.toArgb()))
-        val shareStandaloneApk = if (applicationInfo.splitSourceDirs.isNullOrEmpty()) ::shareApk else null
+        val shareStandaloneApk = if (canShareInstalledApk(BuildConfig.DEBUG, !applicationInfo.splitSourceDirs.isNullOrEmpty())) ::shareApk else null
         setContent {
             val state by model.state.collectAsStateWithLifecycle()
             val progressBackup by model.progressBackup.collectAsStateWithLifecycle()
@@ -114,3 +114,7 @@ class MainActivity : ComponentActivity() {
         } catch (_: Exception) { Toast.makeText(this@MainActivity, "Couldn't prepare the APK to share. Try sharing your downloaded APK file.", Toast.LENGTH_LONG).show() }
     } }
 }
+
+/** Avoid distributing developer/QA APKs or incomplete split installs as if they were public releases. */
+internal fun canShareInstalledApk(debugBuild: Boolean, hasSplits: Boolean): Boolean =
+    !debugBuild && !hasSplits
