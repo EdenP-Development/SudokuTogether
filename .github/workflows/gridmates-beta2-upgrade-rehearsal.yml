@@ -1,8 +1,14 @@
 name: GridMates release upgrade rehearsal (manual, test signer)
 
-# Deliberately manual: builds two generations and starts an emulator.
-# Run before a version update, not on every ordinary pull request.
+# Release fixture relocation validation: pull_request temporarily enables the
+# focused run. Switch back to workflow_dispatch after passing QA.
 on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'scripts/upgrade-fixtures/**'
+      - 'scripts/run_beta2_install_over.sh'
+      - '.github/workflows/gridmates-beta2-upgrade-rehearsal.yml'
   workflow_dispatch:
 
 permissions:
@@ -46,7 +52,9 @@ jobs:
           mkdir -p beta1/app/src/androidTest/java/com/playereden/sudokutogether
           # OLD app source is untouched; a test-only seeder writes an actual
           # Beta 1 profile using its original validated on-device store.
-          cp beta2/app/src/androidTest/java/com/playereden/sudokutogether/Beta1UpgradeSeederTest.kt beta1/app/src/androidTest/java/com/playereden/sudokutogether/
+          cp beta2/scripts/upgrade-fixtures/Beta1UpgradeSeederTest.kt beta1/app/src/androidTest/java/com/playereden/sudokutogether/
+          mkdir -p beta2/app/src/androidTest/java/com/playereden/sudokutogether
+          cp beta2/scripts/upgrade-fixtures/Beta2UpgradeVerifierTest.kt beta2/app/src/androidTest/java/com/playereden/sudokutogether/
           chmod +x beta1/gradlew beta2/gradlew
           ( cd beta1 && ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon --max-workers=2 --console=plain )
           ( cd beta2 && ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon --max-workers=2 --console=plain )
