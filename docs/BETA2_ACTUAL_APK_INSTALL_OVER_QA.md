@@ -42,3 +42,12 @@ The recorded Beta 1 public APK SHA-256 is `6d7dda34129fc4a6c74ab8146dcb361289673
 
 ## Product status
 The source is progressing toward a public itch.io Beta 2, not yet released. Existing public Beta 1 remains the real downloadable version until original-production-key and non-destructive signed update acceptance passes. The owner has deferred renewed formal two-phone LAN acceptance for now; direct same-Wi-Fi host/join is implemented and previous family testing was positive.
+
+
+## Final source fixture isolation gate
+
+After the initial passing run, the two release-only instrumentation classes were moved out of the normal `app/src/androidTest` directory to `scripts/upgrade-fixtures/`. The release workflow copies the seeder into the **old Beta 1 checkout** and the verifier into the **new Beta 2 checkout** at build time. Ordinary connected Android UI suites therefore cannot accidentally run these special tests against an unseeded installed app or create a fake profile. Neither game's runtime production source is modified by the fixture copies.
+
+[Final second passing end-to-end run 44208331788](https://github.com/PlayerEden/SudokuTogether/actions/runs/44208331788), job `134479959833`, successfully compiled both app versions and their temporary Android instrumentation fixtures from their separate source checkouts. It again verified the matching rehearsal debug certificate, package identity and versionCode 30 → 31; installed the original Beta 1 test app, seeded its valid Solo + Daily + Notes + records profile, launched both versions, performed an **actual `adb install -r`** and passed all saved-data/ownership assertions. **No user data was altered.**
+
+The workflow is now **`workflow_dispatch` manual-only** under `.github/workflows/gridmates-beta2-upgrade-rehearsal.yml`, pinned to exact Beta 1 baseline. The successful run was on a test-triggered workflow revision, with the same application/test body; final change only removes the automatic PR trigger. It is an optional repeatable check for the Beta 2 milestone, not a replacement for the production-signer test.
