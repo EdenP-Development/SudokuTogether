@@ -41,7 +41,7 @@ class HomeGamefrontUiTest {
 
         compose.onNodeWithTag("home_mode_solo").performClick().assertIsSelected()
         compose.onNodeWithTag("daily_challenge").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithTag("daily_seven_day_summary").assertExists()
+        compose.onNodeWithTag("daily_seven_day_summary", useUnmergedTree = true).assertExists()
     }
 
     @Test fun welcomingMessageAndModeControlsRemainReadableAtTwoHundredPercentOnNarrowPhones() {
