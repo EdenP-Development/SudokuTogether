@@ -33,8 +33,10 @@ internal data class ProgressBackupUiState(
 ) {
     GamePanel(Modifier.fillMaxWidth()) {
         Text("Progress", fontFamily = FontFamily.Serif, fontSize = 21.sp, color = Forest)
-        Text("Keep your Solo and Daily puzzles, records, earned Collection items, and settings safe in a backup file.", color = Muted)
-        Text("Back up before changing phones or uninstalling. Active nearby multiplayer rooms are not included.",
+        Text("Save your Solo and Daily puzzles, game records, earned Collection items, and settings to a file you control.", color = Muted)
+        Text("Compatible updates normally keep progress. Back up before updating or changing phones for extra protection. Don't uninstall the game to update it.",
+            color = Muted, style = MaterialTheme.typography.bodySmall)
+        Text("Active nearby multiplayer rooms are not included in this backup.",
             color = Muted, style = MaterialTheme.typography.bodySmall)
         OutlinedButton(export, enabled = enabled, modifier = Modifier.fillMaxWidth()) {
             Text("Back up progress")
@@ -66,7 +68,10 @@ internal data class ProgressBackupUiState(
                 if (preview.hasSolo) Text("Includes a saved Solo puzzle")
                 Text("Daily puzzles · ${preview.dailyCount}")
                 Text("Game records · ${preview.recordCount}")
+                Text("Earned Collection items · ${preview.earnedCosmeticCount}")
                 Text("Restoring replaces the progress and settings on this device.")
+                Text("Back up your current progress first if you might want to keep it.",
+                    style = MaterialTheme.typography.bodySmall)
             }
         },
         confirmButton = { TextButton(restore, enabled = enabled) { Text("Restore") } },
