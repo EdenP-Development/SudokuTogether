@@ -1,6 +1,6 @@
 # GridMates Beta 2 — original production signer gate
 
-**Prepared November 17, 2026 · preflight is a release gate, not publication**
+**Prepared November 17, 2026 · executed November 17 (US Eastern) / November 18 UTC · production signing is BLOCKED pending original credentials**
 
 ## Grounded original release baseline
 
@@ -43,3 +43,20 @@
 Existing family progress is the priority. Never uninstall or clear the wife's Beta 1 app to bypass an Android signature or version mismatch. A manually exported progress backup is prudent before a compatible update. The previous [source-backed debug-certificate upgrade rehearsal](BETA2_ACTUAL_APK_INSTALL_OVER_QA.md) passed, but production signing remains a separate acceptance test.
 
 The [Beta 2 itch listing draft](GRIDMATES_ITCH_BETA2_LISTING_DRAFT.md) is unpublished. Renewed two-physical-phone LAN testing remains deferred at the owner's request. Source signing-gate work does not add cosmetics, change the puzzle engine or alter current saved-data format.
+
+## Live GitHub preflight result — BLOCKED, not a production build failure
+
+- [PR #70](https://github.com/PlayerEden/SudokuTogether/pull/70) merged on `main` as `aef3909b4fd1c04f0a8eea76e63f6bd4da7bfcc1`.
+- [Workflow run 44214878784](https://github.com/PlayerEden/SudokuTogether/actions/runs/44214878784) immediately executed from the safe `main` push trigger.
+- **Job 1 failed fast** with: `BLOCKED: Original production signing secrets are not available to this workflow.` This means **one or both** required repository Actions secrets are empty/unavailable in this workflow. It does **not** establish that a keystore file has been lost forever, that the password was wrong, or that the certificate differs.
+- **Job 2 was SKIPPED by design**. No production APK, debug APK, AAB, release artifact, game update, public upload, signed output or change to installed user data was produced by this run.
+- The successful [Beta 1 → Beta 2 debug-certificate install-over rehearsal](BETA2_ACTUAL_APK_INSTALL_OVER_QA.md) remains valid migration evidence but does not bypass this production-signing blocker.
+
+### Restore only the existing signing credentials, privately
+
+1. Find the **original Beta 1 production keystore** and its password in a private backup, password manager, trusted build-machine backup or other secure custody. The public Beta 1 APK exposes a *public certificate*, not the private signing key; the APK cannot be used to regenerate that private key.
+2. In GitHub repository Settings → Secrets and variables → Actions, check the repository's access to `SUDOKU_KEYSTORE_BASE64` (base64 encoding of the **original** keystore file) and `SUDOKU_KEYSTORE_PASSWORD` (its original password). These need to be restored securely on the repository, not posted in issues, commits, chat, screenshots or a public website. The keystore alias expected by the existing production build is `sudokutogether`.
+3. Use the Actions tab to manually run `GridMates Beta 2 production signer and private candidate` against `main` after restoration. The first job will verify the certificate against the pinned original SHA-256; only an exact match permits a private candidate build.
+4. If the original keystore truly cannot be recovered, **stop promising an install-over update**. Do not create a replacement signing key for the same-package public upgrade. Evaluate a separately packaged new app and explicit export/restore migration as a last resort; that changes the update experience and needs the owner's decision and testing. Never uninstall the existing app to make an incompatible APK install.
+
+**Who can resolve this:** The signing-key custodian or authorized repo administrator who can access the private backup and manage Actions secrets. This ChatGPT GitHub connection cannot inspect or set those secrets, and their actual values should never be provided in this conversation.
