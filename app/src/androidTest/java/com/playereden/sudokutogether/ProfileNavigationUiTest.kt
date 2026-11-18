@@ -85,12 +85,32 @@ class ProfileNavigationUiTest {
         compose.onNodeWithContentDescription("Edit name").performScrollTo().assertIsDisplayed()
     }
 
+    @Test fun achievementSpotlightKeepsTheTitleReadableAtLargeTextOnANarrowPhone() {
+        compose.setContent {
+            SudokuTogetherTheme {
+                CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, 2f)) {
+                    Box(Modifier.width(320.dp).fillMaxHeight()) {
+                        SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {})
+                    }
+                }
+            }
+        }
+        compose.onNodeWithText("0 of 9 earned").performScrollTo().assertIsDisplayed()
+        val title = compose.onNodeWithText("First Grid").performScrollTo().assertIsDisplayed()
+        val layouts = mutableListOf<TextLayoutResult>()
+        title.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+        assertFalse("Achievement title must never clip at large font scale", layouts.single().hasVisualOverflow)
+        compose.onNodeWithText("0 of 1").performScrollTo().assertIsDisplayed()
+    }
+
     @Test fun nextAchievementReflectsStoredPuzzleCompletions() {
         val state = mutableStateOf(GameUiState(page = Page.PROFILE))
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
         compose.onNodeWithTag("profile_next_achievement").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("NEXT MILESTONE").assertIsDisplayed()
+        compose.onNodeWithText("0 of 9 earned").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("First Grid").assertIsDisplayed()
+        compose.onNodeWithText("0 of 1").assertIsDisplayed()
 
         compose.runOnIdle {
             val solved = GameRecord("finished-solo", SOLO, "SOLVED", "EASY", 650000L, 0, 123L)

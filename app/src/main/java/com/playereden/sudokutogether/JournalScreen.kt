@@ -165,7 +165,7 @@ internal enum class ProfileSection(val title: String) {
     // daily streaks or a second progression system.
     val upcoming = milestones.firstOrNull { !it.unlocked }
     GamePanel(Modifier.fillMaxWidth(), color = GoldTint.copy(alpha = .55f).compositeOver(Cream), padding = 14.dp) {
-        SectionTitle("Achievements", "$" + "{earned} of $" + "{milestones.size} earned")
+        SectionTitle("Achievements", "$earned of ${milestones.size} earned")
         if (upcoming != null) {
             Column(Modifier.fillMaxWidth().clip(RoundedCornerShape(12.dp))
                 .background(Paper.copy(alpha = .7f)).padding(12.dp)
@@ -176,9 +176,11 @@ internal enum class ProfileSection(val title: String) {
                     GameIcon(GameSymbol.TROPHY, Gold, Modifier.size(20.dp))
                     Text(upcoming.title, style = MaterialTheme.typography.titleSmall, color = Forest,
                         modifier = Modifier.weight(1f))
-                    Text("$" + "{upcoming.current} of $" + "{upcoming.target}",
-                        style = MaterialTheme.typography.bodySmall, color = Muted)
                 }
+                // Keep the numeric progress on its own line: it must not
+                // squeeze a milestone title into one letter per row.
+                Text("${upcoming.current} of ${upcoming.target}",
+                    style = MaterialTheme.typography.bodySmall, color = Muted)
                 Text(upcoming.description, style = MaterialTheme.typography.bodySmall, color = Muted)
                 MilestoneTrack(upcoming.current, upcoming.target)
             }
