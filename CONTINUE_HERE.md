@@ -1,5 +1,16 @@
 # Continue GridMates: Sudoku
 
+## Newer Home gamefront visual-review checkpoint (Nov 17 ET / Nov 18 UTC)
+
+**Owner feedback:** The public-facing Home menu feels too much like a settings/utility page; the Daily Puzzle card is a visual strength to preserve. Beta 2 phone screenshots also revealed a genuine Profile achievement placeholder/title layout defect. [PR #75](https://github.com/PlayerEden/SudokuTogether/pull/75) fixed that defect on `main` with Android CI passing. [PR #77](https://github.com/PlayerEden/SudokuTogether/pull/77) documents the full owner screenshot review and prioritized issues.
+
+**Home design is in a DRAFT PR, not merged:** [PR #76](https://github.com/PlayerEden/SudokuTogether/pull/76) introduces a distinct illustrated gamefront banner, larger Solo/Co-op/Versus tiles and warmer main play card. It preserves the Daily card and game/save/network behaviors. The normal app compile/unit/lint quality gate passed. Visual approval remains with the owner.
+
+**Latest verified standalone Home Review APK:** [Android API36 run 44225639203](https://github.com/PlayerEden/SudokuTogether/actions/runs/44225639203) **PASSED**, including exact package/version/certificate/checksum validation, actual install/launch, and **2/2 Home-gamefront Android UI tests** for mode navigation, Daily access, narrow screens and 200% text. [Download ZIP artifact 14392109116](https://github.com/PlayerEden/SudokuTogether/actions/runs/44225639203/artifacts/14392109116), expiring Dec 2, 2026 UTC; extract `GridMates-Sudoku-HomeGamefront-OwnerPreview.apk`. Application ID `com.playereden.sudokutogether.qa.homegamefront`, launcher **Sudoku Home Review**, source `45e82b984f3147d969da2b88e914021bb9721324`. This previews PR #76 **plus** the already-merged Profile text repair on its isolated branch, without updating existing public/QA installations. No public Beta 2 APK has been produced.
+
+**Next decision:** Review the new Home screen physically and decide if it feels sufficiently like a polished casual puzzle game. The emulator screenshot shows a cleaner focal point, but the Daily card approaches the lower navigation edge; don't treat emulator success as aesthetic approval. Keep PR #76 draft until owner feedback. Following visual approval, handle Hint-dialog spacing, Solo keypad alignment and long Collection lists in separate scoped changes. **Do not bypass the original production signing key or uninstall a saved app** to publish Beta 2.
+
+
 ## Latest verified owner-preview and release checkpoint (Nov 17 ET / Nov 18 UTC)
 
 **Public release:** The real itch.io public game is **still Beta 1**. Do not uninstall or clear existing installs. A compatible Beta 2 install-over remains **blocked** because the original Beta 1 production keystore/secrets were unavailable to the verified GitHub Actions signer preflight. Do not generate a new key for the same-package update or ask for the private keystore in chat.
