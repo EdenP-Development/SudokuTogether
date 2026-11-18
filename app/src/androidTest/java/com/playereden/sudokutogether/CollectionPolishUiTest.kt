@@ -231,6 +231,12 @@ class CollectionPolishUiTest {
         compose.setContent { SudokuTogetherTheme { SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {}) } }
         compose.onNodeWithTag("nav_collection").performClick()
         val next = compose.onNodeWithTag("collection_next_unlock").performScrollTo().assertIsDisplayed()
+        // Organizing the album never hides an item or changes its durable unlock.
+        compose.onNodeWithTag("collection_chapter_1").assertExists()
+        compose.onNodeWithTag("collection_chapter_2").assertExists()
+        compose.onNodeWithTag("collection_chapter_3").assertExists()
+        compose.onNodeWithTag("collection_chapter_4").assertExists()
+        compose.onNodeWithTag("portrait_ocean_octopus").assertExists()
         compose.onNodeWithText("NEXT TO UNLOCK").assertIsDisplayed()
         compose.onNodeWithText("0 of 1 · Solve 1 solo puzzle").assertIsDisplayed()
         next.performClick()
