@@ -53,7 +53,7 @@ import com.playereden.sudokutogether.core.SoloProgress
             HomeHeader(state, help, profile, markStyle)
             (state.message ?: state.saveIssue)?.let { Notice(it) }
             if (nearbyMode == null) {
-                BookSoloStage(state, actions, savedSolo, active?.completed == true, freshSolo) { nearbyMode = null }
+                BookSoloStage(state, actions, savedSolo, active?.completed == true, freshSolo)
                 DailyGameRibbon(state, actions, hasToday, dayDone,
                     recentDays.map { Triple(it.weekday, it.date, if (it.complete) 2 else if (it.inProgress) 1 else 0) })
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -84,7 +84,7 @@ import com.playereden.sudokutogether.core.SoloProgress
 @Composable private fun BookSoloStage(
     state: GameUiState, actions: GameActions,
     savedSolo: SoloProgress?, lastCompleted: Boolean,
-    freshSolo: () -> Unit, selectSolo: () -> Unit
+    freshSolo: () -> Unit
 ) {
     val largeText = LocalDensity.current.fontScale > 1.3f
     Surface(Modifier.fillMaxWidth().testTag("home_book_stage"),
