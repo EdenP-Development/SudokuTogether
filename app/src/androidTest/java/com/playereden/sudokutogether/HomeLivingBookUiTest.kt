@@ -53,7 +53,8 @@ class HomeLivingBookUiTest {
         val title = compose.onNodeWithText("Play Sudoku").assertIsDisplayed()
         val result = mutableListOf<TextLayoutResult>()
         title.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(result) }
-        assertFalse("Book title must be readable at 200% font", result.single().hasVisualOverflow)
+        val measured = result.single()
+        assertFalse("Book title must be readable at 200% font: size=${measured.size}, lines=${measured.lineCount}, didOverflowWidth=${measured.didOverflowWidth}, didOverflowHeight=${measured.didOverflowHeight}", measured.hasVisualOverflow)
         compose.onNodeWithText("New puzzle").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("daily_challenge").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("home_mode_together").performScrollTo().assertIsDisplayed()
