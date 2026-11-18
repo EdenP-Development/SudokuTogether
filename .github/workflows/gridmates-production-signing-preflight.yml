@@ -1,0 +1,63 @@
+name: GridMates original production signer preflight (no APK)
+
+# Run once after this file merges to main, and manually for future releases.
+# No upload, APK assembly, signing output or publishing occurs here.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/gridmates-production-signing-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gridmates-production-signer-preflight
+  cancel-in-progress: false
+
+jobs:
+  verify-original-production-signing-certificate:
+    name: Confirm original Beta 1 signer privately
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify private keystore and original certificate fingerprint
+        env:
+          KEYSTORE_BASE64: ${{ secrets.SUDOKU_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.SUDOKU_KEYSTORE_PASSWORD }}
+          EXPECTED_CERT_SHA256: d362dab018a255ccb313582df1e3cf836246e7da1778a198eb1da03a7cfe7cd1
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          if [[ -z "${KEYSTORE_BASE64:-}" || -z "${KEYSTORE_PASSWORD:-}" ]]; then
+            echo 'BLOCKED: Original production signing secrets are not available to this workflow.'
+            echo 'Restore the existing signing backup privately in repository Actions secrets. NEVER generate a new key to update the public app.'
+            echo 'No APK built or public installation changed.' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          private_dir=$(mktemp -d "$RUNNER_TEMP/gridmates-prod-signing-preflight.XXXXXXXX")
+          trap 'rm -rf "$private_dir"' EXIT
+          if ! printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$private_dir/original.jks" 2>/dev/null; then
+            echo 'BLOCKED: Existing signing backup is not decodable; no APK built.'
+            exit 1
+          fi
+          if ! cert_sha=$(keytool -exportcert -alias sudokutogether \
+              -storepass:env KEYSTORE_PASSWORD -keystore "$private_dir/original.jks" \
+              2>/dev/null | sha256sum | awk '{print $1}'); then
+            echo 'BLOCKED: Unable to open original signing alias with configured credentials.'
+            exit 1
+          fi
+          if [[ "$cert_sha" != "$EXPECTED_CERT_SHA256" ]]; then
+            echo 'BLOCKED: Certificate does NOT match the pinned original public Beta 1 signing identity.'
+            echo 'Do not uninstall existing games, change the public package, or use a replacement key.'
+            exit 1
+          fi
+          echo 'PASS: The original GridMates public signing identity is available and matches the pinned Beta 1 certificate.'
+          echo 'No private key, certificate bytes, passwords, APKs or AABs were uploaded.'
+          {
+            echo '### Original public signing identity verified'
+            echo 'Result: PASS — certificate matches the pinned Beta 1 release fingerprint.'
+            echo 'This only confirms signer availability. A production Beta 2 APK and real public install-over still require separate gated checks.'
+          } >> "$GITHUB_STEP_SUMMARY"
