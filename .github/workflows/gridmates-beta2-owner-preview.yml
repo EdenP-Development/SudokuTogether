@@ -54,14 +54,17 @@ jobs:
           test -s "$apk"
           "$tools/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > preview-signature-check.txt
           signer=$(awk '/certificate SHA-256 digest:/ {print $NF}' preview-signature-check.txt)
-          package_line=$("$tools/aapt" dump badging "$apk" | head -n 1)
+          # Avoid aapt SIGPIPE under pipefail: capture its full output first.
+          badging=$("$tools/aapt" dump badging "$apk")
+          package_line=$(printf '%s\n' "$badging" | sed -n '1p')
           package=$(sed -n "s/.*name='\([^']*\)'.*/\1/p" <<< "$package_line")
           code=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" <<< "$package_line")
           version=$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" <<< "$package_line")
-          [[ "$package" == 'com.playereden.sudokutogether.qa.beta2owner' ]] || exit 1
-          [[ "$code" == '31' ]] || exit 1
-          [[ "$version" == '1.0.0-beta.2-qa' ]] || exit 1
-          [[ "$signer" =~ ^[0-9a-f]{64}$ ]] || exit 1
+          echo "Inspected package=$package versionCode=$code versionName=$version"
+          [[ "$package" == 'com.playereden.sudokutogether.qa.beta2owner' ]] || { echo 'Wrong preview package'; exit 1; }
+          [[ "$code" == '31' ]] || { echo 'Wrong preview versionCode'; exit 1; }
+          [[ "$version" == '1.0.0-beta.2-qa' ]] || { echo 'Wrong preview versionName'; exit 1; }
+          [[ "$signer" =~ ^[0-9a-f]{64}$ ]] || { echo 'Missing or malformed debug signer fingerprint'; exit 1; }
           sha256sum "$apk" > "$apk.sha256"
           export PREVIEW_APK="$apk" PREVIEW_PACKAGE="$package" PREVIEW_VERSION="$version" PREVIEW_SIGNER="$signer"
           python3 - <<'PY'
