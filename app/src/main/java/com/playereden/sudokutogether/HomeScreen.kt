@@ -92,8 +92,10 @@ import com.playereden.sudokutogether.core.SoloProgress
             LivingBookIllustration(Modifier.fillMaxWidth().height(if (largeText) 110.dp else 132.dp))
             Text(if (savedSolo == null) "Play Sudoku" else "Your puzzle awaits",
                 fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
-                fontSize = if (largeText) 18.sp else 24.sp,
-                lineHeight = if (largeText) 24.sp else 28.sp, color = OnForest)
+                modifier = Modifier.fillMaxWidth(),
+                fontSize = if (largeText) 16.sp else 24.sp,
+                lineHeight = if (largeText) 32.sp else 28.sp,
+                softWrap = true, maxLines = 3, color = OnForest)
             if (savedSolo != null) {
                 val filled = savedSolo.puzzle.fillProgress(savedSolo.cells)
                 Text("${difficultyName(savedSolo.puzzle.difficulty)} · ${filled.label} · ${formatElapsed(savedSolo.elapsedMs)}",
