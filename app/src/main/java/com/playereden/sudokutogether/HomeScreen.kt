@@ -253,71 +253,93 @@ import com.playereden.sudokutogether.core.SoloProgress
     mode: String, state: GameUiState, actions: GameActions,
     fresh: () -> Unit, freshRace: () -> Unit
 ) {
-    Column(Modifier.fillMaxWidth().testTag("nearby_setup").animateContentSize()
-        .background(GreenTint, RoundedCornerShape(18.dp))
-        .border(1.dp, Rule, RoundedCornerShape(18.dp))
-        .padding(13.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(if (mode == "together") "Shared board" else "Race to finish",
-            color = Forest, fontFamily = FontFamily.Serif,
-            fontWeight = FontWeight.SemiBold, fontSize = 23.sp)
-        Text(if (mode == "together") "Solve one puzzle together · Same Wi-Fi"
-            else "Race on separate boards · Same Wi-Fi", color = Muted, fontSize = 12.sp)
-        Text("New game difficulty", color = Muted, fontSize = 11.sp)
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-            listOf("EASY", "MEDIUM", "HARD").forEach { id ->
-                val chosen = state.selectedDifficulty == id
-                OutlinedButton(onClick = { actions.difficulty(id) }, enabled = !state.busy,
-                    modifier = Modifier.weight(1f).heightIn(min = 48.dp)
-                        .testTag("nearby_difficulty_$id")
-                        .semantics { selected = chosen; contentDescription = difficultyName(id) + " difficulty for new games" },
-                    shape = RoundedCornerShape(11.dp),
-                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
-                    border = BorderStroke(1.dp, if (chosen) Forest else Rule),
-                    colors = ButtonDefaults.outlinedButtonColors(
-                        containerColor = if (chosen) Paper else Color.Transparent)) {
-                    Text(difficultyName(id), color = Forest, fontSize = 12.sp)
+    // One illustrated mode stage, not another pale configuration card.
+    // Hosting, joining and difficulty are kept immediately below the banner.
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("nearby_setup"),
+        shape = RoundedCornerShape(19.dp),
+        color = Paper,
+        border = BorderStroke(1.dp, Gold.copy(alpha = .36f)),
+        shadowElevation = 2.dp
+    ) {
+        Column(Modifier.fillMaxWidth().animateContentSize()) {
+            NearbyModeBanner(mode, Modifier.fillMaxWidth())
+            Column(Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                Text(
+                    if (mode == "together") "Solve one puzzle together · Same Wi-Fi"
+                    else "Race on separate boards · Same Wi-Fi",
+                    color = Muted, fontSize = 12.sp, lineHeight = 17.sp
+                )
+                Text("Choose difficulty", color = Muted, fontSize = 11.sp)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                    listOf("EASY", "MEDIUM", "HARD").forEach { id ->
+                        val chosen = state.selectedDifficulty == id
+                        OutlinedButton(onClick = { actions.difficulty(id) },
+                            enabled = !state.busy,
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                                .testTag("nearby_difficulty_$id")
+                                .semantics {
+                                    selected = chosen
+                                    contentDescription = difficultyName(id) + " difficulty for new games"
+                                },
+                            shape = RoundedCornerShape(11.dp),
+                            contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
+                            border = BorderStroke(if (chosen) 1.5.dp else 1.dp,
+                                if (chosen) Forest else Rule),
+                            colors = ButtonDefaults.outlinedButtonColors(
+                                containerColor = if (chosen) GreenTint else Color.Transparent)) {
+                            Text(difficultyName(id), color = Forest, fontSize = 12.sp)
+                        }
+                    }
+                }
+                Row(Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                    .toggleable(state.requireRoomCode, enabled = !state.busy,
+                        role = Role.Switch, onValueChange = actions.requireRoomCode)
+                    .semantics { contentDescription = "Require a code for a new game" }
+                    .testTag("require_code"),
+                    verticalAlignment = Alignment.CenterVertically) {
+                    Text("Require a room code", color = Forest, fontSize = 13.sp,
+                        modifier = Modifier.weight(1f))
+                    Switch(
+                        checked = state.requireRoomCode, onCheckedChange = null,
+                        enabled = !state.busy,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = OnForest,
+                            checkedTrackColor = Forest,
+                            checkedBorderColor = Forest,
+                            uncheckedThumbColor = Paper,
+                            uncheckedTrackColor = Forest.copy(alpha = .46f),
+                            uncheckedBorderColor = Forest.copy(alpha = .75f),
+                            disabledUncheckedThumbColor = Paper.copy(alpha = .68f),
+                            disabledUncheckedTrackColor = Muted.copy(alpha = .2f)
+                        )
+                    )
+                }
+                if (mode == "together") {
+                    if (state.resumeHost) GamePrimaryButton("Resume room",
+                        { actions.host(true) }, !state.busy)
+                    GamePrimaryButton("Start a game", fresh, !state.busy)
+                    OutlinedButton({ actions.showJoin(false) }, enabled = !state.busy,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Forest)) {
+                        Text("Join a game", color = Forest)
+                    }
+                    if (state.resumeGuest) TextButton({ actions.showJoin(true) },
+                        enabled = !state.busy) { Text("Rejoin room") }
+                } else {
+                    if (state.resumeRace) GamePrimaryButton("Resume race",
+                        { actions.hostRace(true) }, !state.busy)
+                    GamePrimaryButton("Start a race", freshRace, !state.busy)
+                    OutlinedButton({ actions.showJoin(false) }, enabled = !state.busy,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        border = BorderStroke(1.dp, Forest)) {
+                        Text("Join a game", color = Forest)
+                    }
                 }
             }
-        }
-        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp)
-            .toggleable(state.requireRoomCode, enabled = !state.busy,
-                role = Role.Switch, onValueChange = actions.requireRoomCode)
-            .semantics { contentDescription = "Require a code for a new game" }
-            .testTag("require_code"),
-            verticalAlignment = Alignment.CenterVertically) {
-            Text("Require a room code", color = Forest, fontSize = 13.sp,
-                modifier = Modifier.weight(1f))
-            Switch(
-                checked = state.requireRoomCode,
-                onCheckedChange = null,
-                enabled = !state.busy,
-                colors = SwitchDefaults.colors(
-                    checkedThumbColor = OnForest,
-                    checkedTrackColor = Forest,
-                    checkedBorderColor = Forest,
-                    uncheckedThumbColor = Paper,
-                    uncheckedTrackColor = Forest.copy(alpha = .46f),
-                    uncheckedBorderColor = Forest.copy(alpha = .75f),
-                    disabledUncheckedThumbColor = Paper.copy(alpha = .68f),
-                    disabledUncheckedTrackColor = Muted.copy(alpha = .2f)
-                )
-            )
-        }
-        if (mode == "together") {
-            if (state.resumeHost) GamePrimaryButton("Resume room",
-                { actions.host(true) }, !state.busy)
-            GamePrimaryButton("Start a game", fresh, !state.busy)
-            OutlinedButton({ actions.showJoin(false) }, enabled = !state.busy,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Join a game") }
-            if (state.resumeGuest) TextButton({ actions.showJoin(true) }, enabled = !state.busy) {
-                Text("Rejoin room")
-            }
-        } else {
-            if (state.resumeRace) GamePrimaryButton("Resume race",
-                { actions.hostRace(true) }, !state.busy)
-            GamePrimaryButton("Start a race", freshRace, !state.busy)
-            OutlinedButton({ actions.showJoin(false) }, enabled = !state.busy,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Join a game") }
         }
     }
 }
