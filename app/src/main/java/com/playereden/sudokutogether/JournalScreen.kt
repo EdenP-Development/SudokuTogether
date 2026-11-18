@@ -87,44 +87,67 @@ internal enum class ProfileSection(val title: String) {
             GameIcon(GameSymbol.PENCIL, LocalContentColor.current, Modifier.size(20.dp))
         }
     }
-    GamePanel(Modifier.fillMaxWidth(), color = GreenTint, padding = 14.dp) {
-        // Long names need the full card width when Android's font size is enlarged.
-        if (largeText) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically) {
-                portrait()
-                editName()
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text(state.name.ifBlank { "Player" }, style = MaterialTheme.typography.titleLarge, color = Forest)
-                Text(identityStyleName(state.appearance), style = MaterialTheme.typography.bodySmall, color = Muted)
-            }
-        } else {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                portrait()
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                    Text(state.name.ifBlank { "Player" }, style = MaterialTheme.typography.titleLarge, color = Forest)
-                    Text(identityStyleName(state.appearance), style = MaterialTheme.typography.bodySmall, color = Muted)
+    // The player passport is the companion to the illustrated book on Home.
+    // Both profile edit and appearance selection still call the existing actions.
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("profile_player_card"),
+        color = NightForest,
+        shape = RoundedCornerShape(22.dp),
+        border = BorderStroke(1.dp, Gold.copy(alpha = .52f)),
+        shadowElevation = 3.dp
+    ) {
+        Column(Modifier.padding(15.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+            Eyebrow("YOUR PLAYER JOURNAL", GoldTint)
+            // Reflow without crushing long names or accessibility-sized text.
+            if (largeText) {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically) {
+                    portrait()
+                    editName()
                 }
-                editName()
+                Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(state.name.ifBlank { "Player" },
+                        style = MaterialTheme.typography.titleLarge, color = OnForest)
+                    Text(identityStyleName(state.appearance),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnForest.copy(alpha = .76f))
+                }
+            } else {
+                Row(verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    portrait()
+                    Column(Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                        Text(state.name.ifBlank { "Player" },
+                            style = MaterialTheme.typography.titleLarge, color = OnForest)
+                        Text(identityStyleName(state.appearance),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = OnForest.copy(alpha = .76f))
+                    }
+                    editName()
+                }
             }
-        }
-        HorizontalDivider(color = Rule)
-        val actionColor = if (state.busy) Muted else Forest
-        Row(
-            Modifier.fillMaxWidth().clip(RoundedCornerShape(10.dp))
-                .clickable(enabled = !state.busy, role = Role.Button, onClick = collection)
-                .heightIn(min = 54.dp).padding(horizontal = 6.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                Text("Change icon", style = MaterialTheme.typography.labelLarge, color = actionColor)
-                Text(if (state.appearance.portrait.isEmpty() && state.appearance.emblem == "tile")
-                    "Try Owl, Fox, Octopus or Honeybee — all ready to use"
-                else "Explore portraits, boards & numbers",
-                    style = MaterialTheme.typography.bodySmall, color = Muted)
+            HorizontalDivider(color = GoldTint.copy(alpha = .24f))
+            val actionColor = if (state.busy) OnForest.copy(alpha = .45f) else OnForest
+            Row(
+                Modifier.fillMaxWidth().clip(RoundedCornerShape(11.dp))
+                    .clickable(enabled = !state.busy, role = Role.Button, onClick = collection)
+                    .heightIn(min = 54.dp).padding(horizontal = 6.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Column(Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text("Change icon", style = MaterialTheme.typography.labelLarge,
+                        color = actionColor)
+                    Text(if (state.appearance.portrait.isEmpty() && state.appearance.emblem == "tile")
+                        "Try Owl, Fox, Octopus or Honeybee — all ready to use"
+                    else "Explore portraits, boards & numbers",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = OnForest.copy(alpha = .74f))
+                }
+                GameIcon(GameSymbol.RIGHT, actionColor, Modifier.size(18.dp))
             }
-            GameIcon(GameSymbol.RIGHT, actionColor, Modifier.size(18.dp))
         }
     }
 
@@ -133,7 +156,33 @@ internal enum class ProfileSection(val title: String) {
     GamePanel(Modifier.fillMaxWidth(), padding = 14.dp) {
         SectionTitle("Your play")
         if (records.isEmpty()) {
-            Text("Welcome! Your first puzzle finish will appear here.", style = MaterialTheme.typography.bodyMedium, color = Muted)
+            // A useful first-visit state, not a dead stats box. Continue any
+            // existing game through Home; never fabricate wins or rewards.
+            Row(Modifier.fillMaxWidth().padding(vertical = 4.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically) {
+                Box(Modifier.size(46.dp)
+                    .background(GreenTint, RoundedCornerShape(12.dp)),
+                    contentAlignment = Alignment.Center) {
+                    GameIcon(GameSymbol.GRID, Forest, Modifier.size(28.dp))
+                }
+                Column(Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                    Text(if (state.resumeSolo) "Your next grid is waiting"
+                        else "Your first chapter starts here",
+                        style = MaterialTheme.typography.titleSmall, color = Forest)
+                    Text("Welcome! Your first puzzle finish will appear here.",
+                        style = MaterialTheme.typography.bodySmall, color = Muted)
+                }
+            }
+            OutlinedButton(onClick = actions.home, enabled = !state.busy,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, Forest)) {
+                Text("Go to puzzles", color = Forest)
+                Spacer(Modifier.width(9.dp))
+                GameIcon(GameSymbol.RIGHT, Forest, Modifier.size(18.dp))
+            }
         } else {
             val highlights = listOf("Solo solved" to stats.soloWins,
                 "Daily finished" to DailyChallenge.completedDays(records),

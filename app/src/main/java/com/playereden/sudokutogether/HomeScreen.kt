@@ -284,7 +284,21 @@ import com.playereden.sudokutogether.core.SoloProgress
             verticalAlignment = Alignment.CenterVertically) {
             Text("Require a room code", color = Forest, fontSize = 13.sp,
                 modifier = Modifier.weight(1f))
-            Switch(state.requireRoomCode, onCheckedChange = null, enabled = !state.busy)
+            Switch(
+                checked = state.requireRoomCode,
+                onCheckedChange = null,
+                enabled = !state.busy,
+                colors = SwitchDefaults.colors(
+                    checkedThumbColor = OnForest,
+                    checkedTrackColor = Forest,
+                    checkedBorderColor = Forest,
+                    uncheckedThumbColor = Paper,
+                    uncheckedTrackColor = Forest.copy(alpha = .46f),
+                    uncheckedBorderColor = Forest.copy(alpha = .75f),
+                    disabledUncheckedThumbColor = Paper.copy(alpha = .68f),
+                    disabledUncheckedTrackColor = Muted.copy(alpha = .2f)
+                )
+            )
         }
         if (mode == "together") {
             if (state.resumeHost) GamePrimaryButton("Resume room",
