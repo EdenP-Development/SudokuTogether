@@ -1,15 +1,14 @@
 package com.playereden.sudokutogether
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
@@ -22,74 +21,77 @@ import androidx.compose.ui.unit.*
 import com.playereden.sudokutogether.core.Appearance
 
 /**
- * Asset-first chapter spotlight. Uses ONLY the actual packaged 22 collectible
- * portraits, not another hand-drawn or AI-generated approximation of them.
- *
- * The default Fox/Owl illustrations are decorative, never represented as
- * equipped or earned. The selected portrait is used when available.
- * No fake puzzle digits, fixed progress, baked-in controls, or asset-ID changes.
+ * An actual illustrated scene, not a card inside another card.
+ * The environmental artwork is a separate, compressed resource. All mascots
+ * remain the existing canonical Collection PNGs, never redrawn into scenery.
+ * No fixed Sudoku board, fictional progress, text baked in the image or
+ * interactive targets rendered as decorative artwork.
  */
-@Composable internal fun HomeChapterArt(
-    appearance: Appearance,
-    modifier: Modifier = Modifier
-) {
+@Composable internal fun HomeChapterArt(appearance: Appearance, modifier: Modifier = Modifier) {
     val largeText = LocalDensity.current.fontScale > 1.3f
-    val chosenId = appearance.portrait
-    val chapter = when {
-        chosenId.startsWith("ocean_") -> "Ocean"
-        chosenId.startsWith("garden_") -> "Garden"
-        chosenId.startsWith("woodland_") -> "Woodland"
-        else -> "Woodland"
+    val portraitId = appearance.portrait
+    val portraitDrawable = animalDrawable(portraitId)
+    val woodland = portraitDrawable == null || portraitId.startsWith("woodland_")
+    val companion = when {
+        portraitDrawable == null -> "A quiet moment, one grid at a time"
+        portraitId.startsWith("ocean_") -> "With your ocean companion"
+        portraitId.startsWith("garden_") -> "With your garden companion"
+        else -> "With your woodland companion"
     }
-    val selectedDrawable = animalDrawable(chosenId)
-    val featuredDrawable = selectedDrawable ?: R.drawable.woodland_fox
-    Surface(
-        modifier = modifier.testTag("home_chapter_art"),
-        shape = RoundedCornerShape(17.dp),
-        color = Color(0xFFF4EBD7),
-        border = BorderStroke(1.dp, Gold.copy(alpha = .56f))
-    ) {
+
+    Box(modifier.clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
+        .testTag("home_chapter_art")) {
+        if (woodland) {
+            Image(
+                painter = painterResource(R.drawable.gm_home_chapter_woodland_v1),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize().testTag("home_woodland_backdrop")
+            )
+        } else {
+            // An honest neutral backdrop until Ocean/Garden scenes are authored.
+            Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(
+                listOf(Color(0xFF527467), Color(0xFFDCE9DE), Color(0xFFF2EBD7))
+            )))
+        }
         Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(
-            listOf(Color(0xFFF8F1E3), Color(0xFFE2EBD9))
-        ))) {
-            Row(
-                Modifier.fillMaxSize().padding(start = 12.dp, end = 6.dp, top = 7.dp, bottom = 7.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(3.dp)
-            ) {
-                Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    if (!largeText) {
-                        Text("COLLECTION SPOTLIGHT", color = Gold, fontSize = 9.sp,
-                            fontWeight = FontWeight.Bold, letterSpacing = .7.sp,
-                            lineHeight = 12.sp)
-                    }
-                    Text("$chapter companions", color = NightForest,
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = if (largeText) 12.sp else 18.sp,
-                        lineHeight = if (largeText) 17.sp else 22.sp,
-                        maxLines = 2)
-                    if (!largeText) {
-                        Text(if (selectedDrawable == null) "Meet Fox and Owl"
-                            else "Featuring your chosen portrait",
-                            color = Forest.copy(alpha = .86f),
-                            fontSize = 10.sp, lineHeight = 14.sp)
-                    }
+            listOf(NightForest.copy(alpha = if (woodland) .68f else .42f),
+                NightForest.copy(alpha = .13f), Color.Transparent)
+        )))
+        Row(
+            Modifier.fillMaxSize().padding(start = 15.dp, end = 6.dp,
+                top = 12.dp, bottom = 7.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(4.dp)
+        ) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                Text("YOUR PUZZLE CORNER", color = OnForest, fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold, letterSpacing = 1.sp,
+                    lineHeight = 14.sp, maxLines = 2)
+                if (!largeText) {
+                    Text(companion, color = OnForest.copy(alpha = .95f),
+                        fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
+                        fontSize = 14.sp, lineHeight = 19.sp, maxLines = 3)
                 }
-                Box(Modifier.width(134.dp).fillMaxHeight(),
-                    contentAlignment = Alignment.BottomEnd) {
-                    if (selectedDrawable == null) {
-                        Image(painterResource(R.drawable.woodland_owl),
-                            contentDescription = null,
-                            contentScale = ContentScale.Fit,
-                            modifier = Modifier.align(Alignment.BottomStart)
-                                .size(73.dp).testTag("home_chapter_owl"))
-                    }
-                    Image(painterResource(featuredDrawable),
-                        contentDescription = null,
+            }
+            Box(Modifier.width(if (largeText) 110.dp else 155.dp).fillMaxHeight(),
+                contentAlignment = Alignment.BottomEnd) {
+                if (portraitDrawable == null) {
+                    Image(painterResource(R.drawable.woodland_owl), contentDescription = null,
                         contentScale = ContentScale.Fit,
-                        modifier = Modifier.align(Alignment.BottomEnd)
-                            .size(108.dp).testTag("home_chapter_featured"))
+                        modifier = Modifier.align(Alignment.BottomStart)
+                            .size(if (largeText) 56.dp else 80.dp)
+                            .testTag("home_chapter_owl"))
+                }
+                Box(Modifier.align(Alignment.BottomEnd)
+                    .size(if (largeText) 91.dp else 117.dp)
+                    .testTag("home_portrait_" + portraitId.ifBlank { "default_fox" }),
+                    contentAlignment = Alignment.Center) {
+                    Image(
+                        painterResource(portraitDrawable ?: R.drawable.woodland_fox),
+                        contentDescription = null, contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize().testTag("home_chapter_featured")
+                    )
                 }
             }
         }
