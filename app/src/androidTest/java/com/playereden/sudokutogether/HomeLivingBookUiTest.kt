@@ -40,6 +40,8 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("nav_play").assertIsSelected()
 
         compose.onNodeWithTag("home_mode_together").performScrollTo().performClick()
+        compose.onNodeWithTag("nearby_art_coop", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("nearby_art_image", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("Shared board").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Start a game").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Join a game").performScrollTo().assertIsDisplayed()
@@ -47,6 +49,8 @@ class HomeLivingBookUiTest {
 
         compose.onNodeWithTag("home_mode_versus").performScrollTo().performClick()
         compose.onNodeWithTag("nearby_setup").assertIsDisplayed()
+        compose.onNodeWithTag("nearby_art_versus", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("nearby_art_coop", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithText("Race to finish").assertIsDisplayed()
         compose.onNodeWithText("Start a race").performScrollTo().assertIsDisplayed()
         // Nearby is a dedicated setup screen; switching back restores the Daily card.
@@ -54,6 +58,27 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("home_mode_solo").performScrollTo().performClick()
         compose.onNodeWithTag("home_book_stage").assertIsDisplayed()
         compose.onNodeWithTag("daily_challenge").assertExists()
+    }
+
+    @Test fun illustratedNearbySetupRetainsAccessibleActionsAtLargeText() {
+        compose.setContent { SudokuTogetherTheme {
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, 2f)) {
+                Box(Modifier.width(320.dp).fillMaxHeight()) {
+                    SudokuApp(GameUiState(), polishActions(), {})
+                }
+            }
+        } }
+        compose.onNodeWithTag("home_mode_together").performScrollTo().performClick()
+        compose.onNodeWithTag("nearby_art_coop", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("Shared board").assertExists()
+        compose.onNodeWithTag("nearby_difficulty_MEDIUM").performScrollTo().assertExists()
+        compose.onNodeWithTag("require_code").performScrollTo().assertExists()
+        compose.onNodeWithText("Start a game").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Join a game").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("home_mode_versus").performScrollTo().performClick()
+        compose.onNodeWithTag("nearby_art_versus", useUnmergedTree = true).assertExists()
+        compose.onNodeWithText("Start a race").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Join a game").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun homeSpotlightShowsTheActuallySelectedCollectionPortrait() {
