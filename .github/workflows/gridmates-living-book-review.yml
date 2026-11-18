@@ -1,6 +1,6 @@
 name: GridMates Living Puzzle Book isolated owner review
 
-# One-time branch-only preview; NOT a production update.
+# Owner-review revision 2: preserve one-tap New puzzle and Continue; not a public update.
 # The only permitted release-package action is producing an isolated debug app.
 on:
   push:
