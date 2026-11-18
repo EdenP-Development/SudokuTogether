@@ -1,6 +1,6 @@
 name: GridMates Living Book Chapters isolated review
 
-# Owner-only chapter polish review v2: include delegated animation state import; never a public update.
+# Owner-only chapter polish review v3: retain accessible weekday labels and UI tests; not a public update.
 # The only permitted release-package action is producing an isolated debug app.
 on:
   push:
