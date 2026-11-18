@@ -48,7 +48,7 @@ import com.playereden.sudokutogether.core.SoloProgress
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             HomeHeader(state, help, profile, markStyle)
             (state.message ?: state.saveIssue)?.let { Notice(it) }
-            BookSoloStage(state, actions, savedSolo, active?.completed == true, freshSolo)
+            BookSoloStage(state, actions, savedSolo, active?.completed == true, freshSolo) { nearbyMode = null }
             DailyGameRibbon(state, actions, hasToday, dayDone,
                 recentDays.map { Triple(it.weekday, it.date, if (it.complete) 2 else if (it.inProgress) 1 else 0) })
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
@@ -72,9 +72,8 @@ import com.playereden.sudokutogether.core.SoloProgress
 @Composable private fun BookSoloStage(
     state: GameUiState, actions: GameActions,
     savedSolo: SoloProgress?, lastCompleted: Boolean,
-    freshSolo: () -> Unit
+    freshSolo: () -> Unit, selectSolo: () -> Unit
 ) {
-    var showNew by rememberSaveable { mutableStateOf(false) }
     val largeText = LocalDensity.current.fontScale > 1.3f
     Surface(Modifier.fillMaxWidth().testTag("home_book_stage"),
         color = NightForest, shape = RoundedCornerShape(23.dp),
@@ -85,41 +84,35 @@ import com.playereden.sudokutogether.core.SoloProgress
                 Text("YOUR SUDOKU BOOK", color = GoldTint, fontWeight = FontWeight.Bold,
                     letterSpacing = 1.4.sp, fontSize = 10.sp, lineHeight = 14.sp,
                     modifier = Modifier.weight(1f))
-                Text(if (savedSolo == null) "FRESH PAGE" else "BOOKMARKED",
-                    color = OnForest.copy(alpha = .72f), letterSpacing = .9.sp,
-                    fontSize = 9.sp, lineHeight = 13.sp)
+                TextButton(onClick = selectSolo, modifier = Modifier.heightIn(min = 44.dp)) {
+                    Text("Solo", color = GoldTint, fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold)
+                }
             }
             LivingBookIllustration(Modifier.fillMaxWidth().height(if (largeText) 110.dp else 132.dp))
-            Text(if (savedSolo == null) "A new page awaits" else "Your puzzle awaits",
+            Text(if (savedSolo == null) "Play Sudoku" else "Your puzzle awaits",
                 fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
                 fontSize = 24.sp, lineHeight = 28.sp, color = OnForest)
             if (savedSolo != null) {
                 val filled = savedSolo.puzzle.fillProgress(savedSolo.cells)
                 Text("${difficultyName(savedSolo.puzzle.difficulty)} · ${filled.label} · ${formatElapsed(savedSolo.elapsedMs)}",
                     color = OnForest.copy(alpha = .85f), fontSize = 12.sp, lineHeight = 16.sp)
-                GamePrimaryButton("Continue puzzle", { actions.solo(true) },
+                GamePrimaryButton("Continue", { actions.solo(true) },
                     enabled = !state.busy && !state.localSaveBlocked, light = true)
-                TextButton(onClick = { showNew = !showNew }, enabled = !state.busy,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
-                    Text(if (showNew) "Keep current puzzle" else "New puzzle",
-                        color = OnForest, fontWeight = FontWeight.SemiBold)
-                }
-                if (showNew) {
-                    Text("Choose a difficulty for your new puzzle",
-                        color = OnForest.copy(alpha = .8f), fontSize = 11.sp)
-                    BookDifficultyPicker(state, actions)
-                    OutlinedButton(freshSolo, enabled = !state.busy && !state.localSaveBlocked,
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                        border = BorderStroke(1.dp, OnForest),
-                        shape = RoundedCornerShape(14.dp)) {
-                        Text("Start new puzzle", color = OnForest)
-                    }
+                Text("New puzzle difficulty", color = OnForest.copy(alpha = .8f),
+                    fontSize = 11.sp)
+                BookDifficultyPicker(state, actions)
+                OutlinedButton(freshSolo, enabled = !state.busy && !state.localSaveBlocked,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                    border = BorderStroke(1.dp, OnForest),
+                    shape = RoundedCornerShape(14.dp)) {
+                    Text("New puzzle", color = OnForest)
                 }
             } else {
                 Text("Choose your difficulty", color = OnForest.copy(alpha = .84f),
                     fontSize = 11.sp, lineHeight = 15.sp)
                 BookDifficultyPicker(state, actions)
-                GamePrimaryButton("Play Sudoku", freshSolo,
+                GamePrimaryButton("New puzzle", freshSolo,
                     enabled = !state.busy && !state.localSaveBlocked, light = true)
                 if (lastCompleted && state.resumeSolo) {
                     TextButton(onClick = { actions.solo(true) }, enabled = !state.busy,
@@ -154,9 +147,10 @@ import com.playereden.sudokutogether.core.SoloProgress
                 Column(Modifier.weight(1f)) {
                     Text("Daily puzzle", color = Forest, fontWeight = FontWeight.Bold,
                         fontSize = 15.sp, lineHeight = 19.sp)
-                    Text((when { complete -> "Completed"; hasToday -> "In progress"; else -> "Ready" }) +
-                        " · ${state.todayDate} · Easy",
-                        color = Muted, fontSize = 10.sp, lineHeight = 15.sp)
+                    Text(when { complete -> "Completed"; hasToday -> "In progress"; else -> "Ready" },
+                        color = Muted, fontSize = 10.sp, lineHeight = 13.sp)
+                    Text("${state.todayDate} · Easy", color = Muted,
+                        fontSize = 9.sp, lineHeight = 12.sp)
                 }
                 GameIcon(if (complete) GameSymbol.CHECK else GameSymbol.RIGHT,
                     color = Forest, modifier = Modifier.size(20.dp))
