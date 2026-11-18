@@ -58,6 +58,9 @@ internal class BackupPreview internal constructor(
     val hasSolo get() = progress.activeSolo != null
     val dailyCount get() = progress.dailyProgress.size
     val recordCount get() = progress.records.size
+    /** Counts truly earned items, not the free starters; supports legacy backups inferred from records. */
+    val earnedCosmeticCount get() = Cosmetics.progressAll(progress.records, progress.ownedCosmeticIds)
+        .count { (_, item) -> item.unlocked && item.target > 0 }
 }
 
 @Serializable
