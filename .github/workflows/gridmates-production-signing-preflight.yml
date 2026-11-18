@@ -1,0 +1,187 @@
+name: GridMates Beta 2 production signer and private candidate
+
+# Runs once when merged to main, then manually for future release candidates.
+# The certificate-only gate runs first. Only a matching original key may
+# produce a PRIVATE signed candidate artifact; no public publishing occurs.
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/gridmates-production-signing-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gridmates-production-signer-preflight
+  cancel-in-progress: false
+
+jobs:
+  verify-original-production-signing-certificate:
+    name: Confirm original Beta 1 signer privately
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - name: Verify private keystore and original certificate fingerprint
+        env:
+          KEYSTORE_BASE64: ${{ secrets.SUDOKU_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.SUDOKU_KEYSTORE_PASSWORD }}
+          EXPECTED_CERT_SHA256: d362dab018a255ccb313582df1e3cf836246e7da1778a198eb1da03a7cfe7cd1
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          if [[ -z "${KEYSTORE_BASE64:-}" || -z "${KEYSTORE_PASSWORD:-}" ]]; then
+            echo 'BLOCKED: Original production signing secrets are not available to this workflow.'
+            echo 'Restore the existing signing backup privately in repository Actions secrets. NEVER generate a new key to update the public app.'
+            echo 'No APK built or public installation changed.' >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          private_dir=$(mktemp -d "$RUNNER_TEMP/gridmates-prod-signing-preflight.XXXXXXXX")
+          trap 'rm -rf "$private_dir"' EXIT
+          if ! printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$private_dir/original.jks" 2>/dev/null; then
+            echo 'BLOCKED: Existing signing backup is not decodable; no APK built.'
+            exit 1
+          fi
+          if ! cert_sha=$(keytool -exportcert -alias sudokutogether \
+              -storepass:env KEYSTORE_PASSWORD -keystore "$private_dir/original.jks" \
+              2>/dev/null | sha256sum | awk '{print $1}'); then
+            echo 'BLOCKED: Unable to open original signing alias with configured credentials.'
+            exit 1
+          fi
+          if [[ "$cert_sha" != "$EXPECTED_CERT_SHA256" ]]; then
+            echo 'BLOCKED: Certificate does NOT match the pinned original public Beta 1 signing identity.'
+            echo 'Do not uninstall existing games, change the public package, or use a replacement key.'
+            exit 1
+          fi
+          echo 'PASS: The original GridMates public signing identity is available and matches the pinned Beta 1 certificate.'
+          echo 'No private key, certificate bytes, passwords, APKs or AABs were uploaded.'
+          {
+            echo '### Original public signing identity verified'
+            echo 'Result: PASS — certificate matches the pinned Beta 1 release fingerprint.'
+            echo 'This only confirms signer availability. A production Beta 2 APK and real public install-over still require separate gated checks.'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  build-private-beta2-candidate:
+    name: Build and verify original-signed Beta 2 (private artifact only)
+    needs: verify-original-production-signing-certificate
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install declared Android 36 SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Prepare original production signing identity privately
+        env:
+          KEYSTORE_BASE64: ${{ secrets.SUDOKU_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.SUDOKU_KEYSTORE_PASSWORD }}
+          EXPECTED_CERT_SHA256: d362dab018a255ccb313582df1e3cf836246e7da1778a198eb1da03a7cfe7cd1
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          private_dir="$RUNNER_TEMP/gridmates-beta2-original-signing"
+          mkdir -p "$private_dir"
+          if [[ -z "${KEYSTORE_BASE64:-}" || -z "${KEYSTORE_PASSWORD:-}" ]]; then
+            echo 'BLOCKED: Production signing secrets are unavailable. No APK produced.'
+            exit 1
+          fi
+          if ! printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$private_dir/release.jks" 2>/dev/null; then
+            echo 'BLOCKED: Existing keystore backup is not decodable.'
+            exit 1
+          fi
+          if ! cert_sha=$(keytool -exportcert -alias sudokutogether \
+            -storepass:env KEYSTORE_PASSWORD -keystore "$private_dir/release.jks" \
+            2>/dev/null | sha256sum | awk '{print $1}'); then
+            echo 'BLOCKED: Existing signing key cannot be opened.'
+            exit 1
+          fi
+          if [[ "$cert_sha" != "$EXPECTED_CERT_SHA256" ]]; then
+            echo 'BLOCKED: Existing key does not match original Beta 1. No APK produced.'
+            exit 1
+          fi
+          {
+            printf 'storeFile=%s\n' "$private_dir/release.jks"
+            printf 'storePassword=%s\n' "$KEYSTORE_PASSWORD"
+            printf 'keyAlias=sudokutogether\n'
+            printf 'keyPassword=%s\n' "$KEYSTORE_PASSWORD"
+          } > "$private_dir/signing.properties"
+          chmod 600 "$private_dir/"*
+          echo "SUDOKU_SIGNING_FILE=$private_dir/signing.properties" >> "$GITHUB_ENV"
+          echo 'Original production signer prepared without exposing its bytes or password.'
+      - name: Compile, test and assemble signed release candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:assembleRelease --no-daemon --max-workers=2 --console=plain
+      - name: Verify APK identity, version and certificate and write receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          source_apk=app/build/outputs/apk/release/app-release.apk
+          apk=GridMates-Sudoku-Beta2-PRIVATE-CANDIDATE.apk
+          test -s "$source_apk"
+          cp "$source_apk" "$apk"
+          "$tools/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > signing-check.txt
+          signer=$(awk '/certificate SHA-256 digest:/ {print $NF}' signing-check.txt)
+          package_line=$("$tools/aapt" dump badging "$apk" | head -n 1)
+          package=$(sed -n "s/.*name='\\([^']*\\)'.*/\\1/p" <<< "$package_line")
+          code=$(sed -n "s/.*versionCode='\\([0-9]*\\)'.*/\\1/p" <<< "$package_line")
+          version=$(sed -n "s/.*versionName='\\([^']*\\)'.*/\\1/p" <<< "$package_line")
+          [[ "$package" == 'com.playereden.sudokutogether' ]] || { echo 'BLOCKED: wrong release package'; exit 1; }
+          [[ "$code" == '31' ]] || { echo 'BLOCKED: wrong Beta 2 versionCode'; exit 1; }
+          [[ "$version" == '1.0.0-beta.2' ]] || { echo 'BLOCKED: wrong Beta 2 versionName'; exit 1; }
+          [[ "$signer" == 'd362dab018a255ccb313582df1e3cf836246e7da1778a198eb1da03a7cfe7cd1' ]] || {
+            echo 'BLOCKED: original production signing fingerprint mismatch'; exit 1;
+          }
+          sha256sum "$apk" > "$apk.sha256"
+          export RELEASE_APK="$apk" RELEASE_PACKAGE="$package" RELEASE_CODE="$code" RELEASE_VERSION="$version" RELEASE_SIGNER="$signer"
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          apk = Path(os.environ['RELEASE_APK'])
+          receipt = {
+              'status': 'PRIVATE_CANDIDATE_NOT_PUBLISHED',
+              'source_commit': os.environ['GITHUB_SHA'],
+              'file_name': apk.name,
+              'sha256': hashlib.sha256(apk.read_bytes()).hexdigest(),
+              'size_bytes': apk.stat().st_size,
+              'application_id': os.environ['RELEASE_PACKAGE'],
+              'version_code': int(os.environ['RELEASE_CODE']),
+              'version_name': os.environ['RELEASE_VERSION'],
+              'public_signer_sha256': os.environ['RELEASE_SIGNER'],
+              'acceptance_remaining': ['actual_public_beta1_apk_install_over', 'owner_phone_visual_review', 'itch_publication_approval']
+          }
+          Path('GridMates-Sudoku-Beta2-PRIVATE-CANDIDATE.receipt.json').write_text(
+              json.dumps(receipt, indent=2) + '\n', encoding='utf-8'
+          )
+          PY
+          rm -f signing-check.txt
+          {
+            echo '### Private Beta 2 candidate verified'
+            echo 'Original release certificate, package and versionCode 31 all matched.'
+            echo 'No itch.io upload, Google Play submission, or user-device install performed.'
+            echo 'A signed public-Beta-1 → Beta-2 install-over rehearsal is still required.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload private verified release candidate and public metadata only
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-PRIVATE-CANDIDATE-${{ github.sha }}
+          path: |
+            GridMates-Sudoku-Beta2-PRIVATE-CANDIDATE.apk
+            GridMates-Sudoku-Beta2-PRIVATE-CANDIDATE.apk.sha256
+            GridMates-Sudoku-Beta2-PRIVATE-CANDIDATE.receipt.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Securely remove temporary signing files
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/gridmates-beta2-original-signing"
