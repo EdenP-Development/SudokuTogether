@@ -1,0 +1,144 @@
+name: GridMates Beta 1 to Beta 2 install-over rehearsal (temporary)
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/Beta1UpgradeSeederTest.kt'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/Beta2UpgradeVerifierTest.kt'
+      - '.github/workflows/gridmates-beta2-upgrade-rehearsal.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beta2-update-rehearsal
+  cancel-in-progress: true
+
+jobs:
+  install-over-and-preserve-progress:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Check out exact released Beta 1 code (not an APK)
+        uses: actions/checkout@v4
+        with:
+          ref: 76cbfc149569938b97286f3efe4ad44e08c5934f
+          path: beta1
+          persist-credentials: false
+      - name: Check out candidate Beta 2 source
+        uses: actions/checkout@v4
+        with:
+          path: beta2
+          persist-credentials: false
+      - name: Configure Android builder
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+          cache-dependency-path: |
+            beta1/**/*.gradle.kts
+            beta2/**/*.gradle.kts
+      - uses: android-actions/setup-android@v4
+      - name: Install SDK 36
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Build Beta 1 and Beta 2 with the same temporary runner debug key
+        run: |
+          set -euo pipefail
+          mkdir -p beta1/app/src/androidTest/java/com/playereden/sudokutogether
+          # OLD app source is untouched; a test-only seeder writes an actual
+          # Beta 1 profile using its original validated on-device store.
+          cp beta2/app/src/androidTest/java/com/playereden/sudokutogether/Beta1UpgradeSeederTest.kt beta1/app/src/androidTest/java/com/playereden/sudokutogether/
+          chmod +x beta1/gradlew beta2/gradlew
+          ( cd beta1 && ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon --max-workers=2 --console=plain )
+          ( cd beta2 && ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon --max-workers=2 --console=plain )
+      - name: Prove same package, same test signer and increasing versionCode
+        run: |
+          set -euo pipefail
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          old=beta1/app/build/outputs/apk/debug/app-debug.apk
+          new=beta2/app/build/outputs/apk/debug/app-debug.apk
+          test -s "$old" && test -s "$new"
+          for apk in "$old" "$new"; do
+            "$tools/apksigner" verify --min-sdk-version 26 --print-certs "$apk"
+          done
+          old_signer=$("$tools/apksigner" verify --print-certs "$old" | awk '/certificate SHA-256 digest:/ {print $NF}')
+          new_signer=$("$tools/apksigner" verify --print-certs "$new" | awk '/certificate SHA-256 digest:/ {print $NF}')
+          test -n "$old_signer" && test "$old_signer" = "$new_signer"
+          old_meta=$("$tools/aapt" dump badging "$old" | head -n 1)
+          new_meta=$("$tools/aapt" dump badging "$new" | head -n 1)
+          echo "$old_meta"
+          echo "$new_meta"
+          [[ "$old_meta" == *"name='com.playereden.sudokutogether.qa'"* ]]
+          [[ "$new_meta" == *"name='com.playereden.sudokutogether.qa'"* ]]
+          [[ "$old_meta" == *"versionCode='30'"* ]]
+          [[ "$new_meta" == *"versionCode='31'"* ]]
+          echo 'Both rehearsal APKs share this runner-only debug signer; this is NOT the public release certificate.'
+      - name: Prepare Android emulator acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Install Beta 1, seed real save, upgrade to Beta 2 and verify
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
+          disable-animations: true
+          script: |
+            set -euo pipefail
+            pkg=com.playereden.sudokutogether.qa
+            test_pkg=${pkg}.test
+            old=beta1/app/build/outputs/apk/debug/app-debug.apk
+            old_test=beta1/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+            new=beta2/app/build/outputs/apk/debug/app-debug.apk
+            new_test=beta2/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
+
+            adb install "$old"
+            adb install "$old_test"
+            adb shell am instrument -w -e class com.playereden.sudokutogether.Beta1UpgradeSeederTest \
+              "${test_pkg}/androidx.test.runner.AndroidJUnitRunner" | tee beta1-seed.txt
+            grep -Eq 'OK \(1 test\)' beta1-seed.txt
+            adb exec-out run-as "$pkg" cat files/local-player.json > beta1-before.json
+            python3 - <<'PY'
+            import json
+            with open("beta1-before.json", "rb") as stream:
+                d = json.load(stream)
+            assert "ownedCosmeticIds" not in d
+            assert len(d["records"]) == 5
+            assert len(d["dailyProgress"]) == 1
+            assert d["activeSolo"]["cells"][0]["notes"] == 4
+            PY
+            adb shell am start -W -n "$pkg/com.playereden.sudokutogether.MainActivity" | tee beta1-launch.txt
+            grep -q 'Status: ok' beta1-launch.txt
+            adb shell am force-stop "$pkg"
+
+            # This is an ACTUAL Android install-over: no uninstall or data clear.
+            adb install -r "$new"
+            adb exec-out run-as "$pkg" cat files/local-player.json > beta2-before-first-launch.json
+            cmp beta1-before.json beta2-before-first-launch.json
+            adb shell am start -W -n "$pkg/com.playereden.sudokutogether.MainActivity" | tee beta2-launch.txt
+            grep -q 'Status: ok' beta2-launch.txt
+            adb install -r "$new_test"
+            adb shell am instrument -w -e class com.playereden.sudokutogether.Beta2UpgradeVerifierTest \
+              "${test_pkg}/androidx.test.runner.AndroidJUnitRunner" | tee beta2-verify.txt
+            grep -Eq 'OK \(1 test\)' beta2-verify.txt
+            echo 'PASS: the exact Beta 1 source wrote the save; Android installed Beta 2 over it without resetting data; new runtime preserved identity, pencil marks, unfinished Daily, five records, settings and equipped earned cosmetics.'
+      - name: Record failure evidence only
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-TestOnly-Beta2-Upgrade-Failure
+          path: |
+            beta1-seed.txt
+            beta1-launch.txt
+            beta2-launch.txt
+            beta2-verify.txt
+            beta1/app/build/reports/androidTests/**
+            beta2/app/build/reports/androidTests/**
+          if-no-files-found: warn
+          retention-days: 3
