@@ -29,21 +29,27 @@ import androidx.compose.ui.unit.*
 ) {
     var mode by rememberSaveable { mutableStateOf("solo") }
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Column(Modifier.widthIn(max = 480.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+        Column(Modifier.widthIn(max = 480.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
             HomeHeader(state, help, profile, markStyle)
             (state.message ?: state.saveIssue)?.let { Notice(it) }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            HomeGameBanner(state.resumeSolo && state.profile.activeSolo?.completed == false)
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
                 listOf(Triple("solo", "Solo", GameSymbol.PERSON), Triple("together", "Co-op", GameSymbol.PEOPLE),
                     Triple("versus", "Versus", GameSymbol.TROPHY)).forEach { (id, label, symbol) ->
                     val chosen = mode == id
                     val fill by animateColorAsState(if (chosen) Forest else Paper, label = "mode color")
-                    Surface(onClick = { mode = id }, modifier = Modifier.weight(1f).heightIn(min = 68.dp)
-                        .semantics { selected = chosen }, shape = RoundedCornerShape(17.dp),
-                        color = fill, border = BorderStroke(1.dp, if (chosen) Forest else Rule)) {
-                        Column(Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                            GameIcon(symbol, if (chosen) OnForest else Forest, Modifier.size(20.dp))
+                    Surface(onClick = { mode = id }, modifier = Modifier.weight(1f).heightIn(min = 80.dp)
+                        .testTag("home_mode_$id").semantics { selected = chosen }, shape = RoundedCornerShape(18.dp),
+                        color = fill, border = BorderStroke(1.dp, if (chosen) Forest else Rule),
+                        shadowElevation = if (chosen) 3.dp else 0.dp) {
+                        Column(Modifier.padding(horizontal = 4.dp, vertical = 9.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                            Box(Modifier.size(34.dp).background(
+                                if (chosen) OnForest.copy(alpha = .15f) else GreenTint, CircleShape),
+                                contentAlignment = Alignment.Center) {
+                                GameIcon(symbol, if (chosen) OnForest else Forest, Modifier.size(21.dp))
+                            }
                             Text(label, color = if (chosen) OnForest else Forest, fontSize = 13.sp,
                                 lineHeight = 17.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
                         }
@@ -53,8 +59,21 @@ import androidx.compose.ui.unit.*
             val active = state.profile.activeSolo
             val savedSolo = active?.takeIf { mode == "solo" && state.resumeSolo && !it.completed }
             val unfinished = savedSolo != null
-            Surface(shape = RoundedCornerShape(25.dp), color = NightForest) {
-                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Surface(shape = RoundedCornerShape(25.dp), color = NightForest,
+                border = BorderStroke(1.dp, Forest), shadowElevation = 2.dp) {
+                Column(Modifier.fillMaxWidth().padding(17.dp), verticalArrangement = Arrangement.spacedBy(9.dp)) {
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                        Text(if (mode == "solo") "A MOMENT TO YOURSELF"
+                            else if (mode == "together") "A PUZZLE TO SHARE" else "A FRIENDLY CHALLENGE",
+                            color = GoldTint, fontSize = 10.sp, lineHeight = 14.sp,
+                            letterSpacing = 1.2.sp, fontWeight = FontWeight.Bold,
+                            modifier = Modifier.weight(1f))
+                        GameIcon(when (mode) {
+                            "together" -> GameSymbol.PEOPLE
+                            "versus" -> GameSymbol.TROPHY
+                            else -> GameSymbol.GRID
+                        }, OnForest.copy(alpha = .75f), Modifier.size(23.dp))
+                    }
                     Text(when {
                         unfinished -> "Your puzzle"
                         mode == "together" -> "Shared board"
@@ -69,10 +88,13 @@ import androidx.compose.ui.unit.*
                             color = OnForest.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
                         GamePrimaryButton("Continue", { actions.solo(true) },
                             !state.busy && !state.localSaveBlocked, light = true)
-                        Text("New puzzle difficulty", color = OnForest.copy(alpha = .8f),
+                        Text("Start another puzzle", color = OnForest.copy(alpha = .8f),
                             style = MaterialTheme.typography.bodyMedium)
-                    } else if (mode != "solo") Text(if (mode == "together") "Same Wi-Fi" else "Private boards · Same Wi-Fi",
-                        color = OnForest.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
+                    } else Text(when (mode) {
+                        "together" -> "Solve the same board · Same Wi-Fi"
+                        "versus" -> "Race on separate boards · Same Wi-Fi"
+                        else -> "A classic grid, at your own pace."
+                    }, color = OnForest.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
                     DifficultyPicker(state, actions)
                     if (mode != "solo") Row(Modifier.fillMaxWidth().heightIn(min = 48.dp)
                         .toggleable(state.requireRoomCode, enabled = !state.busy, role = Role.Switch, onValueChange = actions.requireRoomCode)
