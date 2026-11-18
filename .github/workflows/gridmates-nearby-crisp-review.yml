@@ -1,6 +1,7 @@
 name: GridMates Crisp Nearby V2 isolated review
 
 # Owner-only sharp vector multiplayer scenes; never a public Beta2 update.
+# Review revision: narrow motif placement to protect title legibility.
 # The only permitted release-package action is producing an isolated debug app.
 on:
   push:
