@@ -36,8 +36,13 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("require_code").performScrollTo().assertExists()
 
         compose.onNodeWithTag("home_mode_versus").performScrollTo().performClick()
-        compose.onNodeWithText("Race to finish").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("nearby_setup").assertIsDisplayed()
+        compose.onNodeWithText("Race to finish").assertIsDisplayed()
         compose.onNodeWithText("Start a race").performScrollTo().assertIsDisplayed()
+        // Nearby is a dedicated setup screen; switching back restores the Daily card.
+        compose.onNodeWithTag("daily_challenge").assertDoesNotExist()
+        compose.onNodeWithTag("home_mode_solo").performScrollTo().performClick()
+        compose.onNodeWithTag("home_book_stage").assertIsDisplayed()
         compose.onNodeWithTag("daily_challenge").assertExists()
     }
 
