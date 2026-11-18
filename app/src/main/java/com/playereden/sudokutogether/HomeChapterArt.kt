@@ -83,15 +83,16 @@ import com.playereden.sudokutogether.core.Appearance
                             .size(if (largeText) 56.dp else 80.dp)
                             .testTag("home_chapter_owl"))
                 }
-                Image(
-                    painterResource(portraitDrawable ?: R.drawable.woodland_fox),
-                    contentDescription = null,
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                        .size(if (largeText) 91.dp else 117.dp)
-                        .testTag("home_chapter_featured")
-                        .testTag("home_portrait_" + (portraitId.ifBlank { "default_fox" }))
-                )
+                Box(Modifier.align(Alignment.BottomEnd)
+                    .size(if (largeText) 91.dp else 117.dp)
+                    .testTag("home_portrait_" + portraitId.ifBlank { "default_fox" }),
+                    contentAlignment = Alignment.Center) {
+                    Image(
+                        painterResource(portraitDrawable ?: R.drawable.woodland_fox),
+                        contentDescription = null, contentScale = ContentScale.Fit,
+                        modifier = Modifier.fillMaxSize().testTag("home_chapter_featured")
+                    )
+                }
             }
         }
     }
