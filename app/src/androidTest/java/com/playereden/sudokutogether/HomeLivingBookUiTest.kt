@@ -41,13 +41,18 @@ class HomeLivingBookUiTest {
 
         compose.onNodeWithTag("home_mode_together").performScrollTo().performClick()
         compose.onNodeWithText("Shared board").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("nearby_mode_scene").assertIsDisplayed()
+        compose.onNodeWithTag("nearby_woodland_backdrop", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("nearby_mode_character", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("Start a game").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Join a game").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithTag("require_code").performScrollTo().assertExists()
+        compose.onNodeWithTag("require_code").performScrollTo().assertIsOff()
 
         compose.onNodeWithTag("home_mode_versus").performScrollTo().performClick()
         compose.onNodeWithTag("nearby_setup").assertIsDisplayed()
         compose.onNodeWithText("Race to finish").assertIsDisplayed()
+        compose.onNodeWithTag("nearby_mode_scene").assertIsDisplayed()
+        compose.onNodeWithTag("nearby_mode_character", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("Start a race").performScrollTo().assertIsDisplayed()
         // Nearby is a dedicated setup screen; switching back restores the Daily card.
         compose.onNodeWithTag("daily_challenge").assertDoesNotExist()
@@ -69,6 +74,23 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("home_chapter_owl", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithTag("home_chapter_featured", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("daily_challenge").assertExists()
+    }
+
+    @Test fun nearbyModeSceneDoesNotHideRoomControlsAtLargeText() {
+        compose.setContent { SudokuTogetherTheme {
+            CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, 2f)) {
+                Box(Modifier.width(320.dp).fillMaxHeight()) {
+                    SudokuApp(GameUiState(), polishActions(), {})
+                }
+            }
+        } }
+        compose.onNodeWithTag("home_mode_together").performScrollTo().performClick()
+        compose.onNodeWithTag("nearby_mode_scene").assertIsDisplayed()
+        compose.onNodeWithText("Shared board").assertIsDisplayed()
+        compose.onNodeWithTag("nearby_difficulty_EASY").performScrollTo().assertExists()
+        compose.onNodeWithTag("require_code").performScrollTo().assertExists()
+        compose.onNodeWithText("Start a game").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Join a game").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun bookMainActionStaysReadableOnNarrowLargeTextPhones() {

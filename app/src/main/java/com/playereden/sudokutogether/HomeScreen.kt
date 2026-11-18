@@ -255,13 +255,12 @@ import com.playereden.sudokutogether.core.SoloProgress
 ) {
     Column(Modifier.fillMaxWidth().testTag("nearby_setup").animateContentSize()
         .background(GreenTint, RoundedCornerShape(18.dp))
-        .border(1.dp, Rule, RoundedCornerShape(18.dp))
-        .padding(13.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text(if (mode == "together") "Shared board" else "Race to finish",
-            color = Forest, fontFamily = FontFamily.Serif,
-            fontWeight = FontWeight.SemiBold, fontSize = 23.sp)
-        Text(if (mode == "together") "Solve one puzzle together · Same Wi-Fi"
-            else "Race on separate boards · Same Wi-Fi", color = Muted, fontSize = 12.sp)
+        .border(1.dp, Rule, RoundedCornerShape(18.dp)),
+        verticalArrangement = Arrangement.spacedBy(0.dp)) {
+        NearbyModeScene(mode, state.appearance,
+            Modifier.fillMaxWidth().height(if (LocalDensity.current.fontScale > 1.3f) 156.dp else 136.dp))
+        Column(Modifier.fillMaxWidth().padding(13.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("New game difficulty", color = Muted, fontSize = 11.sp)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
             listOf("EASY", "MEDIUM", "HARD").forEach { id ->
@@ -295,10 +294,10 @@ import com.playereden.sudokutogether.core.SoloProgress
                     checkedThumbColor = OnForest,
                     checkedTrackColor = Forest,
                     checkedBorderColor = Forest,
-                    uncheckedThumbColor = Paper,
-                    uncheckedTrackColor = Forest.copy(alpha = .46f),
-                    uncheckedBorderColor = Forest.copy(alpha = .75f),
-                    disabledUncheckedThumbColor = Paper.copy(alpha = .68f),
+                    uncheckedThumbColor = Forest,
+                    uncheckedTrackColor = Color(0xFFF1F5EF),
+                    uncheckedBorderColor = Muted.copy(alpha = .65f),
+                    disabledUncheckedThumbColor = Forest.copy(alpha = .43f),
                     disabledUncheckedTrackColor = Muted.copy(alpha = .2f)
                 )
             )
@@ -318,6 +317,7 @@ import com.playereden.sudokutogether.core.SoloProgress
             GamePrimaryButton("Start a race", freshRace, !state.busy)
             OutlinedButton({ actions.showJoin(false) }, enabled = !state.busy,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Join a game") }
+        }
         }
     }
 }
