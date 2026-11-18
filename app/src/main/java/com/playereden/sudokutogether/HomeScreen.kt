@@ -87,52 +87,53 @@ import com.playereden.sudokutogether.core.SoloProgress
     freshSolo: () -> Unit
 ) {
     val largeText = LocalDensity.current.fontScale > 1.3f
+    // One continuous illustrated game stage, instead of a dark panel
+    // containing an unrelated character-card illustration.
     Surface(Modifier.fillMaxWidth().testTag("home_book_stage"),
-        color = NightForest, shape = RoundedCornerShape(23.dp),
-        border = BorderStroke(1.dp, Gold.copy(alpha = .55f)), shadowElevation = 4.dp) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 11.dp),
-            verticalArrangement = Arrangement.spacedBy(7.dp)) {
-            // Solo is already the selected mode on this screen. Removing the
-            // no-op "Solo" control prioritizes the actual game action + Daily.
-            Text("YOUR SUDOKU BOOK", color = GoldTint, fontWeight = FontWeight.Bold,
-                letterSpacing = 1.2.sp, fontSize = 10.sp, lineHeight = 14.sp)
-            HomeChapterArt(state.appearance, Modifier.fillMaxWidth().height(if (largeText) 112.dp else 130.dp))
-            Text(if (savedSolo == null) "Play Sudoku" else "Your puzzle awaits",
-                fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
-                modifier = Modifier.fillMaxWidth(),
-                fontSize = if (largeText) 16.sp else 24.sp,
-                lineHeight = if (largeText) 32.sp else 28.sp,
-                softWrap = true, maxLines = 3, color = OnForest)
-            if (savedSolo != null) {
-                val filled = savedSolo.puzzle.fillProgress(savedSolo.cells)
-                Text("${difficultyName(savedSolo.puzzle.difficulty)} · ${filled.label} · ${formatElapsed(savedSolo.elapsedMs)}",
-                    color = OnForest.copy(alpha = .85f), fontSize = 12.sp, lineHeight = 16.sp)
-                GamePrimaryButton("Continue", { actions.solo(true) },
-                    enabled = !state.busy && !state.localSaveBlocked, light = true)
-                Text("New puzzle difficulty", color = OnForest.copy(alpha = .8f),
-                    fontSize = 11.sp)
-                BookDifficultyPicker(state, actions)
-                OutlinedButton(freshSolo, enabled = !state.busy && !state.localSaveBlocked,
-                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
-                    border = BorderStroke(1.dp, OnForest),
-                    shape = RoundedCornerShape(14.dp)) {
-                    Text("New puzzle", color = OnForest)
-                }
-            } else {
-                Text("Choose your difficulty", color = OnForest.copy(alpha = .84f),
-                    fontSize = 11.sp, lineHeight = 15.sp)
-                BookDifficultyPicker(state, actions)
-                GamePrimaryButton("New puzzle", freshSolo,
-                    enabled = !state.busy && !state.localSaveBlocked, light = true)
-                if (lastCompleted && state.resumeSolo) {
-                    TextButton(onClick = { actions.solo(true) }, enabled = !state.busy,
-                        modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
-                        Text("Review last puzzle", color = OnForest)
+        color = Paper, shape = RoundedCornerShape(21.dp),
+        border = BorderStroke(1.dp, Gold.copy(alpha = .38f)),
+        shadowElevation = 2.dp) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(0.dp)) {
+            HomeChapterArt(state.appearance,
+                Modifier.fillMaxWidth().height(if (largeText) 112.dp else 153.dp))
+            Column(Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(if (savedSolo == null) "Play Sudoku" else "Your puzzle awaits",
+                    fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
+                    modifier = Modifier.fillMaxWidth(),
+                    fontSize = if (largeText) 16.sp else 24.sp,
+                    lineHeight = if (largeText) 26.sp else 28.sp,
+                    softWrap = true, maxLines = 3, color = Forest)
+                if (savedSolo != null) {
+                    val filled = savedSolo.puzzle.fillProgress(savedSolo.cells)
+                    Text("${difficultyName(savedSolo.puzzle.difficulty)} · ${filled.label} · ${formatElapsed(savedSolo.elapsedMs)}",
+                        color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
+                    GamePrimaryButton("Continue", { actions.solo(true) },
+                        enabled = !state.busy && !state.localSaveBlocked)
+                    Text("New puzzle difficulty", color = Muted, fontSize = 11.sp)
+                    BookDifficultyPicker(state, actions)
+                    OutlinedButton(freshSolo, enabled = !state.busy && !state.localSaveBlocked,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                        border = BorderStroke(1.dp, Forest),
+                        shape = RoundedCornerShape(13.dp)) {
+                        Text("New puzzle", color = Forest)
+                    }
+                } else {
+                    Text("Choose your difficulty", color = Muted,
+                        fontSize = 11.sp, lineHeight = 15.sp)
+                    BookDifficultyPicker(state, actions)
+                    GamePrimaryButton("New puzzle", freshSolo,
+                        enabled = !state.busy && !state.localSaveBlocked)
+                    if (lastCompleted && state.resumeSolo) {
+                        TextButton(onClick = { actions.solo(true) }, enabled = !state.busy,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
+                            Text("Review last puzzle", color = Forest)
+                        }
                     }
                 }
+                if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth(),
+                    color = Forest, trackColor = Rule)
             }
-            if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth(),
-                color = GoldTint, trackColor = OnForest.copy(alpha = .2f))
         }
     }
 }
@@ -372,11 +373,11 @@ import com.playereden.sudokutogether.core.SoloProgress
                     .semantics { selected = chosen; contentDescription = difficultyName(id) + " difficulty for new games" },
                 shape = RoundedCornerShape(11.dp),
                 contentPadding = PaddingValues(horizontal = 3.dp, vertical = 9.dp),
-                border = BorderStroke(1.dp, if (chosen) GoldTint else OnForest.copy(alpha = .45f)),
+                border = BorderStroke(if (chosen) 1.5.dp else 1.dp, if (chosen) Forest else Rule),
                 colors = ButtonDefaults.outlinedButtonColors(
-                    containerColor = if (chosen) OnForest.copy(alpha = .18f) else Color.Transparent,
-                    contentColor = OnForest)) {
-                Text(difficultyName(id), color = OnForest, fontSize = 12.sp,
+                    containerColor = if (chosen) GreenTint else Color.Transparent,
+                    contentColor = Forest)) {
+                Text(difficultyName(id), color = Forest, fontSize = 12.sp,
                     fontWeight = if (chosen) FontWeight.Bold else FontWeight.Normal)
             }
         }
