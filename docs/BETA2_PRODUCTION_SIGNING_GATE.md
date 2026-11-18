@@ -21,13 +21,13 @@
 - Computes the public certificate SHA-256 and compares with the pinned Beta 1 fingerprint; logs only a PASS or generic BLOCKED message.
 - Deletes the temporary private keystore at job exit.
 
-**Job 2 — private release candidate only after Job 1 passes:**
+**Job 2 — optional unpublished release candidate, only on explicit manual opt-in and after Job 1 passes:**
 - Reconstructs the same original signer privately and verifies its public certificate again.
 - Builds and tests the exact `main` release source using core JVM tests, app unit tests, lint and Gradle `assembleRelease`.
 - Verifies the actual APK independently with `apksigner` and `aapt`: original public package, versionCode 31, versionName `1.0.0-beta.2`, original public signing certificate and minimum Android API 26 verification.
 - Generates an SHA-256 file and non-secret JSON receipt pinning source commit, package, signer, version and APK checksum.
-- Uploads only the **private APK candidate plus receipt/checksum** to GitHub Actions with 14-day artifact retention. **Never** uploads private keys, decoded keystore, signing properties or user progress. Signing files are cleaned up afterward.
-- It does **not** visit or publish to itch.io, alter a user's installed game, upload a Google Play AAB, or demonstrate that the *actual itch-downloaded Beta 1 APK* can be updated.
+- Uploads the **unpublished APK candidate plus receipt/checksum** to GitHub Actions for 14 days **only** if the manual `upload_candidate_to_public_actions` option is explicitly enabled. This repository is public: anyone with repository read access may download these artifacts. They are *not private*. **Never** uploads private keys, decoded keystore, signing properties or user progress. Signing files are cleaned up afterward.
+- It does **not** visit or publish to itch.io, alter a user's installed game, upload a Google Play AAB, or demonstrate that the *actual itch-downloaded Beta 1 APK* can be updated. The automatic `main` workflow runs and default manual runs are certificate-check-only; no candidate job runs or artifact is uploaded without deliberate manual opt-in.
 
 ## Decisions after the workflow
 
@@ -35,8 +35,8 @@
 |---|---|
 | **Preflight blocked — secrets absent** | Recover the **original** Beta 1 signing keystore from its secure private backup and configure the existing GitHub repository secret names. Never generate a substitute key to update existing app installations. Do not ask the owner to paste signing secrets in chat. |
 | **Preflight blocked — fingerprint mismatch** | Stop. Investigate the original production signing identity privately. No replacement certificate will update the installed public Beta 1. |
-| **Preflight PASS, candidate build failure** | Investigate build/test/Gradle or APK verification logs; **no artifact should be considered approved** until all candidate checks pass. |
-| **Candidate PASS** | Record source SHA, signer and checksum; download the actual old itch.io APK, compare hash and certificate, then use a non-critical test installation with an exported progress backup to rehearse the **production-signed** Android install-over without uninstalling. Only afterward proceed to final real-phone UX, approved privacy/support information and itch.io publication. |
+| **Preflight PASS, candidate build failure** | After deliberate upload opt-in, investigate build/test/Gradle or APK verification logs; **no artifact should be considered approved** until all candidate checks pass. |
+| **Candidate PASS** | Record source SHA, signer and checksum; download the actual old itch.io APK, compare hash and certificate, then use a non-critical test installation with an exported progress backup to rehearse the **production-signed** Android install-over without uninstalling. Treat the GitHub artifact as publicly readable, even though it is not an approved itch release. Only afterward proceed to final real-phone UX, approved privacy/support information and itch.io publication. |
 
 ## Safe handling and non-negotiable release boundary
 
@@ -56,7 +56,7 @@ The [Beta 2 itch listing draft](GRIDMATES_ITCH_BETA2_LISTING_DRAFT.md) is unpubl
 
 1. Find the **original Beta 1 production keystore** and its password in a private backup, password manager, trusted build-machine backup or other secure custody. The public Beta 1 APK exposes a *public certificate*, not the private signing key; the APK cannot be used to regenerate that private key.
 2. In GitHub repository Settings → Secrets and variables → Actions, check the repository's access to `SUDOKU_KEYSTORE_BASE64` (base64 encoding of the **original** keystore file) and `SUDOKU_KEYSTORE_PASSWORD` (its original password). These need to be restored securely on the repository, not posted in issues, commits, chat, screenshots or a public website. The keystore alias expected by the existing production build is `sudokutogether`.
-3. Use the Actions tab to manually run `GridMates Beta 2 production signer and private candidate` against `main` after restoration. The first job will verify the certificate against the pinned original SHA-256; only an exact match permits a private candidate build.
+3. Use the Actions tab to manually run `GridMates Beta 2 production signer and optional candidate` against `main` after restoration. First run with `upload_candidate_to_public_actions` **off** for the certificate-only test. Switch it **on** only when an unpublished signed APK may be accessible to public repository readers. The first job verifies the original SHA-256; only an exact match permits a candidate build.
 4. If the original keystore truly cannot be recovered, **stop promising an install-over update**. Do not create a replacement signing key for the same-package public upgrade. Evaluate a separately packaged new app and explicit export/restore migration as a last resort; that changes the update experience and needs the owner's decision and testing. Never uninstall the existing app to make an incompatible APK install.
 
 **Who can resolve this:** The signing-key custodian or authorized repo administrator who can access the private backup and manage Actions secrets. This ChatGPT GitHub connection cannot inspect or set those secrets, and their actual values should never be provided in this conversation.
