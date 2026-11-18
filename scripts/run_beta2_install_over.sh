@@ -15,7 +15,7 @@ adb install "$old"
 adb install "$old_test"
 adb shell am instrument -w -e class com.playereden.sudokutogether.Beta1UpgradeSeederTest \
   "$test_pkg/androidx.test.runner.AndroidJUnitRunner" | tee beta1-seed.txt
-grep -Eq 'OK \\(1 test\\)' beta1-seed.txt
+grep -Fq 'OK (1 test)' beta1-seed.txt
 adb exec-out run-as "$pkg" cat files/local-player.json > beta1-before.json
 python3 - <<'PY'
 import json
@@ -41,7 +41,7 @@ grep -q 'Status: ok' beta2-launch.txt
 adb install -r "$new_test"
 adb shell am instrument -w -e class com.playereden.sudokutogether.Beta2UpgradeVerifierTest \
   "$test_pkg/androidx.test.runner.AndroidJUnitRunner" | tee beta2-verify.txt
-grep -Eq 'OK \\(1 test\\)' beta2-verify.txt
+grep -Fq 'OK (1 test)' beta2-verify.txt
 
 echo 'PASS: source-backed Beta 1 to Beta 2 install-over preserved local Solo, Daily, Notes, records and earned cosmetics.'
 echo 'TEST SIGNER ONLY: the public app still requires the original production certificate.'
