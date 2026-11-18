@@ -183,7 +183,8 @@ import com.playereden.sudokutogether.core.SoloProgress
                         horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         recentDays.forEach { (weekday, date, status) ->
                             Column(Modifier.clearAndSetSemantics {
-                                contentDescription = "$date: " + when(status) {
+                                testTag = "daily_weekday_${weekday.take(2)}"
+                                    contentDescription = "${weekday.take(2)}, $date: " + when(status) {
                                     2 -> "completed"; 1 -> "in progress"; else -> "not completed"
                                 }
                             }, horizontalAlignment = Alignment.CenterHorizontally) {
