@@ -183,12 +183,13 @@ import com.playereden.sudokutogether.core.SoloProgress
                         horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                         recentDays.forEach { (weekday, date, status) ->
                             Column(Modifier.clearAndSetSemantics {
-                                contentDescription = "$date: " + when(status) {
+                                testTag = "daily_weekday_${weekday.take(2)}"
+                                    contentDescription = "${weekday.take(2)}, $date: " + when(status) {
                                     2 -> "completed"; 1 -> "in progress"; else -> "not completed"
                                 }
                             }, horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(weekday.take(1), color = Muted, fontSize = 9.sp, lineHeight = 11.sp)
-                                Box(Modifier.size(14.dp).background(
+                                Text(weekday.take(2), color = Muted, fontSize = 9.sp, lineHeight = 12.sp)
+                                Box(Modifier.size(16.dp).background(
                                     when (status) { 2 -> Forest; 1 -> AmberLight; else -> Paper },
                                     CircleShape), contentAlignment = Alignment.Center) {
                                     if (status == 2) GameIcon(GameSymbol.CHECK, OnForest, Modifier.size(10.dp))

@@ -28,6 +28,11 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("difficulty_EASY").assertExists()
         compose.onNodeWithTag("daily_challenge").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("daily_seven_day_history", useUnmergedTree=true).assertExists()
+        // Distinguish Tuesday/Thursday and Saturday/Sunday in the ritual row.
+        compose.onNodeWithTag("daily_weekday_Tu", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("daily_weekday_Th", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("nav_book_binding", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("nav_play").assertIsSelected()
 
         compose.onNodeWithTag("home_mode_together").performScrollTo().performClick()
         compose.onNodeWithText("Shared board").performScrollTo().assertIsDisplayed()

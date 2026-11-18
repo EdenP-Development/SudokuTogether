@@ -127,7 +127,8 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     Surface(onClick = { stylePreviewOpen = true }, modifier = Modifier.fillMaxWidth()
         .testTag("collection_current_style_preview")
         .semantics { contentDescription = "Preview equipped style" },
-        color = GreenTint, shape = RoundedCornerShape(18.dp), border = BorderStroke(1.dp, Rule)) {
+        color = GreenTint, shape = RoundedCornerShape(18.dp),
+        border = BorderStroke(1.dp, Gold.copy(alpha = .28f)), shadowElevation = 1.dp) {
         Row(Modifier.heightIn(min = 82.dp).padding(horizontal = 12.dp, vertical = 10.dp),
             verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
             when (category) {
@@ -169,7 +170,9 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     }
     val (available, locked) = items.partition { it.isEquipped(look) || progress.getValue(it.id).unlocked }
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Eyebrow("YOUR ALBUM", Gold)
         SectionTitle("${available.size} of ${items.size} available")
+        MilestoneTrack(available.size, items.size)
         CosmeticGrid(available.sortedByDescending { it.isEquipped(look) }, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
     }
     if (locked.isNotEmpty()) {
@@ -201,7 +204,16 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                     }
                 }
             }
-            CosmeticGrid(locked, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
+            if (category == CollectionCategory.ICONS && family == IconFamily.ALL) {
+                // Original catalog stays fully available. Distinct illustrated
+                // album chapters replace one uninterrupted wall of locked cards.
+                locked.groupBy { it.family }.entries.forEachIndexed { chapterIndex, (chapter, chapterItems) ->
+                    CollectionChapterHeading(chapter?.label ?: "Basic", chapterIndex + 1)
+                    CosmeticGrid(chapterItems, progress, look, !state.busy, iconGallery = true, open = open)
+                }
+            } else {
+                CosmeticGrid(locked, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
+            }
         }
     }
     if (stylePreviewOpen) {
@@ -220,6 +232,22 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
             previewId = null
             scope.launch { scroll.animateScrollTo(0) }
         })
+    }
+}
+
+/** Lightweight album section divider; never changes unlock order or identity. */
+@Composable private fun CollectionChapterHeading(name: String, index: Int) {
+    Row(Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 2.dp)
+        .testTag("collection_chapter_$index"),
+        horizontalArrangement = Arrangement.spacedBy(9.dp),
+        verticalAlignment = Alignment.CenterVertically) {
+        Text("CHAPTER " + index.toString().padStart(2, '0'),
+            color = Gold, fontSize = 9.sp, fontWeight = FontWeight.Bold,
+            letterSpacing = .8.sp)
+        Text("$name collection", color = Forest, fontFamily = FontFamily.Serif,
+            fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+        HorizontalDivider(Modifier.weight(1f), thickness = 1.dp,
+            color = Gold.copy(alpha = .28f))
     }
 }
 
