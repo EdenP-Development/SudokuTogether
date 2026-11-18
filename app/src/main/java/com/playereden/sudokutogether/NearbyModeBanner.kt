@@ -30,8 +30,10 @@ import androidx.compose.ui.unit.*
 @Composable internal fun NearbyModeBanner(mode: String, modifier: Modifier = Modifier) {
     val together = mode == "together"
     val largeText = LocalDensity.current.fontScale > 1.3f
-    val backdrop = if (together) R.drawable.gm_mode_coop_scene_v1
-        else R.drawable.gm_mode_versus_scene_v1
+    // Share the exact scenic artwork used on Home; the mode symbols are authored
+    // Android vector assets, not tiny compressed AI-painted screenshots.
+    val motif = if (together) R.drawable.gm_mode_coop_symbol_v2
+        else R.drawable.gm_mode_versus_symbol_v2
     val eyebrow = if (together) "PLAY TOGETHER" else "FRIENDLY COMPETITION"
     val heading = if (together) "Shared board" else "Race to finish"
 
@@ -39,15 +41,25 @@ import androidx.compose.ui.unit.*
         .clip(RoundedCornerShape(topStart = 19.dp, topEnd = 19.dp))
         .testTag(if (together) "nearby_art_coop" else "nearby_art_versus")) {
         Image(
-            painter = painterResource(backdrop),
+            painter = painterResource(R.drawable.gm_home_chapter_woodland_v1),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize().testTag("nearby_art_image")
         )
-        // Contrast protection across aspect ratios and accessibility fonts.
+        Image(
+            painter = painterResource(motif),
+            contentDescription = null,
+            contentScale = ContentScale.Fit,
+            modifier = Modifier.align(Alignment.CenterEnd)
+                .width(if (largeText) 192.dp else 234.dp)
+                .fillMaxHeight()
+                .padding(end = 5.dp, top = 6.dp, bottom = 6.dp)
+                .testTag("nearby_art_motif")
+        )
+        // Native text stays readable; none of its words are baked into art.
         Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(
-            0f to NightForest.copy(alpha = .78f),
-            .56f to NightForest.copy(alpha = .36f),
+            0f to NightForest.copy(alpha = .83f),
+            .50f to NightForest.copy(alpha = .30f),
             1f to Color.Transparent
         )))
         Column(Modifier.fillMaxHeight().fillMaxWidth(.62f)
