@@ -7,14 +7,14 @@ on:
     branches:
       - preview/home-gamefront-owner
     paths:
-      - .github/workflows/gridmates-beta2-owner-preview.yml
+      - .github/workflows/gridmates-home-gamefront-review.yml
 
 permissions:
   contents: read
 
 jobs:
   build-isolated-preview:
-    name: Build, verify and smoke-test safe Beta 2 side-by-side preview
+    name: Build and test isolated Home gamefront review
     runs-on: ubuntu-latest
     timeout-minutes: 42
     steps:
