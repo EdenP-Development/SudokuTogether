@@ -141,10 +141,14 @@ jobs:
           cp "$source_apk" "$apk"
           "$tools/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > signing-check.txt
           signer=$(awk '/certificate SHA-256 digest:/ {print $NF}' signing-check.txt)
-          package_line=$("$tools/aapt" dump badging "$apk" | head -n 1)
+          # Read all aapt output before choosing the package line. Piping to
+          # head can return SIGPIPE under set -o pipefail and abort valid builds.
+          badging=$("$tools/aapt" dump badging "$apk")
+          package_line=$(printf '%s\n' "$badging" | sed -n '1p')
           package=$(sed -n "s/.*name='\\([^']*\\)'.*/\\1/p" <<< "$package_line")
           code=$(sed -n "s/.*versionCode='\\([0-9]*\\)'.*/\\1/p" <<< "$package_line")
           version=$(sed -n "s/.*versionName='\\([^']*\\)'.*/\\1/p" <<< "$package_line")
+          echo "Inspected package=$package versionCode=$code versionName=$version"
           [[ "$package" == 'com.playereden.sudokutogether' ]] || { echo 'BLOCKED: wrong release package'; exit 1; }
           [[ "$code" == '31' ]] || { echo 'BLOCKED: wrong Beta 2 versionCode'; exit 1; }
           [[ "$version" == '1.0.0-beta.2' ]] || { echo 'BLOCKED: wrong Beta 2 versionName'; exit 1; }
