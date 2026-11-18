@@ -1,14 +1,9 @@
-name: GridMates release upgrade rehearsal (manual, test signer)
+name: GridMates Beta 1 to Beta 2 update rehearsal (manual test signer)
 
-# Release fixture relocation validation: pull_request temporarily enables the
-# focused run. Switch back to workflow_dispatch after passing QA.
+# Manually run this before the Beta 2 public candidate is signed/published.
+# Uses only a temporary runner debug certificate and a fresh emulator.
+# Beta 1 source is pinned; change the pinned baseline deliberately for later releases.
 on:
-  pull_request:
-    branches: [main]
-    paths:
-      - 'scripts/upgrade-fixtures/**'
-      - 'scripts/run_beta2_install_over.sh'
-      - '.github/workflows/gridmates-beta2-upgrade-rehearsal.yml'
   workflow_dispatch:
 
 permissions:
