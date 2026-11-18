@@ -1,6 +1,7 @@
 package com.playereden.sudokutogether
 
 import androidx.compose.foundation.*
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
@@ -112,42 +113,77 @@ internal enum class GameSymbol { GRID, PERSON, PEOPLE, TROPHY, CALENDAR, SETTING
     }
 }
 
-@Composable internal fun GameNavigation(page: Page, tab: JournalTab, play: () -> Unit, journal: (JournalTab) -> Unit, enabled: Boolean = true) {
+/**
+ * The book's lower chapter strip. Keep stable destinations and accessibility
+ * tags, but use a subtle binding edge and selected chapter tab instead of the
+ * heavy elevated Android-style navigation sheet.
+ */
+@Composable internal fun GameNavigation(
+    page: Page, tab: JournalTab, play: () -> Unit,
+    journal: (JournalTab) -> Unit, enabled: Boolean = true
+) {
     val largeText = LocalDensity.current.fontScale > 1.3f
-    Surface(color = Paper, shadowElevation = 8.dp) {
-        Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-            Row(Modifier.widthIn(max = 560.dp).fillMaxWidth().padding(horizontal = 6.dp).selectableGroup()) {
-                NavigationItem("Play", "play", GameSymbol.GRID, page == Page.HOME, enabled, play,
-                    Modifier.weight(if (largeText) .67f else 1f))
-                // Retain the existing automation tag for the destination formerly called Records.
-                NavigationItem(JournalTab.RECORDS.title, "records", GameSymbol.PERSON,
-                    page == Page.PROFILE && tab == JournalTab.RECORDS, enabled, { journal(JournalTab.RECORDS) },
-                    Modifier.weight(if (largeText) .93f else 1f))
-                NavigationItem(JournalTab.COLLECTION.title, "collection", GameSymbol.PALETTE,
-                    page == Page.PROFILE && tab == JournalTab.COLLECTION, enabled, { journal(JournalTab.COLLECTION) },
-                    Modifier.weight(if (largeText) 1.31f else 1f))
-                NavigationItem(JournalTab.SETTINGS.title, "settings", GameSymbol.SETTINGS,
-                    page == Page.PROFILE && tab == JournalTab.SETTINGS, enabled, { journal(JournalTab.SETTINGS) },
-                    Modifier.weight(if (largeText) 1.09f else 1f))
+    Surface(color = Paper, shadowElevation = 2.dp) {
+        Column {
+            Box(Modifier.fillMaxWidth().height(2.dp)
+                .background(Gold.copy(alpha = .32f))
+                .testTag("nav_book_binding"))
+            Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                Row(Modifier.widthIn(max = 560.dp).fillMaxWidth()
+                    .padding(horizontal = 6.dp).selectableGroup()) {
+                    NavigationItem("Play", "play", GameSymbol.GRID,
+                        page == Page.HOME, enabled, play,
+                        Modifier.weight(if (largeText) .67f else 1f))
+                    NavigationItem(JournalTab.RECORDS.title, "records", GameSymbol.PERSON,
+                        page == Page.PROFILE && tab == JournalTab.RECORDS,
+                        enabled, { journal(JournalTab.RECORDS) },
+                        Modifier.weight(if (largeText) .93f else 1f))
+                    NavigationItem(JournalTab.COLLECTION.title, "collection", GameSymbol.PALETTE,
+                        page == Page.PROFILE && tab == JournalTab.COLLECTION,
+                        enabled, { journal(JournalTab.COLLECTION) },
+                        Modifier.weight(if (largeText) 1.31f else 1f))
+                    NavigationItem(JournalTab.SETTINGS.title, "settings", GameSymbol.SETTINGS,
+                        page == Page.PROFILE && tab == JournalTab.SETTINGS,
+                        enabled, { journal(JournalTab.SETTINGS) },
+                        Modifier.weight(if (largeText) 1.09f else 1f))
+                }
             }
         }
     }
 }
 
-@Composable private fun NavigationItem(label: String, id: String, symbol: GameSymbol, selected: Boolean,
-    enabled: Boolean, open: () -> Unit, modifier: Modifier) {
+@Composable private fun NavigationItem(
+    label: String, id: String, symbol: GameSymbol, selected: Boolean,
+    enabled: Boolean, open: () -> Unit, modifier: Modifier
+) {
+    val backing by animateColorAsState(
+        if (selected) NightForest else Color.Transparent,
+        label = "chapter $id"
+    )
+    val ink by animateColorAsState(
+        if (selected) OnForest else Muted,
+        label = "chapter ink $id"
+    )
     Column(modifier.testTag("nav_$id")
         .selectable(selected, enabled = enabled, onClick = open, role = Role.Tab)
         .semantics { contentDescription = label }
-        .heightIn(min = 68.dp).padding(horizontal = 2.dp, vertical = 8.dp),
-        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Box(Modifier.size(42.dp, 27.dp).background(if (selected) GreenTint else Color.Transparent, RoundedCornerShape(9.dp)),
+        .heightIn(min = 69.dp).padding(horizontal = 2.dp, vertical = 6.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        Box(Modifier.size(width = 41.dp, height = 31.dp)
+            .background(backing, RoundedCornerShape(topStart = 11.dp,
+                topEnd = 11.dp, bottomStart = 8.dp, bottomEnd = 8.dp)),
             contentAlignment = Alignment.Center) {
-            GameIcon(symbol, if (selected) Forest else Muted, Modifier.size(20.dp))
+            GameIcon(symbol, ink, Modifier.size(21.dp))
         }
-        Text(label, color = if (selected) Forest else Muted, fontSize = 11.sp, lineHeight = 13.sp,
-            textAlign = TextAlign.Center, fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
+        Text(label, color = if (selected) Forest else Muted,
+            fontSize = 11.sp, lineHeight = 13.sp,
+            textAlign = TextAlign.Center,
+            fontWeight = if (selected) FontWeight.Bold else FontWeight.Medium,
             modifier = Modifier.clearAndSetSemantics {})
+        Box(Modifier.width(22.dp).height(2.dp)
+            .background(if (selected) Gold else Color.Transparent,
+                RoundedCornerShape(1.dp)))
     }
 }
 
