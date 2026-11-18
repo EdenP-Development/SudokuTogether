@@ -187,7 +187,7 @@ import kotlinx.coroutines.delay
                 if (race != null) VersusResults(state, race, { actions.rematch(race.epoch) }) { actions.showJoin(true) }
                 else PuzzleFinishCard(state, actions, new)
             }
-            PlayGridViewport(state, actions, roomStatus, viewportHeight - 8.dp)
+            PlayGridViewport(state, actions, new, roomStatus, viewportHeight - 8.dp)
             if (state.role != SOLO && snapshot.mode != VERSUS) PartnerStrip(state)
             if (snapshot.mode == COOP && snapshot.completed && snapshot.guestName != null) {
                 GamePanel(Modifier.widthIn(max = 460.dp).fillMaxWidth()) {
@@ -199,15 +199,13 @@ import kotlinx.coroutines.delay
             state.message?.let { Notice(it) }
             if (roomStatus && snapshot.mode != VERSUS && state.role == GUEST && !state.connected)
                 GamePrimaryButton("Reconnect", { actions.showJoin(true) }, !state.busy)
-            if (state.role == SOLO) {
-                if (!snapshot.completed && state.dailyDate == null) TextButton(new) { Text("New puzzle", fontSize = 11.sp) }
-            }
+
         }
     }
 }
 
 /** Measure related content in the same layout pass; no layout-to-state feedback. */
-@Composable private fun PlayGridViewport(state: GameUiState, actions: GameActions, roomStatus: Boolean, viewportHeight: Dp) {
+@Composable private fun PlayGridViewport(state: GameUiState, actions: GameActions, new: () -> Unit, roomStatus: Boolean, viewportHeight: Dp) {
     val snapshot = state.snapshot ?: return
     val coOp = state.role != SOLO && snapshot.mode == COOP
     val boardTheme = if (coOp) {
@@ -246,9 +244,22 @@ import kotlinx.coroutines.delay
             }
         }.single().measure(textConstraints)
         val label = subcompose("caption") {
-            Text(caption, color = if (selectedConflict) Brick else Muted,
-                fontSize = 11.sp, lineHeight = 16.sp, textAlign = TextAlign.Center,
-                modifier = Modifier.testTag("board_context"))
+            val canNewSolo = state.role == SOLO && !snapshot.completed && state.dailyDate == null
+            Row(Modifier.fillMaxWidth().heightIn(min = if (canNewSolo) 48.dp else 24.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(caption, color = if (selectedConflict) Brick else Muted,
+                    fontSize = 11.sp, lineHeight = 16.sp,
+                    textAlign = if (canNewSolo) TextAlign.Start else TextAlign.Center,
+                    modifier = Modifier.weight(1f).testTag("board_context"))
+                if (canNewSolo) {
+                    TextButton(onClick = new, modifier = Modifier.heightIn(min = 48.dp),
+                        contentPadding = PaddingValues(horizontal = 10.dp)) {
+                        Text("New puzzle", color = Forest, fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold)
+                    }
+                }
+            }
         }.single().measure(textConstraints)
         val gap = 8.dp.roundToPx()
         val frame = gap * 2
@@ -462,13 +473,16 @@ private fun roomStatusText(state: GameUiState): String {
                 description = "Request a solo Sudoku hint") { actions.hint() }
         }
         if (!state.notes) {
-            Text("Small numbers show how many of each digit are left",
-                color = Muted, fontSize = 10.sp, lineHeight = 14.sp,
+            Text(if (!editable) "Select an empty square to enter a number"
+                else "Small numbers show how many of each digit are left",
+                color = if (!editable) Forest else Muted, fontSize = 10.sp, lineHeight = 14.sp,
                 modifier = Modifier.testTag("keypad_remaining_explanation"),
                 textAlign = TextAlign.Center)
         }
         for (numbers in listOf((1..5).toList(), (6..9).toList())) {
             Row(Modifier.widthIn(max = 440.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                // Center the four-key second row rather than leaving a dead slot on its right.
+                if (numbers.size == 4) Spacer(Modifier.weight(.5f))
                 for (number in numbers) {
                     val remaining = (9 - snapshot.cells.count { it.value == number }).coerceAtLeast(0)
                     val highlighted = number == chosenValue
@@ -485,7 +499,9 @@ private fun roomStatusText(state: GameUiState): String {
                         shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(0.dp),
                         border = BorderStroke(if (highlighted) 2.dp else 1.dp, if (highlighted) Forest else Rule),
                         colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = if (highlighted) TealLight else Paper)) {
+                            containerColor = if (highlighted) TealLight else Paper,
+                            disabledContainerColor = Paper,
+                            disabledContentColor = Forest.copy(alpha = .60f))) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center) {
                             Text(number.toString(), fontSize = 21.sp, lineHeight = 22.sp,
@@ -498,7 +514,7 @@ private fun roomStatusText(state: GameUiState): String {
                         }
                     }
                 }
-                if (numbers.size == 4) Spacer(Modifier.weight(1f))
+                if (numbers.size == 4) Spacer(Modifier.weight(.5f))
             }
         }
     }
