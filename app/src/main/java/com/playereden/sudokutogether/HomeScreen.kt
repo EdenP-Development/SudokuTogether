@@ -92,15 +92,10 @@ import com.playereden.sudokutogether.core.SoloProgress
         border = BorderStroke(1.dp, Gold.copy(alpha = .55f)), shadowElevation = 4.dp) {
         Column(Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 11.dp),
             verticalArrangement = Arrangement.spacedBy(7.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text("YOUR SUDOKU BOOK", color = GoldTint, fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.4.sp, fontSize = 10.sp, lineHeight = 14.sp,
-                    modifier = Modifier.weight(1f))
-                TextButton(onClick = selectSolo, modifier = Modifier.heightIn(min = 44.dp)) {
-                    Text("Solo", color = GoldTint, fontSize = 12.sp,
-                        fontWeight = FontWeight.SemiBold)
-                }
-            }
+            // Solo is already the selected mode on this screen. Removing the
+            // no-op "Solo" control prioritizes the actual game action + Daily.
+            Text("YOUR SUDOKU BOOK", color = GoldTint, fontWeight = FontWeight.Bold,
+                letterSpacing = 1.2.sp, fontSize = 10.sp, lineHeight = 14.sp)
             HomeChapterArt(state.appearance, Modifier.fillMaxWidth().height(if (largeText) 112.dp else 130.dp))
             Text(if (savedSolo == null) "Play Sudoku" else "Your puzzle awaits",
                 fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
@@ -176,7 +171,7 @@ import com.playereden.sudokutogether.core.SoloProgress
                 Text("$finished / 7", color = Forest, fontSize = 13.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.testTag("daily_seven_day_summary"))
-                Text("this week", color = Muted, fontSize = 10.sp,
+                Text("past 7 days", color = Muted, fontSize = 10.sp,
                     modifier = Modifier.weight(1f))
                 if (LocalDensity.current.fontScale <= 1.3f) {
                     Row(Modifier.testTag("daily_seven_day_history"),
@@ -189,11 +184,18 @@ import com.playereden.sudokutogether.core.SoloProgress
                                 }
                             }, horizontalAlignment = Alignment.CenterHorizontally) {
                                 Text(weekday.take(2), color = Muted, fontSize = 9.sp, lineHeight = 12.sp)
-                                Box(Modifier.size(16.dp).background(
-                                    when (status) { 2 -> Forest; 1 -> AmberLight; else -> Paper },
-                                    CircleShape), contentAlignment = Alignment.Center) {
-                                    if (status == 2) GameIcon(GameSymbol.CHECK, OnForest, Modifier.size(10.dp))
-                                    else if (status == 1) Text("·", color = Forest, fontSize = 12.sp)
+                                Box(Modifier.size(16.dp)
+                                    .background(if (status == 2) Forest else Paper, CircleShape)
+                                    .border(
+                                        width = if (status == 1) 1.5.dp else 0.dp,
+                                        color = if (status == 1) Gold else Color.Transparent,
+                                        shape = CircleShape
+                                    ),
+                                    contentAlignment = Alignment.Center) {
+                                    when (status) {
+                                        2 -> GameIcon(GameSymbol.CHECK, OnForest, Modifier.size(10.dp))
+                                        1 -> Box(Modifier.size(6.dp).background(Gold, CircleShape))
+                                    }
                                 }
                             }
                         }
