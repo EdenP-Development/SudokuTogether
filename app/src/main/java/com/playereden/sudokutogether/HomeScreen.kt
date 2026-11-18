@@ -101,7 +101,7 @@ import com.playereden.sudokutogether.core.SoloProgress
                         fontWeight = FontWeight.SemiBold)
                 }
             }
-            LivingBookIllustration(Modifier.fillMaxWidth().height(if (largeText) 110.dp else 132.dp))
+            HomeChapterArt(state.appearance, Modifier.fillMaxWidth().height(if (largeText) 112.dp else 130.dp))
             Text(if (savedSolo == null) "Play Sudoku" else "Your puzzle awaits",
                 fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
                 modifier = Modifier.fillMaxWidth(),

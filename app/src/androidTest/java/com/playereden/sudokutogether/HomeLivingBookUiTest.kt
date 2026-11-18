@@ -23,6 +23,8 @@ class HomeLivingBookUiTest {
             SudokuApp(GameUiState(), polishActions(), {})
         } }
         compose.onNodeWithTag("home_book_stage").assertIsDisplayed()
+        compose.onNodeWithTag("home_chapter_art").assertIsDisplayed()
+        compose.onNodeWithTag("home_chapter_featured", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("Play Sudoku").assertIsDisplayed()
         compose.onNodeWithText("New puzzle").assertIsDisplayed()
         compose.onNodeWithTag("difficulty_EASY").assertExists()
@@ -48,6 +50,19 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("daily_challenge").assertDoesNotExist()
         compose.onNodeWithTag("home_mode_solo").performScrollTo().performClick()
         compose.onNodeWithTag("home_book_stage").assertIsDisplayed()
+        compose.onNodeWithTag("daily_challenge").assertExists()
+    }
+
+    @Test fun homeSpotlightShowsTheActuallySelectedCollectionPortrait() {
+        compose.setContent { SudokuTogetherTheme {
+            SudokuApp(GameUiState(appearance = com.playereden.sudokutogether.core.Appearance(
+                portrait = "ocean_octopus"
+            )), polishActions(), {})
+        } }
+        compose.onNodeWithTag("home_chapter_art").assertIsDisplayed()
+        compose.onNodeWithText("Ocean companions").assertIsDisplayed()
+        compose.onNodeWithTag("home_chapter_owl", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("home_chapter_featured", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("daily_challenge").assertExists()
     }
 

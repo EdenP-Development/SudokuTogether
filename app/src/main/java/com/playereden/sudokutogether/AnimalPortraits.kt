@@ -15,7 +15,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.*
 import com.playereden.sudokutogether.core.*
 
-private fun animalDrawable(id: String): Int? = when (id) {
+internal fun animalDrawable(id: String): Int? = when (id) {
     "woodland_owl" -> R.drawable.woodland_owl
     "woodland_fox" -> R.drawable.woodland_fox
     "woodland_rabbit" -> R.drawable.woodland_rabbit
