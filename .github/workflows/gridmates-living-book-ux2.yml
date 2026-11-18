@@ -1,6 +1,6 @@
 name: GridMates Living Puzzle Book UX2 isolated review
 
-# Owner-review UX2: dedicated multiplayer and board/keypad improvements; not public.
+# Owner-review UX2 retry: import layout measurement units for instrumented UI regression.
 # The only permitted release-package action is producing an isolated debug app.
 on:
   push:
