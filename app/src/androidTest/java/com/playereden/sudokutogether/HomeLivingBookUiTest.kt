@@ -24,6 +24,8 @@ class HomeLivingBookUiTest {
         } }
         compose.onNodeWithTag("home_book_stage").assertIsDisplayed()
         compose.onNodeWithTag("home_chapter_art").assertIsDisplayed()
+        compose.onNodeWithTag("home_woodland_backdrop", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("home_portrait_default_fox", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("home_chapter_featured", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("Play Sudoku").assertIsDisplayed()
         compose.onNodeWithText("New puzzle").assertIsDisplayed()
@@ -61,7 +63,9 @@ class HomeLivingBookUiTest {
             )), polishActions(), {})
         } }
         compose.onNodeWithTag("home_chapter_art").assertIsDisplayed()
-        compose.onNodeWithText("Ocean companions").assertIsDisplayed()
+        compose.onNodeWithText("With your ocean companion").assertIsDisplayed()
+        compose.onNodeWithTag("home_woodland_backdrop", useUnmergedTree = true).assertDoesNotExist()
+        compose.onNodeWithTag("home_portrait_ocean_octopus", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("home_chapter_owl", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithTag("home_chapter_featured", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("daily_challenge").assertExists()
