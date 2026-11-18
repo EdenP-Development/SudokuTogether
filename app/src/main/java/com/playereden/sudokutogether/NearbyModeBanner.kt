@@ -51,7 +51,7 @@ import androidx.compose.ui.unit.*
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier.align(Alignment.CenterEnd)
-                .width(if (largeText) 192.dp else 234.dp)
+                .width(if (largeText) 130.dp else 170.dp)
                 .fillMaxHeight()
                 .padding(end = 5.dp, top = 6.dp, bottom = 6.dp)
                 .testTag("nearby_art_motif")
