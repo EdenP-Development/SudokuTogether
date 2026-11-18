@@ -1,5 +1,16 @@
 # Continue GridMates: Sudoku
 
+## Latest verified owner-preview and release checkpoint (Nov 17 ET / Nov 18 UTC)
+
+**Public release:** The real itch.io public game is **still Beta 1**. Do not uninstall or clear existing installs. A compatible Beta 2 install-over remains **blocked** because the original Beta 1 production keystore/secrets were unavailable to the verified GitHub Actions signer preflight. Do not generate a new key for the same-package update or ask for the private keystore in chat.
+
+**Source/release quality:** `main` includes [PR #71](https://github.com/PlayerEden/SudokuTogether/pull/71) (explicit opt-in before uploading publicly accessible candidate artifacts), [PR #72](https://github.com/PlayerEden/SudokuTogether/pull/72) (truthful current README and unpublished Beta 2 devlog), and [PR #73](https://github.com/PlayerEden/SudokuTogether/pull/73) (fix release metadata verification: anchor `package: name=` instead of greedy `name=` and avoid `aapt | head` with pipefail). No public APK was built or uploaded by these PRs.
+
+**Latest isolated Beta 2 owner review — VERIFIED, not a production update:** [Successful workflow run 44219560802](https://github.com/PlayerEden/SudokuTogether/actions/runs/44219560802), [artifact 14390417112](https://github.com/PlayerEden/SudokuTogether/actions/runs/44219560802/artifacts/14390417112), 14-day retention through Dec 2, 2026 UTC. Exact preview branch source [`91c3776`](https://github.com/PlayerEden/SudokuTogether/commit/91c3776bdca61578bb1075e498e0a7a715ba2d66), based on Beta 2 gameplay source `90382797543faaa9c2711b543d67a7cf04b48603` with **only branch-local** launcher and debug package isolation changes. The artifact contains `GridMates-Sudoku-Beta2-Isolated-OwnerPreview.apk`, checksum, identity receipt, and emulator screenshot. Package `com.playereden.sudokutogether.qa.beta2owner`, launcher **Sudoku B2 Review**, versionCode 31. Core/Android unit and lint build, APK package/version/signature/SHA-256 inspection, and API 36 emulator **actual install and launch** all PASSED. [Owner-preview scope and safe testing](https://github.com/PlayerEden/SudokuTogether/blob/preview/beta2-source31-owner-phone/docs/BETA2_ISOLATED_OWNER_PHONE_PREVIEW.md). The initial runs 44218281893 and 44218867247 failed packaging metadata checks and **should not be downloaded for phone testing**.
+
+**Next gates:** Owner may visually test the isolated build *side by side* without touching spouse's existing game. Recover the **original** production signing backup privately, rerun source-pinned certificate preflight, deliberately build a signed production candidate, and test an actual published Beta 1 → signed Beta 2 non-destructive update on backed-up, noncritical progress. Only then finish real screenshots, publisher contact, privacy policy URL, itch.io distribution. Formal renewed two-phone LAN testing remains owner-deferred.
+
+
 ## Current Beta 2 source-readiness checkpoint — November 17, 2026
 
 **Latest overall audit:** [November 17 source/UX/LAN/save/release readiness and prioritized QA roadmap](docs/SUDOKU_OVERALL_AUDIT_2026-11-17.md). Findings distinguish code/test evidence from still-pending actual-phone and release gates. Audit publication modified **documentation only**, not APK source, game mechanics, or signing.
