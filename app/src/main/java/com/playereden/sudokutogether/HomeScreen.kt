@@ -2,6 +2,7 @@ package com.playereden.sudokutogether
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.animateContentSize
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -41,27 +42,38 @@ import com.playereden.sudokutogether.core.SoloProgress
     }
     val hasToday = state.profile.dailyProgress.any { it.date == state.todayDate }
     val dayDone = recentDays.lastOrNull()?.complete == true
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+    val homeScroll = rememberScrollState()
+    BackHandler(enabled = nearbyMode != null) { nearbyMode = null }
+    LaunchedEffect(nearbyMode) { homeScroll.scrollTo(0) }
+    Column(Modifier.fillMaxSize().verticalScroll(homeScroll)
         .padding(horizontal = 14.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally) {
         Column(Modifier.widthIn(max = 480.dp).fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             HomeHeader(state, help, profile, markStyle)
             (state.message ?: state.saveIssue)?.let { Notice(it) }
-            BookSoloStage(state, actions, savedSolo, active?.completed == true, freshSolo) { nearbyMode = null }
-            DailyGameRibbon(state, actions, hasToday, dayDone,
-                recentDays.map { Triple(it.weekday, it.date, if (it.complete) 2 else if (it.inProgress) 1 else 0) })
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                NearbyModeTile("Co-op", "Solve together", GameSymbol.PEOPLE,
-                    nearbyMode == "together", Modifier.weight(1f).testTag("home_mode_together")) {
-                    nearbyMode = if (nearbyMode == "together") null else "together"
+            if (nearbyMode == null) {
+                BookSoloStage(state, actions, savedSolo, active?.completed == true, freshSolo) { nearbyMode = null }
+                DailyGameRibbon(state, actions, hasToday, dayDone,
+                    recentDays.map { Triple(it.weekday, it.date, if (it.complete) 2 else if (it.inProgress) 1 else 0) })
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    NearbyModeTile("Co-op", "Solve together", GameSymbol.PEOPLE,
+                        false, Modifier.weight(1f).testTag("home_mode_together")) { nearbyMode = "together" }
+                    NearbyModeTile("Versus", "Race a friend", GameSymbol.TROPHY,
+                        false, Modifier.weight(1f).testTag("home_mode_versus")) { nearbyMode = "versus" }
                 }
-                NearbyModeTile("Versus", "Race a friend", GameSymbol.TROPHY,
-                    nearbyMode == "versus", Modifier.weight(1f).testTag("home_mode_versus")) {
-                    nearbyMode = if (nearbyMode == "versus") null else "versus"
+            } else {
+                // Dedicated local multiplayer view: room controls start near the top,
+                // instead of appearing below the Solo book and Daily card.
+                Row(Modifier.fillMaxWidth().testTag("nearby_mode_navigation"),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    NearbyNavChoice("Solo", GameSymbol.PERSON, false,
+                        Modifier.weight(1f).testTag("home_mode_solo")) { nearbyMode = null }
+                    NearbyNavChoice("Co-op", GameSymbol.PEOPLE, nearbyMode == "together",
+                        Modifier.weight(1f).testTag("home_mode_together")) { nearbyMode = "together" }
+                    NearbyNavChoice("Versus", GameSymbol.TROPHY, nearbyMode == "versus",
+                        Modifier.weight(1f).testTag("home_mode_versus")) { nearbyMode = "versus" }
                 }
-            }
-            if (nearbyMode != null) {
                 NearbyActions(nearbyMode!!, state, actions, fresh, freshRace)
             }
             Spacer(Modifier.height(6.dp))
@@ -214,11 +226,30 @@ import com.playereden.sudokutogether.core.SoloProgress
     }
 }
 
+/** Compact in-mode navigation; all multiplayer actions stay on this screen. */
+@Composable private fun NearbyNavChoice(
+    title: String, symbol: GameSymbol, selected: Boolean,
+    modifier: Modifier = Modifier, onClick: () -> Unit
+) {
+    Surface(onClick = onClick, modifier = modifier.semantics { this.selected = selected },
+        shape = RoundedCornerShape(15.dp),
+        color = if (selected) Forest else Paper,
+        border = BorderStroke(1.dp, if (selected) Forest else Rule)) {
+        Column(Modifier.fillMaxWidth().heightIn(min = 65.dp).padding(7.dp),
+            verticalArrangement = Arrangement.spacedBy(3.dp),
+            horizontalAlignment = Alignment.CenterHorizontally) {
+            GameIcon(symbol, if (selected) OnForest else Forest, Modifier.size(19.dp))
+            Text(title, color = if (selected) OnForest else Forest,
+                fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        }
+    }
+}
+
 @Composable private fun NearbyActions(
     mode: String, state: GameUiState, actions: GameActions,
     fresh: () -> Unit, freshRace: () -> Unit
 ) {
-    Column(Modifier.fillMaxWidth().animateContentSize()
+    Column(Modifier.fillMaxWidth().testTag("nearby_setup").animateContentSize()
         .background(GreenTint, RoundedCornerShape(18.dp))
         .border(1.dp, Rule, RoundedCornerShape(18.dp))
         .padding(13.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
