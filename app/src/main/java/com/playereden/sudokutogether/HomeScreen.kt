@@ -1,11 +1,11 @@
 package com.playereden.sudokutogether
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
-import com.playereden.sudokutogether.core.DailyActivity
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -13,205 +13,326 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.*
+import com.playereden.sudokutogether.core.DailyActivity
+import com.playereden.sudokutogether.core.SoloProgress
 
+/**
+ * A puzzle-game Home, not an app configuration page. The Solo book scene is
+ * the centerpiece, Daily is immediately below, and nearby games are secondary.
+ * No puzzle, LAN, records, or saved-progress behavior is reimplemented here.
+ */
 @Composable internal fun HomeScreen(
     state: GameUiState, actions: GameActions,
     fresh: () -> Unit, freshSolo: () -> Unit, freshRace: () -> Unit,
     help: () -> Unit, profile: () -> Unit,
     markStyle: GridMatesMarkStyle = GridMatesMarkStyle.SUDOKU_GRID
 ) {
-    var mode by rememberSaveable { mutableStateOf("solo") }
-    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()).padding(horizontal = 18.dp, vertical = 12.dp),
-        horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(14.dp)) {
-        Column(Modifier.widthIn(max = 480.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+    var nearbyMode by rememberSaveable { mutableStateOf<String?>(null) }
+    val active = state.profile.activeSolo
+    val savedSolo = active?.takeIf { state.resumeSolo && !it.completed }
+    val recentDays = remember(state.todayDate, state.profile.records, state.profile.dailyProgress) {
+        DailyActivity.recentSevenDays(state.todayDate, state.profile.records, state.profile.dailyProgress)
+    }
+    val hasToday = state.profile.dailyProgress.any { it.date == state.todayDate }
+    val dayDone = recentDays.lastOrNull()?.complete == true
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+        .padding(horizontal = 14.dp, vertical = 8.dp),
+        horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(Modifier.widthIn(max = 480.dp).fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(10.dp)) {
             HomeHeader(state, help, profile, markStyle)
             (state.message ?: state.saveIssue)?.let { Notice(it) }
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                listOf(Triple("solo", "Solo", GameSymbol.PERSON), Triple("together", "Co-op", GameSymbol.PEOPLE),
-                    Triple("versus", "Versus", GameSymbol.TROPHY)).forEach { (id, label, symbol) ->
-                    val chosen = mode == id
-                    val fill by animateColorAsState(if (chosen) Forest else Paper, label = "mode color")
-                    Surface(onClick = { mode = id }, modifier = Modifier.weight(1f).heightIn(min = 68.dp)
-                        .semantics { selected = chosen }, shape = RoundedCornerShape(17.dp),
-                        color = fill, border = BorderStroke(1.dp, if (chosen) Forest else Rule)) {
-                        Column(Modifier.padding(horizontal = 4.dp, vertical = 10.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                            GameIcon(symbol, if (chosen) OnForest else Forest, Modifier.size(20.dp))
-                            Text(label, color = if (chosen) OnForest else Forest, fontSize = 13.sp,
-                                lineHeight = 17.sp, fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
-                        }
+            BookSoloStage(state, actions, savedSolo, active?.completed == true, freshSolo)
+            DailyGameRibbon(state, actions, hasToday, dayDone,
+                recentDays.map { Triple(it.weekday, it.date, if (it.complete) 2 else if (it.inProgress) 1 else 0) })
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                NearbyModeTile("Co-op", "Solve together", GameSymbol.PEOPLE,
+                    nearbyMode == "together", Modifier.weight(1f).testTag("home_mode_together")) {
+                    nearbyMode = if (nearbyMode == "together") null else "together"
+                }
+                NearbyModeTile("Versus", "Race a friend", GameSymbol.TROPHY,
+                    nearbyMode == "versus", Modifier.weight(1f).testTag("home_mode_versus")) {
+                    nearbyMode = if (nearbyMode == "versus") null else "versus"
+                }
+            }
+            if (nearbyMode != null) {
+                NearbyActions(nearbyMode!!, state, actions, fresh, freshRace)
+            }
+            Spacer(Modifier.height(6.dp))
+        }
+    }
+}
+
+@Composable private fun BookSoloStage(
+    state: GameUiState, actions: GameActions,
+    savedSolo: SoloProgress?, lastCompleted: Boolean,
+    freshSolo: () -> Unit
+) {
+    var showNew by rememberSaveable { mutableStateOf(false) }
+    val largeText = LocalDensity.current.fontScale > 1.3f
+    Surface(Modifier.fillMaxWidth().testTag("home_book_stage"),
+        color = NightForest, shape = RoundedCornerShape(23.dp),
+        border = BorderStroke(1.dp, Gold.copy(alpha = .55f)), shadowElevation = 4.dp) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 13.dp, vertical = 11.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("YOUR SUDOKU BOOK", color = GoldTint, fontWeight = FontWeight.Bold,
+                    letterSpacing = 1.4.sp, fontSize = 10.sp, lineHeight = 14.sp,
+                    modifier = Modifier.weight(1f))
+                Text(if (savedSolo == null) "FRESH PAGE" else "BOOKMARKED",
+                    color = OnForest.copy(alpha = .72f), letterSpacing = .9.sp,
+                    fontSize = 9.sp, lineHeight = 13.sp)
+            }
+            LivingBookIllustration(Modifier.fillMaxWidth().height(if (largeText) 110.dp else 132.dp))
+            Text(if (savedSolo == null) "A new page awaits" else "Your puzzle awaits",
+                fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
+                fontSize = 24.sp, lineHeight = 28.sp, color = OnForest)
+            if (savedSolo != null) {
+                val filled = savedSolo.puzzle.fillProgress(savedSolo.cells)
+                Text("${difficultyName(savedSolo.puzzle.difficulty)} · ${filled.label} · ${formatElapsed(savedSolo.elapsedMs)}",
+                    color = OnForest.copy(alpha = .85f), fontSize = 12.sp, lineHeight = 16.sp)
+                GamePrimaryButton("Continue puzzle", { actions.solo(true) },
+                    enabled = !state.busy && !state.localSaveBlocked, light = true)
+                TextButton(onClick = { showNew = !showNew }, enabled = !state.busy,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
+                    Text(if (showNew) "Keep current puzzle" else "New puzzle",
+                        color = OnForest, fontWeight = FontWeight.SemiBold)
+                }
+                if (showNew) {
+                    Text("Choose a difficulty for your new puzzle",
+                        color = OnForest.copy(alpha = .8f), fontSize = 11.sp)
+                    BookDifficultyPicker(state, actions)
+                    OutlinedButton(freshSolo, enabled = !state.busy && !state.localSaveBlocked,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                        border = BorderStroke(1.dp, OnForest),
+                        shape = RoundedCornerShape(14.dp)) {
+                        Text("Start new puzzle", color = OnForest)
+                    }
+                }
+            } else {
+                Text("Choose your difficulty", color = OnForest.copy(alpha = .84f),
+                    fontSize = 11.sp, lineHeight = 15.sp)
+                BookDifficultyPicker(state, actions)
+                GamePrimaryButton("Play Sudoku", freshSolo,
+                    enabled = !state.busy && !state.localSaveBlocked, light = true)
+                if (lastCompleted && state.resumeSolo) {
+                    TextButton(onClick = { actions.solo(true) }, enabled = !state.busy,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
+                        Text("Review last puzzle", color = OnForest)
                     }
                 }
             }
-            val active = state.profile.activeSolo
-            val savedSolo = active?.takeIf { mode == "solo" && state.resumeSolo && !it.completed }
-            val unfinished = savedSolo != null
-            Surface(shape = RoundedCornerShape(25.dp), color = NightForest) {
-                Column(Modifier.fillMaxWidth().padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text(when {
-                        unfinished -> "Your puzzle"
-                        mode == "together" -> "Shared board"
-                        mode == "versus" -> "Race to finish"
-                        else -> "Classic 9×9"
-                    }, color = OnForest, fontFamily = FontFamily.Serif, fontWeight = FontWeight.SemiBold,
-                        fontSize = 27.sp, lineHeight = 31.sp)
-                    if (savedSolo != null) {
-                        val fill = savedSolo.puzzle.fillProgress(savedSolo.cells)
-                        Text("${difficultyName(savedSolo.puzzle.difficulty)} · ${fill.label} · " +
-                            formatElapsed(savedSolo.elapsedMs),
-                            color = OnForest.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
-                        GamePrimaryButton("Continue", { actions.solo(true) },
-                            !state.busy && !state.localSaveBlocked, light = true)
-                        Text("New puzzle difficulty", color = OnForest.copy(alpha = .8f),
-                            style = MaterialTheme.typography.bodyMedium)
-                    } else if (mode != "solo") Text(if (mode == "together") "Same Wi-Fi" else "Private boards · Same Wi-Fi",
-                        color = OnForest.copy(alpha = .8f), style = MaterialTheme.typography.bodyMedium)
-                    DifficultyPicker(state, actions)
-                    if (mode != "solo") Row(Modifier.fillMaxWidth().heightIn(min = 48.dp)
-                        .toggleable(state.requireRoomCode, enabled = !state.busy, role = Role.Switch, onValueChange = actions.requireRoomCode)
-                        .semantics { contentDescription = "Require a code for a new game" }.testTag("require_code"),
-                        verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        Text("Require a code", color = OnForest, fontSize = 14.sp, modifier = Modifier.weight(1f))
-                        Switch(state.requireRoomCode, onCheckedChange = null, enabled = !state.busy,
-                            colors = SwitchDefaults.colors(checkedThumbColor = Forest, checkedTrackColor = OnForest,
-                                uncheckedThumbColor = OnForest, uncheckedTrackColor = NightForest, uncheckedBorderColor = OnForest.copy(alpha = .6f)))
-                    }
-                    when (mode) {
-                        "solo" -> {
-                            if (unfinished) OutlinedButton(freshSolo, enabled = !state.busy && !state.localSaveBlocked,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = RoundedCornerShape(14.dp),
-                                border = BorderStroke(1.dp, OnForest.copy(alpha = .4f))) { Text("New puzzle", color = OnForest) }
-                            else GamePrimaryButton("New puzzle", freshSolo, !state.busy && !state.localSaveBlocked, light = true)
-                            if (active?.completed == true && state.resumeSolo) TextButton(onClick = { actions.solo(true) },
-                                enabled = !state.busy && !state.localSaveBlocked, modifier = Modifier.fillMaxWidth()) {
-                                Text("Review last puzzle", color = OnForest)
-                            }
-                        }
-                        "together" -> {
-                            if (state.resumeHost) GamePrimaryButton("Resume room", { actions.host(true) }, !state.busy, light = true)
-                            GamePrimaryButton("Start a game", fresh, !state.busy, light = true)
-                            OutlinedButton(onClick = { actions.showJoin(false) }, enabled = !state.busy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = RoundedCornerShape(14.dp),
-                                border = BorderStroke(1.dp, OnForest.copy(alpha = .4f))) { Text("Join a game", color = OnForest) }
-                            if (state.resumeGuest) TextButton(onClick = { actions.showJoin(true) }, enabled = !state.busy,
-                                modifier = Modifier.fillMaxWidth()) { Text("Rejoin room", color = OnForest) }
-                        }
-                        else -> {
-                            if (state.resumeRace) GamePrimaryButton("Resume race", { actions.hostRace(true) }, !state.busy, light = true)
-                            GamePrimaryButton("Start a race", freshRace, !state.busy, light = true)
-                            OutlinedButton(onClick = { actions.showJoin(false) }, enabled = !state.busy,
-                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp), shape = RoundedCornerShape(14.dp),
-                                border = BorderStroke(1.dp, OnForest.copy(alpha = .4f))) { Text("Join a game", color = OnForest) }
-                        }
-                    }
-                    if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth(), color = OnForest, trackColor = OnForest.copy(alpha = .15f))
+            if (state.busy) LinearProgressIndicator(Modifier.fillMaxWidth(),
+                color = GoldTint, trackColor = OnForest.copy(alpha = .2f))
+        }
+    }
+}
+
+@Composable private fun DailyGameRibbon(
+    state: GameUiState, actions: GameActions, hasToday: Boolean,
+    complete: Boolean, recentDays: List<Triple<String, String, Int>>
+) {
+    val finished = recentDays.count { it.third == 2 }
+    Surface(onClick = actions.daily, enabled = !state.busy && !state.localSaveBlocked,
+        modifier = Modifier.fillMaxWidth().testTag("daily_challenge"),
+        shape = RoundedCornerShape(19.dp), color = GoldTint,
+        border = BorderStroke(1.dp, Gold.copy(alpha = .22f)), shadowElevation = 1.dp) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp),
+            verticalArrangement = Arrangement.spacedBy(7.dp)) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                Box(Modifier.size(34.dp).background(Paper, RoundedCornerShape(10.dp)),
+                    contentAlignment = Alignment.Center) {
+                    GameIcon(GameSymbol.CALENDAR, Gold, Modifier.size(22.dp))
                 }
+                Column(Modifier.weight(1f)) {
+                    Text("Daily puzzle", color = Forest, fontWeight = FontWeight.Bold,
+                        fontSize = 15.sp, lineHeight = 19.sp)
+                    Text((when { complete -> "Completed"; hasToday -> "In progress"; else -> "Ready" }) +
+                        " · ${state.todayDate} · Easy",
+                        color = Muted, fontSize = 10.sp, lineHeight = 15.sp)
+                }
+                GameIcon(if (complete) GameSymbol.CHECK else GameSymbol.RIGHT,
+                    color = Forest, modifier = Modifier.size(20.dp))
             }
-            val today = state.profile.dailyProgress.firstOrNull { it.date == state.todayDate }?.solo
-            val recentDays = remember(state.todayDate, state.profile.records, state.profile.dailyProgress) {
-                DailyActivity.recentSevenDays(state.todayDate, state.profile.records, state.profile.dailyProgress)
-            }
-            val finishedDays = recentDays.count { it.complete }
-            val currentDayDone = recentDays.lastOrNull()?.complete == true
-            Surface(onClick = actions.daily, enabled = !state.busy && !state.localSaveBlocked,
-                modifier = Modifier.fillMaxWidth().heightIn(min = 68.dp).testTag("daily_challenge"),
-                shape = RoundedCornerShape(19.dp), color = GoldTint.copy(alpha = .65f), border = BorderStroke(1.dp, Rule)) {
-                Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Box(Modifier.size(38.dp).background(Paper, RoundedCornerShape(12.dp)), contentAlignment = Alignment.Center) {
-                            GameIcon(GameSymbol.CALENDAR, Gold)
-                        }
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                            Text("Daily puzzle", color = Forest, fontSize = 15.sp, lineHeight = 19.sp, fontWeight = FontWeight.SemiBold)
-                            Text(when { currentDayDone -> "Completed"; today != null -> "In progress"; else -> "Ready" },
-                                color = Forest, fontSize = 11.sp, lineHeight = 15.sp)
-                            Text(state.todayDate + " · Easy", color = Muted, fontSize = 10.sp, lineHeight = 14.sp)
-                        }
-                        GameIcon(if (currentDayDone) GameSymbol.CHECK else GameSymbol.RIGHT, modifier = Modifier.size(19.dp))
-                    }
-                    HorizontalDivider(color = Gold.copy(alpha = .2f))
-                    Text("${finishedDays} of the last 7 days completed", color = Forest,
-                        style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("daily_seven_day_summary"))
-                    if (LocalDensity.current.fontScale <= 1.3f) {
-                        Row(Modifier.fillMaxWidth().testTag("daily_seven_day_history"),
-                            horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                            recentDays.forEach { day ->
-                                Column(Modifier.weight(1f)
-                                    .clearAndSetSemantics {
-                                        contentDescription = "${day.date}: " +
-                                            (if (day.complete) "completed" else if (day.inProgress) "in progress" else "not completed")
-                                    }, horizontalAlignment = Alignment.CenterHorizontally,
-                                    verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                    Text(day.weekday, fontSize = 10.sp, lineHeight = 14.sp, color = Muted)
-                                    Box(Modifier.size(25.dp).background(
-                                        if (day.complete) Forest else if (day.inProgress) AmberLight else Paper, CircleShape),
-                                        contentAlignment = Alignment.Center) {
-                                        if (day.complete) GameIcon(GameSymbol.CHECK, OnForest, Modifier.size(14.dp))
-                                        else if (day.inProgress) Text("·", color = Forest, fontSize = 18.sp)
-                                    }
+            HorizontalDivider(color = Gold.copy(alpha = .2f))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                Text("$finished / 7", color = Forest, fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.testTag("daily_seven_day_summary"))
+                Text("this week", color = Muted, fontSize = 10.sp,
+                    modifier = Modifier.weight(1f))
+                if (LocalDensity.current.fontScale <= 1.3f) {
+                    Row(Modifier.testTag("daily_seven_day_history"),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        recentDays.forEach { (weekday, date, status) ->
+                            Column(Modifier.clearAndSetSemantics {
+                                contentDescription = "$date: " + when(status) {
+                                    2 -> "completed"; 1 -> "in progress"; else -> "not completed"
+                                }
+                            }, horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(weekday.take(1), color = Muted, fontSize = 9.sp, lineHeight = 11.sp)
+                                Box(Modifier.size(14.dp).background(
+                                    when (status) { 2 -> Forest; 1 -> AmberLight; else -> Paper },
+                                    CircleShape), contentAlignment = Alignment.Center) {
+                                    if (status == 2) GameIcon(GameSymbol.CHECK, OnForest, Modifier.size(10.dp))
+                                    else if (status == 1) Text("·", color = Forest, fontSize = 12.sp)
                                 }
                             }
                         }
                     }
                 }
             }
-
         }
     }
 }
 
-@Composable private fun HomeHeader(state: GameUiState, help: () -> Unit, profile: () -> Unit,
-    markStyle: GridMatesMarkStyle) {
+@Composable private fun NearbyModeTile(
+    title: String, subtitle: String, icon: GameSymbol,
+    selected: Boolean, modifier: Modifier = Modifier, onClick: () -> Unit
+) {
+    val color by animateColorAsState(if (selected) GreenTint else Paper, label = "nearby mode")
+    Surface(onClick = onClick,
+        modifier = modifier.semantics { this.selected = selected },
+        shape = RoundedCornerShape(17.dp), color = color,
+        border = BorderStroke(if (selected) 1.5.dp else 1.dp, if (selected) Forest else Rule),
+        shadowElevation = if (selected) 2.dp else 0.dp) {
+        Row(Modifier.fillMaxWidth().heightIn(min = 65.dp)
+            .padding(horizontal = 9.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            GameIcon(icon, Forest, Modifier.size(25.dp))
+            Column(Modifier.weight(1f)) {
+                Text(title, color = Forest, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                Text(subtitle, color = Muted, fontSize = 10.sp, lineHeight = 14.sp)
+            }
+        }
+    }
+}
+
+@Composable private fun NearbyActions(
+    mode: String, state: GameUiState, actions: GameActions,
+    fresh: () -> Unit, freshRace: () -> Unit
+) {
+    Column(Modifier.fillMaxWidth().animateContentSize()
+        .background(GreenTint, RoundedCornerShape(18.dp))
+        .border(1.dp, Rule, RoundedCornerShape(18.dp))
+        .padding(13.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text(if (mode == "together") "Shared board" else "Race to finish",
+            color = Forest, fontFamily = FontFamily.Serif,
+            fontWeight = FontWeight.SemiBold, fontSize = 23.sp)
+        Text(if (mode == "together") "Solve one puzzle together · Same Wi-Fi"
+            else "Race on separate boards · Same Wi-Fi", color = Muted, fontSize = 12.sp)
+        Text("New game difficulty", color = Muted, fontSize = 11.sp)
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+            listOf("EASY", "MEDIUM", "HARD").forEach { id ->
+                val chosen = state.selectedDifficulty == id
+                OutlinedButton(onClick = { actions.difficulty(id) }, enabled = !state.busy,
+                    modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                        .testTag("nearby_difficulty_$id")
+                        .semantics { selected = chosen; contentDescription = difficultyName(id) + " difficulty for new games" },
+                    shape = RoundedCornerShape(11.dp),
+                    contentPadding = PaddingValues(horizontal = 2.dp, vertical = 8.dp),
+                    border = BorderStroke(1.dp, if (chosen) Forest else Rule),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        containerColor = if (chosen) Paper else Color.Transparent)) {
+                    Text(difficultyName(id), color = Forest, fontSize = 12.sp)
+                }
+            }
+        }
+        Row(Modifier.fillMaxWidth().heightIn(min = 48.dp)
+            .toggleable(state.requireRoomCode, enabled = !state.busy,
+                role = Role.Switch, onValueChange = actions.requireRoomCode)
+            .semantics { contentDescription = "Require a code for a new game" }
+            .testTag("require_code"),
+            verticalAlignment = Alignment.CenterVertically) {
+            Text("Require a room code", color = Forest, fontSize = 13.sp,
+                modifier = Modifier.weight(1f))
+            Switch(state.requireRoomCode, onCheckedChange = null, enabled = !state.busy)
+        }
+        if (mode == "together") {
+            if (state.resumeHost) GamePrimaryButton("Resume room",
+                { actions.host(true) }, !state.busy)
+            GamePrimaryButton("Start a game", fresh, !state.busy)
+            OutlinedButton({ actions.showJoin(false) }, enabled = !state.busy,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Join a game") }
+            if (state.resumeGuest) TextButton({ actions.showJoin(true) }, enabled = !state.busy) {
+                Text("Rejoin room")
+            }
+        } else {
+            if (state.resumeRace) GamePrimaryButton("Resume race",
+                { actions.hostRace(true) }, !state.busy)
+            GamePrimaryButton("Start a race", freshRace, !state.busy)
+            OutlinedButton({ actions.showJoin(false) }, enabled = !state.busy,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Join a game") }
+        }
+    }
+}
+
+@Composable private fun HomeHeader(state: GameUiState, help: () -> Unit,
+    profile: () -> Unit, markStyle: GridMatesMarkStyle) {
     BoxWithConstraints(Modifier.fillMaxWidth()) {
         val reflow = LocalDensity.current.fontScale > 1.3f || maxWidth < 280.dp
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
             Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                GridMatesMark(Modifier.size(40.dp), markStyle)
+                horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+                GridMatesMark(Modifier.size(35.dp), markStyle)
                 Column(Modifier.weight(1f)) {
-                    Text("GridMates", color = Forest, fontSize = 20.sp, lineHeight = 22.sp, fontWeight = FontWeight.Bold)
-                    Text("Sudoku", color = Muted, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 1.sp)
+                    Text("GridMates", color = Forest, fontSize = 19.sp,
+                        lineHeight = 21.sp, fontFamily = FontFamily.Serif,
+                        fontWeight = FontWeight.Bold)
+                    Text("SUDOKU", color = Gold, fontSize = 10.sp,
+                        lineHeight = 14.sp, letterSpacing = 1.5.sp)
                 }
                 if (!reflow) HomeHeaderActions(state, help, profile)
             }
-            if (reflow) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            if (reflow) Row(Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End) {
                 HomeHeaderActions(state, help, profile)
             }
         }
     }
 }
 
-@Composable private fun HomeHeaderActions(state: GameUiState, help: () -> Unit, profile: () -> Unit) {
-    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-        IconButton(help, modifier = Modifier.size(48.dp).semantics { contentDescription = "How to play Sudoku" }) {
-            GameIcon(GameSymbol.HELP, modifier = Modifier.size(22.dp))
+@Composable private fun HomeHeaderActions(
+    state: GameUiState, help: () -> Unit, profile: () -> Unit
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+        IconButton(help, modifier = Modifier.size(46.dp)
+            .semantics { contentDescription = "How to play Sudoku" }) {
+            GameIcon(GameSymbol.HELP, modifier = Modifier.size(21.dp))
         }
         IconButton(profile, enabled = !state.busy,
-            modifier = Modifier.size(48.dp).background(GreenTint, RoundedCornerShape(16.dp))
+            modifier = Modifier.size(46.dp).background(GreenTint, RoundedCornerShape(14.dp))
                 .semantics { contentDescription = "My profile & records" }) {
-            AnimalPortrait(state.appearance, Modifier.size(40.dp))
+            AnimalPortrait(state.appearance, Modifier.size(39.dp))
         }
     }
 }
 
-@Composable private fun DifficultyPicker(state: GameUiState, actions: GameActions) {
+@Composable private fun BookDifficultyPicker(state: GameUiState, actions: GameActions) {
     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(7.dp)) {
         listOf("EASY", "MEDIUM", "HARD").forEach { id ->
             val chosen = state.selectedDifficulty == id
             OutlinedButton(onClick = { actions.difficulty(id) }, enabled = !state.busy,
-                modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("difficulty_$id").semantics { selected = chosen; contentDescription = difficultyName(id) + " difficulty for new games" },
-                shape = RoundedCornerShape(11.dp), contentPadding = PaddingValues(horizontal = 3.dp, vertical = 10.dp),
-                border = BorderStroke(1.dp, if (chosen) OnForest else OnForest.copy(alpha = .3f)),
-                colors = ButtonDefaults.outlinedButtonColors(containerColor = if (chosen) OnForest.copy(alpha = .16f) else Color.Transparent,
-                    contentColor = OnForest, disabledContentColor = OnForest.copy(alpha = .5f))) {
-                Text(difficultyName(id), fontSize = 12.sp, fontWeight = if (chosen) FontWeight.Bold else FontWeight.Normal)
+                modifier = Modifier.weight(1f).heightIn(min = 48.dp)
+                    .testTag("difficulty_$id")
+                    .semantics { selected = chosen; contentDescription = difficultyName(id) + " difficulty for new games" },
+                shape = RoundedCornerShape(11.dp),
+                contentPadding = PaddingValues(horizontal = 3.dp, vertical = 9.dp),
+                border = BorderStroke(1.dp, if (chosen) GoldTint else OnForest.copy(alpha = .45f)),
+                colors = ButtonDefaults.outlinedButtonColors(
+                    containerColor = if (chosen) OnForest.copy(alpha = .18f) else Color.Transparent,
+                    contentColor = OnForest)) {
+                Text(difficultyName(id), color = OnForest, fontSize = 12.sp,
+                    fontWeight = if (chosen) FontWeight.Bold else FontWeight.Normal)
             }
         }
     }
