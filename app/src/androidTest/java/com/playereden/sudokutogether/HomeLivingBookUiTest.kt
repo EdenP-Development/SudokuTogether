@@ -23,8 +23,8 @@ class HomeLivingBookUiTest {
             SudokuApp(GameUiState(), polishActions(), {})
         } }
         compose.onNodeWithTag("home_book_stage").assertIsDisplayed()
-        compose.onNodeWithText("A new page awaits").assertIsDisplayed()
         compose.onNodeWithText("Play Sudoku").assertIsDisplayed()
+        compose.onNodeWithText("New puzzle").assertIsDisplayed()
         compose.onNodeWithTag("difficulty_EASY").assertExists()
         compose.onNodeWithTag("daily_challenge").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("daily_seven_day_history", useUnmergedTree=true).assertExists()
@@ -50,11 +50,11 @@ class HomeLivingBookUiTest {
             }
         } }
         compose.onNodeWithTag("home_book_stage").performScrollTo().assertIsDisplayed()
-        val title = compose.onNodeWithText("A new page awaits").assertIsDisplayed()
+        val title = compose.onNodeWithText("Play Sudoku").assertIsDisplayed()
         val result = mutableListOf<TextLayoutResult>()
         title.performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(result) }
         assertFalse("Book title must be readable at 200% font", result.single().hasVisualOverflow)
-        compose.onNodeWithText("Play Sudoku").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("New puzzle").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("daily_challenge").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("home_mode_together").performScrollTo().assertIsDisplayed()
     }
