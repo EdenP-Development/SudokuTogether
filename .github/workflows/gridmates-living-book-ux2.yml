@@ -1,0 +1,132 @@
+name: GridMates Living Puzzle Book UX2 isolated review
+
+# Owner-review UX2: dedicated multiplayer and board/keypad improvements; not public.
+# The only permitted release-package action is producing an isolated debug app.
+on:
+  push:
+    branches:
+      - preview/living-book-ux2-owner
+    paths:
+      - .github/workflows/gridmates-living-book-ux2.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build-isolated-preview:
+    name: Build and test isolated Living Book review
+    runs-on: ubuntu-latest
+    timeout-minutes: 42
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify only the isolated debug package is selected
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          gradle = Path('app/build.gradle.kts').read_text()
+          launcher = Path('app/src/main/res/values/strings.xml').read_text()
+          assert 'applicationId = "com.playereden.sudokutogether"' in gradle
+          assert 'applicationIdSuffix = ".qa.livingbook2"' in gradle
+          assert 'versionCode = qaVersion ?: 31' in gradle
+          assert 'versionName = "1.0.0-beta.2"' in gradle
+          assert '<string name="launcher_name">Sudoku Book UX2</string>' in launcher
+          print('PASS: isolated preview identity, version and distinct launcher')
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install Android build SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Unit, source, lint and APK build
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:compileDebugAndroidTestKotlin :app:assembleDebug --no-daemon --max-workers=2 --console=plain
+      - name: Inspect the exact debug APK and record checksum and signer
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          apk=GridMates-Sudoku-LivingBook-UX2-OwnerPreview.apk
+          cp app/build/outputs/apk/debug/app-debug.apk "$apk"
+          test -s "$apk"
+          "$tools/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > preview-signature-check.txt
+          signer=$(awk '/certificate SHA-256 digest:/ {print $NF}' preview-signature-check.txt)
+          # Avoid aapt SIGPIPE under pipefail: capture its full output first.
+          badging=$("$tools/aapt" dump badging "$apk")
+          package_line=$(printf '%s\n' "$badging" | sed -n '1p')
+          package=$(sed -n "s/^package: name='\([^']*\)'.*/\1/p" <<< "$package_line")
+          code=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" <<< "$package_line")
+          version=$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" <<< "$package_line")
+          echo "Inspected package=$package versionCode=$code versionName=$version"
+          [[ "$package" == 'com.playereden.sudokutogether.qa.livingbook2' ]] || { echo 'Wrong preview package'; exit 1; }
+          [[ "$code" == '31' ]] || { echo 'Wrong preview versionCode'; exit 1; }
+          [[ "$version" == '1.0.0-beta.2-qa' ]] || { echo 'Wrong preview versionName'; exit 1; }
+          [[ "$signer" =~ ^[0-9a-f]{64}$ ]] || { echo 'Missing or malformed debug signer fingerprint'; exit 1; }
+          sha256sum "$apk" > "$apk.sha256"
+          export PREVIEW_APK="$apk" PREVIEW_PACKAGE="$package" PREVIEW_VERSION="$version" PREVIEW_SIGNER="$signer"
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          apk = Path(os.environ['PREVIEW_APK'])
+          receipt = dict(
+              kind='ISOLATED_LIVING_BOOK_PREVIEW_NOT_PUBLIC_UPDATE',
+              base_main_commit='24b996e948045516bd987b3be53bf2e66009d70a',
+              preview_source_commit=os.environ['GITHUB_SHA'],
+              file_name=apk.name,
+              sha256=hashlib.sha256(apk.read_bytes()).hexdigest(),
+              size_bytes=apk.stat().st_size,
+              package=os.environ['PREVIEW_PACKAGE'],
+              version_code=31,
+              version_name=os.environ['PREVIEW_VERSION'],
+              signer_sha256=os.environ['PREVIEW_SIGNER'],
+              updates_existing_public_game=False,
+              data_shared_with_beta1=False,
+              owner_phone_approval=False,
+          )
+          Path(apk.name + '.receipt.json').write_text(json.dumps(receipt, indent=2) + '\n')
+          PY
+          rm preview-signature-check.txt
+      - name: Enable Android emulator hardware acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: API 36 emulator install, launch and screenshot
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
+          disable-animations: true
+          script: |
+            bash scripts/living_book_ux2_smoke.sh
+            ./gradlew :app:connectedDebugAndroidTest --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.HomeLivingBookUiTest,com.playereden.sudokutogether.GameConvenienceTest"
+      - name: Upload verified isolated preview, receipt, SHA and emulator snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-LivingBook-UX2-OwnerPreview
+          path: |
+            GridMates-Sudoku-LivingBook-UX2-OwnerPreview.apk
+            GridMates-Sudoku-LivingBook-UX2-OwnerPreview.apk.sha256
+            GridMates-Sudoku-LivingBook-UX2-OwnerPreview.apk.receipt.json
+            living-book-ux2-preview-home.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Save diagnostic test reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-LivingBook-UX2-Diagnostics
+          path: |
+            core/build/reports/tests/**
+            app/build/reports/tests/**
+            app/build/reports/androidTests/**
+            app/build/outputs/androidTest-results/**
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
+          retention-days: 3
