@@ -244,7 +244,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         Text("CHAPTER " + index.toString().padStart(2, '0'),
             color = Gold, fontSize = 9.sp, fontWeight = FontWeight.Bold,
             letterSpacing = .8.sp)
-        Text(name, color = Forest, fontFamily = FontFamily.Serif,
+        Text("$name collection", color = Forest, fontFamily = FontFamily.Serif,
             fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
         HorizontalDivider(Modifier.weight(1f), thickness = 1.dp,
             color = Gold.copy(alpha = .28f))
