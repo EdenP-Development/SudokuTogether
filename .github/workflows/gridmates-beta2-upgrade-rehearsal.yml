@@ -89,45 +89,7 @@ jobs:
           profile: pixel_5
           emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
           disable-animations: true
-          script: |
-            set -euo pipefail
-            pkg=com.playereden.sudokutogether.qa
-            test_pkg=${pkg}.test
-            old=beta1/app/build/outputs/apk/debug/app-debug.apk
-            old_test=beta1/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-            new=beta2/app/build/outputs/apk/debug/app-debug.apk
-            new_test=beta2/app/build/outputs/apk/androidTest/debug/app-debug-androidTest.apk
-
-            adb install "$old"
-            adb install "$old_test"
-            adb shell am instrument -w -e class com.playereden.sudokutogether.Beta1UpgradeSeederTest \
-              "${test_pkg}/androidx.test.runner.AndroidJUnitRunner" | tee beta1-seed.txt
-            grep -Eq 'OK \(1 test\)' beta1-seed.txt
-            adb exec-out run-as "$pkg" cat files/local-player.json > beta1-before.json
-            python3 - <<'PY'
-            import json
-            with open("beta1-before.json", "rb") as stream:
-                d = json.load(stream)
-            assert "ownedCosmeticIds" not in d
-            assert len(d["records"]) == 5
-            assert len(d["dailyProgress"]) == 1
-            assert d["activeSolo"]["cells"][0]["notes"] == 4
-            PY
-            adb shell am start -W -n "$pkg/com.playereden.sudokutogether.MainActivity" | tee beta1-launch.txt
-            grep -q 'Status: ok' beta1-launch.txt
-            adb shell am force-stop "$pkg"
-
-            # This is an ACTUAL Android install-over: no uninstall or data clear.
-            adb install -r "$new"
-            adb exec-out run-as "$pkg" cat files/local-player.json > beta2-before-first-launch.json
-            cmp beta1-before.json beta2-before-first-launch.json
-            adb shell am start -W -n "$pkg/com.playereden.sudokutogether.MainActivity" | tee beta2-launch.txt
-            grep -q 'Status: ok' beta2-launch.txt
-            adb install -r "$new_test"
-            adb shell am instrument -w -e class com.playereden.sudokutogether.Beta2UpgradeVerifierTest \
-              "${test_pkg}/androidx.test.runner.AndroidJUnitRunner" | tee beta2-verify.txt
-            grep -Eq 'OK \(1 test\)' beta2-verify.txt
-            echo 'PASS: the exact Beta 1 source wrote the save; Android installed Beta 2 over it without resetting data; new runtime preserved identity, pencil marks, unfinished Daily, five records, settings and equipped earned cosmetics.'
+          script: bash beta2/scripts/run_beta2_install_over.sh
       - name: Record failure evidence only
         if: failure()
         uses: actions/upload-artifact@v4
