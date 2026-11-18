@@ -100,6 +100,19 @@ class GameConvenienceTest {
         compose.onNodeWithText("New puzzle").assertExists()
     }
 
+    @Test fun boardActionAndNumberRowsStayVisuallyGrouped() {
+        newSolo()
+        val context = compose.onNodeWithTag("board_context").getUnclippedBoundsInRoot()
+        val newPuzzle = compose.onNodeWithText("New puzzle").getUnclippedBoundsInRoot()
+        assertTrue("New puzzle belongs alongside the board caption", newPuzzle.top <= context.bottom + 16.dp)
+        val one = compose.onNodeWithTag("number_1").getUnclippedBoundsInRoot()
+        val five = compose.onNodeWithTag("number_5").getUnclippedBoundsInRoot()
+        val six = compose.onNodeWithTag("number_6").getUnclippedBoundsInRoot()
+        val nine = compose.onNodeWithTag("number_9").getUnclippedBoundsInRoot()
+        assertTrue("The second keypad row should be centered from the left", six.left > one.left)
+        assertTrue("The second keypad row should be centered from the right", nine.right < five.right)
+    }
+
     @Test fun compactBoardAndKeypadAreVisibleTogether() {
         newSolo()
         val first = compose.onNodeWithTag("cell_0").getUnclippedBoundsInRoot()
