@@ -24,16 +24,22 @@ import androidx.compose.ui.unit.dp
                 }
                 Text("Version ${BuildConfig.VERSION_NAME}", style = MaterialTheme.typography.bodySmall)
                 HorizontalDivider()
-                Text("Good puzzles. Good company.")
-                Text("Play Solo and Daily offline. Nearby Co-op and Versus connect phones directly on the same Wi-Fi; no account is needed.")
-                Text("Your puzzles, progress, and earned Collection items are stored on this phone. Before uninstalling or changing phones, use Settings → Progress → Back up progress. Active multiplayer rooms are not included in that backup.")
-                Text("Nearby game messages and chat travel on the local Wi-Fi network without encryption. Play together on networks you trust.")
+                Text("Good puzzles. Good company.", style = MaterialTheme.typography.titleSmall)
+                Text("Enjoy Solo and Daily puzzles offline, or play nearby Co-op and Versus directly with another phone on the same Wi-Fi. No account is needed.")
+                Text("Your progress", style = MaterialTheme.typography.titleSmall)
+                Text("Puzzles, records, settings, and earned Collection items stay on this device. Compatible app updates normally retain them. For extra protection, choose Settings → Progress → Back up progress before updating or changing phones. Don't uninstall the app to update it.")
+                Text("A progress backup does not include active nearby multiplayer rooms. There is no account-based cloud recovery.")
+                Text("Nearby privacy", style = MaterialTheme.typography.titleSmall)
+                Text("Nearby game information and chat travel over your local Wi-Fi without encryption. Play together on a network you trust.")
                 if (share != null) {
+                    HorizontalDivider()
                     OutlinedButton(share, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                         GameIcon(GameSymbol.SHARE, modifier = Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                         Text("Share game installer")
                     }
+                    Text("Shares the installed game APK, not your saved puzzles or progress. Each player's data stays on their own device.",
+                        style = MaterialTheme.typography.bodySmall)
                 }
             }
         },
