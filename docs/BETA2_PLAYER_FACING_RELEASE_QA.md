@@ -20,3 +20,10 @@ A small consumer-facing polish slice. Existing Sudoku rules, cosmetics/unlock re
 
 ## Public listing preparation
 An updated copy-ready but unpublished [Beta 2 itch listing draft](GRIDMATES_ITCH_BETA2_LISTING_DRAFT.md) describes actual Solo/Daily/nearby features, manual backups, expected update continuity, source privacy behavior and the requirement to stop on a signer mismatch instead of uninstalling. Do not upload preview or QA APKs to the public page.
+
+## Verified Android QA (November 17, 2026 ET / November 18 UTC)
+- [Permanent Android PR quality gate 44212095728](https://github.com/PlayerEden/SudokuTogether/actions/runs/44212095728): **passed** Kotlin app / androidTest compilation, core and app JVM regressions, lint and debug assembly. Included `InstallerSharingEligibilityTest`.
+- [Focused API 36 emulator run 44212095818](https://github.com/PlayerEden/SudokuTogether/actions/runs/44212095818): **5/5 `PublicReleaseCopyUiTest`** and **2/2 existing `ProgressBackupSettingsUiTest`**, zero skipped or failed. The emulator boot printed ordinary transient warnings, then ran all seven test methods and completed both Gradle instrumentation tasks successfully.
+- An earlier run 44211775789 was **cancelled**, not failed, by the PR concurrency policy after a QA documentation commit; the final run above was started against the newer code/documentation revision and passed.
+- Temporary dedicated PR workflow was removed after the green run; test files remain in the repository, and the permanent Android app CI gate remains active on future source changes.
+- **No production-signed artifact was built**, no itch.io project was modified, and no family app installation or progress was touched by this work. Actual old-public-APK-to-new-public-APK signer continuity and owner phone display remain independent release gates.
