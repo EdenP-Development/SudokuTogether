@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -32,6 +33,7 @@ import com.playereden.sudokutogether.core.Appearance
     appearance: Appearance,
     modifier: Modifier = Modifier
 ) {
+    val largeText = LocalDensity.current.fontScale > 1.3f
     val chosenId = appearance.portrait
     val chapter = when {
         chosenId.startsWith("ocean_") -> "Ocean"
@@ -56,17 +58,23 @@ import com.playereden.sudokutogether.core.Appearance
                 horizontalArrangement = Arrangement.spacedBy(3.dp)
             ) {
                 Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                    Text("COLLECTION SPOTLIGHT", color = Gold, fontSize = 9.sp,
-                        fontWeight = FontWeight.Bold, letterSpacing = .7.sp,
-                        lineHeight = 12.sp)
+                    if (!largeText) {
+                        Text("COLLECTION SPOTLIGHT", color = Gold, fontSize = 9.sp,
+                            fontWeight = FontWeight.Bold, letterSpacing = .7.sp,
+                            lineHeight = 12.sp)
+                    }
                     Text("$chapter companions", color = NightForest,
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp, lineHeight = 22.sp)
-                    Text(if (selectedDrawable == null) "Meet Fox and Owl"
-                        else "Featuring your chosen portrait",
-                        color = Forest.copy(alpha = .86f),
-                        fontSize = 10.sp, lineHeight = 14.sp)
+                        fontSize = if (largeText) 12.sp else 18.sp,
+                        lineHeight = if (largeText) 17.sp else 22.sp,
+                        maxLines = 2)
+                    if (!largeText) {
+                        Text(if (selectedDrawable == null) "Meet Fox and Owl"
+                            else "Featuring your chosen portrait",
+                            color = Forest.copy(alpha = .86f),
+                            fontSize = 10.sp, lineHeight = 14.sp)
+                    }
                 }
                 Box(Modifier.width(134.dp).fillMaxHeight(),
                     contentAlignment = Alignment.BottomEnd) {
