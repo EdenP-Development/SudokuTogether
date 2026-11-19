@@ -2,7 +2,7 @@ name: GridMates Beta 2 first-five isolated Android reviewer
 on:
   push:
     branches: [feat/beta2-first-five-portraits-review]
-    paths: ['.github/workflows/gridmates-beta2-first-five-review.yml']
+    paths: ['.github/workflows/gridmates-beta2-first-five-review.yml', 'scripts/beta2_first_five_capture.py']
   workflow_dispatch:
 permissions:
   contents: read
