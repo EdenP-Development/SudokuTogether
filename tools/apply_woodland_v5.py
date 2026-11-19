@@ -51,8 +51,8 @@ def verified_assets(artpack: Path):
             raise RuntimeError(f"Invalid PNG: {source}")
         if struct.unpack(">II", data[16:24]) != (item["width"], item["height"]):
             raise RuntimeError(f"Dimensions mismatch: {source}")
-        if target.exists():
-            raise RuntimeError(f"Refusing to overwrite a checked-in image: {target}")
+        if target.exists() and target.read_bytes() != data:
+            raise RuntimeError(f"Existing checked-in image differs from verified V5 asset: {target}")
         result.append((target, data))
     return result
 
@@ -111,7 +111,8 @@ def main():
         return
     for path, data in assets:
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_bytes(data)
+        if not path.exists():
+            path.write_bytes(data)
     BANNER.write_text(banner, encoding="utf-8")
     TEST.write_text(tests, encoding="utf-8")
     print("Applied V5 Co-op/Versus images and removed duplicate mascot layers.")
