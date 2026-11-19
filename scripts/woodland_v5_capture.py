@@ -13,7 +13,7 @@ import time
 import xml.etree.ElementTree as ET
 from pathlib import Path
 
-PACKAGE = "com.playereden.sudokutogether.qa.woodlandv5"
+PACKAGE = "com.playereden.sudokutogether.qa.woodlandv51"
 DUMP = "/sdcard/gridmates-nearby-window.xml"
 OUTPUT = Path(".")
 PNG_MAGIC = b"\x89PNG\r\n\x1a\n"
