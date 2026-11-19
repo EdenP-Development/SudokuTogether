@@ -1,33 +1,46 @@
-# GridMates — Woodland V5: distinct mode banners (asset checkpoint)
+# GridMates Woodland V5 — mode-specific illustration integration
 
-**Status:** Review-only art checkpoint. This GitHub branch contains the V4 implementation unchanged plus this design/integration record. **The two binary images have NOT been committed yet**, and no V5 Android build or emulator QA has run.
+**Status:** Android Compose changes + tests + safe fallback committed. Both high-resolution PNG binaries still need to be imported from the locally produced V5 Complete Review Pack. This is a draft, NOT a released V5 APK.
 
-**Base branch:** `design/woodland-v4-hd-raster` (draft PR #90).
+**Branch:** `design/woodland-v5-mode-art-checkpoint` • **Draft PR:** #91 • **Stacks on:** draft PR #90 (V4 artwork).
 
-## Locked direction
-- **Solo/Home:** keep V4 `gm_woodland_storybook_hd_v4.png` (1774×887) and preserve the currently selected Collection companion overlay. This scene is now distinct from Co-op and Versus.
-- **Co-op:** use a separate high-resolution 1920×819 illustrated forest scene of the Fox and Owl working together on one puzzle.
-- **Versus:** use a separate high-resolution 1920×819 illustrated forest scene showing the Fox and Owl on separate puzzle boards beneath a racing flag.
-- **Native Android Compose controls:** preserve native title/eyebrow text, adaptive high-contrast scrim, difficulty controls, buttons and room-code option.
-- **Avoid duplicated characters:** Do not re-overlay `woodland_fox` or `woodland_owl` in Co-op/Versus, as those character illustrations are already part of their V5 banner backgrounds. Dynamic Solo selection remains unchanged.
+## Runtime behavior
 
-## Generated artwork prepared on November 19, 2026
-Two standalone originals with no baked-in buttons or lettering:
-1. `app/src/main/res/drawable-nodpi/gm_mode_coop_woodland_v5_hd.png` — 1920×819, SHA-256 `943484370b66caf115c1033f632c2d0b0c0b92226bbaf9b3ae39d12ed98abdbc`
-2. `app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v5_hd.png` — 1920×819, SHA-256 `a4f258fb640660a18b2d1061ba167dd670968578210da8ae2a2184bd07b09aee`
+- Solo/Home retains V4 `gm_woodland_storybook_hd_v4.png` (1774×887) and the player's selected Collection companion.
+- Co-op looks up `gm_mode_coop_woodland_v5_hd`; Versus looks up `gm_mode_versus_woodland_v5_hd`.
+- When the matching original PNG is bundled, that mode uses the dedicated V5 scene. Characters are baked into the V5 art, so no duplicate fox/owl portraits overlay the scene.
+- When the V5 asset is not yet packaged, the existing V4 woodland backdrop and original Fox/Owl Collection sprites render unchanged. This protects an incomplete build from broken resources.
+- All game controls, text, difficulty, room-code selection, game saves, collection ownership and LAN mechanics are untouched.
 
-**Source of truth for binaries and integration script:** `GridMates_Woodland_V5_Complete_Review_Pack.zip` generated in the game-design chat on November 19, 2026. This ZIP includes both original asset files, `integration/apply_woodland_v5.py`, manifest, a review contact sheet, and full README. Import these actual files rather than rasterizing or cropping the illustrated moodboards.
+The dynamic drawable lookup is a **temporary staging strategy**. Once both V5 image files pass full Android QA, it can be replaced with typed `R.drawable` identifiers and the fallback removed.
 
-## Expected integration patch
-On the V4 `NearbyModeBanner.kt`:
-- Replace the lone V4 background reference with `if (together) R.drawable.gm_mode_coop_woodland_v5_hd else R.drawable.gm_mode_versus_woodland_v5_hd`.
-- Remove the now-duplicative Fox/Owl portrait overlay block in both multiplayer modes.
-- Keep all native text and other controls unchanged.
-- Update the two existing instrumented assertions that currently expect portrait overlays to expect absence of duplicated overlays. Preserve tests of both banner image nodes, headings and actions.
+## Binary artwork
 
-## QA/release gates
-- Use a separate V5 review branch and build, never overwrite saved production data.
-- Verify image dimensions and SHA-256, build core/app, run lint and Android 16 instrumentation, inspect real screenshots in Solo/Co-op/Versus including 200% font-scale and narrow screen widths.
-- Confirm exact image crop and that decorative Sudoku-like boards are visually acceptable.
-- Owner approval before merging the art; signing/install-over save-preservation and two physical phones on same Wi-Fi remain separate release tests.
-- No changes to game engine, LAN, user progress, cosmetics ownership or monetization are proposed.
+Original generated resources in `GridMates_Woodland_V5_Complete_Review_Pack.zip`:
+
+| Mode | Path | Dimensions | SHA-256 |
+|---|---|---|---|
+| Co-op | `app/src/main/res/drawable-nodpi/gm_mode_coop_woodland_v5_hd.png` | 1920×819 | `943484370b66caf115c1033f632c2d0b0c0b92226bbaf9b3ae39d12ed98abdbc` |
+| Versus | `app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v5_hd.png` | 1920×819 | `a4f258fb640660a18b2d1061ba167dd670968578210da8ae2a2184bd07b09aee` |
+
+Use the original image bytes, **not screenshots or composite design sheets**. To import in an extracted repository checkout:
+
+```bash
+python3 tools/apply_woodland_v5.py /path/to/unpacked/V5-review-pack --dry-run
+python3 tools/apply_woodland_v5.py /path/to/unpacked/V5-review-pack
+git add app/src/main/res/drawable-nodpi/gm_mode_*_woodland_v5_hd.png
+git commit -m "art: bundle distinct 1920px Co-op and Versus scenes"
+```
+
+The importer verifies both checksums, PNG headers, dimensions, and byte counts before writing; it refuses to replace differing content. Use its `--dry-run` first. On GitHub Actions, the new `.github/workflows/gridmates-woodland-v5-branch-qa.yml` checks the branch on push (compile, JVM tests, lint, AndroidTest compile), but does not generate a downloadable APK or run an emulator.
+
+## Acceptance gates
+
+1. Import both original PNG binaries, with exact manifest SHA-256 match.
+2. Review decorative puzzle boards for 9×9 correctness (currently stylized and not strict Sudoku grids). Do not call them accurate game screenshots.
+3. Run full Android CI, actual emulator instrumentation and captured screenshots for Home, Co-op, Versus, 320dp / 200% text.
+4. Build a separately installed reviewer APK for owner phone inspection; do not claim public upgrade compatibility.
+5. Owner visual approval before merging V5 -> V4 and then considering release.
+6. Keep original production signing/save-preserving Beta1-to-Beta2 install-over and real two-physical-phone Wi-Fi testing as independent release gates.
+
+**Never merge PR #91 or replace the production APK solely on the basis of source-level checks.**
