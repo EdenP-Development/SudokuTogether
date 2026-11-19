@@ -106,6 +106,7 @@ jobs:
           disable-animations: true
           script: |
             bash scripts/nearby_crisp_smoke.sh
+            python3 scripts/nearby_crisp_capture.py
             ./gradlew :app:connectedDebugAndroidTest --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.HomeLivingBookUiTest,com.playereden.sudokutogether.CollectionPolishUiTest"
       - name: Upload verified isolated preview, receipt, SHA and emulator snapshot
         uses: actions/upload-artifact@v4
@@ -116,6 +117,9 @@ jobs:
             GridMates-Sudoku-NearbyCrisp-OwnerPreview.apk.sha256
             GridMates-Sudoku-NearbyCrisp-OwnerPreview.apk.receipt.json
             nearby-crisp-home-preview.png
+            nearby-crisp-coop-android.png
+            nearby-crisp-versus-android.png
+            nearby-crisp-capture-receipt.json
           if-no-files-found: error
           retention-days: 14
       - name: Save diagnostic test reports on failure
