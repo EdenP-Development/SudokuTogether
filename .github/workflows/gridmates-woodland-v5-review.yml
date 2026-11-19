@@ -9,6 +9,7 @@ on:
     paths:
       - 'app/src/main/res/drawable-nodpi/gm_mode_coop_woodland_v5_hd.png'
       - 'app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v5_hd.png'
+      - '.github/workflows/gridmates-woodland-v5-review.yml'
   workflow_dispatch:
 
 permissions:
