@@ -30,11 +30,9 @@ import androidx.compose.ui.unit.*
 @Composable internal fun NearbyModeBanner(mode: String, modifier: Modifier = Modifier) {
     val together = mode == "together"
     val largeText = LocalDensity.current.fontScale > 1.3f
-    // V3: native vector backdrop authored for this wide card avoids enlarging the
-    // 512x256 Home preview. Scale-independent, deliberately simpler motifs sit
-    // in the right-side safe zone; native text and gameplay controls stay intact.
-    val motif = if (together) R.drawable.gm_mode_coop_symbol_v3
-        else R.drawable.gm_mode_versus_symbol_v3
+    // V4 uses the exact high-resolution illustrated Woodland raster used by Home.
+    // The actual packaged collectible portraits, not synthetic substitutes or
+    // hand-drawn scene symbols, provide the right-side visual accent.
     val eyebrow = if (together) "PLAY TOGETHER" else "FRIENDLY COMPETITION"
     val heading = if (together) "Shared board" else "Race to finish"
 
@@ -42,25 +40,61 @@ import androidx.compose.ui.unit.*
         .clip(RoundedCornerShape(topStart = 19.dp, topEnd = 19.dp))
         .testTag(if (together) "nearby_art_coop" else "nearby_art_versus")) {
         Image(
-            painter = painterResource(R.drawable.gm_nearby_woodland_v3),
+            painter = painterResource(R.drawable.gm_woodland_storybook_hd_v4),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize().testTag("nearby_art_image")
         )
-        Image(
-            painter = painterResource(motif),
-            contentDescription = null,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier.align(Alignment.CenterEnd)
-                .width(if (largeText) 112.dp else 144.dp)
+        // Reuse real high-fidelity portrait assets already packaged for Collection.
+        // These are decorative mascots, not a claim that a player owns them.
+        Box(
+            Modifier.align(Alignment.BottomEnd)
+                .width(if (largeText) 116.dp else 151.dp)
                 .fillMaxHeight()
-                .padding(end = 7.dp, top = 8.dp, bottom = 8.dp)
-                .testTag("nearby_art_motif")
-        )
+                .padding(end = 7.dp, top = 6.dp, bottom = 6.dp)
+                .testTag("nearby_art_motif"),
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            if (together) {
+                Image(
+                    painter = painterResource(R.drawable.woodland_owl),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.align(Alignment.BottomStart)
+                        .size(if (largeText) 62.dp else 77.dp)
+                        .testTag("nearby_art_owl")
+                )
+                Image(
+                    painter = painterResource(R.drawable.woodland_fox),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                        .size(if (largeText) 87.dp else 106.dp)
+                        .testTag("nearby_art_fox")
+                )
+            } else {
+                Image(
+                    painter = painterResource(R.drawable.woodland_fox),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.align(Alignment.BottomStart)
+                        .size(if (largeText) 75.dp else 89.dp)
+                        .testTag("nearby_art_fox")
+                )
+                Image(
+                    painter = painterResource(R.drawable.woodland_owl),
+                    contentDescription = null,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier.align(Alignment.BottomEnd)
+                        .size(if (largeText) 75.dp else 89.dp)
+                        .testTag("nearby_art_owl")
+                )
+            }
+        }
         // Native text stays readable; none of its words are baked into art.
         Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(
-            0f to NightForest.copy(alpha = .79f),
-            .54f to NightForest.copy(alpha = .16f),
+            0f to NightForest.copy(alpha = .70f),
+            .54f to NightForest.copy(alpha = .08f),
             1f to Color.Transparent
         )))
         Column(Modifier.fillMaxHeight().fillMaxWidth(.59f)
