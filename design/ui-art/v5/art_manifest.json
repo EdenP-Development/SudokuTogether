@@ -1,0 +1,30 @@
+{
+  "schema": "gridmates.woodland-art.v5",
+  "based_on": "design/woodland-v4-hd-raster",
+  "status": "art-pack-verified-local-binary-upload-pending",
+  "new_assets": [
+    {
+      "mode": "coop",
+      "resource": "app/src/main/res/drawable-nodpi/gm_mode_coop_woodland_v5_hd.png",
+      "width": 1920,
+      "height": 819,
+      "bytes": 2537452,
+      "sha256": "943484370b66caf115c1033f632c2d0b0c0b92226bbaf9b3ae39d12ed98abdbc"
+    },
+    {
+      "mode": "versus",
+      "resource": "app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v5_hd.png",
+      "width": 1920,
+      "height": 819,
+      "bytes": 2463087,
+      "sha256": "a4f258fb640660a18b2d1061ba167dd670968578210da8ae2a2184bd07b09aee"
+    }
+  ],
+  "solo": "Keep V4 1774x887 woodland background and selected Collection companion",
+  "acceptance": [
+    "Review illustrations on actual Android 16 before merge",
+    "Replace decorative non-9x9 grid drawings or explicitly approve as artistic props",
+    "Preserve gameplay, LAN protocol, saves, achievements and release signing",
+    "Verify real two-phone LAN and production save-preserving install-over separately"
+  ]
+}
