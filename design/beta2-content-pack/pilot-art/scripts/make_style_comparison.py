@@ -2,7 +2,7 @@
 """Source-backed visual comparison, canonical GridMates vs five Beta2 pilots."""
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
-ROOT=Path(__file__).resolve().parents[3]
+ROOT=Path(__file__).resolve().parents[4]
 refs=[
 ("Fox · existing","app/src/main/res/drawable-nodpi/woodland_fox.png"),
 ("Owl · existing","app/src/main/res/drawable-nodpi/woodland_owl.png"),
