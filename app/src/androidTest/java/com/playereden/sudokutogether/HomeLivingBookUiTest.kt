@@ -73,14 +73,23 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("home_mode_together").performScrollTo().performClick()
         compose.onNodeWithTag("nearby_art_coop", useUnmergedTree = true).assertExists()
         compose.onNodeWithText("Shared board").assertExists()
+        assertHeadingFits("Shared board")
         compose.onNodeWithTag("nearby_difficulty_MEDIUM").performScrollTo().assertExists()
         compose.onNodeWithTag("require_code").performScrollTo().assertExists()
         compose.onNodeWithText("Start a game").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Join a game").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("home_mode_versus").performScrollTo().performClick()
         compose.onNodeWithTag("nearby_art_versus", useUnmergedTree = true).assertExists()
+        assertHeadingFits("Race to finish")
         compose.onNodeWithText("Start a race").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Join a game").performScrollTo().assertIsDisplayed()
+    }
+
+    private fun assertHeadingFits(heading: String) {
+        val layouts = mutableListOf<TextLayoutResult>()
+        compose.onNodeWithText(heading).performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layouts) }
+        val layout = layouts.single()
+        assertFalse("Nearby mode title must not visually overflow at 320dp/200% text: $heading", layout.hasVisualOverflow)
     }
 
     @Test fun homeSpotlightShowsTheActuallySelectedCollectionPortrait() {
