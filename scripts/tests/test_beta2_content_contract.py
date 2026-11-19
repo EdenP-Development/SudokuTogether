@@ -109,6 +109,65 @@ class Beta2ContentContractTest(unittest.TestCase):
         self.assertIn("original production certificate",
                       " ".join(self.manifest["release_gates"]))
 
+    def test_species_identity_and_reuse_policy(self):
+        # Existing live portraits are the baseline; species IDs cannot be
+        # duplicated by renamed content in a new family.
+        existing = {
+            "woodland": {"owl", "fox", "rabbit", "bear", "badger",
+                         "hedgehog", "robin", "deer", "squirrel", "otter",
+                         "tortoise", "cat"},
+            "ocean": {"octopus", "seal", "hermit_crab", "manta_ray",
+                      "jellyfish", "narwhal"},
+            "garden": {"honeybee", "ladybug", "butterfly", "dragonfly"},
+        }
+        for family, species in existing.items():
+            self.assertEqual(
+                {"_".join(id.split("_")[1:]) for id in self.current[family]},
+                species, f"Update the canonical existing species registry: {family}"
+            )
+        registered = {
+            animal: f"{family}_{animal}"
+            for family, members in existing.items()
+            for animal in members
+        }
+        self.assertEqual(22, len(registered))
+        portraits = [item for item in self.items if item["category"] == "portrait"]
+        self.assertEqual(21, len(portraits))
+        for item in portraits:
+            species = item.get("species_key", "")
+            self.assertTrue(re.fullmatch(r"[a-z][a-z0-9_]*", species),
+                            f"Missing or malformed species key: {item['id']}")
+            if species in registered:
+                self.assertEqual(registered[species], item.get("repeat_of"),
+                                 f"Repeated animal must reference original: {item['id']}")
+                self.assertTrue(item.get("variant_name"))
+                self.assertGreaterEqual(len(item.get("visual_differentiators", [])), 2)
+                self.assertTrue(item.get("justification"))
+                self.assertTrue(item.get("style_reference"))
+            else:
+                self.assertNotIn("repeat_of", item,
+                                 f"Unneeded repeat exemption: {item['id']}")
+            registered[species] = item["id"]
+        self.assertEqual(43, len(registered))
+        # Distinct terrestrial tortoise vs sea turtle is valid, not a repeat.
+        self.assertIn("tortoise", registered)
+        self.assertIn("sea_turtle", registered)
+
+    def test_art_bible_and_style_reference_gate(self):
+        bible = ROOT / "docs/GRIDMATES_CHARACTER_ART_BIBLE_AND_SPECIES_RULES.md"
+        self.assertTrue(bible.is_file())
+        rules = self.manifest.get("art_direction", {})
+        self.assertTrue(rules.get("prefer_unique_species"))
+        self.assertEqual([30, 48, 72], rules.get("review_sizes_dp"))
+        self.assertGreaterEqual(len(rules.get("reference_assets", [])), 4)
+        self.assertTrue(rules.get("must_review_alpha_edges"))
+        for reference in rules["reference_assets"]:
+            self.assertTrue((ROOT / reference).is_file(), reference)
+        text = bible.read_text(encoding="utf-8")
+        self.assertIn("visual_differentiators", text)
+        self.assertIn("Firefly", text)
+        self.assertIn("Versus", text)
+
     def test_projected_inventory_math(self):
         expected = self.manifest["proposed_additions"]
         self.assertEqual(21, expected["portraits"])
