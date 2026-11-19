@@ -30,10 +30,11 @@ import androidx.compose.ui.unit.*
 @Composable internal fun NearbyModeBanner(mode: String, modifier: Modifier = Modifier) {
     val together = mode == "together"
     val largeText = LocalDensity.current.fontScale > 1.3f
-    // Share the exact scenic artwork used on Home; the mode symbols are authored
-    // Android vector assets, not tiny compressed AI-painted screenshots.
-    val motif = if (together) R.drawable.gm_mode_coop_symbol_v2
-        else R.drawable.gm_mode_versus_symbol_v2
+    // V3: native vector backdrop authored for this wide card avoids enlarging the
+    // 512x256 Home preview. Scale-independent, deliberately simpler motifs sit
+    // in the right-side safe zone; native text and gameplay controls stay intact.
+    val motif = if (together) R.drawable.gm_mode_coop_symbol_v3
+        else R.drawable.gm_mode_versus_symbol_v3
     val eyebrow = if (together) "PLAY TOGETHER" else "FRIENDLY COMPETITION"
     val heading = if (together) "Shared board" else "Race to finish"
 
@@ -41,7 +42,7 @@ import androidx.compose.ui.unit.*
         .clip(RoundedCornerShape(topStart = 19.dp, topEnd = 19.dp))
         .testTag(if (together) "nearby_art_coop" else "nearby_art_versus")) {
         Image(
-            painter = painterResource(R.drawable.gm_home_chapter_woodland_v1),
+            painter = painterResource(R.drawable.gm_nearby_woodland_v3),
             contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize().testTag("nearby_art_image")
@@ -51,18 +52,18 @@ import androidx.compose.ui.unit.*
             contentDescription = null,
             contentScale = ContentScale.Fit,
             modifier = Modifier.align(Alignment.CenterEnd)
-                .width(if (largeText) 130.dp else 170.dp)
+                .width(if (largeText) 112.dp else 144.dp)
                 .fillMaxHeight()
-                .padding(end = 5.dp, top = 6.dp, bottom = 6.dp)
+                .padding(end = 7.dp, top = 8.dp, bottom = 8.dp)
                 .testTag("nearby_art_motif")
         )
         // Native text stays readable; none of its words are baked into art.
         Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(
-            0f to NightForest.copy(alpha = .83f),
-            .50f to NightForest.copy(alpha = .30f),
+            0f to NightForest.copy(alpha = .79f),
+            .54f to NightForest.copy(alpha = .16f),
             1f to Color.Transparent
         )))
-        Column(Modifier.fillMaxHeight().fillMaxWidth(.62f)
+        Column(Modifier.fillMaxHeight().fillMaxWidth(.59f)
             .padding(start = 17.dp, top = 14.dp, bottom = 13.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start) {
