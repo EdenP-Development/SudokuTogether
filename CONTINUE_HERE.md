@@ -1,5 +1,14 @@
 # Continue GridMates: Sudoku
 
+
+## Current canonical source — Woodland V5.1 (November 19, 2026)
+
+**Visual source has been consolidated into `main`** through [merged PR #92](https://github.com/PlayerEden/SudokuTogether/pull/92). Home/Solo remains the HD woodland with dynamically selected Collection companion; Co-op and Versus now have distinctive 1920×819 illustrated backgrounds. The Versus art was revised to eliminate the distorted checkered flag. V5.1 emulator review [#44633405848](https://github.com/PlayerEden/SudokuTogether/actions/runs/44633405848) and the direct `main` integration gate [#44633601301](https://github.com/PlayerEden/SudokuTogether/actions/runs/44633601301) passed; 13/13 Android 16 connected UI tests passed. The separate-install V5.1 preview APK is available in the emulator workflow artifact; it **does not update** public Beta 1 or share saved data.
+
+**One canonical baseline:** [Woodland V5.1 status, asset inventory and release gates](docs/WOODLAND_V51_CURRENT_BASELINE.md). Stacked V3/V4/V5 design PRs #89/#90/#91 are superseded. Older sections below document *historical* checkpoints, not the current default branch state.
+
+**Release remains separately blocked:** Public itch.io is still Beta 1; production Beta 2 install-over requires recovering the original signing identity and proving save preservation. Two-real-phone LAN gameplay is still awaiting final hands-on verification. Do not uninstall an existing game, use a different signer for its update, or publish the V5.1 reviewer APK as a public Beta 2 update.
+
 ## Newer Home gamefront visual-review checkpoint (Nov 17 ET / Nov 18 UTC)
 
 **Owner feedback:** The public-facing Home menu feels too much like a settings/utility page; the Daily Puzzle card is a visual strength to preserve. Beta 2 phone screenshots also revealed a genuine Profile achievement placeholder/title layout defect. [PR #75](https://github.com/PlayerEden/SudokuTogether/pull/75) fixed that defect on `main` with Android CI passing. [PR #77](https://github.com/PlayerEden/SudokuTogether/pull/77) documents the full owner screenshot review and prioritized issues.
