@@ -48,7 +48,7 @@ jobs:
           PY
       - name: Verify reviewer app cannot share production or earlier QA data
         run: |
-          grep -F 'applicationIdSuffix = if (woodlandV5Preview) ".qa.woodlandv5"' app/build.gradle.kts
+          grep -F 'applicationIdSuffix = if (woodlandV5Preview) ".qa.woodlandv51"' app/build.gradle.kts
           grep -F 'require(!(woodlandV5Preview && qaVersion != null))' app/build.gradle.kts
 
       - uses: actions/setup-java@v4
