@@ -50,7 +50,7 @@ fun styleLabel(a: Appearance): String = listOf(
 ).joinToString(" · ")
 
 private enum class CollectionCategory(val label: String) { ICONS("Player icons"), BOARDS("Boards"), NUMBERS("Numbers") }
-private enum class IconFamily(val label: String) { ALL("All"), BASIC("Basic"), WOODLAND("Woodland"), OCEAN("Ocean"), GARDEN("Garden") }
+private enum class IconFamily(val label: String) { ALL("All"), BASIC("Basic"), WOODLAND("Woodland"), OCEAN("Ocean"), GARDEN("Garden"), FARM("Farm") }
 private enum class NumberCategory(val label: String) { COLORS("Number colors"), FONTS("Number fonts") }
 
 private enum class CosmeticGroup(val key: String, val label: String, val useLabel: String) {
@@ -79,7 +79,8 @@ private data class CollectionItem(val cosmetic: Cosmetic, val group: CosmeticGro
 private val iconItems = Cosmetics.emblems.map { CollectionItem(it, CosmeticGroup.EMBLEM, IconFamily.BASIC) } +
     Cosmetics.woodlandPortraits.map { CollectionItem(it, CosmeticGroup.PORTRAIT, IconFamily.WOODLAND) } +
     Cosmetics.oceanPortraits.map { CollectionItem(it, CosmeticGroup.PORTRAIT, IconFamily.OCEAN) } +
-    Cosmetics.gardenPortraits.map { CollectionItem(it, CosmeticGroup.PORTRAIT, IconFamily.GARDEN) }
+    Cosmetics.gardenPortraits.map { CollectionItem(it, CosmeticGroup.PORTRAIT, IconFamily.GARDEN) } +
+    Cosmetics.farmPortraits.map { CollectionItem(it, CosmeticGroup.PORTRAIT, IconFamily.FARM) }
 private val boardItems = Cosmetics.boards.map { CollectionItem(it, CosmeticGroup.BOARD) }
 private val inkItems = Cosmetics.inks.map { CollectionItem(it, CosmeticGroup.INK) }
 private val fontItems = Cosmetics.fonts.map { CollectionItem(it, CosmeticGroup.FONT) }
