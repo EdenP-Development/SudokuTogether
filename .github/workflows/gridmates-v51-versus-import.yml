@@ -1,0 +1,56 @@
+name: GridMates V5.1 Versus art revision import
+
+on:
+  push:
+    branches: [design/woodland-v5-mode-art-checkpoint]
+    paths: ['.github/workflows/gridmates-v51-versus-import.yml']
+
+permissions:
+  contents: write
+
+jobs:
+  import-reviewed-illustration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Download and verify the replacement illustration
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p app/src/main/res/drawable-nodpi
+          curl -fSL --retry 3 --connect-timeout 15 --max-time 180             "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/4ecd4c8db67f274eacf29978a8c9a4498b2e5b5eb869311bd3926629f7e1bc6e.png"             -o app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v5_hd.png
+          python3 - <<'PY'
+          import hashlib, json, struct
+          from pathlib import Path
+          p=Path("app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v5_hd.png")
+          b=p.read_bytes()
+          expected="3c3d2df41cfb6807123726a49902723be0f7271b57fbfb553bed3d1dd7212314"
+          assert hashlib.sha256(b).hexdigest()==expected, "Unexpected or modified image bytes"
+          assert len(b)==2355351
+          assert b[:8]==bytes((137,80,78,71,13,10,26,10))
+          assert b[12:16]==b"IHDR"
+          assert struct.unpack(">II",b[16:24])==(1920,819)
+          manifest_path=Path("design/ui-art/v5/art_manifest.json")
+          m=json.loads(manifest_path.read_text())
+          item=next(x for x in m["new_assets"] if x["mode"]=="versus")
+          assert item["resource"]==str(p)
+          item["bytes"]=len(b)
+          item["sha256"]=expected
+          m["status"]="v5.1-flag-artifact-replaced-owner-review-required"
+          m["visual_revision"]="V5.1: replaced distorted checkered flag with simplified woodland competition scene; original V5 art preserved in git history."
+          manifest_path.write_text(json.dumps(m,indent=2)+"\n")
+          print("PASS: exact V5.1 replacement bytes, resolution and manifest updated")
+          PY
+      - name: Commit the verified binary and manifest atomically
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v5_hd.png design/ui-art/v5/art_manifest.json
+          git diff --cached --quiet && { echo "No changed artwork"; exit 0; }
+          git commit -m "art: replace Versus distorted flag with clean Woodland V5.1 race scene"
+          git push origin HEAD:design/woodland-v5-mode-art-checkpoint
