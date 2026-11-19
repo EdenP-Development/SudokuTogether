@@ -21,7 +21,7 @@ ROOT = Path(__file__).resolve().parent.parent
 MANIFEST = ROOT / "design/ui-art/v5/art_manifest.json"
 BANNER = ROOT / "app/src/main/java/com/playereden/sudokutogether/NearbyModeBanner.kt"
 TEST = ROOT / "app/src/androidTest/java/com/playereden/sudokutogether/HomeLivingBookUiTest.kt"
-PNG_MAGIC = b"\\x89PNG\\r\\n\\x1a\\n"
+PNG_MAGIC = bytes((137, 80, 78, 71, 13, 10, 26, 10))
 
 
 def validate_source_integration() -> None:
