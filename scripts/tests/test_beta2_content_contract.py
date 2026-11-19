@@ -101,6 +101,29 @@ class Beta2ContentContractTest(unittest.TestCase):
             self.assertEqual("proposed_not_shipped", item["state"])
             self.assertTrue(item["required_art"])
 
+    def test_all_new_portraits_share_canonical_style_and_species_are_distinct(self):
+        portraits = [item for item in self.items if item["category"] == "portrait"]
+        species = [item["species_key"] for item in portraits]
+        self.assertEqual(len(species), len(set(species)),
+                         "Repeated species need explicit reviewed exception, not accidental reuse")
+        for item in portraits:
+            self.assertEqual("gridmates_chibi_v1", item["art_family"], item["id"])
+            self.assertIsNone(item.get("repeat_exemption"),
+                              "Current Beta 2 pack should not rely on repeated species")
+            self.assertTrue(item["species_description"].strip())
+        existing_species = {
+            # Existing species are checked as common identity concepts, not only identical IDs.
+            "owl", "fox", "rabbit", "bear", "badger", "hedgehog", "robin",
+            "deer", "squirrel", "otter", "land_tortoise", "cat",
+            "octopus", "harbor_seal", "hermit_crab", "manta_ray",
+            "jellyfish", "narwhal", "honeybee", "ladybug",
+            "butterfly", "dragonfly",
+        }
+        self.assertFalse(existing_species.intersection(species),
+                         "Do not repeat a currently owned species without a separate review")
+        self.assertIn("sea_turtle", species)
+        self.assertNotIn("land_tortoise", species)
+
     def test_existing_owned_cosmetic_mechanism_is_not_replaced(self):
         # Constraints must stay visible to implementers and in core source.
         self.assertIn("ownedCosmeticIds", self.source)
