@@ -1,0 +1,387 @@
+{
+  "schema_version": 1,
+  "project": "GridMates: Sudoku",
+  "branch_purpose": "design-only preproduction Beta 2 expansion; no unlock IDs enabled until corresponding art/fonts/palettes are bundled and tested",
+  "source_baseline": {
+    "repo": "PlayerEden/SudokuTogether",
+    "branch": "main",
+    "existing_counts": {
+      "portraits": 22,
+      "emblems": 6,
+      "boards": 7,
+      "number_inks": 10,
+      "number_fonts": 5,
+      "total": 50
+    },
+    "existing_families": {
+      "woodland": 12,
+      "ocean": 6,
+      "garden": 4
+    },
+    "compatibility": "Preserve all existing IDs and thresholds, earned ownedCosmeticIds, profile backup, LAN appearance protocol, signing identity"
+  },
+  "proposed_additions": {
+    "portraits": 21,
+    "boards": 4,
+    "number_fonts": 4,
+    "inks": 0,
+    "new_portrait_families": [
+      "Farm"
+    ],
+    "total": 29,
+    "projected_total": 79
+  },
+  "items": [
+    {
+      "id": "woodland_chipmunk",
+      "name": "Chipmunk",
+      "category": "portrait",
+      "family": "Woodland",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 16
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "woodland_raccoon",
+      "name": "Raccoon",
+      "category": "portrait",
+      "family": "Woodland",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 24
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "woodland_beaver",
+      "name": "Beaver",
+      "category": "portrait",
+      "family": "Woodland",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 39
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "woodland_woodpecker",
+      "name": "Woodpecker",
+      "category": "portrait",
+      "family": "Woodland",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 56
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "woodland_skunk",
+      "name": "Skunk",
+      "category": "portrait",
+      "family": "Woodland",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 90
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "ocean_sea_turtle",
+      "name": "Sea Turtle",
+      "category": "portrait",
+      "family": "Ocean",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 12
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "ocean_seahorse",
+      "name": "Seahorse",
+      "category": "portrait",
+      "family": "Ocean",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 30
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "ocean_dolphin",
+      "name": "Dolphin",
+      "category": "portrait",
+      "family": "Ocean",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 46
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "ocean_starfish",
+      "name": "Sea Star",
+      "category": "portrait",
+      "family": "Ocean",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 67
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "ocean_clownfish",
+      "name": "Clownfish",
+      "category": "portrait",
+      "family": "Ocean",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 95
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "garden_snail",
+      "name": "Snail",
+      "category": "portrait",
+      "family": "Garden",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 11
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "garden_caterpillar",
+      "name": "Caterpillar",
+      "category": "portrait",
+      "family": "Garden",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 23
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "garden_firefly",
+      "name": "Firefly",
+      "category": "portrait",
+      "family": "Garden",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 42
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "garden_grasshopper",
+      "name": "Grasshopper",
+      "category": "portrait",
+      "family": "Garden",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 62
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "garden_praying_mantis",
+      "name": "Praying Mantis",
+      "category": "portrait",
+      "family": "Garden",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 100
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "farm_cow",
+      "name": "Cow",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "starter",
+        "target": 0
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "farm_chicken",
+      "name": "Chicken",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 7
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "farm_sheep",
+      "name": "Sheep",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 20
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "farm_pig",
+      "name": "Pig",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 36
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "farm_duck",
+      "name": "Duck",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 58
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "farm_goat",
+      "name": "Goat",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 85
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent character PNG matching canonical Collection style"
+    },
+    {
+      "id": "moss",
+      "name": "Moss",
+      "category": "board",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 16
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "complete contrast-safe BoardPalette for all Sudoku cell states"
+    },
+    {
+      "id": "rosewood",
+      "name": "Rosewood",
+      "category": "board",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 28
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "complete contrast-safe BoardPalette for all Sudoku cell states"
+    },
+    {
+      "id": "pebble",
+      "name": "Pebble",
+      "category": "board",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 48
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "complete contrast-safe BoardPalette for all Sudoku cell states"
+    },
+    {
+      "id": "tidal",
+      "name": "Tidal",
+      "category": "board",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 70
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "complete contrast-safe BoardPalette for all Sudoku cell states"
+    },
+    {
+      "id": "typewriter",
+      "name": "Typewriter",
+      "category": "font",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 14
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "redistributable bundled static TTF/OTF with license and visibly distinct glyphs"
+    },
+    {
+      "id": "editorial",
+      "name": "Editorial",
+      "category": "font",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 26
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "redistributable bundled static TTF/OTF with license and visibly distinct glyphs"
+    },
+    {
+      "id": "soft_print",
+      "name": "Soft Print",
+      "category": "font",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 45
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "redistributable bundled static TTF/OTF with license and visibly distinct glyphs"
+    },
+    {
+      "id": "tall_print",
+      "name": "Tall Print",
+      "category": "font",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 75
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "redistributable bundled static TTF/OTF with license and visibly distinct glyphs"
+    }
+  ],
+  "release_gates": [
+    "Every portrait has distinct high quality source+Android resource+renderer mapping and 30/48/72dp previews",
+    "Every board registers a contrast-tested palette covering selected, related, partner, matching, conflict, proof, pencil notes and dark/light states",
+    "Every font is a documented redistribution-licensed bundled static face and has legible distinct digits 1–9 in real grid/notes",
+    "No game rules, default progression, existing IDs, thresholds or owned status changed",
+    "Completed-puzzle milestones remain deduplicated, count SOLO DAILY COOP and VERSUS WIN and show accurate progress",
+    "Newly earned ownership survives record pruning and JSON backup/restore with legacy saves",
+    "Multi-device missing/unknown new IDs fall back safely; two-phone LAN smoke",
+    "Android API26–36 validation and actual phone/capture review",
+    "Real Beta 1→Beta 2 update must use original production certificate, higher version code and save-preserving install-over; never replace signed public game with reviewer build"
+  ]
+}
