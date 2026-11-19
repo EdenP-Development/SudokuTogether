@@ -1,4 +1,4 @@
-name: GridMates Woodland V5 isolated owner art preview
+name: GridMates Woodland V5.1 isolated owner art preview
 
 # Only build an art-preview APK after BOTH original V5 PNG binaries are added.
 # This is a different Android package, never a public release or QA install-over.
@@ -70,7 +70,7 @@ jobs:
         run: |
           set -euo pipefail
           tools="$ANDROID_HOME/build-tools/35.0.0"
-          apk=GridMates-WoodlandV5-OwnerPreview.apk
+          apk=GridMates-WoodlandV51-OwnerPreview.apk
           cp app/build/outputs/apk/debug/app-debug.apk "$apk"
           test -s "$apk"
           "$tools/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > /tmp/gridmates-v5-signer.txt
@@ -80,9 +80,9 @@ jobs:
           appid=$(sed -n "s/^package: name='\([^']*\)'.*/\1/p" <<< "$package_line")
           code=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" <<< "$package_line")
           version=$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" <<< "$package_line")
-          test "$appid" = 'com.playereden.sudokutogether.qa.woodlandv5'
+          test "$appid" = 'com.playereden.sudokutogether.qa.woodlandv51'
           test "$code" = '31'
-          test "$version" = '1.0.0-beta.2-qa.woodlandv5'
+          test "$version" = '1.0.0-beta.2-qa.woodlandv51'
           [[ "$signer" =~ ^[0-9a-f]{64}$ ]]
           export V5_APK="$apk" V5_APPID="$appid" V5_VERSION="$version" V5_SIGNER="$signer"
           python3 - <<'PY'
@@ -90,7 +90,7 @@ jobs:
           from pathlib import Path
           f = Path(os.environ["V5_APK"])
           receipt = dict(
-              kind="ISOLATED_WOODLAND_V5_OWNER_PREVIEW_NOT_PUBLIC_UPDATE",
+              kind="ISOLATED_WOODLAND_V51_OWNER_PREVIEW_NOT_PUBLIC_UPDATE",
               source_commit=os.environ["GITHUB_SHA"], filename=f.name,
               size_bytes=f.stat().st_size, sha256=hashlib.sha256(f.read_bytes()).hexdigest(),
               package=os.environ["V5_APPID"], version_code=31,
@@ -126,11 +126,11 @@ jobs:
       - name: Publish verified separate-install APK and real Android screen captures
         uses: actions/upload-artifact@v4
         with:
-          name: GridMates-WoodlandV5-OwnerPreview
+          name: GridMates-WoodlandV51-OwnerPreview
           path: |
-            GridMates-WoodlandV5-OwnerPreview.apk
-            GridMates-WoodlandV5-OwnerPreview.apk.sha256
-            GridMates-WoodlandV5-OwnerPreview.apk.receipt.json
+            GridMates-WoodlandV51-OwnerPreview.apk
+            GridMates-WoodlandV51-OwnerPreview.apk.sha256
+            GridMates-WoodlandV51-OwnerPreview.apk.receipt.json
             woodland-v5-home-preview.png
             woodland-v5-coop-android.png
             woodland-v5-versus-android.png
