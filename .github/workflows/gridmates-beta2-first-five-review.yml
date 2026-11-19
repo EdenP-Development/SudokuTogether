@@ -1,0 +1,112 @@
+name: GridMates Beta 2 first-five isolated Android reviewer
+on:
+  push:
+    branches: [feat/beta2-first-five-portraits-review]
+    paths: ['.github/workflows/gridmates-beta2-first-five-review.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gridmates-beta2-portrait-review
+  cancel-in-progress: true
+jobs:
+  owner-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require all five original checksum-verified transparent PNGs
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,struct
+          from pathlib import Path
+          m=json.loads(Path("design/beta2-content-pack/first-five-android-art.json").read_text())
+          assert len(m["images"])==5
+          for x in m["images"]:
+              p=Path(x["path"])
+              b=p.read_bytes()
+              assert hashlib.sha256(b).hexdigest()==x["sha256"]
+              assert len(b)==x["bytes"]
+              assert b[:8]==bytes((137,80,78,71,13,10,26,10)) and b[12:16]==b"IHDR"
+              assert struct.unpack(">II",b[16:24])==(512,512)
+          print("PASS: five original alpha PNGs available to Android")
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Compile, JVM regressions, lint, AndroidTest compile and isolated APK
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta2PortraitPreview=true --no-daemon --max-workers=2 --console=plain
+      - name: Validate isolated APK id and signed hash receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk=GridMates-Beta2-FirstFive-OwnerPreview.apk
+          cp app/build/outputs/apk/debug/app-debug.apk "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" > /tmp/beta2-signer.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > /tmp/beta2-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta2portraits'" /tmp/beta2-badging.txt
+          grep -F "versionName='1.0.0-beta.2-qa.beta2portraits'" /tmp/beta2-badging.txt
+          sha256sum "$apk" > "$apk.sha256"
+          python3 - <<'PY'
+          import json,hashlib,os
+          from pathlib import Path
+          p=Path("GridMates-Beta2-FirstFive-OwnerPreview.apk")
+          r={"status":"UNAPPROVED_ISOLATED_CONTENT_REVIEW_ONLY","source_sha":os.environ["GITHUB_SHA"],
+          "package":"com.playereden.sudokutogether.qa.beta2portraits","bytes":p.stat().st_size,
+          "sha256":hashlib.sha256(p.read_bytes()).hexdigest(),"shares_production_save_data":False,
+          "real_phone_approved":False,"release_signed":False}
+          Path("beta2-first-five-receipt.json").write_text(json.dumps(r,indent=2)+"\n")
+          PY
+      - name: Enable emulator KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android 16 install, launch, Collection screenshot and Farm UI checks
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            set -e
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n com.playereden.sudokutogether.qa.beta2portraits/com.playereden.sudokutogether.MainActivity
+            sleep 4
+            adb shell pidof com.playereden.sudokutogether.qa.beta2portraits
+            adb exec-out screencap -p > beta2-first-five-home-android.png
+            python3 scripts/beta2_first_five_capture.py
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2PortraitPreview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.CollectionPolishUiTest"
+      - name: Publish independent reviewer package and actual Android captures
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-FirstFive-OwnerPreview
+          path: |
+            GridMates-Beta2-FirstFive-OwnerPreview.apk
+            GridMates-Beta2-FirstFive-OwnerPreview.apk.sha256
+            beta2-first-five-receipt.json
+            beta2-first-five-home-android.png
+            beta2-first-five-collection-android.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Save diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-FirstFive-Failure-Diagnostics
+          path: |
+            app/build/reports/tests/**
+            app/build/reports/androidTests/**
+            core/build/reports/tests/**
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
+          retention-days: 5
