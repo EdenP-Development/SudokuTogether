@@ -10,6 +10,12 @@ val woodlandV5Preview = providers.gradleProperty("gridmatesWoodlandV5Preview").o
     require(it == "true") { "gridmatesWoodlandV5Preview only accepts true" }
     true
 } ?: false
+// Experimental Beta 2 collection APK never shares production or V5.1 review data.
+val beta2PortraitPreview = providers.gradleProperty("gridmatesBeta2PortraitPreview").orNull?.let {
+    require(it == "true") { "gridmatesBeta2PortraitPreview only accepts true" }
+    true
+} ?: false
+require(!(beta2PortraitPreview && woodlandV5Preview)) { "Only one isolated preview type can be selected" }
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
 require(qaUpdateFlag == null || qaUpdateFlag == "true") { "gridmatesQaUpdate must be true when supplied" }
 val qaVersion = providers.gradleProperty("gridmatesQaVersionCode").orNull?.let { value ->
@@ -19,6 +25,7 @@ val qaVersion = providers.gradleProperty("gridmatesQaVersionCode").orNull?.let {
     number.toInt()
 }
 require((qaUpdateFlag == "true") == (qaVersion != null)) { "QA update mode and version code must be supplied together" }
+require(!(beta2PortraitPreview && qaVersion != null)) { "Portrait preview must not share QA-update identity" }
 require(!(woodlandV5Preview && qaVersion != null)) {
     "Woodland V5 preview must not use a same-package QA update"
 }
@@ -50,9 +57,17 @@ android {
         debug {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
-            applicationIdSuffix = if (woodlandV5Preview) ".qa.woodlandv51" else ".qa"
-            versionNameSuffix = if (woodlandV5Preview) "-qa.woodlandv51"
-                else if (qaVersion != null) "-qa.$qaVersion" else "-qa"
+            applicationIdSuffix = when {
+                beta2PortraitPreview -> ".qa.beta2portraits"
+                woodlandV5Preview -> ".qa.woodlandv51"
+                else -> ".qa"
+            }
+            versionNameSuffix = when {
+                beta2PortraitPreview -> "-qa.beta2portraits"
+                woodlandV5Preview -> "-qa.woodlandv51"
+                qaVersion != null -> "-qa.$qaVersion"
+                else -> "-qa"
+            }
             if (qaVersion != null) signingConfig = signingConfigs.getByName("qaContinuity")
         }
         release {
