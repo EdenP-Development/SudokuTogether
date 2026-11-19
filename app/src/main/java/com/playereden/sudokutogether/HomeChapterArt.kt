@@ -43,13 +43,13 @@ import com.playereden.sudokutogether.core.Appearance
         .testTag("home_chapter_art")) {
         if (woodland) {
             Image(
-                painter = painterResource(R.drawable.gm_home_chapter_woodland_v1),
+                painter = painterResource(R.drawable.gm_woodland_storybook_hd_v4),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.fillMaxSize().testTag("home_woodland_backdrop")
             )
         } else {
-            // An honest neutral backdrop until Ocean/Garden scenes are authored.
+            // Non-Woodland appearances remain neutral until their own illustrated masters are approved.
             Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(
                 listOf(Color(0xFF527467), Color(0xFFDCE9DE), Color(0xFFF2EBD7))
             )))
