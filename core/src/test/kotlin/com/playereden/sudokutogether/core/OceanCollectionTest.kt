@@ -9,7 +9,7 @@ class OceanCollectionTest {
 
     @Test fun octopusIsTheOnlyOceanStarter() {
         val ocean = Cosmetics.portraits.filter { it.id.startsWith("ocean_") }
-        assertEquals(listOf("Octopus", "Harbor Seal", "Hermit Crab", "Manta Ray", "Jellyfish", "Narwhal"), ocean.map { it.name })
+        assertEquals(listOf("Octopus", "Sea Turtle", "Harbor Seal", "Hermit Crab", "Manta Ray", "Jellyfish", "Narwhal"), ocean.map { it.name })
         assertEquals(listOf("ocean_octopus"), ocean.filter { Cosmetics.allowed(it.id, emptyList()) }.map { it.id })
         assertEquals("Starter", ocean.first().requirement)
         val look = Appearance(portrait = "ocean_octopus")
