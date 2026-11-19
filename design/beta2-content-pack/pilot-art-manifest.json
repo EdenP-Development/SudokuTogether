@@ -1,0 +1,49 @@
+{
+  "status": "preproduction_pilot_only_NOT_in_game",
+  "owner_review_required": true,
+  "source": "November 19 2026 illustrated contact sheet with 5 animals",
+  "files": [
+    {
+      "path": "design/beta2-content-pack/pilot-art/farm_cow_pilot.png",
+      "sha256": "7d47dc4a60a583a9fd7f8187e6b37e61b29069e60287b7db45004dfb822ff9af",
+      "bytes": 168388,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "path": "design/beta2-content-pack/pilot-art/farm_chicken_pilot.png",
+      "sha256": "3d9efa28dee23b9f06996a311e79220ed9e3dab7b17c692086b26221182f6119",
+      "bytes": 148858,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "path": "design/beta2-content-pack/pilot-art/woodland_raccoon_pilot.png",
+      "sha256": "e9f690eb23130f138175faa2bf309157ca375d905c635c64e6ce560112f35e78",
+      "bytes": 177133,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "path": "design/beta2-content-pack/pilot-art/ocean_sea_turtle_pilot.png",
+      "sha256": "36c8348b41b135490952ffe9c973fc9da315c7de4c040ed5e81286603b8e914d",
+      "bytes": 177436,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "path": "design/beta2-content-pack/pilot-art/garden_firefly_pilot.png",
+      "sha256": "c78ac1dc64dbfcbc1e9a06de9b704cedd2aca01302b0bce446e5642a5c6ee4b0",
+      "bytes": 183057,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "path": "design/beta2-content-pack/pilot-art/pilot_source_sheet.png",
+      "sha256": "ef1e0cbf1306f175e414319e57b488993faf5c569afaa6fb8c17b97774361f0d",
+      "bytes": 912477,
+      "width": 2172,
+      "height": 724
+    }
+  ]
+}
