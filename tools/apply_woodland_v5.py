@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Apply GridMates Woodland V5 raster mode banners to a V4-based checkout.
+"""Verify and import the two original HD V5 images from an extracted review ZIP.
+
+The source integration has already been committed to the V5 draft branch.
+This script copies ONLY verified image assets. It never patches Kotlin,
+removes Collection portraits, or touches release-signing configuration.
 
 Usage:
-    python tools/apply_woodland_v5.py /path/to/extracted/V5-art-pack --dry-run
-    python tools/apply_woodland_v5.py /path/to/extracted/V5-art-pack
-
-This script deliberately fails closed on source drift. Commit the resulting
-Kotlin, instrumentation-test, and binary image changes together; do not merge
-until the Android build and actual screenshots are reviewed.
+    python tools/apply_woodland_v5.py /path/to/unzipped/V5_pack --dry-run
+    python tools/apply_woodland_v5.py /path/to/unzipped/V5_pack
 """
 from __future__ import annotations
 
@@ -17,106 +17,73 @@ import json
 import struct
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parent.parent
-MANIFEST = REPO / "design/ui-art/v5/art_manifest.json"
-BANNER = REPO / "app/src/main/java/com/playereden/sudokutogether/NearbyModeBanner.kt"
-TEST = REPO / "app/src/androidTest/java/com/playereden/sudokutogether/HomeLivingBookUiTest.kt"
-V4_PAINTER = "painter = painterResource(R.drawable.gm_woodland_storybook_hd_v4),"
-V5_PAINTER = ("painter = painterResource(if (together) "
-              "R.drawable.gm_mode_coop_woodland_v5_hd else "
-              "R.drawable.gm_mode_versus_woodland_v5_hd),")
-OVERLAY_START = "        // Reuse real high-fidelity portrait assets already packaged for Collection."
-OVERLAY_END = "        // Native text stays readable; none of its words are baked into art."
+ROOT = Path(__file__).resolve().parent.parent
+MANIFEST = ROOT / "design/ui-art/v5/art_manifest.json"
+BANNER = ROOT / "app/src/main/java/com/playereden/sudokutogether/NearbyModeBanner.kt"
+TEST = ROOT / "app/src/androidTest/java/com/playereden/sudokutogether/HomeLivingBookUiTest.kt"
+PNG_MAGIC = b"\\x89PNG\\r\\n\\x1a\\n"
 
 
-def require_one(content: str, needle: str, title: str):
-    if content.count(needle) != 1:
-        raise RuntimeError(f"{title}: expected exactly one '{needle}'")
+def validate_source_integration() -> None:
+    code = BANNER.read_text(encoding="utf-8")
+    test = TEST.read_text(encoding="utf-8")
+    required_code = (
+        'gm_mode_coop_woodland_v5_hd',
+        'gm_mode_versus_woodland_v5_hd',
+        'val hasV5Art = distinctAssetId != 0',
+        'testTag("nearby_art_v5")',
+        'if (hasV5Art)',
+        'R.drawable.gm_woodland_storybook_hd_v4',
+    )
+    for marker in required_code:
+        if marker not in code:
+            raise RuntimeError(f"V5 integration missing from Android source: {marker}")
+    if test.count('assertModeArtDoesNotDuplicateMascots()') < 3:
+        # One function declaration + two separate mode assertions.
+        raise RuntimeError("V5 instrumentation regression checks are missing")
 
 
-def verified_assets(artpack: Path):
-    info = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    result = []
-    for item in info["new_assets"]:
-        source = artpack / item["resource"]
-        target = REPO / item["resource"]
-        if not source.is_file():
-            raise RuntimeError(f"Missing packaged image: {source}")
-        data = source.read_bytes()
-        if hashlib.sha256(data).hexdigest() != item["sha256"]:
-            raise RuntimeError(f"SHA-256 mismatch: {source}")
-        if len(data) != item["bytes"]:
-            raise RuntimeError(f"Byte-size mismatch: {source}")
-        if data[:8] != bytes([137, 80, 78, 71, 13, 10, 26, 10]) or data[12:16] != b"IHDR":
-            raise RuntimeError(f"Invalid PNG: {source}")
-        if struct.unpack(">II", data[16:24]) != (item["width"], item["height"]):
-            raise RuntimeError(f"Dimensions mismatch: {source}")
-        if target.exists() and target.read_bytes() != data:
-            raise RuntimeError(f"Existing checked-in image differs from verified V5 asset: {target}")
-        result.append((target, data))
-    return result
-
-
-def patch_banner(code: str):
-    require_one(code, V4_PAINTER, "V4 banner")
-    require_one(code, OVERLAY_START, "V4 mascot overlay start")
-    require_one(code, OVERLAY_END, "V4 mascot overlay end")
-    code = code.replace(V4_PAINTER, V5_PAINTER, 1)
-    start = code.index(OVERLAY_START)
-    end = code.index(OVERLAY_END, start)
-    code = (code[:start]
-            + "        // V5: each multiplayer raster includes its own Fox/Owl characters.\n"
-            + "        // Do not overlay duplicate Collection portraits.\n"
-            + code[end:])
-    old_comment = ("    // V4 uses the exact high-resolution illustrated Woodland raster used by Home.\n"
-                   "    // The actual packaged collectible portraits, not synthetic substitutes or\n"
-                   "    // hand-drawn scene symbols, provide the right-side visual accent.")
-    new_comment = ("    // V5: unique full-resolution mode illustrations; Solo retains the V4 scene.\n"
-                   "    // All headings and controls remain native Android Compose.")
-    require_one(code, old_comment, "V4 banner documentation")
-    return code.replace(old_comment, new_comment, 1)
-
-
-def patch_tests(tests: str):
-    for mode, following in [
-        ("coop", '        compose.onNodeWithText("Shared board").performScrollTo().assertIsDisplayed()'),
-        ("versus", '        compose.onNodeWithText("Race to finish").assertIsDisplayed()'),
-    ]:
-        marker = f'        compose.onNodeWithTag("nearby_art_{mode}", useUnmergedTree = true).assertIsDisplayed()'
-        require_one(tests, marker, f"{mode} test")
-        require_one(tests, following, f"{mode} heading test")
-        start = tests.index(marker)
-        end = tests.index(following, start)
-        part = tests[start:end]
-        for tag in ("nearby_art_motif", "nearby_art_fox", "nearby_art_owl"):
-            old = f'compose.onNodeWithTag("{tag}", useUnmergedTree = true).assertExists()'
-            new = f'compose.onNodeWithTag("{tag}", useUnmergedTree = true).assertDoesNotExist()'
-            require_one(part, old, f"{mode} {tag} assertion")
-            part = part.replace(old, new, 1)
-        tests = tests[:start] + part + tests[end:]
-    return tests
-
-
-def main():
+def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("artpack", type=Path, help="Directory extracted from V5 review ZIP")
+    parser.add_argument("artpack", type=Path,
+                        help="Directory extracted from the V5 Complete Review Pack")
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
-    assets = verified_assets(args.artpack.resolve())
-    banner = patch_banner(BANNER.read_text(encoding="utf-8"))
-    tests = patch_tests(TEST.read_text(encoding="utf-8"))
+    validate_source_integration()
+
+    entries = json.loads(MANIFEST.read_text(encoding="utf-8"))["new_assets"]
+    pending: list[tuple[Path, bytes]] = []
+    for spec in entries:
+        src = args.artpack.resolve() / spec["resource"]
+        dst = ROOT / spec["resource"]
+        if not src.is_file():
+            raise RuntimeError(f"Missing original image: {src}")
+        data = src.read_bytes()
+        digest = hashlib.sha256(data).hexdigest()
+        if digest != spec["sha256"]:
+            raise RuntimeError(f"SHA-256 mismatch for {src}: {digest}")
+        if len(data) != spec["bytes"]:
+            raise RuntimeError(f"Byte length mismatch for {src}")
+        if data[:8] != PNG_MAGIC or data[12:16] != b"IHDR":
+            raise RuntimeError(f"Invalid PNG header: {src}")
+        if struct.unpack(">II", data[16:24]) != (spec["width"], spec["height"]):
+            raise RuntimeError(f"Wrong image dimensions: {src}")
+        if dst.exists() and dst.read_bytes() != data:
+            raise RuntimeError(f"Destination differs; refusing overwrite: {dst}")
+        pending.append((dst, data))
+        print(f"PASS {src.name}: {len(data):,} bytes, {digest}")
+
     if args.dry_run:
-        print("PASS: 2 HD PNGs verified; Kotlin and UI-test patch anchors verified.")
-        print("DRY RUN: no source or resource files modified.")
+        print("Dry-run passed. No files changed.")
         return
-    for path, data in assets:
-        path.parent.mkdir(parents=True, exist_ok=True)
-        if not path.exists():
-            path.write_bytes(data)
-    BANNER.write_text(banner, encoding="utf-8")
-    TEST.write_text(tests, encoding="utf-8")
-    print("Applied V5 Co-op/Versus images and removed duplicate mascot layers.")
-    print("Next: commit binaries+source+tests, build reviewer APK, run Android 16 UI QA.")
+    for dst, data in pending:
+        dst.parent.mkdir(parents=True, exist_ok=True)
+        if not dst.exists():
+            dst.write_bytes(data)
+            print(f"Imported {dst.relative_to(ROOT)}")
+        else:
+            print(f"Already present (exact checksum): {dst.relative_to(ROOT)}")
+    print("V5 art import complete. Next: commit both images, run Android QA.")
 
 
 if __name__ == "__main__":
