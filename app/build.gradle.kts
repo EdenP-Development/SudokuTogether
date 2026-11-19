@@ -50,8 +50,8 @@ android {
         debug {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
-            applicationIdSuffix = if (woodlandV5Preview) ".qa.woodlandv5" else ".qa"
-            versionNameSuffix = if (woodlandV5Preview) "-qa.woodlandv5"
+            applicationIdSuffix = if (woodlandV5Preview) ".qa.woodlandv51" else ".qa"
+            versionNameSuffix = if (woodlandV5Preview) "-qa.woodlandv51"
                 else if (qaVersion != null) "-qa.$qaVersion" else "-qa"
             if (qaVersion != null) signingConfig = signingConfigs.getByName("qaContinuity")
         }
