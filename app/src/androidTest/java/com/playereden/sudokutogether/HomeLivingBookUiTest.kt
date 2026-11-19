@@ -42,9 +42,7 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("home_mode_together").performScrollTo().performClick()
         compose.onNodeWithTag("nearby_art_coop", useUnmergedTree = true).assertIsDisplayed()
         compose.onNodeWithTag("nearby_art_image", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag("nearby_art_motif", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag("nearby_art_fox", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag("nearby_art_owl", useUnmergedTree = true).assertExists()
+        assertModeArtDoesNotDuplicateMascots()
         compose.onNodeWithText("Shared board").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Start a game").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Join a game").performScrollTo().assertIsDisplayed()
@@ -53,9 +51,7 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("home_mode_versus").performScrollTo().performClick()
         compose.onNodeWithTag("nearby_setup").assertIsDisplayed()
         compose.onNodeWithTag("nearby_art_versus", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag("nearby_art_motif", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag("nearby_art_fox", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag("nearby_art_owl", useUnmergedTree = true).assertExists()
+        assertModeArtDoesNotDuplicateMascots()
         compose.onNodeWithTag("nearby_art_coop", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithText("Race to finish").assertIsDisplayed()
         compose.onNodeWithText("Start a race").performScrollTo().assertIsDisplayed()
@@ -87,6 +83,27 @@ class HomeLivingBookUiTest {
         assertHeadingFits("Race to finish")
         compose.onNodeWithText("Start a race").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Join a game").performScrollTo().assertIsDisplayed()
+    }
+
+    /**
+     * V5's complete illustrations include both animals; the V4 fallback
+     * intentionally retains original Collection sprites. Both paths must be
+     * mutually exclusive so the banner never displays duplicate characters.
+     */
+    private fun assertModeArtDoesNotDuplicateMascots() {
+        val v5Scene = compose.onAllNodesWithTag(
+            "nearby_art_v5", useUnmergedTree = true
+        ).fetchSemanticsNodes().isNotEmpty()
+        if (v5Scene) {
+            compose.onNodeWithTag("nearby_art_v5", useUnmergedTree = true).assertExists()
+            compose.onNodeWithTag("nearby_art_motif", useUnmergedTree = true).assertDoesNotExist()
+            compose.onNodeWithTag("nearby_art_fox", useUnmergedTree = true).assertDoesNotExist()
+            compose.onNodeWithTag("nearby_art_owl", useUnmergedTree = true).assertDoesNotExist()
+        } else {
+            compose.onNodeWithTag("nearby_art_motif", useUnmergedTree = true).assertExists()
+            compose.onNodeWithTag("nearby_art_fox", useUnmergedTree = true).assertExists()
+            compose.onNodeWithTag("nearby_art_owl", useUnmergedTree = true).assertExists()
+        }
     }
 
     private fun assertHeadingFits(heading: String) {
