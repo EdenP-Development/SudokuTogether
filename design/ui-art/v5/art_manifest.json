@@ -1,0 +1,31 @@
+{
+  "schema": "gridmates.woodland-art.v5",
+  "based_on": "design/woodland-v4-hd-raster",
+  "status": "v5.1-flag-artifact-replaced-owner-review-required",
+  "new_assets": [
+    {
+      "mode": "coop",
+      "resource": "app/src/main/res/drawable-nodpi/gm_mode_coop_woodland_v5_hd.png",
+      "width": 1920,
+      "height": 819,
+      "bytes": 2537452,
+      "sha256": "943484370b66caf115c1033f632c2d0b0c0b92226bbaf9b3ae39d12ed98abdbc"
+    },
+    {
+      "mode": "versus",
+      "resource": "app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v5_hd.png",
+      "width": 1920,
+      "height": 819,
+      "bytes": 2355351,
+      "sha256": "3c3d2df41cfb6807123726a49902723be0f7271b57fbfb553bed3d1dd7212314"
+    }
+  ],
+  "solo": "Keep V4 1774x887 woodland background and selected Collection companion",
+  "acceptance": [
+    "Review illustrations on actual Android 16 before merge",
+    "Replace decorative non-9x9 grid drawings or explicitly approve as artistic props",
+    "Preserve gameplay, LAN protocol, saves, achievements and release signing",
+    "Verify real two-phone LAN and production save-preserving install-over separately"
+  ],
+  "visual_revision": "V5.1: replaced distorted checkered flag with simplified woodland competition scene; original V5 art preserved in git history."
+}

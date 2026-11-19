@@ -5,6 +5,11 @@ val signingFile = System.getenv("SUDOKU_SIGNING_FILE")?.let { file(it) }
 val privateSigning = Properties().apply { if (signingFile?.isFile == true) signingFile.inputStream().use(::load) }
 // Downloadable QA updates opt in to the original private debug identity.
 // Ordinary developer builds may still use their own local debug key.
+// Isolated owner art preview. No production signing or QA-update identity.
+val woodlandV5Preview = providers.gradleProperty("gridmatesWoodlandV5Preview").orNull?.let {
+    require(it == "true") { "gridmatesWoodlandV5Preview only accepts true" }
+    true
+} ?: false
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
 require(qaUpdateFlag == null || qaUpdateFlag == "true") { "gridmatesQaUpdate must be true when supplied" }
 val qaVersion = providers.gradleProperty("gridmatesQaVersionCode").orNull?.let { value ->
@@ -14,6 +19,9 @@ val qaVersion = providers.gradleProperty("gridmatesQaVersionCode").orNull?.let {
     number.toInt()
 }
 require((qaUpdateFlag == "true") == (qaVersion != null)) { "QA update mode and version code must be supplied together" }
+require(!(woodlandV5Preview && qaVersion != null)) {
+    "Woodland V5 preview must not use a same-package QA update"
+}
 val qaKeystore = System.getenv("SUDOKU_QA_KEYSTORE_FILE")?.let { file(it) }
 if (qaUpdateFlag == "true") require(qaKeystore?.isFile == true) {
     "Restore the existing private QA keystore before building an update; do not generate a replacement key"
@@ -42,8 +50,9 @@ android {
         debug {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
-            applicationIdSuffix = ".qa"
-            versionNameSuffix = if (qaVersion != null) "-qa.$qaVersion" else "-qa"
+            applicationIdSuffix = if (woodlandV5Preview) ".qa.woodlandv51" else ".qa"
+            versionNameSuffix = if (woodlandV5Preview) "-qa.woodlandv51"
+                else if (qaVersion != null) "-qa.$qaVersion" else "-qa"
             if (qaVersion != null) signingConfig = signingConfigs.getByName("qaContinuity")
         }
         release {

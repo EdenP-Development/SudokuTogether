@@ -1,0 +1,39 @@
+{
+  "schema": "gridmates.ui-art.v1",
+  "status": "isolated-android-review-not-owner-approved",
+  "assets": [
+    {
+      "id": "gm_home_chapter_woodland_v1",
+      "purpose": "Decorative forest backdrop for unified Home stage",
+      "resource": "app/src/main/res/drawable-nodpi/gm_home_chapter_woodland_v1.webp",
+      "dimensions_px": [
+        512,
+        256
+      ],
+      "format": "WEBP",
+      "alpha": false,
+      "byte_size": 7426,
+      "sha256": "48ca5b5abaefd82a1107e408b0f9f6224dac7c5e9cd406fbcd3b20921b82f4f6",
+      "git_blob_sha1": "bf3d29fcf29d5a26c00fb19cabfe3bd62f70e0cb",
+      "master_art": {
+        "name": "gm_home_chapter_woodland_v1_candidate.webp",
+        "dimensions_px": [
+          1536,
+          768
+        ],
+        "sha256": "70d215e46235f41a606f8dd66f4ac1cba44d53d5c7a04440e239655be9014d52",
+        "location": "Sprint 03 owner review pack (not stored as production app resource)"
+      },
+      "origin": "Original AI-generated environment, manually optimized in Pillow to WebP quality 25 / 512×256 for mobile backdrop",
+      "contains_embedded_controls": false,
+      "contains_baked_text": false,
+      "characters_embedded": false,
+      "source_character_art": "none; separately layered canonical drawable-nodpi/woodland_fox.png and woodland_owl.png",
+      "review_gate": "Check real phone crop and visual consistency before merging"
+    }
+  ],
+  "limitations": [
+    "This first review resource is lower resolution to keep initial Android and GitHub binary transfer compact. Approve final crop then replace with full 1536x768 production quality asset before shipping.",
+    "Ocean and Garden currently show a neutral native gradient until matching environment artwork is authored."
+  ]
+}

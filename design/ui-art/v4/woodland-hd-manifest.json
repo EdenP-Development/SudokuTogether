@@ -1,0 +1,29 @@
+{
+  "schema": "gridmates.woodland-art.v4",
+  "status": "owner-phone-approval-required",
+  "resource": "app/src/main/res/drawable-nodpi/gm_woodland_storybook_hd_v4.png",
+  "sha256": "824ca4968e8c597e3c004c97675cfd97de7012197970ec9258bffbf4d1a487c5",
+  "git_blob_sha1": "aef1de4b51bfca6db032511db9b0cd48a38d8b1d",
+  "width": 1774,
+  "height": 887,
+  "format": "PNG",
+  "size_bytes": 2712088,
+  "source": "New high-resolution original illustrated woodland environment, generated for V4 from the owner's visual review goals. Not an upscale of the 512x256 quality-25 preview.",
+  "composition": "Left has dark foliage for native heading contrast; right has clearing/tree for original collectible Fox/Owl overlay. No character, numeral, text or UI content baked into image.",
+  "usage": [
+    "HomeChapterArt.kt",
+    "NearbyModeBanner.kt"
+  ],
+  "retired_art": [
+    "gm_nearby_woodland_v3.xml",
+    "gm_mode_coop_symbol_v3.xml",
+    "gm_mode_versus_symbol_v3.xml"
+  ],
+  "guardrails": [
+    "Existing 22 collectible PNG sprites reused untouched",
+    "Original low resolution source remains in git history for comparison but is no longer selected in V4 Home/Nearby",
+    "Only image resource and visual Compose layer changed; puzzle, daily, saves, network and signing unchanged",
+    "Subjective owner phone review required before merge",
+    "Production update signing/install-over and two physical phone Wi-Fi tests remain outstanding"
+  ]
+}

@@ -1,0 +1,153 @@
+name: GridMates Woodland V5.1 isolated owner art preview
+
+# Only build an art-preview APK after BOTH original V5 PNG binaries are added.
+# This is a different Android package, never a public release or QA install-over.
+on:
+  push:
+    branches:
+      - design/woodland-v5-mode-art-checkpoint
+    paths:
+      - 'app/src/main/res/drawable-nodpi/gm_mode_coop_woodland_v5_hd.png'
+      - 'app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v5_hd.png'
+      - '.github/workflows/gridmates-woodland-v5-review.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: woodland-v5-owner-preview
+  cancel-in-progress: true
+
+jobs:
+  isolated-android-preview:
+    name: Verify both HD banners and capture Android 16 reviewer screens
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Require both original high-resolution images, no mockups
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, struct
+          from pathlib import Path
+          manifest = json.loads(Path("design/ui-art/v5/art_manifest.json").read_text())
+          assets = manifest["new_assets"]
+          assert len(assets) == 2, "Expected exactly 2 mode banners"
+          for item in assets:
+              path = Path(item["resource"])
+              assert path.is_file(), f"ARTWORK NOT COMMITTED: {path}"
+              data = path.read_bytes()
+              assert len(data) == item["bytes"], f"Wrong size: {path}"
+              assert data[:8] == bytes((137,80,78,71,13,10,26,10)), f"Not PNG: {path}"
+              assert struct.unpack(">II", data[16:24]) == (1920,819), f"Wrong resolution: {path}"
+              assert hashlib.sha256(data).hexdigest() == item["sha256"], f"Wrong hash: {path}"
+              print(f"VERIFIED original high-res asset: {path}, {len(data)} bytes")
+          PY
+      - name: Verify reviewer app cannot share production or earlier QA data
+        run: |
+          grep -F 'applicationIdSuffix = if (woodlandV5Preview) ".qa.woodlandv51"' app/build.gradle.kts
+          grep -F 'require(!(woodlandV5Preview && qaVersion != null))' app/build.gradle.kts
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install Android build SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+
+      - name: Unit tests, lint, instrumentation-test compile and reviewer APK
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:compileDebugAndroidTestKotlin :app:assembleDebug -PgridmatesWoodlandV5Preview=true --no-daemon --max-workers=2 --console=plain
+
+      - name: Verify exact isolated APK identity, signer and checksum
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          apk=GridMates-WoodlandV51-OwnerPreview.apk
+          cp app/build/outputs/apk/debug/app-debug.apk "$apk"
+          test -s "$apk"
+          "$tools/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > /tmp/gridmates-v5-signer.txt
+          signer=$(awk '/certificate SHA-256 digest:/ {print $NF}' /tmp/gridmates-v5-signer.txt)
+          badging=$("$tools/aapt" dump badging "$apk")
+          package_line=$(printf '%s\n' "$badging" | sed -n '1p')
+          appid=$(sed -n "s/^package: name='\([^']*\)'.*/\1/p" <<< "$package_line")
+          code=$(sed -n "s/.*versionCode='\([0-9]*\)'.*/\1/p" <<< "$package_line")
+          version=$(sed -n "s/.*versionName='\([^']*\)'.*/\1/p" <<< "$package_line")
+          test "$appid" = 'com.playereden.sudokutogether.qa.woodlandv51'
+          test "$code" = '31'
+          test "$version" = '1.0.0-beta.2-qa.woodlandv51'
+          [[ "$signer" =~ ^[0-9a-f]{64}$ ]]
+          export V5_APK="$apk" V5_APPID="$appid" V5_VERSION="$version" V5_SIGNER="$signer"
+          python3 - <<'PY'
+          import json, hashlib, os
+          from pathlib import Path
+          f = Path(os.environ["V5_APK"])
+          receipt = dict(
+              kind="ISOLATED_WOODLAND_V51_OWNER_PREVIEW_NOT_PUBLIC_UPDATE",
+              source_commit=os.environ["GITHUB_SHA"], filename=f.name,
+              size_bytes=f.stat().st_size, sha256=hashlib.sha256(f.read_bytes()).hexdigest(),
+              package=os.environ["V5_APPID"], version_code=31,
+              version_name=os.environ["V5_VERSION"],
+              signer_sha256=os.environ["V5_SIGNER"],
+              updates_production_game=False, shares_production_saved_data=False,
+              approved_by_owner=False, physical_two_phone_lan_tested=False,
+          )
+          Path(f.name+".receipt.json").write_text(json.dumps(receipt,indent=2)+"\n")
+          PY
+          sha256sum "$apk" > "$apk.sha256"
+
+      - name: Allow emulator hardware acceleration
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: Android 16 install, launch, real screenshot and UI instrumentation
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
+          disable-animations: true
+          script: |
+            bash scripts/woodland_v5_smoke.sh
+            python3 scripts/woodland_v5_capture.py
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesWoodlandV5Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.HomeLivingBookUiTest,com.playereden.sudokutogether.CollectionPolishUiTest"
+
+      - name: Publish verified separate-install APK and real Android screen captures
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-WoodlandV51-OwnerPreview
+          path: |
+            GridMates-WoodlandV51-OwnerPreview.apk
+            GridMates-WoodlandV51-OwnerPreview.apk.sha256
+            GridMates-WoodlandV51-OwnerPreview.apk.receipt.json
+            woodland-v5-home-preview.png
+            woodland-v5-coop-android.png
+            woodland-v5-versus-android.png
+            woodland-v5-capture-receipt.json
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Save Android test diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-WoodlandV5-FailureReports
+          path: |
+            core/build/reports/tests/**
+            app/build/reports/tests/**
+            app/build/reports/androidTests/**
+            app/build/outputs/androidTest-results/**
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
+          retention-days: 3
