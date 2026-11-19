@@ -42,7 +42,8 @@
         "target": 16
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "chipmunk"
     },
     {
       "id": "woodland_raccoon",
@@ -54,7 +55,8 @@
         "target": 24
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "raccoon"
     },
     {
       "id": "woodland_beaver",
@@ -66,7 +68,8 @@
         "target": 39
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "beaver"
     },
     {
       "id": "woodland_woodpecker",
@@ -78,7 +81,8 @@
         "target": 56
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "woodpecker"
     },
     {
       "id": "woodland_skunk",
@@ -90,7 +94,8 @@
         "target": 90
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "skunk"
     },
     {
       "id": "ocean_sea_turtle",
@@ -102,7 +107,8 @@
         "target": 12
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "sea_turtle"
     },
     {
       "id": "ocean_seahorse",
@@ -114,7 +120,8 @@
         "target": 30
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "seahorse"
     },
     {
       "id": "ocean_dolphin",
@@ -126,7 +133,8 @@
         "target": 46
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "dolphin"
     },
     {
       "id": "ocean_starfish",
@@ -138,7 +146,8 @@
         "target": 67
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "sea_star"
     },
     {
       "id": "ocean_clownfish",
@@ -150,7 +159,8 @@
         "target": 95
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "clownfish"
     },
     {
       "id": "garden_snail",
@@ -162,7 +172,8 @@
         "target": 11
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "snail"
     },
     {
       "id": "garden_caterpillar",
@@ -174,7 +185,8 @@
         "target": 23
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "caterpillar"
     },
     {
       "id": "garden_firefly",
@@ -186,7 +198,8 @@
         "target": 42
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "firefly"
     },
     {
       "id": "garden_grasshopper",
@@ -198,7 +211,8 @@
         "target": 62
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "grasshopper"
     },
     {
       "id": "garden_praying_mantis",
@@ -210,7 +224,8 @@
         "target": 100
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "praying_mantis"
     },
     {
       "id": "farm_cow",
@@ -222,7 +237,8 @@
         "target": 0
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "cow"
     },
     {
       "id": "farm_chicken",
@@ -234,7 +250,8 @@
         "target": 7
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "chicken"
     },
     {
       "id": "farm_sheep",
@@ -246,7 +263,8 @@
         "target": 20
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "sheep"
     },
     {
       "id": "farm_pig",
@@ -258,7 +276,8 @@
         "target": 36
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "pig"
     },
     {
       "id": "farm_duck",
@@ -270,7 +289,8 @@
         "target": 58
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "duck"
     },
     {
       "id": "farm_goat",
@@ -282,7 +302,8 @@
         "target": 85
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style"
+      "required_art": "original transparent character PNG matching canonical Collection style",
+      "species_key": "goat"
     },
     {
       "id": "moss",
@@ -383,5 +404,23 @@
     "Multi-device missing/unknown new IDs fall back safely; two-phone LAN smoke",
     "Android API26–36 validation and actual phone/capture review",
     "Real Beta 1→Beta 2 update must use original production certificate, higher version code and save-preserving install-over; never replace signed public game with reviewer build"
-  ]
+  ],
+  "art_direction": {
+    "canonical_style": "GridMates Collection character portrait house style; flat chibi shape language and restrained shading",
+    "reference_assets": [
+      "app/src/main/res/drawable-nodpi/woodland_fox.png",
+      "app/src/main/res/drawable-nodpi/woodland_owl.png",
+      "app/src/main/res/drawable-nodpi/ocean_octopus.png",
+      "app/src/main/res/drawable-nodpi/garden_honeybee.png"
+    ],
+    "prefer_unique_species": true,
+    "repeat_policy": "Repeat species only with documented family/ecological justification and visually distinct breed/pose/markings/silhouette while preserving house style; never simply recolor the same sprite.",
+    "review_sizes_dp": [
+      30,
+      48,
+      72
+    ],
+    "must_review_alpha_edges": true,
+    "avoid": "painterly faces, glow/fringe halos, photo-real texture, extra limb/detail, inconsistent eyes or outline"
+  }
 }
