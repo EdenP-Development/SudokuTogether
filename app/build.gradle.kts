@@ -42,7 +42,7 @@ android {
         debug {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
-            applicationIdSuffix = ".qa"
+            applicationIdSuffix = ".qa.nearbyv3"
             versionNameSuffix = if (qaVersion != null) "-qa.$qaVersion" else "-qa"
             if (qaVersion != null) signingConfig = signingConfigs.getByName("qaContinuity")
         }
