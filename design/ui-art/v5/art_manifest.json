@@ -1,7 +1,7 @@
 {
   "schema": "gridmates.woodland-art.v5",
   "based_on": "design/woodland-v4-hd-raster",
-  "status": "art-pack-verified-local-binary-upload-pending",
+  "status": "v5.1-flag-artifact-replaced-owner-review-required",
   "new_assets": [
     {
       "mode": "coop",
@@ -16,8 +16,8 @@
       "resource": "app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v5_hd.png",
       "width": 1920,
       "height": 819,
-      "bytes": 2463087,
-      "sha256": "a4f258fb640660a18b2d1061ba167dd670968578210da8ae2a2184bd07b09aee"
+      "bytes": 2355351,
+      "sha256": "3c3d2df41cfb6807123726a49902723be0f7271b57fbfb553bed3d1dd7212314"
     }
   ],
   "solo": "Keep V4 1774x887 woodland background and selected Collection companion",
@@ -26,5 +26,6 @@
     "Replace decorative non-9x9 grid drawings or explicitly approve as artistic props",
     "Preserve gameplay, LAN protocol, saves, achievements and release signing",
     "Verify real two-phone LAN and production save-preserving install-over separately"
-  ]
+  ],
+  "visual_revision": "V5.1: replaced distorted checkered flag with simplified woodland competition scene; original V5 art preserved in git history."
 }
