@@ -1,0 +1,80 @@
+name: GridMates Woodland V5 branch quality gate
+
+# Safe, unsigned validation of the isolated V5 staging branch.
+# Does not produce a downloadable production or same-package QA update.
+on:
+  push:
+    branches:
+      - design/woodland-v5-mode-art-checkpoint
+    paths:
+      - '.github/workflows/gridmates-woodland-v5-branch-qa.yml'
+      - 'app/**'
+      - 'core/**'
+      - 'design/ui-art/v5/**'
+      - 'tools/apply_woodland_v5.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: woodland-v5-branch-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  compile-and-verify:
+    name: Compile, JVM tests and lint (no release signing)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify art staging and fallback are internally consistent
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import hashlib, json, struct
+          p = Path('design/ui-art/v5/art_manifest.json')
+          m = json.loads(p.read_text())
+          k = Path('app/src/main/java/com/playereden/sudokutogether/NearbyModeBanner.kt').read_text()
+          t = Path('app/src/androidTest/java/com/playereden/sudokutogether/HomeLivingBookUiTest.kt').read_text()
+          assert 'hasV5Art' in k and 'R.drawable.gm_woodland_storybook_hd_v4' in k
+          assert k.count('testTag("nearby_art_v5")') == 1
+          assert t.count('assertModeArtDoesNotDuplicateMascots()') >= 3
+          images = [Path(a['resource']) for a in m['new_assets']]
+          present = [x.exists() for x in images]
+          assert all(present) or not any(present), 'Do not import just one banner'
+          if all(present):
+              for entry, image in zip(m['new_assets'], images):
+                  data = image.read_bytes()
+                  assert len(data) == entry['bytes']
+                  assert hashlib.sha256(data).hexdigest() == entry['sha256']
+                  assert data[:8] == bytes((137, 80, 78, 71, 13, 10, 26, 10))
+                  assert struct.unpack('>II', data[16:24]) == (entry['width'], entry['height'])
+                  print('Verified', image)
+          else:
+              print('V5 image binaries pending; compiler uses safe V4 fallback')
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install Android build SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Compile Android and run JVM + lint checks
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug --no-daemon --max-workers=2 --console=plain
+      - name: Save diagnostics if CI fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Woodland-V5-Staging-Diagnostics
+          path: |
+            core/build/reports/tests/**
+            app/build/reports/tests/**
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
+          retention-days: 3
