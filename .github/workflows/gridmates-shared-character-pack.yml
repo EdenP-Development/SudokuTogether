@@ -1,0 +1,37 @@
+name: GridMates shared character pack validation
+on:
+  push:
+    branches: [plan/beta2-collection-expansion-and-unlock-balance]
+    paths:
+      - '.github/workflows/gridmates-shared-character-pack.yml'
+      - 'scripts/export_gridmates_characters.py'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  export-approved-portraits:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build checksum-pinned offline reusable art pack
+        run: python3 scripts/export_gridmates_characters.py --output gridmates-characters-1.0.0.zip
+      - name: Validate manifest and pack integrity
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, zipfile
+          with zipfile.ZipFile('gridmates-characters-1.0.0.zip') as z:
+              manifest=json.loads(z.read('gridmates-art-manifest.json'))
+              assert manifest['asset_count']==22
+              assert len({x['asset_id'] for x in manifest['assets']})==22
+              for x in manifest['assets']:
+                  assert hashlib.sha256(z.read(x['package_path'])).hexdigest()==x['sha256']
+                  assert x['style']=='gridmates_chibi_v1'
+              assert all(not x.startswith(('.env','secrets/','fonts/')) for x in z.namelist())
+          print('PASS: 22 reusable approved portraits; no player data or fonts')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Approved-Character-Art-Pack-1.0.0
+          path: gridmates-characters-1.0.0.zip
+          retention-days: 14
