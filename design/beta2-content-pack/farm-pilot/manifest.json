@@ -1,0 +1,73 @@
+{
+  "pack_id": "gridmates-farm-theme-pilot-01",
+  "status": "ART_REVIEW_ONLY_NOT_REGISTERED",
+  "style": "gridmates_chibi_v1",
+  "no_humans": true,
+  "source": {
+    "path": "design/beta2-content-pack/farm-pilot/farm_mixed_source_sheet.png",
+    "sha256": "ac4c104b2c56a74f552fb45f0e67ed5dcb8631c3dfe30a6ca4c454db27ab454c",
+    "bytes": 1091180,
+    "width": 1254,
+    "height": 1254
+  },
+  "items": [
+    {
+      "id": "farm_sheep",
+      "name": "Sheep",
+      "category": "portrait",
+      "subject_kind": "animal",
+      "unlock_completed_puzzles": 20,
+      "path": "design/beta2-content-pack/farm-pilot/farm_sheep.png",
+      "sha256": "a570e336ea383a3e9bde8a50856ffa33ae30752372c270f4aae48376e9b3843f",
+      "bytes": 182573,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "farm_pig",
+      "name": "Pig",
+      "category": "portrait",
+      "subject_kind": "animal",
+      "unlock_completed_puzzles": 36,
+      "path": "design/beta2-content-pack/farm-pilot/farm_pig.png",
+      "sha256": "ba4156e9f8ddae05e0819acc83ba42aaa3612a48324a5fbc9fe98cf5372e15e0",
+      "bytes": 183958,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "farm_pumpkin",
+      "name": "Pumpkin",
+      "category": "portrait",
+      "subject_kind": "produce",
+      "unlock_completed_puzzles": 58,
+      "path": "design/beta2-content-pack/farm-pilot/farm_pumpkin.png",
+      "sha256": "ee3e3fd115ff57bb63dc56fc16c329fd2eaba1b701caef58a8a2e9b89c0b25c2",
+      "bytes": 164522,
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "farm_hay_bale",
+      "name": "Hay Bale",
+      "category": "portrait",
+      "subject_kind": "item",
+      "unlock_completed_puzzles": 85,
+      "path": "design/beta2-content-pack/farm-pilot/farm_hay_bale.png",
+      "sha256": "1303ee05272c37c3151fa2067ad199ad3f9eedfc334982ebef5c1e447167ca0e",
+      "bytes": 160478,
+      "width": 512,
+      "height": 512
+    }
+  ],
+  "protects_existing": [
+    "farm_cow",
+    "farm_chicken",
+    "garden_sunflower",
+    "garden_strawberry",
+    "garden_watering_can",
+    "garden_potted_tulip"
+  ],
+  "approval": "Original candidates pending full in-app phone review; no catalog/release changes",
+  "source_provenance": "Original AI-assisted 2x2 transparent sheet, deterministic crop and resize per quadrant"
+}
