@@ -472,7 +472,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                     Text((r * 3 + c + 1).toString(), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
                         maxLines = 1, softWrap = false, fontFamily = if (entered) entryFont else clueFont,
                         fontSize = digitSize, lineHeight = digitSize, fontWeight = if (entered) FontWeight.Normal else FontWeight.Bold,
-                        color = if (entered) inkFor(numberLook.ink, dark) else palette.clueInk)
+                        color = if (entered) legibleBoardDigitInk(inkFor(numberLook.ink, dark), palette.fill, palette) else palette.clueInk)
                 }
             }
         }
