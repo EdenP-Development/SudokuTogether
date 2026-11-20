@@ -2,6 +2,8 @@
 
 **Status:** Owner-approved *direction*; exact content and milestone thresholds recorded as implementation candidates. This PR is a **design and asset-production contract, not playable cosmetics yet**. Current canonical app source: `main` after merged Woodland V5.1 PR #92.
 
+**Owner update (November 19):** Collections are immersive themes—not species-only sets. Garden must feel like a real garden, with flowers, plants, fruit and tools alongside insects. Farm and Ocean may contain relevant crops, objects and treasures. **No human or humanoid player icons.** A consistent visual language matters more than every subject having a face. The five already-tested pilot characters, their IDs and requirements remain unchanged. See [canonical icon standards](../design/beta2-content-pack/CANONICAL_CHARACTER_STYLE.md) and the exact [machine-readable 21-icon roster](../design/beta2-content-pack/expansion-candidates.json).
+
 ## 1. Why this should be a meaningful Beta 2 update
 
 Beta 2 should offer returning players visible progression and recognizable new collections alongside the polished Woodland UI, not simply reskin menus. Preserve cozy/offline-first Sudoku, accessibility, no grind pressure, no account or cloud requirement, no gameplay bonuses from cosmetics, and a safe upgrade for existing family saves. Do **not** block future gameplay work on speculative economy/shop infrastructure.
@@ -25,31 +27,33 @@ The current unlock system counts distinct match IDs from Solo, Daily and Co-op s
 
 ## 3. Proposed Beta 2 content pack
 
-**New animal portraits: 21** (15 additional characters in existing collections and 6 Farm characters in one entirely new family). Each is a separate transparent PNG in the established Collection portrait style, NOT a cropped image from the painterly gameplay banners.
+**New themed Player Icons: 21** (14 animals, 2 plants, 2 produce, 3 themed objects). This retains exactly 21 new entries in the existing *portrait/Player Icons* catalog slot; that data-model name does not mean that the artwork must depict an animal. Each icon receives a distinct real transparent PNG matching the established GridMates linework, scale and palette. **No humans/people/humanoid characters.** Animals may have friendly faces; a flower or tool does not need eyes or a mouth.
 
-| Family | Character (new stable ID suffix) | Qualified finishes required |
-| --- | --- | ---: |
-| Woodland | Chipmunk | 16 |
-| Woodland | Raccoon | 24 |
-| Woodland | Beaver | 39 |
-| Woodland | Woodpecker | 56 |
-| Woodland | Skunk | 90 |
-| Ocean | Sea Turtle | 12 |
-| Ocean | Seahorse | 30 |
-| Ocean | Dolphin | 46 |
-| Ocean | Sea Star (ID `ocean_starfish`) | 67 |
-| Ocean | Clownfish | 95 |
-| Garden | Snail | 11 |
-| Garden | Caterpillar | 23 |
-| Garden | Firefly | 42 |
-| Garden | Grasshopper | 62 |
-| Garden | Praying Mantis | 100 |
-| **Farm (new)** | Cow | **Starter (0)** |
-| Farm | Chicken | 7 |
-| Farm | Sheep | 20 |
-| Farm | Pig | 36 |
-| Farm | Duck | 58 |
-| Farm | Goat | 85 |
+| Family | New Player Icon | Subject | Qualified finishes required |
+| --- | --- | --- | ---: |
+| Woodland | Chipmunk | Animal | 16 |
+| Woodland | Raccoon | Animal · first-five pilot | 24 |
+| Woodland | Beaver | Animal | 39 |
+| Woodland | Woodpecker | Animal | 56 |
+| Woodland | Skunk | Animal | 90 |
+| Ocean | Sea Turtle | Animal · first-five pilot | 12 |
+| Ocean | Seahorse | Animal | 30 |
+| Ocean | Dolphin | Animal | 46 |
+| Ocean | Seashell | Seaside object | 67 |
+| Ocean | Clownfish | Animal | 95 |
+| Garden | Sunflower | Flower | 11 |
+| Garden | Strawberry | Produce | 23 |
+| Garden | Firefly | Insect · first-five pilot | 42 |
+| Garden | Watering Can | Garden tool | 62 |
+| Garden | Potted Tulip | Flower / plant | 100 |
+| **Farm (new)** | Cow | Animal · first-five pilot | **Starter (0)** |
+| Farm | Chicken | Animal · first-five pilot | 7 |
+| Farm | Sheep | Animal | 20 |
+| Farm | Pig | Animal | 36 |
+| Farm | Pumpkin | Crop / produce | 58 |
+| Farm | Hay Bale | Farm object | 85 |
+
+**Garden is deliberately mixed.** Its current four insect portraits plus the new Firefly are complemented by Sunflower, Strawberry, Watering Can and Potted Tulip. Farm gets crops/objects as well as animals, and Ocean gets a seaside treasure. Woodland is mostly wildlife for this release, but may include woodland objects in future packs. If an animal or motif is repeated across collections later, it must be visibly distinct, clearly justified and separately approved, not merely recolored.
 
 This leaves the **existing 22 portrait requirements unchanged**. There is one new starter (Cow), early Farm progress, unlocks spread across multiple families, and long-term cosmetic goals for someone already many puzzles into the game. No new Farm icon requires a Co-op opponent. Qualified finishes are the existing deduplicated FINISH rule, so the player gets progress through Solo, Daily, Co-op or Versus wins.
 
@@ -77,15 +81,15 @@ All font files must be **bundled, proven redistributable and pinned**, with exac
 
 **New ink colors:** zero for this pack. Current 10 shades already provide enough choice; prioritizing 4 genuinely distinct font shapes and 4 complete board themes is better than adding another near-duplicate shade.
 
-**Projected inventory when fully implemented:** 43 portraits + 6 emblems + 11 boards + 10 inks + 9 fonts = **79 cosmetic items** (29 new). The manifest `design/beta2-content-pack/expansion-candidates.json` is the sole proposed-ID and proposed-threshold list for this milestone.
+**Projected inventory when fully implemented:** 43 themed Player Icons (36 animals + 7 plant/produce/object icons) + 6 emblems + 11 boards + 10 inks + 9 fonts = **79 cosmetic items** (29 new). The manifest `design/beta2-content-pack/expansion-candidates.json` is the sole proposed-ID and proposed-threshold list for this milestone.
 
 ## 4. Progression balance decision
 
 **Preserve the current 50 items' unlock rules, exactly.** Established players have earned those through gameplay, and the catalog already unlocks ~50% of available items after 5 Solo solves; retroactively raising thresholds would be unfair. Rather than relock them or add grindy streak mechanics, distribute the 29 *new* items from starter to 100 qualified finishes. That makes veteran profiles eligible for already-met requirements automatically, while leaving additional targets to pursue.
 
-- Fresh players immediately see Farm Cow and four existing animal starters; the new collection is approachable from first launch.
+- Fresh players immediately see Farm Cow and the existing starters; the new collection is approachable from first launch.
 - Players with early completion counts encounter new artwork without taking away previous rewards.
-- Long-term portraits and fonts provide optional, clearly labeled goals without changing Sudoku correctness, assists, score or hint access.
+- Long-term themed Player Icons and fonts provide optional, clearly labeled goals without changing Sudoku correctness, assists, score or hint access.
 - Existing race/Co-op-exclusive cosmetics remain; this batch must not force two physical phones to unlock new material.
 - Preserve monotonic ownership before pruning game records. A player who earned an item must retain it after saving, upgrading, backup/restore, or reducing recorded history.
 - A veteran already beyond some new milestones legitimately receives those items upon update. That is a *feature*, not a balancing failure.
@@ -104,7 +108,7 @@ Do not simply paint simplified animals over the old painted animals. First creat
 
 1. **Art pilot:** 2 Farm (Cow, Chicken), 1 Woodland (Raccoon), 1 Ocean (Sea Turtle), 1 Garden (Firefly). Compare them side by side with existing icons at 30dp/48dp/72dp and verify consistent strokes, shapes, eye/mouth scale, local background transparency, 1:1 framing. Review 1 new Versus clean-background / canonical-mascot prototype. Do not prematurely register placeholder portraits in the live catalog.
 2. **First playable portraits:** import approved icons and curated stable IDs, family mapping and grouping, light asset/provenance manifest, progress/completion tests, device screenshot. Avoid big bitmap assets, preserve old resources.
-3. **Expand existing families:** finish 15 additional Woodland/Ocean/Garden portraits in reviewed batches; ensure no duplicate existing species/IDs. Farm 6 in same style, verify naming and filtering in Collection.
+3. **Expand themed collections:** complete the 16 remaining planned icon assets (including Sunflower, Strawberry, Watering Can, Potted Tulip, Pumpkin, Hay Bale and Seashell), with no humans and no duplicate species/motifs. Keep each small batch visually consistent with existing Collection portraits; verify naming and filtering for every family.
 4. **Progression/balance:** implement/add newly approved milestone targets from machine manifest and profile backfill safely. Test a fresh profile and a profile with 0, 1, 5, 15, 40, 75 and 100 qualified finishes. Test offline, save reload, record dedup, permanently earned ledger and JSON backup/import.
 5. **Board pack:** implement four distinct complete palettes and app+core coverage tests; low-end performance and contrast QA.
 6. **Fonts:** first acquire/license-check four exact static font faces, then register fonts + app resource mapping and preview/real-board tests. Reject indistinguishable/illegible numbers. Existing five IDs must remain unchanged.
@@ -115,11 +119,11 @@ Work in small PRs from `main`; don't merge draft catalog IDs that have no valida
 
 ## 7. QA conditions and safeguards
 
-- Unique IDs across all five cosmetic categories. Missing animal image or font family must cause a test failure, not fall back to a misleading generic image.
+- Unique IDs across all five cosmetic categories. Missing animal/plant/object icon image or font family must fail tests, not fall back to a misleading generic image.
 - Existing all-50 IDs, owners, requirements and currently equipped appearances must survive exact update. No profile data clearing, new package name on public update, signer rotation or network protocol changes.
 - Current `Appearance` is a curated allowlist; reject arbitrary remote font files, URLs, colors and unknown portrait IDs. Older clients should use safe fallback for newer unsupported cosmetics.
 - Preserve stable, deduplicated completion counts; no repeat Daily puzzle reward exploitation; no negative or disappearing owned cosmetics.
-- Collection UX with 43 animal portraits: make long lists efficient (lazy sections or paging), keep category tabs scroll indicators, restore browsing position, check bottom navigation obscuring final rows and font-scale 200%.
+- Collection UX with 43 themed Player Icons: make long lists efficient (lazy sections or paging), keep category tab scroll indicators, restore browsing position, check bottom navigation obscuring final rows and font-scale 200%.
 - 9×9 board clarity takes priority over ornament. Avoid ads in a puzzle or features requiring online accounts.
 - Final signed public Beta 2 update must use original exact production signing identity; the current isolated reviewer APK cannot update installed public Beta 1 or wife's saved game.
 
