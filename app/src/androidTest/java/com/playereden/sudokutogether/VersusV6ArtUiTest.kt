@@ -42,7 +42,7 @@ class VersusV6ArtUiTest {
             // Return to banner before capture: scroll assertions may have moved it.
             compose.onNodeWithTag("nearby_art_versus").performScrollTo().assertIsDisplayed()
             NativeWindowCapture.save(activity,
-                File(context.getExternalFilesDir("screenshots"), "gridmates-versus-v6-android.png"))
+                File(context.filesDir, "gridmates-versus-v6-android.png"))
 
             // Co-op remains on the previously approved V5 art; no V6 leakage.
             compose.onNodeWithTag("home_mode_together").performScrollTo().performClick()
@@ -51,7 +51,7 @@ class VersusV6ArtUiTest {
             compose.onNodeWithTag("nearby_art_v6", useUnmergedTree = true).assertDoesNotExist()
             compose.onNodeWithText("Shared board").assertIsDisplayed()
             NativeWindowCapture.save(activity,
-                File(context.getExternalFilesDir("screenshots"), "gridmates-coop-v5-control.png"))
+                File(context.filesDir, "gridmates-coop-v5-control.png"))
         }
     }
 }
