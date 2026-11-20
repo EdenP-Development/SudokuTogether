@@ -17,6 +17,10 @@ class Beta2GardenThemeIconsTest {
 
     @Test fun gardenIncludesFlowersProduceAndItemWithoutChangingInsectMilestones() {
         assertEquals(9, Cosmetics.gardenPortraits.size)
+        assertEquals(
+            listOf("garden_ladybug", "garden_butterfly", "garden_sunflower"),
+            Cosmetics.gardenPortraits.drop(1).take(3).map { it.id }
+        ) // First locked row visibly includes a flower, not three insects.
         assertEquals(31, Cosmetics.portraits.size)
         val all = Cosmetics.portraits.map { it.id }
         assertEquals(all.size, all.toSet().size)
