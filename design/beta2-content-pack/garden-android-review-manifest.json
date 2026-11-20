@@ -1,0 +1,64 @@
+{
+  "status": "ISOLATED_ANDROID_ART_REVIEW_ONLY_NOT_RELEASE_APPROVED",
+  "pack_name": "Garden mixed-theme 4 icon pilot",
+  "based_on": "Beta2 first five Android reviewer PR #95",
+  "source_art_pr": "https://github.com/PlayerEden/SudokuTogether/pull/96",
+  "source_branch": "art/beta2-garden-mixed-theme-pilot",
+  "style": "gridmates_chibi_v1",
+  "no_humans": true,
+  "production_ids_or_unlocks_unchanged": true,
+  "items": [
+    {
+      "id": "garden_sunflower",
+      "category": "portrait",
+      "subject_kind": "plant",
+      "unlock_completed_puzzles": 11,
+      "android_path": "app/src/main/res/drawable-nodpi/garden_sunflower.png",
+      "source_path": "design/beta2-content-pack/garden-pilot/garden_sunflower.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 163083,
+      "sha256": "0901959b820159a27f361556a9bb7cdd4cd1d5009370b85f95b630fb1f1769d7",
+      "visual_review": "pending device screenshot and owner review"
+    },
+    {
+      "id": "garden_strawberry",
+      "category": "portrait",
+      "subject_kind": "produce",
+      "unlock_completed_puzzles": 23,
+      "android_path": "app/src/main/res/drawable-nodpi/garden_strawberry.png",
+      "source_path": "design/beta2-content-pack/garden-pilot/garden_strawberry.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 140511,
+      "sha256": "12028909adeb3a01b74dc828457cdbbac5483c1d95db9947b57a435efa4e9c8c",
+      "visual_review": "pending device screenshot and owner review"
+    },
+    {
+      "id": "garden_watering_can",
+      "category": "portrait",
+      "subject_kind": "item",
+      "unlock_completed_puzzles": 62,
+      "android_path": "app/src/main/res/drawable-nodpi/garden_watering_can.png",
+      "source_path": "design/beta2-content-pack/garden-pilot/garden_watering_can.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 151670,
+      "sha256": "86576f825f7674c580a30a56e2df2982c94fb27b8b3c3da1ba4970a101f6e8d5",
+      "visual_review": "pending device screenshot and owner review"
+    },
+    {
+      "id": "garden_potted_tulip",
+      "category": "portrait",
+      "subject_kind": "plant",
+      "unlock_completed_puzzles": 100,
+      "android_path": "app/src/main/res/drawable-nodpi/garden_potted_tulip.png",
+      "source_path": "design/beta2-content-pack/garden-pilot/garden_potted_tulip.png",
+      "width": 512,
+      "height": 512,
+      "bytes": 127993,
+      "sha256": "d762932ea20e122d82b3342a83b3983938fa346ab937b9e11c4a97c0d76652bf",
+      "visual_review": "pending device screenshot and owner review"
+    }
+  ]
+}
