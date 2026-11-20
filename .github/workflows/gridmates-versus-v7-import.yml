@@ -1,0 +1,53 @@
+name: Import checksum-verified Versus V7 composition repair
+on:
+  push:
+    branches: [art/versus-v6-canonical-mascots-review]
+    paths: ['.github/workflows/gridmates-versus-v7-import.yml']
+permissions:
+  contents: write
+jobs:
+  import-v7-art:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with: {persist-credentials: true}
+      - name: Import original source plus final Android image
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p design/versus-v7/source
+          curl --fail --location --retry 3 --max-time 180 'https://cdn.openart.ai/openart-uploads/production/attachment-transfers/af2bd1ed72c6f26679d4827a1ae069d7002d664a3e6fcccb6467f61ef83d1e69.png' -o design/versus-v7/source/woodland_race_v7_empty.png
+          curl --fail --location --retry 3 --max-time 180 'https://cdn.openart.ai/openart-uploads/production/attachment-transfers/7af04045b58ed384eb9b2f70141dd33555ccfe3af30e95694e6b5a503796a066.png' -o app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v7_hd.png
+      - name: Verify exact source and final images, safe title region and canonical design
+        run: |
+          python3 - <<'PY'
+          import json,hashlib,struct
+          from pathlib import Path
+          m=json.loads(Path("design/versus-v7/manifest.json").read_text())
+          assert m["status"]=="ART_REVIEW_NOT_RELEASE_APPROVED"
+          assert "V6 rejected" in m["supersedes"]
+          assert m["composition"]["all_titles_native_compose"] and m["output"]["text_baked_into_art"] is False
+          assert m["composition"]["native_text_safe_left_fraction"] <= .56
+          assert m["composition"]["decorative_boards"]=={"count":2,"columns":9,"rows":9,"box_divisions":3,"no_digits":True}
+          for e in (m["source_scene"],m["output"]):
+              p=Path(e["path"]);data=p.read_bytes()
+              assert len(data)==e["bytes"],p
+              assert hashlib.sha256(data).hexdigest()==e["sha256"],p
+              assert data[:8]==bytes((137,80,78,71,13,10,26,10)) and data[12:16]==b"IHDR"
+              assert struct.unpack(">II",data[16:24])==(1774,887)
+              assert data[25]==2
+              print("PASS",p,e["sha256"])
+          for n in ("woodland_fox.png","woodland_owl.png","gm_mode_coop_woodland_v5_hd.png"):
+              assert Path("app/src/main/res/drawable-nodpi",n).exists()
+          PY
+      - name: Commit verified source and final Android PNG, not an ephemeral mockup
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add design/versus-v7/source/woodland_race_v7_empty.png app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v7_hd.png
+          git diff --cached --quiet && exit 0
+          git commit -m "art: replace Versus title collision with balanced V7 woodland racing scene"
+          git push origin HEAD:art/versus-v6-canonical-mascots-review
