@@ -51,6 +51,8 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("home_mode_versus").performScrollTo().performClick()
         compose.onNodeWithTag("nearby_setup").assertIsDisplayed()
         compose.onNodeWithTag("nearby_art_versus", useUnmergedTree = true).assertIsDisplayed()
+        compose.onNodeWithTag("nearby_art_v7", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("nearby_art_v5", useUnmergedTree = true).assertDoesNotExist()
         assertModeArtDoesNotDuplicateMascots()
         compose.onNodeWithTag("nearby_art_coop", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithText("Race to finish").assertIsDisplayed()
@@ -86,16 +88,17 @@ class HomeLivingBookUiTest {
     }
 
     /**
-     * V5's complete illustrations include both animals; the V4 fallback
-     * intentionally retains original Collection sprites. Both paths must be
-     * mutually exclusive so the banner never displays duplicate characters.
+     * Both Co-op V5 and Versus V6 contain their two mascots already. The V4
+     * fallback draws the approved Collection portraits separately. Never
+     * duplicate characters in either banner or lose the V4 fallback.
      */
     private fun assertModeArtDoesNotDuplicateMascots() {
-        val v5Scene = compose.onAllNodesWithTag(
-            "nearby_art_v5", useUnmergedTree = true
-        ).fetchSemanticsNodes().isNotEmpty()
-        if (v5Scene) {
-            compose.onNodeWithTag("nearby_art_v5", useUnmergedTree = true).assertExists()
+        val embeddedV5 = compose.onAllNodesWithTag("nearby_art_v5", useUnmergedTree = true)
+            .fetchSemanticsNodes().isNotEmpty()
+        val embeddedV6 = compose.onAllNodesWithTag("nearby_art_v7", useUnmergedTree = true)
+            .fetchSemanticsNodes().isNotEmpty()
+        assertFalse("Only one complete banner can be active", embeddedV5 && embeddedV6)
+        if (embeddedV5 || embeddedV6) {
             compose.onNodeWithTag("nearby_art_motif", useUnmergedTree = true).assertDoesNotExist()
             compose.onNodeWithTag("nearby_art_fox", useUnmergedTree = true).assertDoesNotExist()
             compose.onNodeWithTag("nearby_art_owl", useUnmergedTree = true).assertDoesNotExist()

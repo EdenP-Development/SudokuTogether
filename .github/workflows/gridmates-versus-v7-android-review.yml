@@ -1,0 +1,158 @@
+name: GridMates Versus V7 canonical art Android reviewer
+
+on:
+  push:
+    branches: [art/versus-v6-canonical-mascots-review]
+    paths:
+      - '.github/workflows/gridmates-versus-v7-android-review.yml'
+      - 'app/src/main/java/com/playereden/sudokutogether/NearbyModeBanner.kt'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/VersusV7ArtUiTest.kt'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/HomeLivingBookUiTest.kt'
+      - 'scripts/versus_v7_capture.py'
+      - 'app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v7_hd.png'
+      - 'design/versus-v7/**'
+      - 'app/build.gradle.kts'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: gridmates-versus-v7-review
+  cancel-in-progress: true
+
+jobs:
+  real-android-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate original artwork and canonical source manifest
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,struct
+          from pathlib import Path
+          m=json.loads(Path("design/versus-v7/manifest.json").read_text())
+          for e in (m["source_scene"],m["output"]):
+              p=Path(e["path"]);d=p.read_bytes()
+              assert hashlib.sha256(d).hexdigest()==e["sha256"],f"Checksum mismatch: {p}"
+              assert len(d)==e["bytes"]
+              assert d[:8]==bytes((137,80,78,71,13,10,26,10)) and d[12:16]==b"IHDR"
+              assert struct.unpack(">II",d[16:24])==(1774,887)
+              assert d[25]==2,"Expected opaque RGB"
+          assert m["composition"]["decorative_boards"]["rows"]==m["composition"]["decorative_boards"]["columns"]==9
+          assert m["composition"]["decorative_boards"]["box_divisions"]==3
+          assert m["safety"]["scope"].startswith("Versus banner only")
+          for name in ("woodland_fox.png","woodland_owl.png","gm_mode_coop_woodland_v5_hd.png","gm_mode_versus_woodland_v5_hd.png"):
+              assert Path("app/src/main/res/drawable-nodpi",name).exists(),name
+          print("PASS: V7 source and final PNG integrity, unchanged Co-op V5 art")
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Build new banner and run unit, lint and Android test compilation
+        shell: bash
+        run: |
+          set -o pipefail
+          chmod +x gradlew
+          for attempt in 1 2 3; do
+            if ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesVersusV7Preview=true --no-daemon --max-workers=2 --console=plain 2>&1 | tee /tmp/gridmates-build.log; then
+              exit 0
+            fi
+            if ! grep -Eqi 'Could not resolve all artifacts|Could not find org.jetbrains|Could not GET .*maven|Could not download .*kotlin' /tmp/gridmates-build.log; then
+              echo "Real code/test failure: no retry"
+              exit 1
+            fi
+            if [ "$attempt" -eq 3 ]; then exit 1; fi
+            echo "Temporary dependency resolution issue; retry $attempt"
+            sleep 12
+          done
+      - name: Validate APK is isolated debug reviewer, with checksum and receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk=GridMates-VersusV7-OwnerPreview.apk
+          cp app/build/outputs/apk/debug/app-debug.apk "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" > versus-v7-debug-signer.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > /tmp/badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.versusv7'" /tmp/badging.txt
+          grep -F "versionName='1.0.0-beta.2-qa.versusv7'" /tmp/badging.txt
+          sha256sum "$apk" > "$apk.sha256"
+          python3 - <<'PY'
+          import json,os,hashlib
+          from pathlib import Path
+          p=Path("GridMates-VersusV7-OwnerPreview.apk")
+          receipt={"status":"OWNER_REVIEW_NOT_PUBLIC_RELEASE",
+                   "head_sha":os.environ["GITHUB_SHA"],
+                   "package":"com.playereden.sudokutogether.qa.versusv7",
+                   "bytes":p.stat().st_size,
+                   "sha256":hashlib.sha256(p.read_bytes()).hexdigest(),
+                   "production_signing":False,
+                   "replaces_public_or_garden_app":False,
+                   "network_rules_changed":False}
+          Path("versus-v7-build-receipt.json").write_text(json.dumps(receipt,indent=2)+"\n")
+          PY
+      - name: Preserve correctly signed isolated APK even if screenshot QA later fails
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-VersusV7-BuildOnly-OwnerPreview
+          path: |
+            GridMates-VersusV7-OwnerPreview.apk
+            GridMates-VersusV7-OwnerPreview.apk.sha256
+            versus-v7-build-receipt.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Enable KVM emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android 16 install, actual Versus and Co-op screenshot, Compose regression tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            set -e
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n com.playereden.sudokutogether.qa.versusv7/com.playereden.sudokutogether.MainActivity
+            adb shell pidof com.playereden.sudokutogether.qa.versusv7
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesVersusV7Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusV7ArtUiTest,com.playereden.sudokutogether.HomeLivingBookUiTest"
+            # Gradle connectedDebugAndroidTest removes its target app on completion.
+            # Reinstall the same isolated APK and capture live mode screens rather
+            # than pulling files from uninstalled app-private storage.
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            python3 scripts/versus_v7_capture.py
+      - name: Publish APK and source/actual-screen audit package
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-VersusV7-Canonical-Mascots-Review
+          path: |
+            GridMates-VersusV7-OwnerPreview.apk
+            GridMates-VersusV7-OwnerPreview.apk.sha256
+            versus-v7-build-receipt.json
+            versus-v7-actual-android.png
+            versus-v7-coop-control-android.png
+            versus-v7-debug-signer.txt
+          if-no-files-found: error
+          retention-days: 14
+      - name: Save diagnostics if device or source tests fail
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-VersusV7-QA-Diagnostics
+          path: |
+            app/build/reports/tests/**
+            app/build/reports/androidTests/**
+            core/build/reports/tests/**
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
+          retention-days: 7
