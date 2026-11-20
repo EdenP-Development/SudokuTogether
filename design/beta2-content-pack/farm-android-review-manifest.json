@@ -1,0 +1,63 @@
+{
+  "status": "ISOLATED_ANDROID_ART_REVIEW_NOT_RELEASE_APPROVED",
+  "source_pr": "https://github.com/PlayerEden/SudokuTogether/pull/100",
+  "source_branch": "art/beta2-farm-mixed-icons-pilot",
+  "based_on": "Beta2 Garden #98, preserving previously validated first-five #95",
+  "style": "gridmates_chibi_v1",
+  "no_humans": true,
+  "production_ids_and_saves_unchanged": true,
+  "items": [
+    {
+      "id": "farm_sheep",
+      "name": "Sheep",
+      "category": "portrait",
+      "subject_kind": "animal",
+      "unlock_completed_puzzles": 20,
+      "bytes": 182573,
+      "sha256": "a570e336ea383a3e9bde8a50856ffa33ae30752372c270f4aae48376e9b3843f",
+      "source_path": "design/beta2-content-pack/farm-pilot/farm_sheep.png",
+      "android_path": "app/src/main/res/drawable-nodpi/farm_sheep.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "farm_pig",
+      "name": "Pig",
+      "category": "portrait",
+      "subject_kind": "animal",
+      "unlock_completed_puzzles": 36,
+      "bytes": 183958,
+      "sha256": "ba4156e9f8ddae05e0819acc83ba42aaa3612a48324a5fbc9fe98cf5372e15e0",
+      "source_path": "design/beta2-content-pack/farm-pilot/farm_pig.png",
+      "android_path": "app/src/main/res/drawable-nodpi/farm_pig.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "farm_pumpkin",
+      "name": "Pumpkin",
+      "category": "portrait",
+      "subject_kind": "produce",
+      "unlock_completed_puzzles": 58,
+      "bytes": 164522,
+      "sha256": "ee3e3fd115ff57bb63dc56fc16c329fd2eaba1b701caef58a8a2e9b89c0b25c2",
+      "source_path": "design/beta2-content-pack/farm-pilot/farm_pumpkin.png",
+      "android_path": "app/src/main/res/drawable-nodpi/farm_pumpkin.png",
+      "width": 512,
+      "height": 512
+    },
+    {
+      "id": "farm_hay_bale",
+      "name": "Hay Bale",
+      "category": "portrait",
+      "subject_kind": "item",
+      "unlock_completed_puzzles": 85,
+      "bytes": 160478,
+      "sha256": "1303ee05272c37c3151fa2067ad199ad3f9eedfc334982ebef5c1e447167ca0e",
+      "source_path": "design/beta2-content-pack/farm-pilot/farm_hay_bale.png",
+      "android_path": "app/src/main/res/drawable-nodpi/farm_hay_bale.png",
+      "width": 512,
+      "height": 512
+    }
+  ]
+}

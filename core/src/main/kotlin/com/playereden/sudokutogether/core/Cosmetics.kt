@@ -66,7 +66,12 @@ object Cosmetics {
     )
     private val farmEntries = listOf(
         CatalogEntry("farm_cow", "Cow", 0, Milestone.FINISH),
-        CatalogEntry("farm_chicken", "Chicken", 7, Milestone.FINISH)
+        CatalogEntry("farm_chicken", "Chicken", 7, Milestone.FINISH),
+        // Mixed Farm life: two animals, a crop and a rustic item.
+        CatalogEntry("farm_sheep", "Sheep", 20, Milestone.FINISH),
+        CatalogEntry("farm_pig", "Pig", 36, Milestone.FINISH),
+        CatalogEntry("farm_pumpkin", "Pumpkin", 58, Milestone.FINISH),
+        CatalogEntry("farm_hay_bale", "Hay Bale", 85, Milestone.FINISH)
     )
     private val inkEntries = listOf(
         CatalogEntry("forest", "Forest"),

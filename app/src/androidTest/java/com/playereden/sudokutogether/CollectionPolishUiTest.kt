@@ -60,7 +60,7 @@ class CollectionPolishUiTest {
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
 
         compose.onNodeWithTag("nav_collection").performClick()
-        compose.onNodeWithText("8 of 37 available").assertIsDisplayed()
+        compose.onNodeWithText("8 of 41 available").assertIsDisplayed()
         val equipped = compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
         val starter = compose.onNodeWithTag("cosmetic_emblem_tile")
         val lastAvailable = compose.onNodeWithTag("portrait_garden_honeybee")
@@ -76,7 +76,7 @@ class CollectionPolishUiTest {
             lastAvailable.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
 
         compose.runOnIdle { state.value = state.value.copy(profile = data.copy(records = emptyList())) }
-        compose.onNodeWithText("7 of 37 available").assertIsDisplayed()
+        compose.onNodeWithText("7 of 41 available").assertIsDisplayed()
         equipped.assertIsSelected().assertIsDisplayed()
         assertTrue(equipped.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
     }
@@ -285,6 +285,34 @@ class CollectionPolishUiTest {
 
         compose.onNodeWithTag("portrait_garden_watering_can").performScrollTo().performClick()
         compose.onNodeWithText("Complete 62 puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Use icon").assertDoesNotExist()
+        compose.onNodeWithText("Close").performClick()
+    }
+
+    @Test fun farmMixedThemeShowsAnimalCropAndObjectUnlocksTogether() {
+        compose.setContent {
+            SudokuTogetherTheme {
+                SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {})
+            }
+        }
+        compose.onNodeWithTag("nav_collection").performClick()
+        compose.onNodeWithText("Farm").performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithText("1 of 6 available").assertIsDisplayed()
+        compose.onNodeWithTag("portrait_farm_cow").assertExists()
+        compose.onNodeWithTag("portrait_farm_chicken").assertExists()
+        compose.onNodeWithTag("portrait_farm_sheep").assertExists()
+        compose.onNodeWithTag("portrait_farm_pig").assertExists()
+        compose.onNodeWithTag("portrait_farm_pumpkin").assertExists()
+        compose.onNodeWithTag("portrait_farm_hay_bale").assertExists()
+        compose.onNodeWithTag("portrait_garden_sunflower").assertDoesNotExist()
+
+        compose.onNodeWithTag("portrait_farm_sheep").performScrollTo().performClick()
+        compose.onNodeWithText("Complete 20 puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Use icon").assertDoesNotExist()
+        compose.onNodeWithText("Close").performClick()
+
+        compose.onNodeWithTag("portrait_farm_pumpkin").performScrollTo().performClick()
+        compose.onNodeWithText("Complete 58 puzzles").assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
     }
