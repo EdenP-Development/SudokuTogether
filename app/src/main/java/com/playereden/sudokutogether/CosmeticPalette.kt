@@ -24,7 +24,8 @@ internal data class BoardPalette(
     val relatedCell: Color,
     val proofOutline: Color,
     val conflictInk: Color,
-    val previewRule: Color
+    val previewRule: Color,
+    val adaptiveNumberContrast: Boolean = false // only new palettes: legacy board rendering remains unchanged
 )
 
 internal data class InkPalette(val light: Color, val dark: Color)
@@ -98,6 +99,48 @@ internal val boardPalettes: Map<String, BoardPalette> = linkedMapOf(
         matchingNumberCell = Color(0xFF404148), relatedCell = Color(0xFF303B43),
         proofOutline = Color(0xFFFFE6A8), conflictInk = Color(0xFFFFC0BA),
         previewRule = Color(0xFF58646B)
+    ),
+
+    // Original four Beta 2 materials: each state explicitly mapped.
+    "moss" to BoardPalette(
+        fill = Color(0xFFE9F1E5), dark = false,
+        thinRule = Color(0xFFA4BBA6), thickRule = Color(0xFF42614D),
+        clueInk = Color(0xFF223C2E),
+        selectedCell = Color(0xFFC6DAAF), partnerCell = Color(0xFFCAE4DC),
+        conflictCell = Color(0xFFF8DFD9), matchingNumberCell = Color(0xFFD5E8C7),
+        relatedCell = Color(0xFFDBE9D8), proofOutline = Color(0xFF536828),
+        conflictInk = Color(0xFF903C33), previewRule = Color(0xFFA4BBA6),
+        adaptiveNumberContrast = true
+    ),
+    "rosewood" to BoardPalette(
+        fill = Color(0xFF372D34), dark = true,
+        thinRule = Color(0xFF80616A), thickRule = Color(0xFFE0BDBB),
+        clueInk = Color(0xFFFFF1E9),
+        selectedCell = Color(0xFF654651), partnerCell = Color(0xFF375B55),
+        conflictCell = Color(0xFF683943), matchingNumberCell = Color(0xFF543C4A),
+        relatedCell = Color(0xFF453540), proofOutline = Color(0xFFFFDC9D),
+        conflictInk = Color(0xFFFFBDB5), previewRule = Color(0xFF96767C),
+        adaptiveNumberContrast = true
+    ),
+    "pebble" to BoardPalette(
+        fill = Color(0xFFE4E9E7), dark = false,
+        thinRule = Color(0xFFACBAB9), thickRule = Color(0xFF52636D),
+        clueInk = Color(0xFF29373E),
+        selectedCell = Color(0xFFCEDCE4), partnerCell = Color(0xFFCBE4D7),
+        conflictCell = Color(0xFFF9E2DC), matchingNumberCell = Color(0xFFD3E0E6),
+        relatedCell = Color(0xFFDBE3E2), proofOutline = Color(0xFF4A5C78),
+        conflictInk = Color(0xFF9B3930), previewRule = Color(0xFFACBAB9),
+        adaptiveNumberContrast = true
+    ),
+    "tidal" to BoardPalette(
+        fill = Color(0xFF153844), dark = true,
+        thinRule = Color(0xFF597C84), thickRule = Color(0xFFB6DBD6),
+        clueInk = Color(0xFFF3FBF7),
+        selectedCell = Color(0xFF2C5267), partnerCell = Color(0xFF2D5A58),
+        conflictCell = Color(0xFF643941), matchingNumberCell = Color(0xFF28535B),
+        relatedCell = Color(0xFF214652), proofOutline = Color(0xFFF2D38C),
+        conflictInk = Color(0xFFFFC3B7), previewRule = Color(0xFF6E979B),
+        adaptiveNumberContrast = true
     )
 )
 
@@ -130,6 +173,10 @@ fun inkFor(id: String, darkBoard: Boolean): Color {
  * cosmetic colors keep their original palette. The same renderer serves
  * gameplay and the Coach proof board.
  */
+/** Keep the saved ink ID; optionally increase only rendered digit contrast on new themes. */
+internal fun legibleBoardDigitInk(authoredInk: Color, cellBackground: Color, palette: BoardPalette): Color =
+    if (palette.adaptiveNumberContrast) contrastSafeSmallInk(authoredInk, cellBackground, palette) else authoredInk
+
 internal fun pencilNoteInk(authoredInk: Color, cellBackground: Color, palette: BoardPalette): Color =
     contrastSafeSmallInk(if (palette.dark) authoredInk else Muted, cellBackground, palette)
 

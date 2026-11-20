@@ -619,7 +619,8 @@ private fun roomStatusText(state: GameUiState): String {
                     if (cell.value != 0) Text(cell.value.toString(), modifier = Modifier.fillMaxWidth(),
                         style = digitStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
                         maxLines = 1, softWrap = false, fontWeight = if (given) FontWeight.Bold else FontWeight.Normal,
-                        color = if (i in conflicts && !given) palette.conflictInk else if (given) neutralInk else authoredInk)
+                        color = if (i in conflicts && !given) palette.conflictInk else if (given) neutralInk
+                        else legibleBoardDigitInk(authoredInk, background, palette))
                     else if (cell.notes != 0) Column(Modifier.fillMaxSize().padding(1.dp)) {
                         // Keep the equipped color. If a dark-board highlight makes
                         // small pencil marks too faint, lift their contrast locally.
