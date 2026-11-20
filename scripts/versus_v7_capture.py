@@ -75,8 +75,13 @@ def screenshot(file):
     data=adb("exec-out", "screencap", "-p")
     if data[:8] != MAGIC or len(data) < 12000:
         raise RuntimeError(f"Invalid live Android screen capture: {file}")
+    import struct
+    assert data[12:16] == b"IHDR", file
+    width,height=struct.unpack(">II",data[16:24])
+    if width < 320 or height < 500:
+        raise RuntimeError(f"Unexpected emulator screenshot size: {file}: {width}x{height}")
     Path(file).write_bytes(data)
-    print("PASS captured live Android screen:",file,len(data),flush=True)
+    print("PASS captured live Android screen:",file,width,height,len(data),flush=True)
 
 
 def main():
