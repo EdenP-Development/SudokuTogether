@@ -1,0 +1,63 @@
+{
+  "id": "gridmates-versus-v7-composition-repair",
+  "status": "ART_REVIEW_NOT_RELEASE_APPROVED",
+  "supersedes": "V6 rejected on 2026-11-19 phone screenshot for text/animal/board overlap and detached characters",
+  "source_scene": {
+    "path": "design/versus-v7/source/woodland_race_v7_empty.png",
+    "sha256": "9a9993405853fd0283c012ee1474674843dbb05b3ed3f2240a77f09a4d1fc2da",
+    "bytes": 2509336,
+    "width": 1774,
+    "height": 887,
+    "color_type": "RGB",
+    "no_mascots": true
+  },
+  "output": {
+    "path": "app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v7_hd.png",
+    "sha256": "b02fd7610576a7361326bf37f038f643bc9000322be6e0d452aeee32835231ea",
+    "bytes": 2352842,
+    "width": 1774,
+    "height": 887,
+    "color_type": "RGB",
+    "text_baked_into_art": false
+  },
+  "composition": {
+    "intended_phone_banner_dp": {
+      "width": 620,
+      "height": 256
+    },
+    "native_text_safe_left_fraction": 0.56,
+    "right_mascots": [
+      "woodland_fox",
+      "woodland_owl"
+    ],
+    "mascot_art": "approved GridMates Collection pixel identities, not a new generative fox/owl",
+    "character_bodies_grounded": "paws/forearms meet separate wood Sudoku boards",
+    "scene": "warm woodland mountains and flower meadow; bright illustration restricted mostly to the right",
+    "decorative_boards": {
+      "count": 2,
+      "columns": 9,
+      "rows": 9,
+      "box_divisions": 3,
+      "no_digits": true
+    },
+    "no_checkered_flag": true,
+    "all_titles_native_compose": true,
+    "visually_reviewer_approved": false
+  },
+  "safety": {
+    "scope": "Versus banner only; original Co-op V5 unchanged",
+    "apk_package": "com.playereden.sudokutogether.qa.versusv7",
+    "does_not_overwrite_original_app": true,
+    "game_logic_changed": false,
+    "progression_changed": false,
+    "network_rules_changed": false,
+    "production_signing_changed": false
+  },
+  "quality_gates": [
+    "Original source and output image exact hash and size verification",
+    "Real Android 16 image and title overlap visual inspection",
+    "5 targeted Compose tests: Versus V7, Co-op V5, native race controls, 200% font",
+    "Owner phone review before merge",
+    "Original signed install-over/save preservation and two-phone LAN tests before public Beta 2"
+  ]
+}
