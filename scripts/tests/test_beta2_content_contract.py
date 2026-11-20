@@ -101,28 +101,39 @@ class Beta2ContentContractTest(unittest.TestCase):
             self.assertEqual("proposed_not_shipped", item["state"])
             self.assertTrue(item["required_art"])
 
-    def test_all_new_portraits_share_canonical_style_and_species_are_distinct(self):
-        portraits = [item for item in self.items if item["category"] == "portrait"]
-        species = [item["species_key"] for item in portraits]
-        self.assertEqual(len(species), len(set(species)),
-                         "Repeated species need explicit reviewed exception, not accidental reuse")
-        for item in portraits:
+    def test_all_new_theme_icons_share_one_art_style_and_no_people(self):
+        icons = [item for item in self.items if item["category"] == "portrait"]
+        self.assertEqual(21, len(icons))
+        keys = [item["subject_key"] for item in icons]
+        self.assertEqual(len(keys), len(set(keys)), "Motif repeat without variant approval")
+        kinds = {kind: sum(x["subject_kind"] == kind for x in icons)
+                 for kind in ("animal", "plant", "produce", "item")}
+        self.assertEqual({"animal": 14, "plant": 2, "produce": 2, "item": 3},
+                         kinds)
+        for item in icons:
             self.assertEqual("gridmates_chibi_v1", item["art_family"], item["id"])
-            self.assertIsNone(item.get("repeat_exemption"),
-                              "Current Beta 2 pack should not rely on repeated species")
-            self.assertTrue(item["species_description"].strip())
-        existing_species = {
-            # Existing species are checked as common identity concepts, not only identical IDs.
-            "owl", "fox", "rabbit", "bear", "badger", "hedgehog", "robin",
-            "deer", "squirrel", "otter", "land_tortoise", "cat",
-            "octopus", "harbor_seal", "hermit_crab", "manta_ray",
-            "jellyfish", "narwhal", "honeybee", "ladybug",
-            "butterfly", "dragonfly",
-        }
-        self.assertFalse(existing_species.intersection(species),
-                         "Do not repeat a currently owned species without a separate review")
-        self.assertIn("sea_turtle", species)
-        self.assertNotIn("land_tortoise", species)
+            self.assertTrue(re.fullmatch(r"[a-z][a-z0-9_]*", item["subject_key"]))
+            self.assertIn(item["subject_kind"], kinds)
+            self.assertNotIn(item["subject_kind"], ("human", "person", "humanoid"))
+            self.assertFalse(re.search(r"(?:human|humanoid|person|woman|man|girl|boy)",
+                                       item["subject_key"]))
+            if item["subject_kind"] == "animal":
+                self.assertTrue(item["species_key"])
+                self.assertEqual(item["species_key"], item["subject_key"])
+                self.assertIsNone(item.get("repeat_exemption"))
+            else:
+                self.assertNotIn("species_key", item)
+                self.assertNotIn("species_description", item)
+                self.assertTrue(item["motif_description"].strip())
+        theme = self.manifest["collection_policy"]
+        self.assertIn("humans", theme["prohibited"])
+        self.assertEqual("portrait", theme["model_category"])
+        self.assertIn("flowers", theme["include"])
+        self.assertEqual(0, self.manifest["proposed_additions"]["human_icons"])
+        # Garden is no longer a second insect-only collection.
+        garden = [x for x in icons if x["family"] == "Garden"]
+        self.assertEqual(5, len(garden))
+        self.assertEqual(4, sum(x["subject_kind"] != "animal" for x in garden))
 
     def test_existing_owned_cosmetic_mechanism_is_not_replaced(self):
         # Constraints must stay visible to implementers and in core source.
@@ -133,8 +144,6 @@ class Beta2ContentContractTest(unittest.TestCase):
                       " ".join(self.manifest["release_gates"]))
 
     def test_species_identity_and_reuse_policy(self):
-        # Existing live portraits are the baseline; species IDs cannot be
-        # duplicated by renamed content in a new family.
         existing = {
             "woodland": {"owl", "fox", "rabbit", "bear", "badger",
                          "hedgehog", "robin", "deer", "squirrel", "otter",
@@ -146,35 +155,34 @@ class Beta2ContentContractTest(unittest.TestCase):
         for family, species in existing.items():
             self.assertEqual(
                 {"_".join(id.split("_")[1:]) for id in self.current[family]},
-                species, f"Update the canonical existing species registry: {family}"
+                species, f"Update the existing species registry: {family}"
             )
-        registered = {
-            animal: f"{family}_{animal}"
-            for family, members in existing.items()
-            for animal in members
-        }
+        registered = {animal: f"{family}_{animal}"
+                      for family, members in existing.items() for animal in members}
         self.assertEqual(22, len(registered))
-        portraits = [item for item in self.items if item["category"] == "portrait"]
-        self.assertEqual(21, len(portraits))
-        for item in portraits:
-            species = item.get("species_key", "")
-            self.assertTrue(re.fullmatch(r"[a-z][a-z0-9_]*", species),
-                            f"Missing or malformed species key: {item['id']}")
+        animal_icons = [item for item in self.items
+                        if item["category"] == "portrait"
+                        and item["subject_kind"] == "animal"]
+        self.assertEqual(14, len(animal_icons))
+        for item in animal_icons:
+            species = item["species_key"]
+            self.assertTrue(re.fullmatch(r"[a-z][a-z0-9_]*", species))
             if species in registered:
-                self.assertEqual(registered[species], item.get("repeat_of"),
-                                 f"Repeated animal must reference original: {item['id']}")
+                self.assertEqual(registered[species], item.get("repeat_of"))
                 self.assertTrue(item.get("variant_name"))
                 self.assertGreaterEqual(len(item.get("visual_differentiators", [])), 2)
                 self.assertTrue(item.get("justification"))
                 self.assertTrue(item.get("style_reference"))
             else:
-                self.assertNotIn("repeat_of", item,
-                                 f"Unneeded repeat exemption: {item['id']}")
+                self.assertNotIn("repeat_of", item)
             registered[species] = item["id"]
-        self.assertEqual(43, len(registered))
-        # Distinct terrestrial tortoise vs sea turtle is valid, not a repeat.
+        self.assertEqual(36, len(registered))
         self.assertIn("tortoise", registered)
         self.assertIn("sea_turtle", registered)
+        non_animals = [x for x in self.items if x["category"] == "portrait"
+                       and x["subject_kind"] != "animal"]
+        self.assertEqual(7, len(non_animals))
+        self.assertTrue(all("species_key" not in x for x in non_animals))
 
     def test_art_bible_and_style_reference_gate(self):
         bible = ROOT / "docs/GRIDMATES_CHARACTER_ART_BIBLE_AND_SPECIES_RULES.md"
@@ -190,6 +198,9 @@ class Beta2ContentContractTest(unittest.TestCase):
         self.assertIn("visual_differentiators", text)
         self.assertIn("Firefly", text)
         self.assertIn("Versus", text)
+        self.assertIn("no humans", text.lower())
+        self.assertIn("watering can", text.lower())
+        self.assertIn("sunflower", text.lower())
 
     def test_projected_inventory_math(self):
         expected = self.manifest["proposed_additions"]
@@ -197,6 +208,10 @@ class Beta2ContentContractTest(unittest.TestCase):
         self.assertEqual(4, expected["boards"])
         self.assertEqual(4, expected["number_fonts"])
         self.assertEqual(0, expected["inks"])
+        self.assertEqual(14, expected["animal_icons"])
+        self.assertEqual(2, expected["plant_icons"])
+        self.assertEqual(2, expected["produce_icons"])
+        self.assertEqual(3, expected["item_icons"])
         self.assertEqual(79, expected["projected_total"])
         self.assertEqual(50 + len(self.items), expected["projected_total"])
 
