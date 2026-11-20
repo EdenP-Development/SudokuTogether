@@ -85,7 +85,7 @@ jobs:
           "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" > /tmp/beta2-signer.txt
           "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > /tmp/beta2-badging.txt
           grep -F "package: name='com.playereden.sudokutogether.qa.beta2garden'" /tmp/beta2-badging.txt
-          grep -F "versionName='1.0.0-beta.2-qa.beta2portraits'" /tmp/beta2-badging.txt
+          grep -F "versionName='1.0.0-beta.2-qa.beta2garden'" /tmp/beta2-badging.txt
           sha256sum "$apk" > "$apk.sha256"
           python3 - <<'PY'
           import json,hashlib,os
