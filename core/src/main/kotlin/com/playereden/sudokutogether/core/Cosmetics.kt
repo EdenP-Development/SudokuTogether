@@ -38,12 +38,14 @@ object Cosmetics {
     private val woodlandEntries = linkedMapOf(
         "owl" to 0, "fox" to 0, "rabbit" to 1, "bear" to 2,
         "badger" to 3, "hedgehog" to 4, "robin" to 5, "deer" to 6,
-        "squirrel" to 8, "otter" to 10, "tortoise" to 12, "cat" to 15
+        "squirrel" to 8, "otter" to 10, "tortoise" to 12, "cat" to 15,
+        "raccoon" to 24
     ).map { (animal, count) ->
         CatalogEntry("woodland_$animal", animal.replaceFirstChar { it.uppercase() }, count, Milestone.FINISH)
     }
     private val oceanEntries = listOf(
         CatalogEntry("ocean_octopus", "Octopus", 0, Milestone.FINISH),
+        CatalogEntry("ocean_sea_turtle", "Sea Turtle", 12, Milestone.FINISH),
         CatalogEntry("ocean_seal", "Harbor Seal", 18, Milestone.FINISH),
         CatalogEntry("ocean_hermit_crab", "Hermit Crab", 25, Milestone.FINISH),
         CatalogEntry("ocean_manta_ray", "Manta Ray", 35, Milestone.FINISH),
@@ -54,7 +56,12 @@ object Cosmetics {
         CatalogEntry("garden_honeybee", "Honeybee", 0, Milestone.FINISH),
         CatalogEntry("garden_ladybug", "Ladybug", 4, Milestone.FINISH),
         CatalogEntry("garden_butterfly", "Butterfly", 10, Milestone.FINISH),
-        CatalogEntry("garden_dragonfly", "Dragonfly", 20, Milestone.FINISH)
+        CatalogEntry("garden_dragonfly", "Dragonfly", 20, Milestone.FINISH),
+        CatalogEntry("garden_firefly", "Firefly", 42, Milestone.FINISH)
+    )
+    private val farmEntries = listOf(
+        CatalogEntry("farm_cow", "Cow", 0, Milestone.FINISH),
+        CatalogEntry("farm_chicken", "Chicken", 7, Milestone.FINISH)
     )
     private val inkEntries = listOf(
         CatalogEntry("forest", "Forest"),
@@ -97,13 +104,14 @@ object Cosmetics {
         CatalogEntry("star", "Star Solver", 5),
         CatalogEntry("laurel", "Champion", 3, Milestone.RACE)
     )
-    private val portraitEntries = woodlandEntries + oceanEntries + gardenEntries
+    private val portraitEntries = woodlandEntries + oceanEntries + gardenEntries + farmEntries
     private val entries = (portraitEntries + inkEntries + boardEntries + fontEntries + emblemEntries).associateBy { it.id }
 
     val woodlandPortraits = woodlandEntries.map(CatalogEntry::cosmetic)
     val oceanPortraits = oceanEntries.map(CatalogEntry::cosmetic)
     val gardenPortraits = gardenEntries.map(CatalogEntry::cosmetic)
-    val portraits = woodlandPortraits + oceanPortraits + gardenPortraits
+    val farmPortraits = farmEntries.map(CatalogEntry::cosmetic)
+    val portraits = woodlandPortraits + oceanPortraits + gardenPortraits + farmPortraits
     val inks = inkEntries.map(CatalogEntry::cosmetic)
     val boards = boardEntries.map(CatalogEntry::cosmetic)
     val fonts = fontEntries.map(CatalogEntry::cosmetic)

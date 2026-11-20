@@ -28,20 +28,26 @@ internal fun animalDrawable(id: String): Int? = when (id) {
     "woodland_otter" -> R.drawable.woodland_otter
     "woodland_tortoise" -> R.drawable.woodland_tortoise
     "woodland_cat" -> R.drawable.woodland_cat
+    "woodland_raccoon" -> R.drawable.woodland_raccoon
     "ocean_octopus" -> R.drawable.ocean_octopus
     "ocean_seal" -> R.drawable.ocean_seal
     "ocean_hermit_crab" -> R.drawable.ocean_hermit_crab
     "ocean_manta_ray" -> R.drawable.ocean_manta_ray
     "ocean_jellyfish" -> R.drawable.ocean_jellyfish
     "ocean_narwhal" -> R.drawable.ocean_narwhal
+    "ocean_sea_turtle" -> R.drawable.ocean_sea_turtle
     "garden_honeybee" -> R.drawable.garden_honeybee
     "garden_ladybug" -> R.drawable.garden_ladybug
     "garden_butterfly" -> R.drawable.garden_butterfly
     "garden_dragonfly" -> R.drawable.garden_dragonfly
+    "garden_firefly" -> R.drawable.garden_firefly
+    "farm_cow" -> R.drawable.farm_cow
+    "farm_chicken" -> R.drawable.farm_chicken
     else -> null
 }
 
 internal fun identityStyleName(appearance: Appearance): String {
+    Cosmetics.farmPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Farm" }
     Cosmetics.gardenPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Garden" }
     Cosmetics.oceanPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Ocean" }
     Cosmetics.woodlandPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Woodland" }

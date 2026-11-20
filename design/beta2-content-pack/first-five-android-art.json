@@ -1,0 +1,54 @@
+{
+  "status": "ISOLATED_ANDROID_REVIEW_CANDIDATE_NOT_APPROVED",
+  "art_family": "gridmates_chibi_v1",
+  "source_review": "https://github.com/PlayerEden/SudokuTogether/pull/94",
+  "source_comparison": "design/beta2-content-pack/pilot-art/canonical_style_comparison.png",
+  "images": [
+    {
+      "id": "farm_cow",
+      "path": "app/src/main/res/drawable-nodpi/farm_cow.png",
+      "sha256": "7d47dc4a60a583a9fd7f8187e6b37e61b29069e60287b7db45004dfb822ff9af",
+      "bytes": 168388,
+      "width": 512,
+      "height": 512,
+      "review_status": "candidate_compare_with_existing_collection"
+    },
+    {
+      "id": "farm_chicken",
+      "path": "app/src/main/res/drawable-nodpi/farm_chicken.png",
+      "sha256": "3d9efa28dee23b9f06996a311e79220ed9e3dab7b17c692086b26221182f6119",
+      "bytes": 148858,
+      "width": 512,
+      "height": 512,
+      "review_status": "candidate_compare_with_existing_collection"
+    },
+    {
+      "id": "woodland_raccoon",
+      "path": "app/src/main/res/drawable-nodpi/woodland_raccoon.png",
+      "sha256": "e9f690eb23130f138175faa2bf309157ca375d905c635c64e6ce560112f35e78",
+      "bytes": 177133,
+      "width": 512,
+      "height": 512,
+      "review_status": "candidate_compare_with_existing_collection"
+    },
+    {
+      "id": "ocean_sea_turtle",
+      "path": "app/src/main/res/drawable-nodpi/ocean_sea_turtle.png",
+      "sha256": "36c8348b41b135490952ffe9c973fc9da315c7de4c040ed5e81286603b8e914d",
+      "bytes": 177436,
+      "width": 512,
+      "height": 512,
+      "review_status": "candidate_compare_with_existing_collection"
+    },
+    {
+      "id": "garden_firefly",
+      "path": "app/src/main/res/drawable-nodpi/garden_firefly.png",
+      "sha256": "3831026c7bd7973092775df35ec14f6aa30ef7278b29d1a4998d61eeb1dde4e1",
+      "bytes": 178913,
+      "width": 512,
+      "height": 512,
+      "review_status": "v2_clean_no_glow_owner_phone_approval_pending"
+    }
+  ],
+  "refinement": "Firefly bottom glow and accent spark marks removed; alpha silhouette kept in flat canonical Collection style"
+}

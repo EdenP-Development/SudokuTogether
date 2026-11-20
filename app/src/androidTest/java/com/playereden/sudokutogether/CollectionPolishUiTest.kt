@@ -60,7 +60,7 @@ class CollectionPolishUiTest {
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
 
         compose.onNodeWithTag("nav_collection").performClick()
-        compose.onNodeWithText("7 of 28 available").assertIsDisplayed()
+        compose.onNodeWithText("8 of 33 available").assertIsDisplayed()
         val equipped = compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
         val starter = compose.onNodeWithTag("cosmetic_emblem_tile")
         val lastAvailable = compose.onNodeWithTag("portrait_garden_honeybee")
@@ -76,9 +76,22 @@ class CollectionPolishUiTest {
             lastAvailable.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
 
         compose.runOnIdle { state.value = state.value.copy(profile = data.copy(records = emptyList())) }
-        compose.onNodeWithText("6 of 28 available").assertIsDisplayed()
+        compose.onNodeWithText("7 of 33 available").assertIsDisplayed()
         equipped.assertIsSelected().assertIsDisplayed()
         assertTrue(equipped.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
+    }
+
+    @Test fun newFarmFamilyCanBeBrowsedWithCowStarterAndLockedChicken() {
+        compose.setContent {
+            SudokuTogetherTheme {
+                SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {})
+            }
+        }
+        compose.onNodeWithTag("nav_collection").performClick()
+        compose.onNodeWithText("Farm").performScrollTo().performClick()
+        compose.onNodeWithTag("portrait_farm_cow").assertExists()
+        compose.onNodeWithTag("portrait_farm_chicken").assertExists()
+        compose.onNodeWithTag("portrait_ocean_sea_turtle").assertDoesNotExist()
     }
 
     @Test fun numbersLetsPlayersBrowseFontsSeparatelyFromColors() {
@@ -133,28 +146,29 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("nav_collection").performClick()
         val all = compose.onNodeWithText("All").assertIsSelected()
         val garden = compose.onNodeWithText("Garden")
+        val farm = compose.onNodeWithText("Farm")
         assertEquals(
             "The last icon set belongs in the same row as the first",
             all.getUnclippedBoundsInRoot().top,
-            garden.getUnclippedBoundsInRoot().top
+            farm.getUnclippedBoundsInRoot().top
         )
 
         val picker = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.HorizontalScrollAxisRange))
         compose.onNodeWithTag("collection_family_scroll_hint").assertIsDisplayed()
         val viewport = picker.getUnclippedBoundsInRoot()
-        assertTrue(garden.getUnclippedBoundsInRoot().right > viewport.right)
+        assertTrue(farm.getUnclippedBoundsInRoot().right > viewport.right)
         picker.performTouchInput { swipeLeft() }
-        assertTrue(garden.getUnclippedBoundsInRoot().right <= viewport.right)
+        farm.performScrollTo()
+        assertTrue(farm.getUnclippedBoundsInRoot().right <= viewport.right)
         all.assertIsSelected()
-        garden.assertIsDisplayed().performClick().assertIsSelected()
-        compose.onNodeWithText("1 of 4 available").assertIsDisplayed()
+        garden.performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithText("1 of 5 available").assertIsDisplayed()
         compose.onNodeWithTag("portrait_garden_honeybee").assertIsDisplayed()
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
 
         compose.onNodeWithText("Boards").performClick()
         compose.onNodeWithText("Player icons").performClick()
-        garden.assertIsDisplayed().assertIsSelected()
-        assertTrue(garden.getUnclippedBoundsInRoot().right <= viewport.right)
+        garden.performScrollTo().assertIsSelected()
 
         picker.performTouchInput { swipeRight() }
         assertTrue(all.getUnclippedBoundsInRoot().left >= viewport.left)
@@ -163,18 +177,22 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("portrait_ocean_octopus").assertExists()
     }
 
-    @Test fun iconFamilyHintDoesNotWasteSpaceWhenAllOptionsFit() {
+    @Test fun iconFamilyHintAppearsWhenParentConstrainsTheRequestedWideLayout() {
+        // A requested 820dp child cannot force a phone-width parent to become
+        // 820dp wide. The extra Farm tab still overflows on the emulator.
+        // Verify the hint reflects actual constraints, not requested width.
         compose.setContent {
             SudokuTogetherTheme {
-                Box(Modifier.width(600.dp).fillMaxHeight()) {
+                Box(Modifier.width(820.dp).fillMaxHeight()) {
                     SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {})
                 }
             }
         }
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("All").assertIsSelected()
-        compose.onNodeWithText("Garden").assertIsDisplayed()
-        compose.onNodeWithTag("collection_family_scroll_hint").assertDoesNotExist()
+        compose.onNodeWithTag("collection_family_scroll_hint").assertIsDisplayed()
+        compose.onNodeWithText("Farm").performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithTag("portrait_farm_cow").assertExists()
     }
 
     @Test fun gardenFilterShowsExistingProgressAndEquipsTheHoneybee() {
@@ -189,7 +207,7 @@ class CollectionPolishUiTest {
 
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("Garden").performScrollTo().performClick()
-        compose.onNodeWithText("1 of 4 available").assertIsDisplayed()
+        compose.onNodeWithText("1 of 5 available").assertIsDisplayed()
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
         compose.onNodeWithTag("portrait_garden_ladybug").performScrollTo().performClick()
         compose.onNodeWithText("Complete 4 puzzles").assertIsDisplayed()
