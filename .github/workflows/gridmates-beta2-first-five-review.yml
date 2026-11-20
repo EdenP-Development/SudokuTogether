@@ -43,9 +43,26 @@ jobs:
       - uses: android-actions/setup-android@v4
       - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
       - name: Compile, JVM regressions, lint, AndroidTest compile and isolated APK
+        shell: bash
         run: |
+          set -o pipefail
           chmod +x gradlew
-          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta2PortraitPreview=true --no-daemon --max-workers=2 --console=plain
+          for attempt in 1 2 3; do
+            echo "Android build attempt $attempt"
+            if ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta2PortraitPreview=true --no-daemon --max-workers=2 --console=plain 2>&1 | tee /tmp/gridmates-gradle-build.log; then
+              exit 0
+            fi
+            if ! grep -Eqi 'Could not resolve all artifacts|Could not find org.jetbrains|Could not GET .*maven|Could not download .*kotlin' /tmp/gridmates-gradle-build.log; then
+              echo "Non-dependency build failure; do not hide code/test errors"
+              exit 1
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "Repository resolution still failed after limited retries"
+              exit 1
+            fi
+            echo "Transient dependency retrieval failure; retrying Gradle"
+            sleep 12
+          done
       - name: Validate isolated APK id and signed hash receipt
         shell: bash
         run: |
