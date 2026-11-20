@@ -44,8 +44,17 @@ def main():
     if p is None:raise RuntimeError("Collection bottom-navigation item unavailable")
     adb("shell","input","tap",str(p[0]),str(p[1]))
     time.sleep(3)
-    if find("Player icons") is None:
-        raise RuntimeError("Collection did not open")
+    # UIAutomator sometimes omits Compose tab text from its accessibility tree,
+    # even when the page is open. Save the actual screen here; the separate
+    # CollectionPolishUiTest verifies selected tabs and Farm content via Compose.
+    root,_ = tree()
+    seen = " ".join(
+        node.attrib.get("text", "") + " " + node.attrib.get("content-desc", "")
+        for node in root.iter("node")
+    )
+    Path("beta2-first-five-collection-ui.txt").write_text(seen[:20000])
+    if not adb("shell","pidof",package).strip():
+        raise RuntimeError("Reviewer process crashed during Collection navigation")
     shot=adb("exec-out","screencap","-p")
     if shot[:8]!=bytes((137,80,78,71,13,10,26,10)):
         raise RuntimeError("Missing actual Android screenshot")
