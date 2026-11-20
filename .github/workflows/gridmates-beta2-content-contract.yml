@@ -1,0 +1,27 @@
+name: GridMates Beta 2 proposed content contract
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'design/beta2-content-pack/**'
+      - 'docs/BETA2_COLLECTION_EXPANSION_AND_UNLOCK_BALANCE_2026-11-19.md'
+      - 'scripts/tests/test_beta2_content_contract.py'
+      - '.github/workflows/gridmates-beta2-content-contract.yml'
+  push:
+    branches:
+      - plan/beta2-collection-expansion-and-unlock-balance
+    paths:
+      - 'design/beta2-content-pack/**'
+      - 'scripts/tests/test_beta2_content_contract.py'
+      - '.github/workflows/gridmates-beta2-content-contract.yml'
+permissions:
+  contents: read
+jobs:
+  verify-content-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check proposed IDs, milestone targets, baseline and save contract
+        run: python3 -m unittest discover -s scripts/tests -p 'test_beta2_content_contract.py' -v

@@ -1,0 +1,561 @@
+{
+  "schema_version": 2,
+  "project": "GridMates: Sudoku",
+  "branch_purpose": "Design-only Beta 2 theme-inclusive collection plan. 'portrait' remains the app's Player Icon category even for plants, produce and objects; do not enable before approved art/resources/tests.",
+  "source_baseline": {
+    "repo": "PlayerEden/SudokuTogether",
+    "branch": "main",
+    "existing_counts": {
+      "portraits": 22,
+      "emblems": 6,
+      "boards": 7,
+      "number_inks": 10,
+      "number_fonts": 5,
+      "total": 50
+    },
+    "existing_families": {
+      "woodland": 12,
+      "ocean": 6,
+      "garden": 4
+    },
+    "compatibility": "Preserve all existing IDs and thresholds, earned ownedCosmeticIds, profile backup, LAN appearance protocol, signing identity"
+  },
+  "proposed_additions": {
+    "portraits": 21,
+    "boards": 4,
+    "number_fonts": 4,
+    "inks": 0,
+    "new_portrait_families": [
+      "Farm"
+    ],
+    "total": 29,
+    "projected_total": 79,
+    "theme_icons": 21,
+    "animal_icons": 14,
+    "plant_icons": 2,
+    "produce_icons": 2,
+    "item_icons": 3,
+    "human_icons": 0
+  },
+  "items": [
+    {
+      "id": "woodland_chipmunk",
+      "name": "Chipmunk",
+      "category": "portrait",
+      "family": "Woodland",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 16
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "chipmunk",
+      "species_description": "Tamias species",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "chipmunk"
+    },
+    {
+      "id": "woodland_raccoon",
+      "name": "Raccoon",
+      "category": "portrait",
+      "family": "Woodland",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 24
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "raccoon",
+      "species_description": "Procyon lotor",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "raccoon"
+    },
+    {
+      "id": "woodland_beaver",
+      "name": "Beaver",
+      "category": "portrait",
+      "family": "Woodland",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 39
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "beaver",
+      "species_description": "Castor species",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "beaver"
+    },
+    {
+      "id": "woodland_woodpecker",
+      "name": "Woodpecker",
+      "category": "portrait",
+      "family": "Woodland",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 56
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "woodpecker",
+      "species_description": "Picidae family",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "woodpecker"
+    },
+    {
+      "id": "woodland_skunk",
+      "name": "Skunk",
+      "category": "portrait",
+      "family": "Woodland",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 90
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "skunk",
+      "species_description": "Mephitidae family",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "skunk"
+    },
+    {
+      "id": "ocean_sea_turtle",
+      "name": "Sea Turtle",
+      "category": "portrait",
+      "family": "Ocean",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 12
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "sea_turtle",
+      "species_description": "Chelonioidea sea turtle; flippers distinguish from land tortoise",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "sea_turtle"
+    },
+    {
+      "id": "ocean_seahorse",
+      "name": "Seahorse",
+      "category": "portrait",
+      "family": "Ocean",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 30
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "seahorse",
+      "species_description": "Hippocampus",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "seahorse"
+    },
+    {
+      "id": "ocean_dolphin",
+      "name": "Dolphin",
+      "category": "portrait",
+      "family": "Ocean",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 46
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "dolphin",
+      "species_description": "Delphinidae",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "dolphin"
+    },
+    {
+      "id": "ocean_seashell",
+      "name": "Seashell",
+      "category": "portrait",
+      "family": "Ocean",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 67
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "art_family": "gridmates_chibi_v1",
+      "subject_kind": "item",
+      "subject_key": "spiral_seashell",
+      "motif_description": "single simple pearly spiral shell; no person, no creature"
+    },
+    {
+      "id": "ocean_clownfish",
+      "name": "Clownfish",
+      "category": "portrait",
+      "family": "Ocean",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 95
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "clownfish",
+      "species_description": "Amphiprion",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "clownfish"
+    },
+    {
+      "id": "garden_sunflower",
+      "name": "Sunflower",
+      "category": "portrait",
+      "family": "Garden",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 11
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "art_family": "gridmates_chibi_v1",
+      "subject_kind": "plant",
+      "subject_key": "sunflower_bloom",
+      "motif_description": "single sunflower bloom with a few leaves"
+    },
+    {
+      "id": "garden_strawberry",
+      "name": "Strawberry",
+      "category": "portrait",
+      "family": "Garden",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 23
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "art_family": "gridmates_chibi_v1",
+      "subject_kind": "produce",
+      "subject_key": "strawberry_fruit",
+      "motif_description": "one plump strawberry with small green leaves"
+    },
+    {
+      "id": "garden_firefly",
+      "name": "Firefly",
+      "category": "portrait",
+      "family": "Garden",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 42
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "firefly",
+      "species_description": "Lampyridae",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "firefly"
+    },
+    {
+      "id": "garden_watering_can",
+      "name": "Watering Can",
+      "category": "portrait",
+      "family": "Garden",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 62
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "art_family": "gridmates_chibi_v1",
+      "subject_kind": "item",
+      "subject_key": "watering_can",
+      "motif_description": "simple squat watering can, no human hand or person"
+    },
+    {
+      "id": "garden_potted_tulip",
+      "name": "Potted Tulip",
+      "category": "portrait",
+      "family": "Garden",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 100
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "art_family": "gridmates_chibi_v1",
+      "subject_kind": "plant",
+      "subject_key": "potted_tulip",
+      "motif_description": "single tulip plant in a small terracotta pot"
+    },
+    {
+      "id": "farm_cow",
+      "name": "Cow",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "starter",
+        "target": 0
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "domestic_cattle",
+      "species_description": "Bos taurus",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "domestic_cattle"
+    },
+    {
+      "id": "farm_chicken",
+      "name": "Chicken",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 7
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "domestic_chicken",
+      "species_description": "Gallus gallus domesticus",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "domestic_chicken"
+    },
+    {
+      "id": "farm_sheep",
+      "name": "Sheep",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 20
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "domestic_sheep",
+      "species_description": "Ovis aries",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "domestic_sheep"
+    },
+    {
+      "id": "farm_pig",
+      "name": "Pig",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 36
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "species_key": "domestic_pig",
+      "species_description": "Sus domesticus",
+      "art_family": "gridmates_chibi_v1",
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "domestic_pig"
+    },
+    {
+      "id": "farm_pumpkin",
+      "name": "Pumpkin",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 58
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "art_family": "gridmates_chibi_v1",
+      "subject_kind": "produce",
+      "subject_key": "pumpkin",
+      "motif_description": "single ripe pumpkin with leaf and stem"
+    },
+    {
+      "id": "farm_hay_bale",
+      "name": "Hay Bale",
+      "category": "portrait",
+      "family": "Farm",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 85
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
+      "art_family": "gridmates_chibi_v1",
+      "subject_kind": "item",
+      "subject_key": "hay_bale",
+      "motif_description": "small neatly tied rectangular hay bale"
+    },
+    {
+      "id": "moss",
+      "name": "Moss",
+      "category": "board",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 16
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "complete contrast-safe BoardPalette for all Sudoku cell states"
+    },
+    {
+      "id": "rosewood",
+      "name": "Rosewood",
+      "category": "board",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 28
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "complete contrast-safe BoardPalette for all Sudoku cell states"
+    },
+    {
+      "id": "pebble",
+      "name": "Pebble",
+      "category": "board",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 48
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "complete contrast-safe BoardPalette for all Sudoku cell states"
+    },
+    {
+      "id": "tidal",
+      "name": "Tidal",
+      "category": "board",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 70
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "complete contrast-safe BoardPalette for all Sudoku cell states"
+    },
+    {
+      "id": "typewriter",
+      "name": "Typewriter",
+      "category": "font",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 14
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "redistributable bundled static TTF/OTF with license and visibly distinct glyphs"
+    },
+    {
+      "id": "editorial",
+      "name": "Editorial",
+      "category": "font",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 26
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "redistributable bundled static TTF/OTF with license and visibly distinct glyphs"
+    },
+    {
+      "id": "soft_print",
+      "name": "Soft Print",
+      "category": "font",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 45
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "redistributable bundled static TTF/OTF with license and visibly distinct glyphs"
+    },
+    {
+      "id": "tall_print",
+      "name": "Tall Print",
+      "category": "font",
+      "unlock": {
+        "kind": "completed_puzzles",
+        "target": 75
+      },
+      "state": "proposed_not_shipped",
+      "required_art": "redistributable bundled static TTF/OTF with license and visibly distinct glyphs"
+    }
+  ],
+  "release_gates": [
+    "Every portrait has distinct high quality source+Android resource+renderer mapping and 30/48/72dp previews",
+    "Every board registers a contrast-tested palette covering selected, related, partner, matching, conflict, proof, pencil notes and dark/light states",
+    "Every font is a documented redistribution-licensed bundled static face and has legible distinct digits 1–9 in real grid/notes",
+    "No game rules, default progression, existing IDs, thresholds or owned status changed",
+    "Completed-puzzle milestones remain deduplicated, count SOLO DAILY COOP and VERSUS WIN and show accurate progress",
+    "Newly earned ownership survives record pruning and JSON backup/restore with legacy saves",
+    "Multi-device missing/unknown new IDs fall back safely; two-phone LAN smoke",
+    "Android API26–36 validation and actual phone/capture review",
+    "Real Beta 1→Beta 2 update must use original production certificate, higher version code and save-preserving install-over; never replace signed public game with reviewer build",
+    "Player icon art can be plant/produce/item as well as animal, but subject metadata and actual artwork are required for all and no human/humanoid icons."
+  ],
+  "art_direction": {
+    "canonical_style": "GridMates Collection character portrait house style; flat chibi shape language and restrained shading",
+    "reference_assets": [
+      "app/src/main/res/drawable-nodpi/woodland_fox.png",
+      "app/src/main/res/drawable-nodpi/woodland_owl.png",
+      "app/src/main/res/drawable-nodpi/ocean_octopus.png",
+      "app/src/main/res/drawable-nodpi/garden_honeybee.png"
+    ],
+    "prefer_unique_species": true,
+    "repeat_policy": "Repeat species only with documented family/ecological justification and visually distinct breed/pose/markings/silhouette while preserving house style; never simply recolor the same sprite.",
+    "review_sizes_dp": [
+      30,
+      48,
+      72
+    ],
+    "must_review_alpha_edges": true,
+    "avoid": "painterly faces, glow/fringe halos, photo-real texture, extra limb/detail, inconsistent eyes or outline, humans/people/humanoid portraits, forced cartoon faces on every object"
+  },
+  "character_style_policy": "design/beta2-content-pack/CANONICAL_CHARACTER_STYLE.md",
+  "cross_collection_species_rule": "Prefer unique species and motifs. Animal repeats require biologically/visually distinct variants with documented review; plants/items also must not become recolor-only repeats.",
+  "collection_policy": {
+    "themes": {
+      "Woodland": "Forest life",
+      "Ocean": "Sea life and seaside treasures",
+      "Garden": "Bugs, blooms, plants, harvest and garden tools",
+      "Farm": "Farm animals, crops and rustic farm objects"
+    },
+    "include": [
+      "animals",
+      "bugs",
+      "flowers",
+      "plants",
+      "fruit and vegetables",
+      "nature objects",
+      "themed tools and objects"
+    ],
+    "prohibited": [
+      "humans",
+      "people",
+      "human silhouettes",
+      "humanoid character portraits"
+    ],
+    "face_guidance": "Eyes and mouths only if appropriate; no forced human-like features on plants or objects.",
+    "shared_art_style": "gridmates_chibi_v1",
+    "prefer_distinct_subjects": true,
+    "repeat_rule": "Avoid duplicates; when a species or motif is reused across collections, require a visually distinct variant, meaningful thematic role, owner review, and same art style.",
+    "model_category": "portrait",
+    "does_not_change": [
+      "existing 50 cosmetics",
+      "first five playable pilot IDs/thresholds",
+      "player saves",
+      "network protocol",
+      "release signer"
+    ]
+  }
+}
