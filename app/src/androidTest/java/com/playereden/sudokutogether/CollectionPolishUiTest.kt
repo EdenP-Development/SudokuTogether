@@ -158,6 +158,7 @@ class CollectionPolishUiTest {
         val viewport = picker.getUnclippedBoundsInRoot()
         assertTrue(farm.getUnclippedBoundsInRoot().right > viewport.right)
         picker.performTouchInput { swipeLeft() }
+        farm.performScrollTo()
         assertTrue(farm.getUnclippedBoundsInRoot().right <= viewport.right)
         all.assertIsSelected()
         garden.performScrollTo().performClick().assertIsSelected()
