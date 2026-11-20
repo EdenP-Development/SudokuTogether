@@ -56,9 +56,9 @@ object Cosmetics {
         CatalogEntry("garden_honeybee", "Honeybee", 0, Milestone.FINISH),
         CatalogEntry("garden_ladybug", "Ladybug", 4, Milestone.FINISH),
         CatalogEntry("garden_butterfly", "Butterfly", 10, Milestone.FINISH),
-        CatalogEntry("garden_dragonfly", "Dragonfly", 20, Milestone.FINISH),
-        // Beta 2 Garden grows beyond insects: blooms, harvest and useful tools.
+        // Mix flowers into the first Garden row instead of showing only bugs.
         CatalogEntry("garden_sunflower", "Sunflower", 11, Milestone.FINISH),
+        CatalogEntry("garden_dragonfly", "Dragonfly", 20, Milestone.FINISH),
         CatalogEntry("garden_strawberry", "Strawberry", 23, Milestone.FINISH),
         CatalogEntry("garden_firefly", "Firefly", 42, Milestone.FINISH),
         CatalogEntry("garden_watering_can", "Watering Can", 62, Milestone.FINISH),
