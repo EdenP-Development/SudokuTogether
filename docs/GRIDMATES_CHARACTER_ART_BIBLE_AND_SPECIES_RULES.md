@@ -1,6 +1,6 @@
-# GridMates — Character Art Bible and Species Registry
+# GridMates — Collection Icon Art Bible, Subject Registry and Species Rules
 
-**Canonical standard for all Collection portraits and gamefront animal characters.** Applies to Woodland, Ocean, Garden, Farm, and every future collection. This supersedes free-form generation notes, **not** the actual approved source artwork.
+**Canonical style for ALL Collection icons**, including animals, plants, blooms, crops, natural objects and themed tools, plus recurring gamefront mascots. **No human/people/humanoid icons.** Applies to Woodland, Ocean, Garden, Farm, and future collections. This supersedes free-form generation notes, **not** the actual approved source artwork.
 
 ## 1. One recognizable art family
 
@@ -11,7 +11,7 @@ The following packaged Android assets are the primary style references:
 - `garden_honeybee.png` — same visual identity for insects
 - Secondary samples: Rabbit, Bear, Harbor Seal, Butterfly
 
-Use the same **visual grammar**, not the exact same face or body repeated: chunky recognizable chibi silhouette; simple bold dark-green line contour; bright cream facial/belly accents when anatomically appropriate; large, friendly readable eyes; calm minimal shading; restrained natural colors; centered transparent cutout; rounded, clean edges; consistent relative character size. Each creature must be recognizable at 30dp.
+Use the same **visual grammar**, not the exact same face or body repeated (faces are optional for flowers and objects): chunky recognizable chibi silhouette; simple bold dark-green line contour; bright cream facial/belly accents when anatomically appropriate; large, friendly readable eyes; calm minimal shading; restrained natural colors; centered transparent cutout; rounded, clean edges; consistent relative character size. Each creature must be recognizable at 30dp.
 
 **Background painting and characters are intentionally separate styles.** A lush forest scene may have detailed leaves, depth, light shafts and brush texture. The fox, owl and any other recognizable mascot over that scene should still look like the Collection portraits. Don't accidentally let text-to-image painterly rendering invent a new animal art style.
 
@@ -26,6 +26,21 @@ Use the same **visual grammar**, not the exact same face or body repeated: chunk
 - Final image checked in the actual Android Collection grid and active style preview; raw PNG integrity alone does **not** establish style approval.
 - When a banner uses the same mascots, reuse source art/approved visual proportions; do not have painted alternative versions coexisting elsewhere in the game.
 
+## 2a. Mixed-theme icon rules — November 19 owner amendment
+
+A **Collection is a little world, not a wildlife-only taxonomy**. Player Icons can represent animals, flowers, plants, fruit, vegetables, seeds, mushrooms, shells, natural objects, and cozy theme-appropriate items. There are **no humans, people, human silhouettes, or humanoid character portraits** anywhere in the Collection plan.
+
+- **Woodland:** forest life and forest objects; animals can remain the dominant theme
+- **Ocean:** sea creatures and seaside treasures, including a Seashell
+- **Garden:** blooms, edible plants, helpful insects, tools and growing things—not merely a bug collection. Proposed Sunflower, Strawberry, Watering Can and Potted Tulip join existing insects and Firefly
+- **Farm:** animals plus crops and rustic objects; proposed Pumpkin and Hay Bale join Cow, Chicken, Sheep and Pig
+
+All motifs use **the same canonical dark-green outline, friendly reduced-shape design, controlled palette, centered transparent silhouette and 30/48/72dp readability checks**. A flower or watering can does **not** need eyes or a mouth to belong. Do not turn every object into a person or force anthropomorphic details. A natural flower head, leaf or tool shape is often better.
+
+For all Player Icons use `subject_kind` (`animal`, `plant`, `produce`, `item`) and distinct `subject_key` in the design manifest; only animals use `species_key`. Repetition is discouraged for all motifs. Plants/items repeated across collections must also be demonstrably distinct, not simple recolors. This is design metadata, not a save-format or LAN protocol change.
+
+**Current approved 22 artwork files remain untouched**. The first-five reviewed Android pilot (`farm_cow`, `farm_chicken`, `woodland_raccoon`, `ocean_sea_turtle`, `garden_firefly`) also keeps its IDs and unlock requirements unchanged. Future mixed-themed icons must not be inserted without real drawable assets and device review.
+
 ## 3. Species uniqueness: default no repeats
 
 **Prefer distinct species.** There are plenty of animals, and a collection should feel new rather than a renamed or recolored duplicate. Maintain two identifiers separately:
@@ -33,7 +48,7 @@ Use the same **visual grammar**, not the exact same face or body repeated: chunk
 1. **Cosmetic ID:** `family_species_or_variant`; stable user-facing saved unlock identifier (e.g., `ocean_sea_turtle`).
 2. **Species key:** normalized biological/common animal identity (e.g., `sea_turtle`); supports duplicate checks across collections. It's a design registry field, **not** a new network protocol or a save field.
 
-For the Beta 2 proposal, all 21 new portrait entries use unique species keys. Historical existing styles include `woodland_tortoise` and the proposed new `ocean_sea_turtle`: these are legitimately distinct animals, not a recolored duplicate. The new Cow/Chicken/Sheep/Pig/Duck/Goat are also absent from current portraits.
+For Beta 2, all **21 new Player Icon entries** use distinct `subject_key` values. Only the **14 animals** have a `species_key`; the other **7 are plants, produce or objects**. Existing `woodland_tortoise` versus proposed `ocean_sea_turtle` are legitimately different animals, not recolors. Proposed Farm animals are Cow, Chicken, Sheep and Pig; Farm also gains Pumpkin and Hay Bale.
 
 **Exception policy — only when justified:** If a future collection needs the same species again (e.g., an animal relevant in multiple ecosystems), explicitly record:
 - `repeat_of`: original cosmetic ID,
@@ -50,7 +65,7 @@ A hue swap, a changed name, or adding a hat is insufficient by itself. We may re
 |---|---|---|
 | Owl, Fox, Rabbit, Bear, Badger, Hedgehog, Robin, Deer, Squirrel, Otter, Tortoise, Cat | Octopus, Harbor Seal, Hermit Crab, Manta Ray, Jellyfish, Narwhal | Honeybee, Ladybug, Butterfly, Dragonfly |
 
-This list is derived from `core/src/main/kotlin/com/playereden/sudokutogether/core/Cosmetics.kt`, not old brainstorming documents. Beta 2's proposed 21 species are enumerated in `design/beta2-content-pack/expansion-candidates.json`. Basic geometric emblems don't count as species.
+This list is derived from `core/src/main/kotlin/com/playereden/sudokutogether/core/Cosmetics.kt`, not old brainstorming documents. Beta 2's **21 themed subjects**, including 14 animal species and 7 plant/produce/item motifs, are enumerated in `design/beta2-content-pack/expansion-candidates.json`. Basic geometric emblems don't count as species.
 
 ### Taxonomy caution
 
