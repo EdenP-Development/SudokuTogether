@@ -177,7 +177,10 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("portrait_ocean_octopus").assertExists()
     }
 
-    @Test fun iconFamilyHintDoesNotWasteSpaceWhenAllOptionsFit() {
+    @Test fun iconFamilyHintAppearsWhenParentConstrainsTheRequestedWideLayout() {
+        // A requested 820dp child cannot force a phone-width parent to become
+        // 820dp wide. The extra Farm tab still overflows on the emulator.
+        // Verify the hint reflects actual constraints, not requested width.
         compose.setContent {
             SudokuTogetherTheme {
                 Box(Modifier.width(820.dp).fillMaxHeight()) {
@@ -187,8 +190,9 @@ class CollectionPolishUiTest {
         }
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("All").assertIsSelected()
-        compose.onNodeWithText("Garden").assertIsDisplayed()
-        compose.onNodeWithTag("collection_family_scroll_hint").assertDoesNotExist()
+        compose.onNodeWithTag("collection_family_scroll_hint").assertIsDisplayed()
+        compose.onNodeWithText("Farm").performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithTag("portrait_farm_cow").assertExists()
     }
 
     @Test fun gardenFilterShowsExistingProgressAndEquipsTheHoneybee() {
