@@ -1,7 +1,7 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "project": "GridMates: Sudoku",
-  "branch_purpose": "design-only preproduction Beta 2 expansion; no unlock IDs enabled until corresponding art/fonts/palettes are bundled and tested",
+  "branch_purpose": "Design-only Beta 2 theme-inclusive collection plan. 'portrait' remains the app's Player Icon category even for plants, produce and objects; do not enable before approved art/resources/tests.",
   "source_baseline": {
     "repo": "PlayerEden/SudokuTogether",
     "branch": "main",
@@ -29,7 +29,13 @@
       "Farm"
     ],
     "total": 29,
-    "projected_total": 79
+    "projected_total": 79,
+    "theme_icons": 21,
+    "animal_icons": 14,
+    "plant_icons": 2,
+    "produce_icons": 2,
+    "item_icons": 3,
+    "human_icons": 0
   },
   "items": [
     {
@@ -42,11 +48,13 @@
         "target": 16
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "chipmunk",
       "species_description": "Tamias species",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "chipmunk"
     },
     {
       "id": "woodland_raccoon",
@@ -58,11 +66,13 @@
         "target": 24
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "raccoon",
       "species_description": "Procyon lotor",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "raccoon"
     },
     {
       "id": "woodland_beaver",
@@ -74,11 +84,13 @@
         "target": 39
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "beaver",
       "species_description": "Castor species",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "beaver"
     },
     {
       "id": "woodland_woodpecker",
@@ -90,11 +102,13 @@
         "target": 56
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "woodpecker",
       "species_description": "Picidae family",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "woodpecker"
     },
     {
       "id": "woodland_skunk",
@@ -106,11 +120,13 @@
         "target": 90
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "skunk",
       "species_description": "Mephitidae family",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "skunk"
     },
     {
       "id": "ocean_sea_turtle",
@@ -122,11 +138,13 @@
         "target": 12
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "sea_turtle",
       "species_description": "Chelonioidea sea turtle; flippers distinguish from land tortoise",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "sea_turtle"
     },
     {
       "id": "ocean_seahorse",
@@ -138,11 +156,13 @@
         "target": 30
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "seahorse",
       "species_description": "Hippocampus",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "seahorse"
     },
     {
       "id": "ocean_dolphin",
@@ -154,15 +174,17 @@
         "target": 46
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "dolphin",
       "species_description": "Delphinidae",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "dolphin"
     },
     {
-      "id": "ocean_starfish",
-      "name": "Sea Star",
+      "id": "ocean_seashell",
+      "name": "Seashell",
       "category": "portrait",
       "family": "Ocean",
       "unlock": {
@@ -170,11 +192,11 @@
         "target": 67
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
-      "species_key": "sea_star",
-      "species_description": "Asteroidea",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "subject_kind": "item",
+      "subject_key": "spiral_seashell",
+      "motif_description": "single simple pearly spiral shell; no person, no creature"
     },
     {
       "id": "ocean_clownfish",
@@ -186,15 +208,17 @@
         "target": 95
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "clownfish",
       "species_description": "Amphiprion",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "clownfish"
     },
     {
-      "id": "garden_snail",
-      "name": "Snail",
+      "id": "garden_sunflower",
+      "name": "Sunflower",
       "category": "portrait",
       "family": "Garden",
       "unlock": {
@@ -202,15 +226,15 @@
         "target": 11
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
-      "species_key": "garden_snail",
-      "species_description": "Terrestrial gastropod",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "subject_kind": "plant",
+      "subject_key": "sunflower_bloom",
+      "motif_description": "single sunflower bloom with a few leaves"
     },
     {
-      "id": "garden_caterpillar",
-      "name": "Caterpillar",
+      "id": "garden_strawberry",
+      "name": "Strawberry",
       "category": "portrait",
       "family": "Garden",
       "unlock": {
@@ -218,11 +242,11 @@
         "target": 23
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
-      "species_key": "caterpillar",
-      "species_description": "Lepidoptera larva, distinct developmental stage from butterfly",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "subject_kind": "produce",
+      "subject_key": "strawberry_fruit",
+      "motif_description": "one plump strawberry with small green leaves"
     },
     {
       "id": "garden_firefly",
@@ -234,15 +258,17 @@
         "target": 42
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "firefly",
       "species_description": "Lampyridae",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "firefly"
     },
     {
-      "id": "garden_grasshopper",
-      "name": "Grasshopper",
+      "id": "garden_watering_can",
+      "name": "Watering Can",
       "category": "portrait",
       "family": "Garden",
       "unlock": {
@@ -250,15 +276,15 @@
         "target": 62
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
-      "species_key": "grasshopper",
-      "species_description": "Caelifera",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "subject_kind": "item",
+      "subject_key": "watering_can",
+      "motif_description": "simple squat watering can, no human hand or person"
     },
     {
-      "id": "garden_praying_mantis",
-      "name": "Praying Mantis",
+      "id": "garden_potted_tulip",
+      "name": "Potted Tulip",
       "category": "portrait",
       "family": "Garden",
       "unlock": {
@@ -266,11 +292,11 @@
         "target": 100
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
-      "species_key": "praying_mantis",
-      "species_description": "Mantodea",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "subject_kind": "plant",
+      "subject_key": "potted_tulip",
+      "motif_description": "single tulip plant in a small terracotta pot"
     },
     {
       "id": "farm_cow",
@@ -282,11 +308,13 @@
         "target": 0
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "domestic_cattle",
       "species_description": "Bos taurus",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "domestic_cattle"
     },
     {
       "id": "farm_chicken",
@@ -298,11 +326,13 @@
         "target": 7
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "domestic_chicken",
       "species_description": "Gallus gallus domesticus",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "domestic_chicken"
     },
     {
       "id": "farm_sheep",
@@ -314,11 +344,13 @@
         "target": 20
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "domestic_sheep",
       "species_description": "Ovis aries",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "domestic_sheep"
     },
     {
       "id": "farm_pig",
@@ -330,15 +362,17 @@
         "target": 36
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "species_key": "domestic_pig",
       "species_description": "Sus domesticus",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "repeat_exemption": null,
+      "subject_kind": "animal",
+      "subject_key": "domestic_pig"
     },
     {
-      "id": "farm_duck",
-      "name": "Duck",
+      "id": "farm_pumpkin",
+      "name": "Pumpkin",
       "category": "portrait",
       "family": "Farm",
       "unlock": {
@@ -346,15 +380,15 @@
         "target": 58
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
-      "species_key": "domestic_duck",
-      "species_description": "Anas platyrhynchos domesticus",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "subject_kind": "produce",
+      "subject_key": "pumpkin",
+      "motif_description": "single ripe pumpkin with leaf and stem"
     },
     {
-      "id": "farm_goat",
-      "name": "Goat",
+      "id": "farm_hay_bale",
+      "name": "Hay Bale",
       "category": "portrait",
       "family": "Farm",
       "unlock": {
@@ -362,11 +396,11 @@
         "target": 85
       },
       "state": "proposed_not_shipped",
-      "required_art": "original transparent character PNG matching canonical Collection style",
-      "species_key": "domestic_goat",
-      "species_description": "Capra hircus",
+      "required_art": "original transparent GridMates-style icon PNG; matching outline and crop, no embedded text",
       "art_family": "gridmates_chibi_v1",
-      "repeat_exemption": null
+      "subject_kind": "item",
+      "subject_key": "hay_bale",
+      "motif_description": "small neatly tied rectangular hay bale"
     },
     {
       "id": "moss",
@@ -466,7 +500,8 @@
     "Newly earned ownership survives record pruning and JSON backup/restore with legacy saves",
     "Multi-device missing/unknown new IDs fall back safely; two-phone LAN smoke",
     "Android API26–36 validation and actual phone/capture review",
-    "Real Beta 1→Beta 2 update must use original production certificate, higher version code and save-preserving install-over; never replace signed public game with reviewer build"
+    "Real Beta 1→Beta 2 update must use original production certificate, higher version code and save-preserving install-over; never replace signed public game with reviewer build",
+    "Player icon art can be plant/produce/item as well as animal, but subject metadata and actual artwork are required for all and no human/humanoid icons."
   ],
   "art_direction": {
     "canonical_style": "GridMates Collection character portrait house style; flat chibi shape language and restrained shading",
@@ -484,8 +519,43 @@
       72
     ],
     "must_review_alpha_edges": true,
-    "avoid": "painterly faces, glow/fringe halos, photo-real texture, extra limb/detail, inconsistent eyes or outline"
+    "avoid": "painterly faces, glow/fringe halos, photo-real texture, extra limb/detail, inconsistent eyes or outline, humans/people/humanoid portraits, forced cartoon faces on every object"
   },
   "character_style_policy": "design/beta2-content-pack/CANONICAL_CHARACTER_STYLE.md",
-  "cross_collection_species_rule": "Unique species/recognizable breed by default. Similar animals allowed only if biologically/visually distinctive with documented owner-reviewed repeat exemption, never recolor-only."
+  "cross_collection_species_rule": "Prefer unique species and motifs. Animal repeats require biologically/visually distinct variants with documented review; plants/items also must not become recolor-only repeats.",
+  "collection_policy": {
+    "themes": {
+      "Woodland": "Forest life",
+      "Ocean": "Sea life and seaside treasures",
+      "Garden": "Bugs, blooms, plants, harvest and garden tools",
+      "Farm": "Farm animals, crops and rustic farm objects"
+    },
+    "include": [
+      "animals",
+      "bugs",
+      "flowers",
+      "plants",
+      "fruit and vegetables",
+      "nature objects",
+      "themed tools and objects"
+    ],
+    "prohibited": [
+      "humans",
+      "people",
+      "human silhouettes",
+      "humanoid character portraits"
+    ],
+    "face_guidance": "Eyes and mouths only if appropriate; no forced human-like features on plants or objects.",
+    "shared_art_style": "gridmates_chibi_v1",
+    "prefer_distinct_subjects": true,
+    "repeat_rule": "Avoid duplicates; when a species or motif is reused across collections, require a visually distinct variant, meaningful thematic role, owner review, and same art style.",
+    "model_category": "portrait",
+    "does_not_change": [
+      "existing 50 cosmetics",
+      "first five playable pilot IDs/thresholds",
+      "player saves",
+      "network protocol",
+      "release signer"
+    ]
+  }
 }
