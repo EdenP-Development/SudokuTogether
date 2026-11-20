@@ -114,8 +114,9 @@ jobs:
             adb shell am start -W -n com.playereden.sudokutogether.qa.versusv6/com.playereden.sudokutogether.MainActivity
             adb shell pidof com.playereden.sudokutogether.qa.versusv6
             ./gradlew :app:connectedDebugAndroidTest -PgridmatesVersusV6Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusV6ArtUiTest,com.playereden.sudokutogether.HomeLivingBookUiTest"
-            adb pull /sdcard/Android/data/com.playereden.sudokutogether.qa.versusv6/files/screenshots/gridmates-versus-v6-android.png versus-v6-actual-android.png
-            adb pull /sdcard/Android/data/com.playereden.sudokutogether.qa.versusv6/files/screenshots/gridmates-coop-v5-control.png versus-v6-coop-control-android.png
+            adb shell run-as com.playereden.sudokutogether.qa.versusv6 ls -l files/gridmates-versus-v6-android.png files/gridmates-coop-v5-control.png
+            adb exec-out run-as com.playereden.sudokutogether.qa.versusv6 cat files/gridmates-versus-v6-android.png > versus-v6-actual-android.png
+            adb exec-out run-as com.playereden.sudokutogether.qa.versusv6 cat files/gridmates-coop-v5-control.png > versus-v6-coop-control-android.png
             python3 - <<'PY'
             import struct
             from pathlib import Path
