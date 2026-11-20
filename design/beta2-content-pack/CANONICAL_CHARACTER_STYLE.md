@@ -1,19 +1,19 @@
-# GridMates — Canonical Collection Character Style & Species Policy
+# GridMates — Canonical Collection Icon Style & Subject Policy
 
-**Status: design guardrail for all future portrait packs.** Owner feedback Nov 19, 2026. It applies to the 22 existing portraits, all 21 proposed Beta 2 portraits, and any future Collection families. It does not change existing resources or saved profiles.
+**Status: design guardrail for all future Player Icon packs.** Owner feedback Nov 19, 2026. It applies to the 22 existing animal portraits, the 21 proposed Beta 2 themed icons (14 animals, 7 plants/produce/items), and all future Collection families. **No human/people/humanoid icons.** It does not change existing resources or saved profiles.
 
 ## One art style across every Collection
 
-Use the actual packaged artwork, particularly `design/woodland/originals/fox.png`, `owl.png`, `design/ocean/`, and the current Garden drawable portraits, as reference. **Do not adopt a new style just because a new collection has different subject matter.**
+Use the actual packaged artwork, particularly `app/src/main/res/drawable-nodpi/woodland_fox.png`, `woodland_owl.png`, `ocean_octopus.png`, and `garden_honeybee.png`, as reference. **Do not adopt a new style just because a new collection has a flower, plant, crop or object instead of an animal.**
 
 Required characteristics for every playable 512×512 original PNG:
 
-1. **Consistent shape grammar:** friendly chibi animal silhouettes, rounded body/head ratios, intentionally simplified anatomy; compact, readable at 30dp, 48dp and 72dp.
+1. **Consistent shape grammar:** friendly simplified chibi animal silhouettes or equally simplified flowers, plants and objects. Preserve recognizable subject geometry; compact and readable at 30dp, 48dp and 72dp.
 2. **Consistent outlines:** dark forest-green contour and interior-line weights, steady round joins, no thick comic borders on one family and thin painterly outlines on another.
-3. **Consistent face:** matching eye size/placement, simple snout/beak treatment, tiny mouth and friendly expression. Keep paws, fins and wings as clean graphic forms rather than highly detailed painted anatomy.
+3. **Consistent faces where appropriate:** animal eye sizes/placement, simple snout/beak treatment, tiny mouth and friendly expression. **Faces are optional for plants and objects**; do not force eyes, mouths, limbs or personification onto a watering can or strawberry.
 4. **Consistent color/shading:** limited solid natural palette, minimal soft shading (if any), restrained highlights; no painterly fur texture, photo detail, rough noisy AI edges, dramatic lighting, or complex scene behind one character.
-5. **Consistent presentation:** transparent background; centered character; full head, ears, tails and appendages inside the safe circle; comparable scale relative to existing 48dp player-icon portraits.
-6. **Works in app:** exact drawable/resource mapping, no embedded text, broken alpha, small floating pixels, ambiguous animal anatomy, inconsistent cropping or harsh halo effects. Audit silhouettes at 30/48/72dp on light and dark surfaces.
+5. **Consistent presentation:** transparent background; centered complete subject; no cropped ears, leaves, petals, stems, handles, tails or appendages; comparable scale relative to existing 48dp player-icon portraits.
+6. **Works in app:** exact drawable/resource mapping, no embedded text, broken alpha, small floating pixels, incorrect anatomy or object geometry, inconsistent cropping or harsh halo effects. Audit silhouettes at 30/48/72dp on light and dark surfaces.
 7. **Character vs background:** rich storybook/painterly environmental art is **fine for Home and game-mode backgrounds**. Collection characters and Co-op/Versus foreground mascots must keep the simpler Collection style. Reuse the *canonical* Fox/Owl visual identity across every screen, not a newly painted imitation.
 
 ### First-pilot art-review cautions
@@ -21,6 +21,15 @@ Required characteristics for every playable 512×512 original PNG:
 - **Cow / Chicken / Raccoon / Sea Turtle:** inspect fill geometry, outlines and eye/snout proportions against Fox/Owl. Don't approve a candidate just because it looks cute alone.
 - **Firefly:** check the yellow glow/feathered edge and stray bright pixels. If the glow blurs at Collection size, remove/clean it rather than keeping inconsistent effects.
 - If a new animal's head/body ratios, face or outline are incompatible, redraw that animal or the pilot batch rather than adjusting the 22 established character identities to match it.
+
+## Mixed-theme collection identity
+
+- **Garden:** bugs, flowers, produce, planting and tools. Beta 2 proposes Sunflower, Strawberry, Firefly, Watering Can and Potted Tulip; Garden should not be renamed Bug Collection or filled only with insects.
+- **Farm:** animals alongside Pumpkin and Hay Bale, with no farmer, person or human figure.
+- **Ocean:** sea animals and Seashell; varied sea-world motifs, consistent shape grammar.
+- **Woodland:** mostly diverse forest animals at this stage; future Acorn, Pinecone or Mushroom can fit if the final asset respects the same icon style.
+
+**No people, human faces, humanoid avatars or human silhouettes.** A flower, vegetable or tool does not need a drawn face. The visual consistency is in its linework, restrained palette, rounded geometry, scale and clarity. Preserve existing icon IDs and unlocks; only add fully illustrated, approved assets.
 
 ## Repeated animal rule: disfavored, but not categorically forbidden
 
@@ -39,13 +48,13 @@ Two different turtle types (`woodland_tortoise` and proposed `ocean_sea_turtle`)
 
 ## Implementation architecture
 
-- Proposed catalog entries carry `species_key` as a stable, normalized animal identity, along with `collection`, `art_family="gridmates_chibi_v1"`, and `repeat_exemption` only when explicitly reviewed.
-- The portrait roster must fail automated contract checks for duplicate `species_key` without an approved, explained exemption. A common-name label match triggers manual review even where the species differ.
+- Every proposed Player Icon has stable `subject_key` and `subject_kind` (`animal`, `plant`, `produce`, `item`), plus `art_family="gridmates_chibi_v1"`. **Only animal subjects** have `species_key`/`species_description`; repeats require explicit reviewed variant metadata.
+- The Player Icon roster must fail automated contract checks for duplicate `subject_key`, and animal repeats need properly reviewed biological/visual exemptions. Check near-duplicate flowers and objects as carefully as animals.
 - Curated cosmetic IDs remain immutable when released. The species ledger is **design metadata**, not a network-message field, and doesn't migrate/change the player's `Appearance`.
-- For non-animal cosmetics (boards, fonts, basic icons), no species record is needed.
+- For non-animal Player Icons (flowers, produce, items) and non-icon cosmetics (boards, fonts, emblems), no species record is needed.
 
 ## Acceptance before implementing a batch
 
-Compare proposed animal art to actual Fox, Owl, Octopus and Honeybee originals **on a single annotated contact sheet**, same display scale. Check transparent-edge and circular-crop screenshots, then import approved images into `drawable-nodpi`. Verify no new species is a duplicate slot-filler and that every portrait has the same `gridmates_chibi_v1` design system. Keep original source images, export checksums, and a repeat-approval record when necessary.
+Compare proposed animal, plant and object icons to actual Fox, Owl, Octopus and Honeybee originals **on a single annotated contact sheet**, same display scale. Check transparent-edge and circular-crop screenshots, then import approved images into `drawable-nodpi`. Verify no new species or motif is a duplicate slot-filler and that every portrait has the same `gridmates_chibi_v1` design system. Keep original source images, export checksums, and a repeat-approval record when necessary.
 
 This policy covers both [content specification PR #93](https://github.com/PlayerEden/SudokuTogether/pull/93) and [pilot artwork PR #94](https://github.com/PlayerEden/SudokuTogether/pull/94), and is the standard for all subsequent art production.
