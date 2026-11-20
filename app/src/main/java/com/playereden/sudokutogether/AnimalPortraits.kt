@@ -41,6 +41,10 @@ internal fun animalDrawable(id: String): Int? = when (id) {
     "garden_butterfly" -> R.drawable.garden_butterfly
     "garden_dragonfly" -> R.drawable.garden_dragonfly
     "garden_firefly" -> R.drawable.garden_firefly
+    "garden_sunflower" -> R.drawable.garden_sunflower
+    "garden_strawberry" -> R.drawable.garden_strawberry
+    "garden_watering_can" -> R.drawable.garden_watering_can
+    "garden_potted_tulip" -> R.drawable.garden_potted_tulip
     "farm_cow" -> R.drawable.farm_cow
     "farm_chicken" -> R.drawable.farm_chicken
     else -> null
