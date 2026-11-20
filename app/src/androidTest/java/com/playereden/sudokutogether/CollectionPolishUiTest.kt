@@ -146,28 +146,28 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("nav_collection").performClick()
         val all = compose.onNodeWithText("All").assertIsSelected()
         val garden = compose.onNodeWithText("Garden")
+        val farm = compose.onNodeWithText("Farm")
         assertEquals(
             "The last icon set belongs in the same row as the first",
             all.getUnclippedBoundsInRoot().top,
-            garden.getUnclippedBoundsInRoot().top
+            farm.getUnclippedBoundsInRoot().top
         )
 
         val picker = compose.onNode(SemanticsMatcher.keyIsDefined(SemanticsProperties.HorizontalScrollAxisRange))
         compose.onNodeWithTag("collection_family_scroll_hint").assertIsDisplayed()
         val viewport = picker.getUnclippedBoundsInRoot()
-        assertTrue(garden.getUnclippedBoundsInRoot().right > viewport.right)
+        assertTrue(farm.getUnclippedBoundsInRoot().right > viewport.right)
         picker.performTouchInput { swipeLeft() }
-        assertTrue(garden.getUnclippedBoundsInRoot().right <= viewport.right)
+        assertTrue(farm.getUnclippedBoundsInRoot().right <= viewport.right)
         all.assertIsSelected()
-        garden.assertIsDisplayed().performClick().assertIsSelected()
-        compose.onNodeWithText("1 of 4 available").assertIsDisplayed()
+        garden.performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithText("1 of 5 available").assertIsDisplayed()
         compose.onNodeWithTag("portrait_garden_honeybee").assertIsDisplayed()
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
 
         compose.onNodeWithText("Boards").performClick()
         compose.onNodeWithText("Player icons").performClick()
-        garden.assertIsDisplayed().assertIsSelected()
-        assertTrue(garden.getUnclippedBoundsInRoot().right <= viewport.right)
+        garden.performScrollTo().assertIsSelected()
 
         picker.performTouchInput { swipeRight() }
         assertTrue(all.getUnclippedBoundsInRoot().left >= viewport.left)
@@ -179,7 +179,7 @@ class CollectionPolishUiTest {
     @Test fun iconFamilyHintDoesNotWasteSpaceWhenAllOptionsFit() {
         compose.setContent {
             SudokuTogetherTheme {
-                Box(Modifier.width(600.dp).fillMaxHeight()) {
+                Box(Modifier.width(820.dp).fillMaxHeight()) {
                     SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {})
                 }
             }
@@ -202,7 +202,7 @@ class CollectionPolishUiTest {
 
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("Garden").performScrollTo().performClick()
-        compose.onNodeWithText("1 of 4 available").assertIsDisplayed()
+        compose.onNodeWithText("1 of 5 available").assertIsDisplayed()
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
         compose.onNodeWithTag("portrait_garden_ladybug").performScrollTo().performClick()
         compose.onNodeWithText("Complete 4 puzzles").assertIsDisplayed()
