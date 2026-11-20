@@ -20,7 +20,11 @@ val beta2GardenPreview = providers.gradleProperty("gridmatesBeta2GardenPreview")
     require(it == "true") { "gridmatesBeta2GardenPreview only accepts true" }
     true
 } ?: false
-require(listOf(beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
+val versusV6Preview = providers.gradleProperty("gridmatesVersusV6Preview").orNull?.let {
+    require(it == "true") { "gridmatesVersusV6Preview only accepts true" }
+    true
+} ?: false
+require(listOf(versusV6Preview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
     "Only one isolated preview type can be selected"
 }
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
@@ -34,6 +38,7 @@ val qaVersion = providers.gradleProperty("gridmatesQaVersionCode").orNull?.let {
 require((qaUpdateFlag == "true") == (qaVersion != null)) { "QA update mode and version code must be supplied together" }
 require(!(beta2PortraitPreview && qaVersion != null)) { "Portrait preview must not share QA-update identity" }
 require(!(beta2GardenPreview && qaVersion != null)) { "Garden preview must not share QA-update identity" }
+require(!(versusV6Preview && qaVersion != null)) { "Versus V6 reviewer must not share QA-update identity" }
 require(!(woodlandV5Preview && qaVersion != null)) {
     "Woodland V5 preview must not use a same-package QA update"
 }
@@ -66,12 +71,14 @@ android {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
+                versusV6Preview -> ".qa.versusv6"
                 beta2GardenPreview -> ".qa.beta2garden"
                 beta2PortraitPreview -> ".qa.beta2portraits"
                 woodlandV5Preview -> ".qa.woodlandv51"
                 else -> ".qa"
             }
             versionNameSuffix = when {
+                versusV6Preview -> "-qa.versusv6"
                 beta2GardenPreview -> "-qa.beta2garden"
                 beta2PortraitPreview -> "-qa.beta2portraits"
                 woodlandV5Preview -> "-qa.woodlandv51"
