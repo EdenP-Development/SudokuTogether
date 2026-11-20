@@ -51,7 +51,7 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("home_mode_versus").performScrollTo().performClick()
         compose.onNodeWithTag("nearby_setup").assertIsDisplayed()
         compose.onNodeWithTag("nearby_art_versus", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag("nearby_art_v6", useUnmergedTree = true).assertExists()
+        compose.onNodeWithTag("nearby_art_v7", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("nearby_art_v5", useUnmergedTree = true).assertDoesNotExist()
         assertModeArtDoesNotDuplicateMascots()
         compose.onNodeWithTag("nearby_art_coop", useUnmergedTree = true).assertDoesNotExist()
@@ -95,7 +95,7 @@ class HomeLivingBookUiTest {
     private fun assertModeArtDoesNotDuplicateMascots() {
         val embeddedV5 = compose.onAllNodesWithTag("nearby_art_v5", useUnmergedTree = true)
             .fetchSemanticsNodes().isNotEmpty()
-        val embeddedV6 = compose.onAllNodesWithTag("nearby_art_v6", useUnmergedTree = true)
+        val embeddedV6 = compose.onAllNodesWithTag("nearby_art_v7", useUnmergedTree = true)
             .fetchSemanticsNodes().isNotEmpty()
         assertFalse("Only one complete banner can be active", embeddedV5 && embeddedV6)
         if (embeddedV5 || embeddedV6) {
