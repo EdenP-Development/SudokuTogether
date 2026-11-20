@@ -132,6 +132,7 @@ jobs:
             beta2-garden-collection-android.png
             beta2-garden-collection-ui.txt
             beta2-garden-filter-android.png
+            beta2-garden-scrolled-android.png
           if-no-files-found: error
           retention-days: 14
       - name: Save diagnostics on failure
