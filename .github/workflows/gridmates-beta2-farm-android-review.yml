@@ -14,6 +14,8 @@ on:
       - 'app/src/main/java/com/playereden/sudokutogether/AnimalPortraits.kt'
       - 'core/src/main/kotlin/com/playereden/sudokutogether/core/Cosmetics.kt'
       - 'core/src/test/kotlin/com/playereden/sudokutogether/core/Beta2FarmThemeIconsTest.kt'
+      - 'core/src/test/kotlin/com/playereden/sudokutogether/core/Beta2FirstFivePortraitsTest.kt'
+      - 'core/src/test/kotlin/com/playereden/sudokutogether/core/Beta2GardenThemeIconsTest.kt'
   workflow_dispatch:
 permissions:
   contents: read
