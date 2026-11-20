@@ -1,0 +1,149 @@
+name: GridMates Beta 2 mixed Garden isolated Android reviewer
+on:
+  push:
+    branches: [feat/beta2-garden-themed-icons-review]
+    paths:
+      - '.github/workflows/gridmates-beta2-garden-android-review.yml'
+      - 'scripts/beta2_garden_capture.py'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/CollectionPolishUiTest.kt'
+      - 'app/src/main/res/drawable-nodpi/garden_sunflower.png'
+      - 'app/src/main/res/drawable-nodpi/garden_strawberry.png'
+      - 'app/src/main/res/drawable-nodpi/garden_watering_can.png'
+      - 'app/src/main/res/drawable-nodpi/garden_potted_tulip.png'
+      - 'core/src/main/kotlin/com/playereden/sudokutogether/core/Cosmetics.kt'
+      - 'core/src/test/kotlin/com/playereden/sudokutogether/core/Beta2GardenThemeIconsTest.kt'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gridmates-beta2-portrait-review
+  cancel-in-progress: true
+jobs:
+  owner-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - name: Require both original five and four new Garden transparent PNGs
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,struct
+          from pathlib import Path
+          m=json.loads(Path("design/beta2-content-pack/first-five-android-art.json").read_text())
+          garden=json.loads(Path("design/beta2-content-pack/garden-android-review-manifest.json").read_text())
+          assert garden["no_humans"] and len(garden["items"])==4
+          assert len(m["images"])==5
+          for x in m["images"]:
+              p=Path(x["path"])
+              b=p.read_bytes()
+              assert hashlib.sha256(b).hexdigest()==x["sha256"]
+              assert len(b)==x["bytes"]
+              assert b[:8]==bytes((137,80,78,71,13,10,26,10)) and b[12:16]==b"IHDR"
+              assert struct.unpack(">II",b[16:24])==(512,512)
+          for x in garden["items"]:
+              p=Path(x["android_path"])
+              b=p.read_bytes()
+              assert hashlib.sha256(b).hexdigest()==x["sha256"],p
+              assert len(b)==x["bytes"] and struct.unpack(">II",b[16:24])==(512,512)
+              assert b[25]==6
+          print("PASS: 5 original + 4 new Garden alpha PNGs available to Android")
+          PY
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Compile, JVM regressions, lint, AndroidTest compile and isolated APK
+        shell: bash
+        run: |
+          set -o pipefail
+          chmod +x gradlew
+          for attempt in 1 2 3; do
+            echo "Android build attempt $attempt"
+            if ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta2GardenPreview=true --no-daemon --max-workers=2 --console=plain 2>&1 | tee /tmp/gridmates-gradle-build.log; then
+              exit 0
+            fi
+            if ! grep -Eqi 'Could not resolve all artifacts|Could not find org.jetbrains|Could not GET .*maven|Could not download .*kotlin' /tmp/gridmates-gradle-build.log; then
+              echo "Non-dependency build failure; do not hide code/test errors"
+              exit 1
+            fi
+            if [ "$attempt" -eq 3 ]; then
+              echo "Repository resolution still failed after limited retries"
+              exit 1
+            fi
+            echo "Transient dependency retrieval failure; retrying Gradle"
+            sleep 12
+          done
+      - name: Validate isolated APK id and signed hash receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk=GridMates-Beta2-Garden-OwnerPreview.apk
+          cp app/build/outputs/apk/debug/app-debug.apk "$apk"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs "$apk" > /tmp/beta2-signer.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging "$apk" > /tmp/beta2-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta2garden'" /tmp/beta2-badging.txt
+          grep -F "versionName='1.0.0-beta.2-qa.beta2garden'" /tmp/beta2-badging.txt
+          sha256sum "$apk" > "$apk.sha256"
+          python3 - <<'PY'
+          import json,hashlib,os
+          from pathlib import Path
+          p=Path("GridMates-Beta2-Garden-OwnerPreview.apk")
+          r={"status":"UNAPPROVED_GARDEN_CONTENT_REVIEW_ONLY","source_sha":os.environ["GITHUB_SHA"],
+          "package":"com.playereden.sudokutogether.qa.beta2garden","bytes":p.stat().st_size,
+          "sha256":hashlib.sha256(p.read_bytes()).hexdigest(),"shares_production_save_data":False,
+          "real_phone_approved":False,"release_signed":False}
+          Path("beta2-garden-receipt.json").write_text(json.dumps(r,indent=2)+"\n")
+          PY
+      - name: Enable emulator KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android 16 install, launch, Garden collection screenshots and themed icon UI checks
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            set -e
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n com.playereden.sudokutogether.qa.beta2garden/com.playereden.sudokutogether.MainActivity
+            sleep 4
+            adb shell pidof com.playereden.sudokutogether.qa.beta2garden
+            adb exec-out screencap -p > beta2-garden-home-android.png
+            python3 scripts/beta2_garden_capture.py
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2GardenPreview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.CollectionPolishUiTest"
+      - name: Publish independent reviewer package and actual Android captures
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-Garden-OwnerPreview
+          path: |
+            GridMates-Beta2-Garden-OwnerPreview.apk
+            GridMates-Beta2-Garden-OwnerPreview.apk.sha256
+            beta2-garden-receipt.json
+            beta2-garden-home-android.png
+            beta2-garden-collection-android.png
+            beta2-garden-collection-ui.txt
+            beta2-garden-filter-android.png
+            beta2-garden-scrolled-android.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Save diagnostics on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-Garden-Failure-Diagnostics
+          path: |
+            app/build/reports/tests/**
+            app/build/reports/androidTests/**
+            core/build/reports/tests/**
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
+          retention-days: 5

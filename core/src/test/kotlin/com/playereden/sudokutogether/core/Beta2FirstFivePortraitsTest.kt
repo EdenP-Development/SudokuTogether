@@ -14,7 +14,8 @@ class Beta2FirstFivePortraitsTest {
         val expected = setOf("farm_cow", "farm_chicken", "woodland_raccoon",
             "ocean_sea_turtle", "garden_firefly")
         assertTrue(ids.toSet().containsAll(expected))
-        assertEquals(27, Cosmetics.portraits.size)
+        // Four mixed-theme Garden icons are layered on top of the five-character wave.
+        assertEquals(31, Cosmetics.portraits.size)
         assertEquals(2, Cosmetics.farmPortraits.size)
         for (id in expected) assertTrue(Cosmetics.valid(Appearance(portrait = id)))
         assertFalse(Cosmetics.valid(Appearance(portrait = "farm_unknown")))

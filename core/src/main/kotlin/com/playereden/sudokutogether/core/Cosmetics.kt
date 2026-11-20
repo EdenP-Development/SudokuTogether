@@ -56,8 +56,13 @@ object Cosmetics {
         CatalogEntry("garden_honeybee", "Honeybee", 0, Milestone.FINISH),
         CatalogEntry("garden_ladybug", "Ladybug", 4, Milestone.FINISH),
         CatalogEntry("garden_butterfly", "Butterfly", 10, Milestone.FINISH),
+        // Mix flowers into the first Garden row instead of showing only bugs.
+        CatalogEntry("garden_sunflower", "Sunflower", 11, Milestone.FINISH),
         CatalogEntry("garden_dragonfly", "Dragonfly", 20, Milestone.FINISH),
-        CatalogEntry("garden_firefly", "Firefly", 42, Milestone.FINISH)
+        CatalogEntry("garden_strawberry", "Strawberry", 23, Milestone.FINISH),
+        CatalogEntry("garden_firefly", "Firefly", 42, Milestone.FINISH),
+        CatalogEntry("garden_watering_can", "Watering Can", 62, Milestone.FINISH),
+        CatalogEntry("garden_potted_tulip", "Potted Tulip", 100, Milestone.FINISH)
     )
     private val farmEntries = listOf(
         CatalogEntry("farm_cow", "Cow", 0, Milestone.FINISH),
