@@ -1,0 +1,64 @@
+name: Import verified GridMates mixed Garden icon art pilot
+
+on:
+  push:
+    branches:
+      - art/beta2-garden-mixed-theme-pilot
+    paths:
+      - '.github/workflows/gridmates-garden-pilot-import.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  import-original-garden-art:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Transfer source sheet and four exported transparent icons
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p design/beta2-content-pack/garden-pilot
+          curl -fSL --retry 3 --connect-timeout 15 --max-time 180 "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/ff73f1631120b760837371ecedf5e1b1cbeec46b49e459aed71060d16468fe03.png" -o "design/beta2-content-pack/garden-pilot/garden_mixed_source_sheet.png"
+          curl -fSL --retry 3 --connect-timeout 15 --max-time 180 "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/808ab4886204da7b1be752416984f27b71d5862fff70ced554540d7c708a7d13.png" -o "design/beta2-content-pack/garden-pilot/garden_sunflower.png"
+          curl -fSL --retry 3 --connect-timeout 15 --max-time 180 "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/c322bf74b56cbe31916bd992d4cf9772a13c9778949fe0c11c3fa9634d75a74d.png" -o "design/beta2-content-pack/garden-pilot/garden_strawberry.png"
+          curl -fSL --retry 3 --connect-timeout 15 --max-time 180 "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/1cd138ad33640a853c82d7c23d411df4c651f4a3eb6ea01d696ecb3c1ffe856e.png" -o "design/beta2-content-pack/garden-pilot/garden_watering_can.png"
+          curl -fSL --retry 3 --connect-timeout 15 --max-time 180 "https://cdn.openart.ai/openart-uploads/production/attachment-transfers/56a3eaeeaa33d383106a1ca2e9c3ca0261dbc60e12486031e92f174f71050433.png" -o "design/beta2-content-pack/garden-pilot/garden_potted_tulip.png"
+      - name: Validate source assets, PNG alpha and exact manifest checksums
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          import json, hashlib, struct
+          m=json.loads(Path("design/beta2-content-pack/garden-pilot/manifest.json").read_text())
+          assert m["no_people"] and m["status"]=="art_review_only_not_gameplay_registered"
+          entries=[m["original_sheet"]]+m["source_files"]
+          assert len(entries)==5
+          for e in entries:
+              p=Path(e["path"])
+              data=p.read_bytes()
+              assert len(data)==e["bytes"], f"Unexpected bytes in {p}"
+              assert hashlib.sha256(data).hexdigest()==e["sha256"], f"Unexpected checksum in {p}"
+              assert data[:8]==bytes((137,80,78,71,13,10,26,10)) and data[12:16]==b"IHDR"
+              assert struct.unpack(">II", data[16:24]) == (e["width"],e["height"])
+              assert data[25]==6, f"Expected RGBA PNG {p}"
+              print("VERIFIED",p,len(data),e["sha256"])
+          assert len(set(e["id"] for e in m["source_files"]))==4
+          assert all(e["id"].startswith("garden_") for e in m["source_files"])
+          assert all(e["subject_kind"] in ("plant","produce","item") for e in m["source_files"])
+          PY
+      - name: Commit only art review files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add design/beta2-content-pack/garden-pilot/*.png
+          git diff --cached --quiet && { echo "Art assets already committed"; exit 0; }
+          git diff --cached --name-only
+          git commit -m "art: import checksum-verified Garden flower, fruit and item pilot sprites"
+          git push origin HEAD:art/beta2-garden-mixed-theme-pilot
