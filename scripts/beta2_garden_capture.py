@@ -73,6 +73,15 @@ def main():
             raise RuntimeError("Missing Garden screenshot")
         Path("beta2-garden-filter-android.png").write_bytes(garden)
         print("Captured possible Garden filter screen; Compose test confirms selection",flush=True)
+        # Capture the first locked-icon row at a real phone viewport, so the
+        # Garden's mixed insects-and-flower arrangement is visible in QA.
+        adb("shell","input","swipe","401","1420","398","620","480")
+        time.sleep(2)
+        scrolled = adb("exec-out","screencap","-p")
+        if scrolled[:8] != bytes((137,80,78,71,13,10,26,10)):
+            raise RuntimeError("Missing Garden scrolled screenshot")
+        Path("beta2-garden-scrolled-android.png").write_bytes(scrolled)
+        print("Captured Garden locked-icon row after real scroll",flush=True)
     else:
         print("UIAutomator Garden label unavailable; Compose test provides definitive filter QA",flush=True)
 
