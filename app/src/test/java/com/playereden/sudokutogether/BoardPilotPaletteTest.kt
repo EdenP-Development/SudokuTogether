@@ -31,8 +31,10 @@ class BoardPilotPaletteTest {
         assertEquals(Color(0xFF8D362B), parchment.conflictInk)
         assertEquals(Color(0xFFFFC0BA), graphite.conflictInk)
         assertEquals("No missing or extra palettes", Cosmetics.boards.map { it.id }.toSet(), boardPalettes.keys)
-        assertEquals(7, Cosmetics.boards.size)
-        assertEquals(7, Cosmetics.boards.map { boardFillFor(it.id) }.toSet().size)
+        // The seven existing color recipes are still pinned above; four more
+        // complete palette records are now registered for isolated Beta 2 QA.
+        assertEquals(11, Cosmetics.boards.size)
+        assertEquals(11, Cosmetics.boards.map { boardFillFor(it.id) }.toSet().size)
 
         assertEquals(Color(0xFF152A36), boardFillFor("midnight"))
         assertEquals(Color(0xFF102A2B), boardFillFor("circuit"))
@@ -65,14 +67,17 @@ class BoardPilotPaletteTest {
     @Test fun newInksStayAtLeastFourPointFiveOnAllRegisteredBoardStates() {
         for (inkId in listOf("sepia", "indigo")) {
             for ((boardId, board) in boardPalettes) {
-                val ink = inkFor(inkId, board.dark)
+                val authored = inkFor(inkId, board.dark)
                 for (background in listOf(
                     board.fill, board.selectedCell, board.partnerCell,
                     board.matchingNumberCell, board.relatedCell
                 )) {
+                    // Actual displayed digits on new materials adapt locally;
+                    // original seven boards still retain their original inks.
+                    val rendered = legibleBoardDigitInk(authored, background, board)
                     assertTrue(
                         "$inkId / $boardId insufficient contrast on $background",
-                        contrast(ink, background) >= 4.5f
+                        contrast(rendered, background) >= 4.5f
                     )
                 }
             }
@@ -100,7 +105,10 @@ class BoardPilotPaletteTest {
                         contrast(rendered, background) >= 4.5f
                     )
                     if (!board.dark) {
-                        assertEquals("Light board note colors stay familiar", Muted, rendered)
+                        // New light materials may need a small contrast lift on
+                        // tinted highlights. Legacy light-board notes never change.
+                        if (!board.adaptiveNumberContrast || contrast(Muted, background) >= 4.52f)
+                            assertEquals("Legible light-board note colors stay familiar", Muted, rendered)
                     } else if (contrast(original, background) >= 4.52f) {
                         assertEquals("Legible dark-board ink must not be altered", original, rendered)
                     }

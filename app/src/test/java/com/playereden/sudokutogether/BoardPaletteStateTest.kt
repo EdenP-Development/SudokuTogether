@@ -49,10 +49,13 @@ class BoardPaletteStateTest {
                 board.matchingNumberCell, board.relatedCell
             )
             for (ink in Cosmetics.inks) {
-                val foreground = inkFor(ink.id, board.dark)
+                val authoredInk = inkFor(ink.id, board.dark)
                 for (background in backgrounds) {
+                    // New themes use the exact same rendered-digit contrast helper
+                    // as PlayScreen. Keep the historical raw-ink floor on legacy boards.
+                    val foreground = legibleBoardDigitInk(authoredInk, background, board)
                     assertTrue("$boardId / ${ink.id}: contrast too low for $background",
-                        contrast(foreground, background) >= 4.0f)
+                        contrast(foreground, background) >= if (board.adaptiveNumberContrast) 4.49f else 4.0f)
                 }
             }
             assertTrue("$boardId clues", contrast(board.clueInk, board.fill) >= 4.5f)
