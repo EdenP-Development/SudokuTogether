@@ -60,7 +60,7 @@ class CollectionPolishUiTest {
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
 
         compose.onNodeWithTag("nav_collection").performClick()
-        compose.onNodeWithText("8 of 33 available").assertIsDisplayed()
+        compose.onNodeWithText("8 of 37 available").assertIsDisplayed()
         val equipped = compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
         val starter = compose.onNodeWithTag("cosmetic_emblem_tile")
         val lastAvailable = compose.onNodeWithTag("portrait_garden_honeybee")
@@ -76,7 +76,7 @@ class CollectionPolishUiTest {
             lastAvailable.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
 
         compose.runOnIdle { state.value = state.value.copy(profile = data.copy(records = emptyList())) }
-        compose.onNodeWithText("7 of 33 available").assertIsDisplayed()
+        compose.onNodeWithText("7 of 37 available").assertIsDisplayed()
         equipped.assertIsSelected().assertIsDisplayed()
         assertTrue(equipped.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
     }
@@ -162,7 +162,7 @@ class CollectionPolishUiTest {
         assertTrue(farm.getUnclippedBoundsInRoot().right <= viewport.right)
         all.assertIsSelected()
         garden.performScrollTo().performClick().assertIsSelected()
-        compose.onNodeWithText("1 of 5 available").assertIsDisplayed()
+        compose.onNodeWithText("1 of 9 available").assertIsDisplayed()
         compose.onNodeWithTag("portrait_garden_honeybee").assertIsDisplayed()
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
 
@@ -207,7 +207,7 @@ class CollectionPolishUiTest {
 
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("Garden").performScrollTo().performClick()
-        compose.onNodeWithText("1 of 5 available").assertIsDisplayed()
+        compose.onNodeWithText("1 of 9 available").assertIsDisplayed()
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
         compose.onNodeWithTag("portrait_garden_ladybug").performScrollTo().performClick()
         compose.onNodeWithText("Complete 4 puzzles").assertIsDisplayed()
@@ -262,4 +262,31 @@ class CollectionPolishUiTest {
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
     }
+    @Test fun gardenMixedThemeShowsPlantsAndObjectsBesideInsects() {
+        compose.setContent {
+            SudokuTogetherTheme {
+                SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {})
+            }
+        }
+        compose.onNodeWithTag("nav_collection").performClick()
+        compose.onNodeWithText("Garden").performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithText("1 of 9 available").assertIsDisplayed()
+        compose.onNodeWithTag("portrait_garden_honeybee").assertExists()
+        compose.onNodeWithTag("portrait_garden_sunflower").assertExists()
+        compose.onNodeWithTag("portrait_garden_strawberry").assertExists()
+        compose.onNodeWithTag("portrait_garden_watering_can").assertExists()
+        compose.onNodeWithTag("portrait_garden_potted_tulip").assertExists()
+        compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
+
+        compose.onNodeWithTag("portrait_garden_sunflower").performScrollTo().performClick()
+        compose.onNodeWithText("Complete 11 puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Use icon").assertDoesNotExist()
+        compose.onNodeWithText("Close").performClick()
+
+        compose.onNodeWithTag("portrait_garden_watering_can").performScrollTo().performClick()
+        compose.onNodeWithText("Complete 62 puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Use icon").assertDoesNotExist()
+        compose.onNodeWithText("Close").performClick()
+    }
+
 }
