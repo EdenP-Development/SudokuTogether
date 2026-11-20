@@ -2,6 +2,10 @@ package com.playereden.sudokutogether
 
 import androidx.compose.ui.test.*
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.graphics.asAndroidBitmap
+import androidx.test.platform.app.InstrumentationRegistry
+import android.graphics.Bitmap
+import java.io.File
 import org.junit.Rule
 import org.junit.Test
 
@@ -23,6 +27,14 @@ class Beta2BoardThemesUiTest {
         for ((id, count) in required) {
             compose.onNodeWithTag("cosmetic_board_$id").performScrollTo().performClick()
             compose.onNodeWithText("Complete $count puzzles").assertIsDisplayed()
+            // Capture the REAL Compose-rendered board preview, not a mockup.
+            val preview = compose.onNodeWithTag("expanded_board_preview").performScrollTo()
+            val bitmap = preview.captureToImage().asAndroidBitmap()
+            val file = File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir,
+                "board-$id.png")
+            file.outputStream().use { output ->
+                check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, output))
+            }
             compose.onNodeWithText("Close").performClick()
         }
     }

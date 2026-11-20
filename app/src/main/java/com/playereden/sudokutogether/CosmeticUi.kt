@@ -458,7 +458,8 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     val digitSize = ((if (compact) 11f else 25f) / scale).sp
     val edge = palette.previewRule
     val shape = RoundedCornerShape(if (compact) 7.dp else 12.dp)
-    Column(modifier.clip(shape).background(palette.fill).border(1.dp, edge, shape).drawWithContent {
+    Column(modifier.testTag(if (compact) "compact_board_swatch" else "expanded_board_preview")
+        .clip(shape).background(palette.fill).border(1.dp, edge, shape).drawWithContent {
         drawContent()
         for (i in 1..2) {
             drawLine(edge, Offset(size.width * i / 3, 0f), Offset(size.width * i / 3, size.height), 1.dp.toPx())
