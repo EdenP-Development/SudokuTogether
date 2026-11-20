@@ -9,7 +9,7 @@ on:
       - 'app/src/androidTest/java/com/playereden/sudokutogether/VersusV7ArtUiTest.kt'
       - 'app/src/androidTest/java/com/playereden/sudokutogether/HomeLivingBookUiTest.kt'
       - 'scripts/versus_v7_capture.py'
-      - 'app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v6_hd.png'
+      - 'app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v7_hd.png'
       - 'design/versus-v7/**'
       - 'app/build.gradle.kts'
   workflow_dispatch:
@@ -45,7 +45,7 @@ jobs:
           assert m["safety"]["scope"].startswith("Versus banner only")
           for name in ("woodland_fox.png","woodland_owl.png","gm_mode_coop_woodland_v5_hd.png","gm_mode_versus_woodland_v5_hd.png"):
               assert Path("app/src/main/res/drawable-nodpi",name).exists(),name
-          print("PASS: source, V6 artwork, exact-character provenance and retained V5 assets")
+          print("PASS: V7 source and final PNG integrity, unchanged Co-op V5 art")
           PY
       - uses: actions/setup-java@v4
         with:
