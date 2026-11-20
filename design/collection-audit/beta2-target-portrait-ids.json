@@ -1,0 +1,61 @@
+{
+  "project": "GridMates: Sudoku",
+  "version": "beta2-target-2026-11-20",
+  "status": "target roster (not current public assets)",
+  "purpose": "43 Player Icons only, excluding emblems, boards, inks and fonts, for final all-collection PNG audit",
+  "families": {
+    "Woodland": [
+      "woodland_badger",
+      "woodland_bear",
+      "woodland_cat",
+      "woodland_deer",
+      "woodland_fox",
+      "woodland_hedgehog",
+      "woodland_otter",
+      "woodland_owl",
+      "woodland_rabbit",
+      "woodland_robin",
+      "woodland_squirrel",
+      "woodland_tortoise",
+      "woodland_chipmunk",
+      "woodland_raccoon",
+      "woodland_beaver",
+      "woodland_woodpecker",
+      "woodland_skunk"
+    ],
+    "Ocean": [
+      "ocean_hermit_crab",
+      "ocean_jellyfish",
+      "ocean_manta_ray",
+      "ocean_narwhal",
+      "ocean_octopus",
+      "ocean_seal",
+      "ocean_sea_turtle",
+      "ocean_seahorse",
+      "ocean_dolphin",
+      "ocean_seashell",
+      "ocean_clownfish"
+    ],
+    "Garden": [
+      "garden_butterfly",
+      "garden_dragonfly",
+      "garden_honeybee",
+      "garden_ladybug",
+      "garden_sunflower",
+      "garden_strawberry",
+      "garden_firefly",
+      "garden_watering_can",
+      "garden_potted_tulip"
+    ],
+    "Farm": [
+      "farm_cow",
+      "farm_chicken",
+      "farm_sheep",
+      "farm_pig",
+      "farm_pumpkin",
+      "farm_hay_bale"
+    ]
+  },
+  "total": 43,
+  "notes": "22 existing baseline + 21 proposed; active Farm preview implements 35 of 43. Pending 8: four Woodland and four Ocean."
+}
