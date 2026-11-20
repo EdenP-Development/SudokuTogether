@@ -1,0 +1,93 @@
+{
+  "pack_id": "gridmates-beta2-garden-theme-pilot-01",
+  "status": "art_review_only_not_gameplay_registered",
+  "art_style": "gridmates_chibi_v1",
+  "no_people": true,
+  "main_branch_untouched": true,
+  "pilot_01": [
+    "farm_cow",
+    "farm_chicken",
+    "ocean_sea_turtle",
+    "woodland_raccoon",
+    "garden_firefly"
+  ],
+  "original_sheet": {
+    "path": "design/beta2-content-pack/garden-pilot/garden_mixed_source_sheet.png",
+    "width": 1254,
+    "height": 1254,
+    "bytes": 1050188,
+    "sha256": "253f8267cd8b090d3ae2592701c449065eb59d994a9989c653711db3f1c76c6f"
+  },
+  "source_files": [
+    {
+      "id": "garden_sunflower",
+      "name": "Sunflower",
+      "subject_kind": "plant",
+      "subject_key": "sunflower",
+      "target_qualified_finishes": 11,
+      "path": "design/beta2-content-pack/garden-pilot/garden_sunflower.png",
+      "bytes": 163083,
+      "sha256": "0901959b820159a27f361556a9bb7cdd4cd1d5009370b85f95b630fb1f1769d7",
+      "width": 512,
+      "height": 512,
+      "license": "AI-assisted original for GridMates project",
+      "approval": "pending icon-size and owner phone review"
+    },
+    {
+      "id": "garden_strawberry",
+      "name": "Strawberry",
+      "subject_kind": "produce",
+      "subject_key": "strawberry",
+      "target_qualified_finishes": 23,
+      "path": "design/beta2-content-pack/garden-pilot/garden_strawberry.png",
+      "bytes": 140511,
+      "sha256": "12028909adeb3a01b74dc828457cdbbac5483c1d95db9947b57a435efa4e9c8c",
+      "width": 512,
+      "height": 512,
+      "license": "AI-assisted original for GridMates project",
+      "approval": "pending icon-size and owner phone review"
+    },
+    {
+      "id": "garden_watering_can",
+      "name": "Watering Can",
+      "subject_kind": "item",
+      "subject_key": "watering_can",
+      "target_qualified_finishes": 62,
+      "path": "design/beta2-content-pack/garden-pilot/garden_watering_can.png",
+      "bytes": 151670,
+      "sha256": "86576f825f7674c580a30a56e2df2982c94fb27b8b3c3da1ba4970a101f6e8d5",
+      "width": 512,
+      "height": 512,
+      "license": "AI-assisted original for GridMates project",
+      "approval": "pending icon-size and owner phone review"
+    },
+    {
+      "id": "garden_potted_tulip",
+      "name": "Potted Tulip",
+      "subject_kind": "plant",
+      "subject_key": "potted_tulip",
+      "target_qualified_finishes": 100,
+      "path": "design/beta2-content-pack/garden-pilot/garden_potted_tulip.png",
+      "bytes": 127993,
+      "sha256": "d762932ea20e122d82b3342a83b3983938fa346ab937b9e11c4a97c0d76652bf",
+      "width": 512,
+      "height": 512,
+      "license": "AI-assisted original for GridMates project",
+      "approval": "pending icon-size and owner phone review"
+    }
+  ],
+  "reference_icons": [
+    "app/src/main/res/drawable-nodpi/garden_honeybee.png",
+    "app/src/main/res/drawable-nodpi/garden_ladybug.png",
+    "app/src/main/res/drawable-nodpi/garden_butterfly.png",
+    "app/src/main/res/drawable-nodpi/garden_dragonfly.png"
+  ],
+  "release_rules": [
+    "Art-only: no changes to core catalog or Android drawables",
+    "Consistent dark forest-green strokes and small-screen safe size",
+    "No person/humanoid figures or forced face on garden objects",
+    "Store a reproducible source and original approved bytes",
+    "Keep existing pilot and user-owned cosmetic IDs untouched",
+    "No public Beta 2 signing or release"
+  ]
+}
