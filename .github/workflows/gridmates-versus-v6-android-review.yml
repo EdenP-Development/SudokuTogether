@@ -8,6 +8,7 @@ on:
       - 'app/src/main/java/com/playereden/sudokutogether/NearbyModeBanner.kt'
       - 'app/src/androidTest/java/com/playereden/sudokutogether/VersusV6ArtUiTest.kt'
       - 'app/src/androidTest/java/com/playereden/sudokutogether/HomeLivingBookUiTest.kt'
+      - 'scripts/versus_v6_capture.py'
       - 'app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v6_hd.png'
       - 'design/versus-v6/**'
       - 'app/build.gradle.kts'
@@ -114,9 +115,11 @@ jobs:
             adb shell am start -W -n com.playereden.sudokutogether.qa.versusv6/com.playereden.sudokutogether.MainActivity
             adb shell pidof com.playereden.sudokutogether.qa.versusv6
             ./gradlew :app:connectedDebugAndroidTest -PgridmatesVersusV6Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusV6ArtUiTest,com.playereden.sudokutogether.HomeLivingBookUiTest"
-            adb shell run-as com.playereden.sudokutogether.qa.versusv6 ls -l files/gridmates-versus-v6-android.png files/gridmates-coop-v5-control.png
-            adb exec-out run-as com.playereden.sudokutogether.qa.versusv6 cat files/gridmates-versus-v6-android.png > versus-v6-actual-android.png
-            adb exec-out run-as com.playereden.sudokutogether.qa.versusv6 cat files/gridmates-coop-v5-control.png > versus-v6-coop-control-android.png
+            # Gradle connectedDebugAndroidTest removes its target app on completion.
+            # Reinstall the same isolated APK and capture live mode screens rather
+            # than pulling files from uninstalled app-private storage.
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            python3 scripts/versus_v6_capture.py
             python3 - <<'PY'
             import struct
             from pathlib import Path
