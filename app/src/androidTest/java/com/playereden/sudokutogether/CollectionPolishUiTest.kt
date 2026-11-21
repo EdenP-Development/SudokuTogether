@@ -60,7 +60,7 @@ class CollectionPolishUiTest {
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
 
         compose.onNodeWithTag("nav_collection").performClick()
-        compose.onNodeWithText("8 of 41 available").assertIsDisplayed()
+        compose.onNodeWithText("8 of 49 available").assertIsDisplayed()
         val equipped = compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
         val starter = compose.onNodeWithTag("cosmetic_emblem_tile")
         val lastAvailable = compose.onNodeWithTag("portrait_garden_honeybee")
@@ -76,7 +76,7 @@ class CollectionPolishUiTest {
             lastAvailable.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
 
         compose.runOnIdle { state.value = state.value.copy(profile = data.copy(records = emptyList())) }
-        compose.onNodeWithText("7 of 41 available").assertIsDisplayed()
+        compose.onNodeWithText("7 of 49 available").assertIsDisplayed()
         equipped.assertIsSelected().assertIsDisplayed()
         assertTrue(equipped.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
     }

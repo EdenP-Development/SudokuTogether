@@ -17,14 +17,14 @@ class Beta2FarmThemeIconsTest {
 
     @Test fun farmHasSixIconsWithCropsAndObjectsWhileOldIdsAreUnchanged() {
         assertEquals(6, Cosmetics.farmPortraits.size)
-        assertEquals(35, Cosmetics.portraits.size)
+        assertEquals(43, Cosmetics.portraits.size)
         val ids = Cosmetics.portraits.map { it.id }
         assertEquals(ids.size, ids.toSet().size)
         assertTrue(ids.containsAll(newFarm.keys))
         assertEquals("Starter", Cosmetics.farmPortraits.first { it.id == "farm_cow" }.requirement)
         assertEquals("Complete 7 puzzles",
             Cosmetics.farmPortraits.first { it.id == "farm_chicken" }.requirement)
-        assertEquals(67, ids.size + Cosmetics.emblems.size +
+        assertEquals(75, ids.size + Cosmetics.emblems.size +
             Cosmetics.boards.size + Cosmetics.inks.size + Cosmetics.fonts.size)
         assertTrue(Cosmetics.allowed("farm_cow", emptyList()))
     }

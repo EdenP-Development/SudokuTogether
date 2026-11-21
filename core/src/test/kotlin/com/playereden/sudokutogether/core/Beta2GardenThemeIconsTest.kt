@@ -21,7 +21,7 @@ class Beta2GardenThemeIconsTest {
             listOf("garden_ladybug", "garden_butterfly", "garden_sunflower"),
             Cosmetics.gardenPortraits.drop(1).take(3).map { it.id }
         ) // First locked row visibly includes a flower, not three insects.
-        assertEquals(35, Cosmetics.portraits.size)
+        assertEquals(43, Cosmetics.portraits.size)
         val all = Cosmetics.portraits.map { it.id }
         assertEquals(all.size, all.toSet().size)
         assertTrue(all.containsAll(newGarden.keys))
@@ -38,7 +38,7 @@ class Beta2GardenThemeIconsTest {
         assertEquals(11, Cosmetics.boards.size)
         assertEquals(10, Cosmetics.inks.size)
         assertEquals(5, Cosmetics.fonts.size)
-        assertEquals(67, all.size + Cosmetics.emblems.size + Cosmetics.boards.size +
+        assertEquals(75, all.size + Cosmetics.emblems.size + Cosmetics.boards.size +
             Cosmetics.inks.size + Cosmetics.fonts.size)
     }
 
