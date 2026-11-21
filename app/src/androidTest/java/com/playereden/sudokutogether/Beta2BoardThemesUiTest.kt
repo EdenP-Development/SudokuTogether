@@ -5,7 +5,10 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.test.platform.app.InstrumentationRegistry
 import android.graphics.Bitmap
-import java.io.File
+import android.content.ContentValues
+import android.os.Environment
+import android.provider.MediaStore
+import java.io.ByteArrayOutputStream
 import org.junit.Rule
 import org.junit.Test
 
@@ -30,11 +33,24 @@ class Beta2BoardThemesUiTest {
             // Capture the REAL Compose-rendered board preview, not a mockup.
             val preview = compose.onNodeWithTag("expanded_board_preview").performScrollTo()
             val bitmap = preview.captureToImage().asAndroidBitmap()
-            val file = File(InstrumentationRegistry.getInstrumentation().targetContext.filesDir,
-                "board-$id.png")
-            file.outputStream().use { output ->
-                check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, output))
+            // Publish to shared media: Gradle instrumentation can uninstall the
+            // app after tests, so private filesDir snapshots do not survive.
+            val outputBytes = ByteArrayOutputStream()
+            check(bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputBytes))
+            check(outputBytes.size() > 500) { "Board $id screenshot unexpectedly tiny" }
+            val resolver = InstrumentationRegistry.getInstrumentation().targetContext.contentResolver
+            val values = ContentValues().apply {
+                put(MediaStore.Images.Media.DISPLAY_NAME, "gridmates-board-$id.png")
+                put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+                put(MediaStore.Images.Media.RELATIVE_PATH,
+                    "${Environment.DIRECTORY_PICTURES}/GridMatesBeta2BoardQA")
             }
+            val uri = checkNotNull(resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)) {
+                "Could not create Android media screenshot for $id"
+            }
+            resolver.openOutputStream(uri)?.use { output ->
+                output.write(outputBytes.toByteArray())
+            } ?: error("Cannot write Android media screenshot for $id")
             compose.onNodeWithText("Close").performClick()
         }
     }
