@@ -94,7 +94,12 @@ object Cosmetics {
         // Beta 1.2 pilot boards. Both are obtainable by playing Solo.
         CatalogEntry("parchment", "Parchment", 8, Milestone.SOLO),
         CatalogEntry("ocean", "Ocean", 12, Milestone.SOLO),
-        CatalogEntry("graphite", "Graphite", 20, Milestone.FINISH)
+        CatalogEntry("graphite", "Graphite", 20, Milestone.FINISH),
+        // Four Beta 2 palette milestones; preserve original board ordering.
+        CatalogEntry("moss", "Moss", 16, Milestone.FINISH),
+        CatalogEntry("rosewood", "Rosewood", 28, Milestone.FINISH),
+        CatalogEntry("pebble", "Pebble", 48, Milestone.FINISH),
+        CatalogEntry("tidal", "Tidal", 70, Milestone.FINISH)
     )
     // Co-op display priority follows the curated board catalog order.
     // New board IDs cannot be accidentally omitted from a second list.

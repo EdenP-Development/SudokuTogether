@@ -12,7 +12,7 @@ class CosmeticPaletteCatalogTest {
         assertEquals("Add board palette metadata whenever the catalog expands",
             ids.toSet(), boardPalettes.keys)
         assertEquals(ids.size, ids.map(::boardFillFor).toSet().size)
-        assertEquals(setOf("midnight", "circuit", "graphite"), ids.filter(::boardIsDark).toSet())
+        assertEquals(setOf("midnight", "circuit", "graphite", "rosewood", "tidal"), ids.filter(::boardIsDark).toSet())
         assertEquals(Paper, boardFillFor("classic"))
         assertEquals(Color(0xFFFFF6DF), boardFillFor("linen"))
         assertEquals(Color(0xFF152A36), boardFillFor("midnight"))

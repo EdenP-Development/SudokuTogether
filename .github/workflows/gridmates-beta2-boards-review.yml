@@ -1,0 +1,89 @@
+name: GridMates Beta 2 four-board isolated Android reviewer
+on:
+  push:
+    branches: [feat/beta2-four-board-palettes-review]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gridmates-beta2-boards
+  cancel-in-progress: true
+jobs:
+  board-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Compile, JVM tests, AndroidTest Kotlin, lint and isolated APK
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta2BoardsPreview=true --no-daemon --max-workers=2 --console=plain
+      - name: Verify debug signer and isolated reviewer identity
+        run: |
+          set -euo pipefail
+          cp app/build/outputs/apk/debug/app-debug.apk GridMates-Beta2-Boards-OwnerPreview.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs GridMates-Beta2-Boards-OwnerPreview.apk > apk-signer.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging GridMates-Beta2-Boards-OwnerPreview.apk > apk-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta2boards'" apk-badging.txt
+          sha256sum GridMates-Beta2-Boards-OwnerPreview.apk > GridMates-Beta2-Boards-OwnerPreview.apk.sha256
+      - name: Enable emulator KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android 16 isolated Collection board gallery test
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            set -e
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n com.playereden.sudokutogether.qa.beta2boards/com.playereden.sudokutogether.MainActivity
+            adb shell pidof com.playereden.sudokutogether.qa.beta2boards
+            sleep 5
+            adb exec-out screencap -p > beta2-boards-home-android.png
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2BoardsPreview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.Beta2BoardThemesUiTest"
+            # MediaStore files survive Gradle's test-app uninstall; app private files do not.
+            # Emulator runner executes each script line in its own shell: single-line loop.
+            for id in moss rosewood pebble tidal; do adb pull "/sdcard/Pictures/GridMatesBeta2BoardQA/gridmates-board-$id.png" "beta2-board-$id-android.png" || exit 1; done
+      - name: Validate actual PNG signatures, size, dimensions and distinct previews
+        run: python3 scripts/verify_beta2_board_capture.py
+      - name: Publish separate-install APK and receipt
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-Boards-OwnerPreview
+          path: |
+            GridMates-Beta2-Boards-OwnerPreview.apk
+            GridMates-Beta2-Boards-OwnerPreview.apk.sha256
+            apk-badging.txt
+            apk-signer.txt
+            beta2-boards-home-android.png
+            beta2-board-*-android.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Save failure diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-Boards-Failure-Diagnostics
+          path: |
+            core/build/reports/tests/**
+            app/build/reports/tests/**
+            app/build/reports/androidTests/**
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
+          retention-days: 5
