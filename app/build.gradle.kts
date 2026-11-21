@@ -24,12 +24,17 @@ val beta2FarmPreview = providers.gradleProperty("gridmatesBeta2FarmPreview").orN
     require(it == "true") { "gridmatesBeta2FarmPreview only accepts true" }
     true
 } ?: false
+// Dedicated 75-item reviewer, never the production/other QA application IDs.
+val beta2Unified75Preview = providers.gradleProperty("gridmatesBeta2Unified75Preview").orNull?.let {
+    require(it == "true") { "gridmatesBeta2Unified75Preview only accepts true" }
+    true
+} ?: false
 // Separate-install board palette reviewer; never overwrites public Beta 1.
 val beta2BoardsPreview = providers.gradleProperty("gridmatesBeta2BoardsPreview").orNull?.let {
     require(it == "true") { "gridmatesBeta2BoardsPreview only accepts true" }
     true
 } ?: false
-require(listOf(beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
+require(listOf(beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
     "Only one isolated preview type can be selected"
 }
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
@@ -44,6 +49,7 @@ require((qaUpdateFlag == "true") == (qaVersion != null)) { "QA update mode and v
 require(!(beta2PortraitPreview && qaVersion != null)) { "Portrait preview must not share QA-update identity" }
 require(!(beta2GardenPreview && qaVersion != null)) { "Garden preview must not share QA-update identity" }
 require(!(beta2FarmPreview && qaVersion != null)) { "Farm preview must not share QA-update identity" }
+require(!(beta2Unified75Preview && qaVersion != null)) { "Unified 75 preview must not share QA-update identity" }
 require(!(beta2BoardsPreview && qaVersion != null)) { "Boards preview must not share QA-update identity" }
 require(!(woodlandV5Preview && qaVersion != null)) {
     "Woodland V5 preview must not use a same-package QA update"
@@ -78,6 +84,7 @@ android {
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
                 beta2BoardsPreview -> ".qa.beta2boards"
+                beta2Unified75Preview -> ".qa.beta2unified75"
                 beta2FarmPreview -> ".qa.beta2farm"
                 beta2GardenPreview -> ".qa.beta2garden"
                 beta2PortraitPreview -> ".qa.beta2portraits"
@@ -86,6 +93,7 @@ android {
             }
             versionNameSuffix = when {
                 beta2BoardsPreview -> "-qa.beta2boards"
+                beta2Unified75Preview -> "-qa.beta2unified75"
                 beta2FarmPreview -> "-qa.beta2farm"
                 beta2GardenPreview -> "-qa.beta2garden"
                 beta2PortraitPreview -> "-qa.beta2portraits"
