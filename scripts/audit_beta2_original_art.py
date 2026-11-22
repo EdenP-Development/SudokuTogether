@@ -42,7 +42,7 @@ def main() -> None:
         if identifier.startswith("woodland_"):
             # Woodland entries are dynamically expanded from a name→target map.
             short_name = identifier.removeprefix("woodland_")
-            present = re.search(r'"' + re.escape(short_name) + r'"\\s+to\\s+\\d+', catalog) is not None
+            present = re.search(r'"' + re.escape(short_name) + r'"\s+to\s+\d+', catalog) is not None
         else:
             present = f'CatalogEntry("{identifier}"' in catalog
         require(present, f"{identifier}: catalog registration")
