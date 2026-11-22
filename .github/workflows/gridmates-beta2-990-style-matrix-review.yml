@@ -1,0 +1,93 @@
+name: GridMates Beta 2 complete 990-style compatibility QA
+on:
+  push:
+    branches: [qa/beta2-79-style-compatibility]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gridmates-beta2-full-style-matrix
+  cancel-in-progress: true
+jobs:
+  style-matrix-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install immutable-art and font verification libraries
+        run: python -m pip install --disable-pip-version-check Pillow==11.3.0 fonttools==4.60.1
+      - name: Verify eight original character PNGs, hashes and registration
+        run: python scripts/audit_beta2_original_art.py --require-original-art
+      - name: Verify four new original font TTF sources, numerals and OFL notices
+        run: python scripts/verify_beta2_font_sources.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Exhaustive 990-combination JVM matrix, full regressions, UI compile, lint and APK
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta2MatrixPreview=true --no-daemon --max-workers=2 --console=plain
+      - name: Verify separate-install APK identity, signature and SHA-256
+        run: |
+          set -euo pipefail
+          cp app/build/outputs/apk/debug/app-debug.apk GridMates-Beta2-990-StyleMatrix-OwnerPreview.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs GridMates-Beta2-990-StyleMatrix-OwnerPreview.apk > matrix-apk-signer.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging GridMates-Beta2-990-StyleMatrix-OwnerPreview.apk > matrix-apk-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta2matrix'" matrix-apk-badging.txt
+          sha256sum GridMates-Beta2-990-StyleMatrix-OwnerPreview.apk > GridMates-Beta2-990-StyleMatrix-OwnerPreview.apk.sha256
+          python scripts/verify_beta2_font_sources.py GridMates-Beta2-990-StyleMatrix-OwnerPreview.apk
+      - name: Enable hardware-accelerated emulator
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android 16 full 9×9 typography and 200-percent text scale tests
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            set -e
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n com.playereden.sudokutogether.qa.beta2matrix/com.playereden.sudokutogether.MainActivity
+            adb shell pidof com.playereden.sudokutogether.qa.beta2matrix
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2MatrixPreview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.Beta2StyleCompatibilityUiTest"
+      - name: Publish separate 990-style Android APK and inspection receipts
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-990-StyleMatrix-OwnerPreview
+          path: |
+            GridMates-Beta2-990-StyleMatrix-OwnerPreview.apk
+            GridMates-Beta2-990-StyleMatrix-OwnerPreview.apk.sha256
+            matrix-apk-badging.txt
+            matrix-apk-signer.txt
+            app/build/test-results/testDebugUnitTest/**/*.xml
+            app/build/outputs/androidTest-results/**/*.xml
+          if-no-files-found: error
+          retention-days: 14
+      - name: Publish failed validation diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-990-StyleMatrix-Failure-Diagnostics
+          path: |
+            core/build/reports/tests/**
+            app/build/reports/tests/**
+            app/build/reports/androidTests/**
+            app/build/reports/lint-results-debug.html
+            app/build/outputs/androidTest-results/**
+          if-no-files-found: warn
+          retention-days: 5

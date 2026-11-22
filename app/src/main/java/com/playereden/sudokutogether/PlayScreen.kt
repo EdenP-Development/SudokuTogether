@@ -619,7 +619,7 @@ private fun roomStatusText(state: GameUiState): String {
                     if (cell.value != 0) Text(cell.value.toString(), modifier = Modifier.fillMaxWidth(),
                         style = digitStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
                         maxLines = 1, softWrap = false, fontWeight = if (given) FontWeight.Bold else FontWeight.Normal,
-                        color = if (i in conflicts && !given) palette.conflictInk else if (given) neutralInk
+                        color = if (i in conflicts && !given) conflictDigitInk(background, palette) else if (given) neutralInk
                         else legibleBoardDigitInk(authoredInk, background, palette))
                     else if (cell.notes != 0) Column(Modifier.fillMaxSize().padding(1.dp)) {
                         // Keep the equipped color. If a dark-board highlight makes
@@ -631,6 +631,12 @@ private fun roomStatusText(state: GameUiState): String {
                         // slightly larger on the full board. Mono is narrow enough
                         // to retain the enlarged note size on full boards.
                         val fitFactor = when {
+                            // At 150–200% system text, the existing correction
+                            // alone can still clip line metrics in 3×3 note slots.
+                            // Tighten only large-text pencil glyphs: normal-size
+                            // players retain their existing visual appearance.
+                            systemScale > 1.3f && size <= 300.dp -> .50f
+                            systemScale > 1.3f -> .55f
                             size <= 300.dp -> .68f
                             authored.font == "mono" -> .82f
                             authored.font == "clear" || authored.font == "serif" -> .72f
@@ -646,7 +652,7 @@ private fun roomStatusText(state: GameUiState): String {
                                     if (n in noteNumbers) {
                                         val removed = n in crossedOff
                                         val color = if (removed) crossedOffNoteInk(background, palette) else pencilColor
-                                        Text(n.toString(), modifier = Modifier.fillMaxWidth(), color = color,
+                                        Text(n.toString(), modifier = Modifier.fillMaxWidth().testTag("pencil_cell_${i}_${n}"), color = color,
                                             style = inkNoteStyle, textAlign = TextAlign.Center,
                                             textDecoration = if (removed) TextDecoration.LineThrough else null,
                                             maxLines = 1, softWrap = false)

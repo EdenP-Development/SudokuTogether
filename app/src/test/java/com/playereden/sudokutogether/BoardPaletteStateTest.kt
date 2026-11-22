@@ -40,9 +40,8 @@ class BoardPaletteStateTest {
     }
 
     @Test fun currentEntryInksStayReadableAcrossExistingBoardCellStates() {
-        // The old palette's observed floor is ~4.06:1 on some highlights.
-        // This is a *regression guard*, not a claim of WCAG 4.5 compliance.
-        // New theme pilots should target >= 4.5:1 before shipping.
+        // Original authored ink colors and base-paper rendering are unchanged.
+        // Only sub-4.5 highlighted entries get a local foreground contrast lift.
         for ((boardId, board) in boardPalettes) {
             val backgrounds = listOf(
                 board.fill, board.selectedCell, board.partnerCell,
@@ -55,7 +54,7 @@ class BoardPaletteStateTest {
                     // as PlayScreen. Keep the historical raw-ink floor on legacy boards.
                     val foreground = legibleBoardDigitInk(authoredInk, background, board)
                     assertTrue("$boardId / ${ink.id}: contrast too low for $background",
-                        contrast(foreground, background) >= if (board.adaptiveNumberContrast) 4.49f else 4.0f)
+                        contrast(foreground, background) >= 4.49f)
                 }
             }
             assertTrue("$boardId clues", contrast(board.clueInk, board.fill) >= 4.5f)
