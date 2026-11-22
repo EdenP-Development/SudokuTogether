@@ -6,7 +6,7 @@ import org.junit.Test
 /** First-wave portraits: no old requirements changed, no paid or multiplayer dependency. */
 class Beta2FirstFivePortraitsTest {
     private fun solo(index: Int) =
-        GameRecord("solo-$index", SOLO, "SOLVED", "puzzle-$index", 1000, 1, index.toLong())
+        GameRecord("solo-$index", SOLO, "SOLVED", "puzzle-$index", 1000, 1, index.toLong(), assisted = true)
 
     @Test fun firstWaveCatalogIsUniqueAndAllPortraitsAreRegistered() {
         val ids = Cosmetics.portraits.map { it.id }
@@ -21,7 +21,7 @@ class Beta2FirstFivePortraitsTest {
         assertFalse(Cosmetics.valid(Appearance(portrait = "farm_unknown")))
     }
 
-    @Test fun farmCowIsImmediateStarterAndAllOtherNewItemsNeedFinishes() {
+    @Test fun farmCowIsStarterAndHistoricalFinishUnlocksRemainAvailable() {
         assertTrue(Cosmetics.allowed("farm_cow", emptyList()))
         val targets = mapOf(
             "farm_chicken" to 7,
