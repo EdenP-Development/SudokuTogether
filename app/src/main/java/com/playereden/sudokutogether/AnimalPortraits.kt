@@ -29,6 +29,10 @@ internal fun animalDrawable(id: String): Int? = when (id) {
     "woodland_tortoise" -> R.drawable.woodland_tortoise
     "woodland_cat" -> R.drawable.woodland_cat
     "woodland_raccoon" -> R.drawable.woodland_raccoon
+    "woodland_chipmunk" -> R.drawable.woodland_chipmunk
+    "woodland_beaver" -> R.drawable.woodland_beaver
+    "woodland_woodpecker" -> R.drawable.woodland_woodpecker
+    "woodland_skunk" -> R.drawable.woodland_skunk
     "ocean_octopus" -> R.drawable.ocean_octopus
     "ocean_seal" -> R.drawable.ocean_seal
     "ocean_hermit_crab" -> R.drawable.ocean_hermit_crab
@@ -36,6 +40,10 @@ internal fun animalDrawable(id: String): Int? = when (id) {
     "ocean_jellyfish" -> R.drawable.ocean_jellyfish
     "ocean_narwhal" -> R.drawable.ocean_narwhal
     "ocean_sea_turtle" -> R.drawable.ocean_sea_turtle
+    "ocean_seahorse" -> R.drawable.ocean_seahorse
+    "ocean_dolphin" -> R.drawable.ocean_dolphin
+    "ocean_seashell" -> R.drawable.ocean_seashell
+    "ocean_clownfish" -> R.drawable.ocean_clownfish
     "garden_honeybee" -> R.drawable.garden_honeybee
     "garden_ladybug" -> R.drawable.garden_ladybug
     "garden_butterfly" -> R.drawable.garden_butterfly

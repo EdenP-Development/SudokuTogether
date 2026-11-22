@@ -24,8 +24,8 @@ class WoodlandCollectionTest {
     }
     @Test fun expandedWoodlandRetainsTwoStarterChoicesAndVisibleMilestones() {
         val woodland = Cosmetics.portraits.filter { it.id.startsWith("woodland_") }
-        assertEquals(13, woodland.size)
-        assertEquals(13, woodland.map { it.id }.toSet().size)
+        assertEquals(17, woodland.size)
+        assertEquals(17, woodland.map { it.id }.toSet().size)
         assertEquals(setOf("woodland_owl", "woodland_fox"), woodland.filter { Cosmetics.allowed(it.id, emptyList()) }.map { it.id }.toSet())
         assertFalse(Cosmetics.allowed("woodland_rabbit", emptyList()))
         assertTrue(Cosmetics.allowed("woodland_rabbit", listOf(record("first", assisted = true))))
