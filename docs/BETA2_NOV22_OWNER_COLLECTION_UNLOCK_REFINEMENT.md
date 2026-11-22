@@ -59,3 +59,7 @@ Previously earned `ownedCosmeticIds` continue to work after old records are prun
 Up to seven new assets for future owner approval: Farm Goat / Duck / Barn; Garden Snail / Daisy / Mushroom; Ocean Sea Star. **No new IDs, unlock requirements or artwork for these are included in this branch.** Current Collection totals remain 17 Woodland + 11 Ocean + 9 Garden + 6 Farm = 43 portraits.
 
 Further checks: view four normalized original icons at real 48/62/96dp on device, player Profile and Co-op/Versus; inspect candidate reillustrations separately; continue actual two-phone Wi-Fi testing, and validate a production-signed, save-preserving Beta 1→Beta 2 install-over using a backed-up device. Keep every PR draft until owner review.
+
+## Independent owner reviewer install identity
+
+New reward/Collection experiments are built with `-PgridmatesBeta2UnlockPreview=true` and Android package `com.playereden.sudokutogether.qa.beta2unlock`. This is intentionally **different** from existing public Beta 1 and the previous installed V7 QA reviewer (`.qa.beta2v7`). GitHub's per-run debug signing key may change; a distinct package avoids Android install-over signature conflicts, allowing side-by-side owner screenshots. Do not treat its empty data as a save migration failure.
