@@ -16,7 +16,11 @@ import kotlinx.serialization.Serializable
 
 data class Cosmetic(val id: String, val name: String, val requirement: String)
 
-data class CosmeticProgress(val current: Int, val target: Int, val earned: Boolean = false) {
+data class CosmeticProgress(
+    val current: Int, val target: Int, val earned: Boolean = false,
+    /** Only populated while a quicker optional route is selected; old single-goal comparisons stay stable. */
+    val pathLabel: String? = null
+) {
     val unlocked: Boolean get() = earned || current >= target
 }
 
@@ -25,14 +29,54 @@ object Cosmetics {
         FINISH("Complete", "puzzle", "puzzles"),
         SOLO("Solve", "solo puzzle", "solo puzzles"),
         COOP("Complete", "co-op puzzle", "co-op puzzles"),
-        RACE("Win", "versus race", "versus races");
+        RACE("Win", "versus race", "versus races"),
+        DAILY("Finish", "different daily puzzle", "different daily puzzles"),
+        MEDIUM_PLUS("Complete", "Medium-or-Hard puzzle", "Medium-or-Hard puzzles"),
+        HARD("Complete", "Hard puzzle", "Hard puzzles"),
+        UNASSISTED_SOLO("Solve", "solo puzzle without hints or checks", "solo puzzles without hints or checks");
 
         fun describe(target: Int) = if (target == 0) "Starter"
             else "$verb $target ${if (target == 1) singular else plural}"
     }
 
-    private data class CatalogEntry(val id: String, val name: String, val target: Int = 0, val milestone: Milestone = Milestone.SOLO) {
-        fun cosmetic() = Cosmetic(id, name, milestone.describe(target))
+    private data class UnlockPath(val milestone: Milestone, val target: Int) {
+        init { require(target > 0) }
+        fun describe() = milestone.describe(target)
+    }
+
+    private data class CatalogEntry(
+        val id: String, val name: String, val target: Int = 0,
+        val milestone: Milestone = Milestone.SOLO,
+        val alternate: UnlockPath? = null
+    ) {
+        fun cosmetic() = Cosmetic(id, name,
+            milestone.describe(target) + (alternate?.let { " or " + it.describe().replaceFirstChar(Char::lowercase) } ?: ""))
+    }
+
+    /**
+     * The existing solve-count goal is intentionally never removed, raised or
+     * replaced. Alternative routes give real Daily/medium/hard/clean achievements
+     * meaning without taking previously available rewards away from offline users.
+     */
+    private fun alternative(id: String): UnlockPath? = when (id) {
+        "woodland_chipmunk" -> UnlockPath(Milestone.DAILY, 3)
+        "woodland_raccoon" -> UnlockPath(Milestone.UNASSISTED_SOLO, 6)
+        "woodland_beaver" -> UnlockPath(Milestone.MEDIUM_PLUS, 8)
+        "woodland_woodpecker" -> UnlockPath(Milestone.HARD, 4)
+        "woodland_skunk" -> UnlockPath(Milestone.DAILY, 20)
+        "ocean_hermit_crab" -> UnlockPath(Milestone.MEDIUM_PLUS, 4)
+        "ocean_seahorse" -> UnlockPath(Milestone.DAILY, 5)
+        "ocean_manta_ray" -> UnlockPath(Milestone.HARD, 3)
+        "ocean_dolphin" -> UnlockPath(Milestone.MEDIUM_PLUS, 10)
+        "ocean_seashell" -> UnlockPath(Milestone.HARD, 5)
+        "ocean_clownfish" -> UnlockPath(Milestone.DAILY, 21)
+        "garden_strawberry" -> UnlockPath(Milestone.UNASSISTED_SOLO, 4)
+        "garden_firefly" -> UnlockPath(Milestone.DAILY, 7)
+        "garden_potted_tulip" -> UnlockPath(Milestone.DAILY, 14)
+        "farm_chicken" -> UnlockPath(Milestone.DAILY, 1)
+        "farm_pig" -> UnlockPath(Milestone.UNASSISTED_SOLO, 8)
+        "farm_hay_bale" -> UnlockPath(Milestone.MEDIUM_PLUS, 12)
+        else -> null
     }
 
     private val woodlandEntries = linkedMapOf(
@@ -42,20 +86,21 @@ object Cosmetics {
         "chipmunk" to 16, "raccoon" to 24, "beaver" to 39,
         "woodpecker" to 56, "skunk" to 90
     ).map { (animal, count) ->
-        CatalogEntry("woodland_$animal", animal.replaceFirstChar { it.uppercase() }, count, Milestone.FINISH)
+        CatalogEntry("woodland_$animal", animal.replaceFirstChar { it.uppercase() }, count,
+            Milestone.FINISH, alternative("woodland_$animal"))
     }
     private val oceanEntries = listOf(
         CatalogEntry("ocean_octopus", "Octopus", 0, Milestone.FINISH),
         CatalogEntry("ocean_sea_turtle", "Sea Turtle", 12, Milestone.FINISH),
         CatalogEntry("ocean_seal", "Harbor Seal", 18, Milestone.FINISH),
-        CatalogEntry("ocean_hermit_crab", "Hermit Crab", 25, Milestone.FINISH),
-        CatalogEntry("ocean_seahorse", "Seahorse", 30, Milestone.FINISH),
-        CatalogEntry("ocean_manta_ray", "Manta Ray", 35, Milestone.FINISH),
-        CatalogEntry("ocean_dolphin", "Dolphin", 46, Milestone.FINISH),
+        CatalogEntry("ocean_hermit_crab", "Hermit Crab", 25, Milestone.FINISH, alternative("ocean_hermit_crab")),
+        CatalogEntry("ocean_seahorse", "Seahorse", 30, Milestone.FINISH, alternative("ocean_seahorse")),
+        CatalogEntry("ocean_manta_ray", "Manta Ray", 35, Milestone.FINISH, alternative("ocean_manta_ray")),
+        CatalogEntry("ocean_dolphin", "Dolphin", 46, Milestone.FINISH, alternative("ocean_dolphin")),
         CatalogEntry("ocean_jellyfish", "Jellyfish", 50, Milestone.FINISH),
-        CatalogEntry("ocean_seashell", "Seashell", 67, Milestone.FINISH),
+        CatalogEntry("ocean_seashell", "Seashell", 67, Milestone.FINISH, alternative("ocean_seashell")),
         CatalogEntry("ocean_narwhal", "Narwhal", 75, Milestone.FINISH),
-        CatalogEntry("ocean_clownfish", "Clownfish", 95, Milestone.FINISH)
+        CatalogEntry("ocean_clownfish", "Clownfish", 95, Milestone.FINISH, alternative("ocean_clownfish"))
     )
     private val gardenEntries = listOf(
         CatalogEntry("garden_honeybee", "Honeybee", 0, Milestone.FINISH),
@@ -64,19 +109,19 @@ object Cosmetics {
         // Mix flowers into the first Garden row instead of showing only bugs.
         CatalogEntry("garden_sunflower", "Sunflower", 11, Milestone.FINISH),
         CatalogEntry("garden_dragonfly", "Dragonfly", 20, Milestone.FINISH),
-        CatalogEntry("garden_strawberry", "Strawberry", 23, Milestone.FINISH),
-        CatalogEntry("garden_firefly", "Firefly", 42, Milestone.FINISH),
+        CatalogEntry("garden_strawberry", "Strawberry", 23, Milestone.FINISH, alternative("garden_strawberry")),
+        CatalogEntry("garden_firefly", "Firefly", 42, Milestone.FINISH, alternative("garden_firefly")),
         CatalogEntry("garden_watering_can", "Watering Can", 62, Milestone.FINISH),
-        CatalogEntry("garden_potted_tulip", "Potted Tulip", 100, Milestone.FINISH)
+        CatalogEntry("garden_potted_tulip", "Potted Tulip", 100, Milestone.FINISH, alternative("garden_potted_tulip"))
     )
     private val farmEntries = listOf(
         CatalogEntry("farm_cow", "Cow", 0, Milestone.FINISH),
-        CatalogEntry("farm_chicken", "Chicken", 7, Milestone.FINISH),
+        CatalogEntry("farm_chicken", "Chicken", 7, Milestone.FINISH, alternative("farm_chicken")),
         // Mixed Farm life: two animals, a crop and a rustic item.
         CatalogEntry("farm_sheep", "Sheep", 20, Milestone.FINISH),
-        CatalogEntry("farm_pig", "Pig", 36, Milestone.FINISH),
+        CatalogEntry("farm_pig", "Pig", 36, Milestone.FINISH, alternative("farm_pig")),
         CatalogEntry("farm_pumpkin", "Pumpkin", 58, Milestone.FINISH),
-        CatalogEntry("farm_hay_bale", "Hay Bale", 85, Milestone.FINISH)
+        CatalogEntry("farm_hay_bale", "Hay Bale", 85, Milestone.FINISH, alternative("farm_hay_bale"))
     )
     private val inkEntries = listOf(
         CatalogEntry("forest", "Forest"),
@@ -155,34 +200,73 @@ object Cosmetics {
     fun sharedCoopBoard(hostBoard: String, guestBoard: String?): String =
         sharedBoardOrder[maxOf(0, sharedBoardOrder.indexOf(hostBoard), sharedBoardOrder.indexOf(guestBoard))]
 
-    private data class Totals(val finish: Int, val solo: Int, val coop: Int, val race: Int)
+    private data class Totals(
+        val finish: Int, val solo: Int, val coop: Int, val race: Int,
+        val daily: Int, val mediumPlus: Int, val hard: Int, val cleanSolo: Int
+    )
 
-    /** One deduplicated pass across durable records, regardless of catalog size. */
+    /**
+     * Count each durable match id once; Daily milestones count different local
+     * calendar dates, not repeated finishes or an unverified server streak.
+     * Historical records lacking a date/difficulty simply don't qualify for
+     * those alternate routes. They still count toward old finish thresholds.
+     */
     private fun totals(records: List<GameRecord>): Totals {
         var finish = 0
         var solo = 0
         var coop = 0
         var race = 0
+        var mediumPlus = 0
+        var hard = 0
+        var cleanSolo = 0
+        val dailyDates = mutableSetOf<String>()
         for (record in records.distinctBy { it.id }) {
-            when {
-                record.mode == SOLO && record.result == "SOLVED" -> { finish++; solo++ }
-                record.mode == DAILY && record.result == "SOLVED" -> finish++
-                record.mode == COOP && record.result == "SOLVED" -> { finish++; coop++ }
-                record.mode == VERSUS && record.result == "WIN" -> { finish++; race++ }
+            val completed = when {
+                record.mode == SOLO && record.result == "SOLVED" -> { finish++; solo++; true }
+                record.mode == DAILY && record.result == "SOLVED" -> { finish++; true }
+                record.mode == COOP && record.result == "SOLVED" -> { finish++; coop++; true }
+                record.mode == VERSUS && record.result == "WIN" -> { finish++; race++; true }
+                else -> false
             }
+            if (!completed) continue
+            if (record.mode == DAILY && !record.dailyDate.isNullOrBlank()) {
+                dailyDates.add(record.dailyDate)
+            }
+            val difficulty = record.difficulty?.uppercase()
+            if (difficulty == "MEDIUM" || difficulty == "HARD") mediumPlus++
+            if (difficulty == "HARD") hard++
+            if (record.mode == SOLO && !record.assisted &&
+                record.hintsUsed == 0 && record.checksUsed == 0) cleanSolo++
         }
-        return Totals(finish, solo, coop, race)
+        return Totals(finish, solo, coop, race, dailyDates.size, mediumPlus, hard, cleanSolo)
+    }
+
+    private fun count(milestone: Milestone, totals: Totals): Int = when (milestone) {
+        Milestone.FINISH -> totals.finish
+        Milestone.SOLO -> totals.solo
+        Milestone.COOP -> totals.coop
+        Milestone.RACE -> totals.race
+        Milestone.DAILY -> totals.daily
+        Milestone.MEDIUM_PLUS -> totals.mediumPlus
+        Milestone.HARD -> totals.hard
+        Milestone.UNASSISTED_SOLO -> totals.cleanSolo
     }
 
     private fun progress(entry: CatalogEntry, totals: Totals, earned: Boolean = false): CosmeticProgress {
-        // Starter items retain 0/0 progress, even for veteran profiles.
-        val current = if (entry.target == 0) 0 else when (entry.milestone) {
-            Milestone.FINISH -> totals.finish
-            Milestone.SOLO -> totals.solo
-            Milestone.COOP -> totals.coop
-            Milestone.RACE -> totals.race
-        }
-        return CosmeticProgress(current, entry.target, earned)
+        if (entry.target == 0) return CosmeticProgress(0, 0, earned)
+        val primary = count(entry.milestone, totals)
+        val alternate = entry.alternate ?: return CosmeticProgress(primary, entry.target, earned)
+        val bonusCount = count(alternate.milestone, totals)
+        // Primary completion takes precedence to keep prior progress/records
+        // and existing source-backed test equality exactly as before. Otherwise
+        // show the more advanced route without summing unrelated achievements.
+        val preferBonus = primary < entry.target && (
+            bonusCount >= alternate.target ||
+            (bonusCount > 0 && bonusCount.toLong() * entry.target >
+                primary.toLong() * alternate.target))
+        return if (preferBonus)
+            CosmeticProgress(bonusCount, alternate.target, earned, alternate.describe())
+        else CosmeticProgress(primary, entry.target, earned)
     }
 
     fun completedPuzzles(records: List<GameRecord>): Int = totals(records).finish
