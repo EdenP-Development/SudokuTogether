@@ -200,7 +200,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             Eyebrow("NEXT TO UNLOCK")
                             Text(next.cosmetic.name, style = MaterialTheme.typography.titleSmall, color = Forest)
-                            Text("${goal.current} of ${goal.target} · ${next.cosmetic.requirement}",
+                            Text("${goal.current} of ${goal.target} · ${goal.pathLabel ?: next.cosmetic.requirement}",
                                 style = MaterialTheme.typography.bodySmall, color = Muted)
                             MilestoneTrack(goal.current, goal.target)
                         }
@@ -418,7 +418,11 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                 color = Forest, style = MaterialTheme.typography.titleSmall)
             if (!equipped && !progress.unlocked) {
                 Text(item.cosmetic.requirement, color = Ink)
-                Text("${progress.current} of ${progress.target}" + if (item.group == CosmeticGroup.PORTRAIT) " completed" else "",
+                // The numbers below describe the quickest path, not a sum
+                // of unrelated puzzle totals. A prior completion route still
+                // permanently unlocks this same portrait.
+                Text("${progress.current} of ${progress.target}" +
+                    (progress.pathLabel?.let { " · $it" } ?: ""),
                     color = Muted, style = MaterialTheme.typography.bodySmall)
                 MilestoneTrack(progress.current, progress.target)
             }

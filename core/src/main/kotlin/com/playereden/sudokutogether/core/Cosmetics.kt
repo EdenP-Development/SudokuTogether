@@ -257,13 +257,14 @@ object Cosmetics {
         val primary = count(entry.milestone, totals)
         val alternate = entry.alternate ?: return CosmeticProgress(primary, entry.target, earned)
         val bonusCount = count(alternate.milestone, totals)
-        // Primary completion takes precedence to keep prior progress/records
-        // and existing source-backed test equality exactly as before. Otherwise
-        // show the more advanced route without summing unrelated achievements.
-        val preferBonus = primary < entry.target && (
-            bonusCount >= alternate.target ||
-            (bonusCount > 0 && bonusCount.toLong() * entry.target >
-                primary.toLong() * alternate.target))
+        // Never lose an already completed legacy goal. For incomplete goals,
+        // show the path requiring the FEWEST remaining qualifying events.
+        // This makes a first Daily or a Hard finish visible as a practical
+        // achievement even before the player has started that path.
+        val primaryRemaining = (entry.target - primary).coerceAtLeast(0)
+        val alternateRemaining = (alternate.target - bonusCount).coerceAtLeast(0)
+        val preferBonus = primaryRemaining > 0 &&
+            alternateRemaining < primaryRemaining
         return if (preferBonus)
             CosmeticProgress(bonusCount, alternate.target, earned, alternate.describe())
         else CosmeticProgress(primary, entry.target, earned)
