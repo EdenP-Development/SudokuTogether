@@ -13,6 +13,11 @@ private val bookishNumbers = FontFamily(Font(R.font.noto_serif_regular))
 private val terminalNumbers = FontFamily(Font(R.font.liberation_mono_regular))
 private val roundedNumbers = FontFamily(Font(R.font.nunito_bold))
 private val pencilNumbers = FontFamily(Font(R.font.patrick_hand_regular))
+// Official OFL font binaries are vendored locally with full license notices.
+private val typewriterNumbers = FontFamily(Font(R.font.typewriter_courier_prime))
+private val editorialNumbers = FontFamily(Font(R.font.editorial_literata))
+private val softPrintNumbers = FontFamily(Font(R.font.soft_print_atkinson_next))
+private val tallPrintNumbers = FontFamily(Font(R.font.tall_print_oswald))
 private val defaultAppearance = Appearance()
 
 internal fun fontFor(id: String): FontFamily = when (id) {
@@ -20,6 +25,10 @@ internal fun fontFor(id: String): FontFamily = when (id) {
     "mono" -> terminalNumbers
     "rounded" -> roundedNumbers
     "pencil" -> pencilNumbers
+    "typewriter" -> typewriterNumbers
+    "editorial" -> editorialNumbers
+    "soft_print" -> softPrintNumbers
+    "tall_print" -> tallPrintNumbers
     else -> clearNumbers
 }
 

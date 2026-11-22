@@ -145,5 +145,5 @@
       "intended_android_path": "app/src/main/res/drawable-nodpi/woodland_skunk.png"
     }
   ],
-  "notes": "New PNG files are in the conversation review ZIP, not in this GitHub branch. Never update production main directly; inspect owner phone visual results and add source-backed PNGs in isolated integrated review branch before running QA."
+  "notes": "All eight exact original PNGs are committed to the draft unified75 and unified79 review branches, with mandatory SHA-256 verification. Owner phone art approval and public release QA remain separate."
 }

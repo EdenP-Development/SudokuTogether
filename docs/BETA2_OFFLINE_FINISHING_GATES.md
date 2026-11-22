@@ -4,7 +4,7 @@
 - Android 16 unified 75 reviewer passed in [run 44959100046](https://github.com/PlayerEden/SudokuTogether/actions/runs/44959100046).
 - 43 player portraits (Woodland 17 / Ocean 11 / Garden 9 / Farm 6), 11 boards, 10 inks, 5 fonts, 6 emblems = **75**.
 - The four new Ocean sprites in that APK are **vector redraws**, not the approved-candidate originals. Do not merge or ship them as final art.
-- The four remaining number fonts have **not** been bundled or implemented. 79 is a target, not a verified catalog total.
+- Four OFL-bundled font options are now implemented in the stacked **draft #106** reviewer to reach a 79-item catalog, subject to Android and on-device quality checks.
 
 ## Original artwork source of truth
 The earlier chat's `GridMates_Beta2_Unified75_IntegrationKit.zip` contains `GridMates_Beta2_Ocean_Woodland_8Icon_ReviewPack.zip`, which contains the original eight `candidate_icons/*.png` binaries. Exact hashes, names and unlock thresholds are in `design/beta2-content-pack/ocean-woodland-eight-review/manifest.json`. **Do not replace the originals with an approximate redraw simply because the SVG renderer passed.**

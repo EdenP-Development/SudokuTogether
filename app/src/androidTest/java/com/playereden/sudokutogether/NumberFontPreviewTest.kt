@@ -4,6 +4,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.semantics.SemanticsActions
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -28,7 +29,7 @@ class NumberFontPreviewTest {
         ))
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
         compose.onNodeWithTag("nav_collection").performClick()
-        compose.onNodeWithText("Style preview").performScrollTo().performClick()
+        compose.onNodeWithContentDescription("Preview equipped style").performScrollTo().performClick()
         compose.onNodeWithText("Forest · Linen · Clear").performScrollTo().assertIsDisplayed()
         assertEquals(fontFor("clear"), previewDigit("1").layoutInput.style.fontFamily)
         val clue = previewDigit("2").layoutInput.style
@@ -48,7 +49,7 @@ class NumberFontPreviewTest {
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("Numbers").performClick()
         compose.onNodeWithText("Number fonts").performClick()
-        for (font in listOf("rounded", "pencil")) {
+        for (font in listOf("rounded", "pencil", "typewriter", "editorial", "soft_print", "tall_print")) {
             compose.onNodeWithTag("cosmetic_font_$font").performScrollTo().performClick()
             for (digit in '1'..'9') {
                 val layout = previewDigit(digit.toString())

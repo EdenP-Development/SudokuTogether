@@ -37,8 +37,8 @@ class Beta2GardenThemeIconsTest {
         assertEquals(6, Cosmetics.emblems.size)
         assertEquals(11, Cosmetics.boards.size)
         assertEquals(10, Cosmetics.inks.size)
-        assertEquals(5, Cosmetics.fonts.size)
-        assertEquals(75, all.size + Cosmetics.emblems.size + Cosmetics.boards.size +
+        assertEquals(9, Cosmetics.fonts.size)
+        assertEquals(79, all.size + Cosmetics.emblems.size + Cosmetics.boards.size +
             Cosmetics.inks.size + Cosmetics.fonts.size)
     }
 
