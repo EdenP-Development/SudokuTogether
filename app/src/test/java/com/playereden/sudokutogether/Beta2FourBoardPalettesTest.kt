@@ -48,13 +48,21 @@ class Beta2FourBoardPalettesTest {
         }
     }
 
-    @Test fun legacyBoardsKeepOriginalNumberColorsAndFallbacks() {
+    @Test fun legacyBoardPaperAndInkColorsRemainWhileFaintHighlightsGetContrastLift() {
         for (id in listOf("classic", "linen", "midnight", "circuit",
             "parchment", "ocean", "graphite")) {
             val p = boardPalette(id)
             assertFalse("$id legacy palette must remain unchanged", p.adaptiveNumberContrast)
             val original = inkFor("rose", p.dark)
-            assertEquals(original, legibleBoardDigitInk(original, p.selectedCell, p))
+            // Existing paper colors and original ink IDs are unchanged.
+            assertEquals(original, legibleBoardDigitInk(original, p.fill, p))
+            val highlighted = legibleBoardDigitInk(original, p.selectedCell, p)
+            if (contrast(original, p.selectedCell) < 4.5f) {
+                assertNotEquals(original, highlighted)
+                assertTrue(contrast(highlighted, p.selectedCell) >= 4.49f)
+            } else {
+                assertEquals(original, highlighted)
+            }
         }
         assertEquals(boardFillFor("classic"), boardFillFor("unknown"))
     }

@@ -81,7 +81,7 @@ class Beta2StyleCompatibilityMatrixTest {
                         if (state != "conflict") {
                             val displayed = legibleBoardDigitInk(color, bg, p)
                             val measured = contrast(displayed, bg)
-                            val floor = if (p.adaptiveNumberContrast) 4.49f else 4.0f
+                            val floor = 4.49f
                             assertTrue("${board.id}/${ink.id}/${font.id}/$state: digit $measured",
                                 measured >= floor)
                             if (!p.adaptiveNumberContrast && measured < 4.5f)
@@ -95,10 +95,12 @@ class Beta2StyleCompatibilityMatrixTest {
         }
         assertEquals(990, combinations)
         assertEquals(5940, states)
-        // Preserve the old digit color contracts rather than secretly change
-        // classic/linen ink presentation in a cosmetic QA pass.
+        // Base-paper colors and saved ink IDs are stable. A total of 18 legacy
+        // raw-ink highlighted states were initially sub-4.5; all now adapt.
+        assertEquals("No rendered legacy entries may remain below 4.5", 0,
+            legacyHighlightsBelowFourPointFive)
         println("BETA2_STYLE_MATRIX: 990 combos / 5940 cell states; " +
-            "legacy entry cases below 4.5:1 (still >=4.0): $legacyHighlightsBelowFourPointFive")
+            "rendered legacy entry cases below 4.5:1: $legacyHighlightsBelowFourPointFive")
     }
 
     @Test fun classicAndLinenConflictHighlightBugIsCorrectedWithoutPaletteMutation() {

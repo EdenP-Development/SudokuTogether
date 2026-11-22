@@ -168,10 +168,14 @@ fun inkFor(id: String, darkBoard: Boolean): Color {
 }
 
 
-/** Keep saved ink IDs unchanged. Only four Beta 2 boards adapt regular digits;
- * pencil and Coach-note glyphs adapt on all boards to stay readable. */
+/** Preserve existing unhighlighted ink appearance and all saved cosmetic IDs.
+ * The original seven boards only adapt unusually faint *highlighted* digits;
+ * the new Beta 2 boards retain their full per-cell contrast adaptation. */
 internal fun legibleBoardDigitInk(authoredInk: Color, cellBackground: Color, palette: BoardPalette): Color =
-    if (palette.adaptiveNumberContrast) contrastSafeSmallInk(authoredInk, cellBackground, palette) else authoredInk
+    if (palette.adaptiveNumberContrast ||
+        (cellBackground != palette.fill && contrastRatio(authoredInk, cellBackground) < 4.5f))
+        contrastSafeSmallInk(authoredInk, cellBackground, palette)
+    else authoredInk
 
 internal fun pencilNoteInk(authoredInk: Color, cellBackground: Color, palette: BoardPalette): Color =
     contrastSafeSmallInk(if (palette.dark) authoredInk else Muted, cellBackground, palette)
