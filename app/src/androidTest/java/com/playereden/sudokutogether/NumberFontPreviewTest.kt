@@ -48,7 +48,7 @@ class NumberFontPreviewTest {
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("Numbers").performClick()
         compose.onNodeWithText("Number fonts").performClick()
-        for (font in listOf("rounded", "pencil")) {
+        for (font in listOf("rounded", "pencil", "typewriter", "editorial", "soft_print", "tall_print")) {
             compose.onNodeWithTag("cosmetic_font_$font").performScrollTo().performClick()
             for (digit in '1'..'9') {
                 val layout = previewDigit(digit.toString())

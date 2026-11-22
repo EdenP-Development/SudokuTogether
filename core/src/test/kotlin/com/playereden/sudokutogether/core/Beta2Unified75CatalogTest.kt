@@ -19,11 +19,11 @@ class Beta2Unified75CatalogTest {
         assertEquals(43, Cosmetics.portraits.size)
         val all = Cosmetics.portraits + Cosmetics.emblems + Cosmetics.boards +
             Cosmetics.inks + Cosmetics.fonts
-        assertEquals(75, all.size)
-        assertEquals(75, all.map { it.id }.toSet().size)
+        assertEquals(79, all.size)
+        assertEquals(79, all.map { it.id }.toSet().size)
         assertEquals(11, Cosmetics.boards.size)
         assertEquals(10, Cosmetics.inks.size)
-        assertEquals(5, Cosmetics.fonts.size)
+        assertEquals(9, Cosmetics.fonts.size)
         assertEquals(6, Cosmetics.emblems.size)
         assertTrue(all.map { it.id }.containsAll(newWoodland.keys + newOcean.keys))
         assertEquals("Complete 24 puzzles", Cosmetics.woodlandPortraits.first {
