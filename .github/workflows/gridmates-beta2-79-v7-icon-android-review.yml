@@ -46,12 +46,21 @@ jobs:
           sha256sum GridMates-Beta2-79-V7-IconB-OwnerPreview.apk > GridMates-Beta2-79-V7-IconB-OwnerPreview.apk.sha256
           python scripts/verify_beta2_font_sources.py GridMates-Beta2-79-V7-IconB-OwnerPreview.apk
           python - <<'PY'
-          import zipfile
+          import zipfile, hashlib, json
           from pathlib import Path
           apk=Path("GridMates-Beta2-79-V7-IconB-OwnerPreview.apk")
+          original=json.loads(Path("design/versus-v7/manifest.json").read_text())["output"]
           with zipfile.ZipFile(apk) as z:
-              assert "res/drawable-nodpi/gm_mode_versus_woodland_v7_hd.png" in z.namelist()
-              print("PASS: original V7 PNG embedded in complete 79-item reviewer")
+              # Android aapt2 compiles nodpi to drawable-nodpi-v4; avoid assuming
+              # that package resource paths are identical to source folders.
+              images=[p for p in z.namelist() if p.endswith("/gm_mode_versus_woodland_v7_hd.png")]
+              assert len(images)==1, f"Expected exactly one original V7 PNG: {images}"
+              image=z.read(images[0])
+              assert hashlib.sha256(image).hexdigest()==original["sha256"], "V7 pixels changed in APK"
+              assert len(image)==original["bytes"], "V7 image byte count changed"
+              for name in ("ic_launcher_foreground.xml","ic_launcher_monochrome.xml"):
+                  assert any(p.endswith("/"+name) for p in z.namelist()), f"Missing compiled launcher asset {name}"
+              print("PASS: original byte-exact V7 PNG and launcher vectors packaged at",images[0])
           PY
       - name: Enable KVM
         run: |
