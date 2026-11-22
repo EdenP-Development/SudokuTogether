@@ -32,7 +32,9 @@ class Beta2Unified79FontUiTest {
                 compose.onNodeWithText(digit.toString(), useUnmergedTree = true).assertExists()
             }
             compose.waitForIdle()
-            val image = compose.onRoot().captureToImage().asAndroidBitmap()
+            // AlertDialog opens its own Compose root; onRoot() is ambiguous when
+            // both the app and dialog are present. Capture the dialog (top root).
+            val image = compose.onAllNodes(isRoot()).onLast().captureToImage().asAndroidBitmap()
             val output = ByteArrayOutputStream()
             check(image.compress(Bitmap.CompressFormat.PNG, 100, output))
             check(output.size() > 1000) { "$id failed screenshot capture" }
