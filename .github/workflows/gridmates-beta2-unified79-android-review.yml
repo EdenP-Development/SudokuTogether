@@ -17,10 +17,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install deterministic vector asset renderer dependencies
-        run: python -m pip install --disable-pip-version-check Pillow==11.3.0 CairoSVG==2.8.2 fonttools==4.60.1
-      - name: Render eight separate RGBA sprites and verify SHA/alpha/bounds
-        run: python scripts/render_beta2_vector_icons.py
+      - name: Install original-art and font verification dependencies
+        run: python -m pip install --disable-pip-version-check Pillow==11.3.0 fonttools==4.60.1
+      - name: Verify exact original PNGs and portrait mapping
+        run: python scripts/audit_beta2_original_art.py --require-original-art
       - name: Verify original OFL font binaries, numerals and licenses
         run: python scripts/verify_beta2_font_sources.py
       - uses: actions/setup-java@v4
@@ -83,7 +83,7 @@ jobs:
             GridMates-Beta2-Unified79-OwnerPreview.apk.sha256
             beta2-unified79-badging.txt
             beta2-unified79-signer.txt
-            build/beta2-unified75-render-manifest.json
+            build/beta2-unified75-original-art-manifest.json
             unified79-home-android.png
             unified75-*-android.png
             unified79-font-*-android.png
@@ -99,6 +99,6 @@ jobs:
             app/build/reports/tests/**
             app/build/reports/androidTests/**
             app/build/reports/lint-results-debug.html
-            build/beta2-unified75-render-manifest.json
+            build/beta2-unified75-original-art-manifest.json
           if-no-files-found: warn
           retention-days: 5

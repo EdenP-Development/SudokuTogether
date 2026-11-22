@@ -32,9 +32,11 @@ class Beta2Unified79FontUiTest {
                 compose.onNodeWithText(digit.toString(), useUnmergedTree = true).assertExists()
             }
             compose.waitForIdle()
-            // AlertDialog opens its own Compose root; onRoot() is ambiguous when
-            // both the app and dialog are present. Capture the dialog (top root).
-            val image = compose.onAllNodes(isRoot()).onLast().captureToImage().asAndroidBitmap()
+            // Capture the actual rendered 1-9 font grid, not the underlying
+            // activity root (which produced four identical PNGs in prior CI).
+            val board = compose.onNodeWithTag("expanded_board_preview").performScrollTo()
+            board.assertExists()
+            val image = board.captureToImage().asAndroidBitmap()
             val output = ByteArrayOutputStream()
             check(image.compress(Bitmap.CompressFormat.PNG, 100, output))
             check(output.size() > 1000) { "$id failed screenshot capture" }

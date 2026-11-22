@@ -1,11 +1,11 @@
 {
   "schema_version": 1,
   "project": "GridMates: Sudoku",
-  "status": "ART_CANDIDATE_BINARY_NOT_YET_IN_REPO",
+  "status": "EXACT_ORIGINAL_PNG_BINARIES_COMMITTED_IN_UNIFIED75_REVIEW_BRANCH",
   "style": "gridmates_chibi_v1",
   "intended_source": "ChatGPT-delivered GridMates_Beta2_Ocean_Woodland_8Icon_ReviewPack.zip",
   "source_sheet_sha256": "3327785e13347eac065c0b04074a154a3f12a906838ae4423a662a57637d7c1c",
-  "source_baseline": "Farm reviewer PR #101 63 cosmetics; new artwork is staged separately",
+  "source_baseline": "Unified75 reviewer based on four-board branch with eight exact PNG assets",
   "stage_target": "app/src/main/res/drawable-nodpi",
   "items": [
     {
@@ -145,5 +145,5 @@
       "intended_android_path": "app/src/main/res/drawable-nodpi/woodland_skunk.png"
     }
   ],
-  "notes": "New PNG files are in the conversation review ZIP, not in this GitHub branch. Never update production main directly; inspect owner phone visual results and add source-backed PNGs in isolated integrated review branch before running QA."
+  "notes": "All eight exact original PNGs are committed to the draft unified75 and unified79 review branches, with mandatory SHA-256 verification. Owner phone art approval and public release QA remain separate."
 }

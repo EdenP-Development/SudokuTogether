@@ -28,4 +28,6 @@ The original full `OFL.txt` notices are stored under `docs/licenses/fonts/<famil
 
 **The fonts are only cosmetic.** They must never change puzzle difficulty, hint rules, scoring, or gameplay entitlement.
 
-**Release remains blocked:** Four Ocean icons are still visual reconstructions (not identical to original PNGs); owner physical-phone review, all-79 cohesion audit, V7 and two-phone LAN, and Beta 1→Beta 2 production-signed save-preserving upgrade all remain outstanding. Do not merge this branch to public main.
+**Original artwork synchronized:** all eight original Ocean/Woodland PNGs are now included from the latest draft #105. CI validates their exact SHA-256s against the original review manifest; review-only SVG redraws are not used in this build.
+
+**Release remains blocked:** owner phone approval, full 79-item cohesion audit, Versus V7, two-device LAN, and a production-signed Beta 1→Beta 2 save-preserving upgrade. Keep this branch in draft.
