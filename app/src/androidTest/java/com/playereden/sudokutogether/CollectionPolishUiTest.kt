@@ -210,7 +210,7 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
         compose.onNodeWithTag("portrait_garden_ladybug").performScrollTo().performClick()
         compose.onAllNodesWithText("Complete 4 puzzles").onLast().assertIsDisplayed()
-        compose.onNodeWithText("3 of 4 completed").assertIsDisplayed()
+        compose.onAllNodesWithText("3 of 4 completed").onLast().assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
 
