@@ -230,18 +230,23 @@ class CollectionPolishUiTest {
             }
         }
         compose.onNodeWithTag("nav_collection").performClick()
+        val starter = compose.onNodeWithTag("cosmetic_emblem_tile")
         val leaf = compose.onNodeWithTag("cosmetic_emblem_leaf")
         val duo = compose.onNodeWithTag("cosmetic_emblem_duo")
         val flash = compose.onNodeWithTag("cosmetic_emblem_flash")
-        leaf.performScrollTo()
+        // Starter now stays at the beginning of the Basic chapter, rather than
+        // being pulled into an unrelated available-items row.
+        starter.performScrollTo()
+        assertEquals(starter.getUnclippedBoundsInRoot().top, leaf.getUnclippedBoundsInRoot().top)
         assertEquals(leaf.getUnclippedBoundsInRoot().top, duo.getUnclippedBoundsInRoot().top)
-        assertEquals(duo.getUnclippedBoundsInRoot().top, flash.getUnclippedBoundsInRoot().top)
+        assertTrue(flash.getUnclippedBoundsInRoot().top > duo.getUnclippedBoundsInRoot().top)
 
         compose.runOnIdle { width.value = 320.dp }
-        leaf.performScrollTo()
-        assertEquals(leaf.getUnclippedBoundsInRoot().top, duo.getUnclippedBoundsInRoot().top)
-        assertTrue("The third icon must wrap on a narrow screen",
-            flash.getUnclippedBoundsInRoot().top > duo.getUnclippedBoundsInRoot().top)
+        starter.performScrollTo()
+        assertEquals(starter.getUnclippedBoundsInRoot().top, leaf.getUnclippedBoundsInRoot().top)
+        assertTrue("The third icon wraps on a narrow screen",
+            duo.getUnclippedBoundsInRoot().top > leaf.getUnclippedBoundsInRoot().top)
+        assertEquals(duo.getUnclippedBoundsInRoot().top, flash.getUnclippedBoundsInRoot().top)
     }
 
     @Test fun nextUnlockUsesRealProgressAndOpensExistingLockedPreview() {
