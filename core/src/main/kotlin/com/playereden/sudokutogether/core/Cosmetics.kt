@@ -16,8 +16,12 @@ import kotlinx.serialization.Serializable
 
 data class Cosmetic(val id: String, val name: String, val requirement: String)
 
-data class CosmeticProgress(val current: Int, val target: Int, val earned: Boolean = false) {
-    val unlocked: Boolean get() = earned || current >= target
+data class CosmeticProgress(
+    val current: Int, val target: Int, val earned: Boolean = false,
+    val alternateCurrent: Int = 0, val alternateTarget: Int = 0
+) {
+    val unlocked: Boolean get() = earned || current >= target ||
+        (alternateTarget > 0 && alternateCurrent >= alternateTarget)
 }
 
 object Cosmetics {
@@ -31,8 +35,51 @@ object Cosmetics {
             else "$verb $target ${if (target == 1) singular else plural}"
     }
 
+    private enum class Challenge {
+        DAILY_DAYS, MEDIUM_SOLO, HARD_SOLO, CLEAN_SOLO;
+
+        fun describe(target: Int): String = when (this) {
+            DAILY_DAYS -> "complete $target different Daily puzzles"
+            MEDIUM_SOLO -> "solve $target Medium solo puzzles"
+            HARD_SOLO -> "solve $target Hard solo puzzles"
+            CLEAN_SOLO -> "solve $target solo puzzles without hints or checks"
+        }
+    }
+
+    private data class AlternateGoal(val kind: Challenge, val target: Int) {
+        fun describe() = kind.describe(target)
+    }
+
+    /**
+     * Extra routes to selected portrait rewards—not a new economy.
+     * Original completed-puzzle targets stay valid for every existing player.
+     * Alternative milestones are supported by the existing durable record fields.
+     */
+    private val portraitAlternates = mapOf(
+        "woodland_beaver" to AlternateGoal(Challenge.MEDIUM_SOLO, 5),
+        "woodland_woodpecker" to AlternateGoal(Challenge.HARD_SOLO, 3),
+        "woodland_skunk" to AlternateGoal(Challenge.CLEAN_SOLO, 12),
+        "ocean_seahorse" to AlternateGoal(Challenge.DAILY_DAYS, 3),
+        "ocean_dolphin" to AlternateGoal(Challenge.MEDIUM_SOLO, 7),
+        "ocean_seashell" to AlternateGoal(Challenge.DAILY_DAYS, 7),
+        "ocean_clownfish" to AlternateGoal(Challenge.HARD_SOLO, 5),
+        "garden_strawberry" to AlternateGoal(Challenge.DAILY_DAYS, 2),
+        "garden_firefly" to AlternateGoal(Challenge.CLEAN_SOLO, 5),
+        "garden_watering_can" to AlternateGoal(Challenge.DAILY_DAYS, 5),
+        "garden_potted_tulip" to AlternateGoal(Challenge.DAILY_DAYS, 10),
+        "farm_sheep" to AlternateGoal(Challenge.MEDIUM_SOLO, 3),
+        "farm_pig" to AlternateGoal(Challenge.CLEAN_SOLO, 4),
+        "farm_pumpkin" to AlternateGoal(Challenge.DAILY_DAYS, 4),
+        "farm_hay_bale" to AlternateGoal(Challenge.HARD_SOLO, 4)
+    )
+
     private data class CatalogEntry(val id: String, val name: String, val target: Int = 0, val milestone: Milestone = Milestone.SOLO) {
-        fun cosmetic() = Cosmetic(id, name, milestone.describe(target))
+        fun cosmetic(): Cosmetic {
+            val original = milestone.describe(target)
+            val alternative = portraitAlternates[id]
+            return Cosmetic(id, name, if (alternative == null) original
+                else "$original or ${alternative.describe()}")
+        }
     }
 
     private val woodlandEntries = linkedMapOf(
@@ -155,23 +202,51 @@ object Cosmetics {
     fun sharedCoopBoard(hostBoard: String, guestBoard: String?): String =
         sharedBoardOrder[maxOf(0, sharedBoardOrder.indexOf(hostBoard), sharedBoardOrder.indexOf(guestBoard))]
 
-    private data class Totals(val finish: Int, val solo: Int, val coop: Int, val race: Int)
+    private data class Totals(
+        val finish: Int, val solo: Int, val coop: Int, val race: Int,
+        val dailyDays: Int, val mediumSolo: Int, val hardSolo: Int, val cleanSolo: Int
+    ) {
+        fun challengeCount(challenge: Challenge): Int = when (challenge) {
+            Challenge.DAILY_DAYS -> dailyDays
+            Challenge.MEDIUM_SOLO -> mediumSolo
+            Challenge.HARD_SOLO -> hardSolo
+            Challenge.CLEAN_SOLO -> cleanSolo
+        }
+    }
 
-    /** One deduplicated pass across durable records, regardless of catalog size. */
+    /** One deduplicated pass across locally stored records for every catalog item. */
     private fun totals(records: List<GameRecord>): Totals {
         var finish = 0
         var solo = 0
         var coop = 0
         var race = 0
+        var mediumSolo = 0
+        var hardSolo = 0
+        var cleanSolo = 0
+        val dailyDates = HashSet<String>()
         for (record in records.distinctBy { it.id }) {
             when {
-                record.mode == SOLO && record.result == "SOLVED" -> { finish++; solo++ }
-                record.mode == DAILY && record.result == "SOLVED" -> finish++
+                record.mode == SOLO && record.result == "SOLVED" -> {
+                    finish++; solo++
+                    when (record.difficulty?.uppercase()) {
+                        "MEDIUM" -> mediumSolo++
+                        "HARD" -> hardSolo++
+                    }
+                    if (!record.assisted && record.hintsUsed == 0 && record.checksUsed == 0) cleanSolo++
+                }
+                record.mode == DAILY && record.result == "SOLVED" -> {
+                    finish++
+                    val day = record.dailyDate
+                    // A valid date is required; a date-less legacy record is
+                    // still a completed puzzle but not a distinct Daily day.
+                    if (day != null && runCatching { java.time.LocalDate.parse(day) }.isSuccess)
+                        dailyDates.add(day)
+                }
                 record.mode == COOP && record.result == "SOLVED" -> { finish++; coop++ }
                 record.mode == VERSUS && record.result == "WIN" -> { finish++; race++ }
             }
         }
-        return Totals(finish, solo, coop, race)
+        return Totals(finish, solo, coop, race, dailyDates.size, mediumSolo, hardSolo, cleanSolo)
     }
 
     private fun progress(entry: CatalogEntry, totals: Totals, earned: Boolean = false): CosmeticProgress {
@@ -182,7 +257,10 @@ object Cosmetics {
             Milestone.COOP -> totals.coop
             Milestone.RACE -> totals.race
         }
-        return CosmeticProgress(current, entry.target, earned)
+        val alternate = portraitAlternates[entry.id]
+        return CosmeticProgress(current, entry.target, earned,
+            alternate?.let { totals.challengeCount(it.kind) } ?: 0,
+            alternate?.target ?: 0)
     }
 
     fun completedPuzzles(records: List<GameRecord>): Int = totals(records).finish
