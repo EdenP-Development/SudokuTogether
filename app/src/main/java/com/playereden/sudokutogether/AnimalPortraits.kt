@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -70,13 +71,29 @@ internal fun identityStyleName(appearance: Appearance): String {
     return "${emblemName(appearance.emblem)} · Basic"
 }
 
+/**
+ * Four late Woodland candidate PNGs use 512px canvases with substantially more
+ * transparent space than the older near-full 384px artwork. Normalize only
+ * their DRAWN size in the circle; keep original bytes/IDs fully unchanged.
+ * Source image hashes continue to be verified by the Beta 2 CI gate.
+ */
+internal fun portraitDisplayScale(id: String): Float = when (id) {
+    "woodland_chipmunk" -> 1.30f
+    "woodland_beaver" -> 1.28f
+    "woodland_woodpecker" -> 1.26f
+    "woodland_skunk" -> 1.28f
+    else -> 1f
+}
+
 @Composable internal fun AnimalPortrait(appearance: Appearance, modifier: Modifier = Modifier.size(48.dp)) {
     val drawable = animalDrawable(appearance.portrait)
     BoxWithConstraints(modifier.sizeIn(minWidth = 24.dp, minHeight = 24.dp, maxWidth = 96.dp, maxHeight = 96.dp)
         .clip(CircleShape).background(GreenTint)
         .testTag("portrait_image_${appearance.portrait.ifEmpty { appearance.emblem }}"), contentAlignment = Alignment.Center) {
         if (drawable != null) Image(painterResource(drawable), contentDescription = null,
-            modifier = Modifier.fillMaxSize().padding(maxWidth * .08f), contentScale = ContentScale.Fit)
+            modifier = Modifier.fillMaxSize().padding(maxWidth * .08f)
+                .scale(portraitDisplayScale(appearance.portrait)),
+            contentScale = ContentScale.Fit)
         else Text(emblemSymbol(appearance.emblem), color = inkFor(appearance.ink, false),
             fontSize = (minOf(maxWidth.value, maxHeight.value) * .64f / LocalDensity.current.fontScale.coerceAtLeast(1f)).sp)
     }
