@@ -6,7 +6,7 @@ import org.junit.Test
 /** Beta 2 themed icons are still local/offline Player Icons, even when not animals. */
 class Beta2GardenThemeIconsTest {
     private fun solo(i: Int) =
-        GameRecord("garden-solo-$i", SOLO, "SOLVED", "garden-$i", 1000, 1, i.toLong())
+        GameRecord("garden-solo-$i", SOLO, "SOLVED", "garden-$i", 1000, 1, i.toLong(), assisted = true)
 
     private val newGarden = linkedMapOf(
         "garden_sunflower" to 11,
@@ -30,7 +30,7 @@ class Beta2GardenThemeIconsTest {
             "garden_ladybug" to "Complete 4 puzzles",
             "garden_butterfly" to "Complete 10 puzzles",
             "garden_dragonfly" to "Complete 20 puzzles",
-            "garden_firefly" to "Complete 42 puzzles",
+            "garden_firefly" to "Complete 42 puzzles or solve 5 solo puzzles without hints or checks",
         )
         for ((id, expected) in original)
             assertEquals(expected, Cosmetics.gardenPortraits.first { it.id == id }.requirement)
@@ -42,12 +42,12 @@ class Beta2GardenThemeIconsTest {
             Cosmetics.inks.size + Cosmetics.fonts.size)
     }
 
-    @Test fun milestonesAreExactlyTheCatalogTargetsAndNeverRequireAnotherPlayer() {
+    @Test fun historicalGardenFinishMilestonesStillWorkWithoutAnotherPlayer() {
         for ((id, threshold) in newGarden) {
             val prior = (1 until threshold).map(::solo)
             val earned = (1..threshold).map(::solo)
-            assertEquals("Complete $threshold puzzles",
-                Cosmetics.gardenPortraits.first { it.id == id }.requirement)
+            assertTrue(Cosmetics.gardenPortraits.first { it.id == id }.requirement
+                .startsWith("Complete $threshold puzzles"))
             assertFalse(Cosmetics.allowed(id, emptyList()))
             assertFalse(Cosmetics.allowed(id, prior))
             assertTrue(Cosmetics.allowed(id, earned))
