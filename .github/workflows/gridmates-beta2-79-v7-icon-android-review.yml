@@ -1,7 +1,7 @@
 name: GridMates Beta 2 unified 79 Versus V7 and launcher review
 on:
   push:
-    branches: [feat/beta2-79-versusv7-integrated-review]
+    branches: [feat/beta2-79-versusv7-integrated-review, feat/beta2-meaningful-cosmetic-unlocks]
   workflow_dispatch:
 permissions:
   contents: read
