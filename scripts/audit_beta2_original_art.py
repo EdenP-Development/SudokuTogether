@@ -39,7 +39,13 @@ def main() -> None:
         identifier = item["id"]
         require(re.fullmatch(r"(ocean|woodland)_[a-z_]+", identifier) is not None,
                 f"{identifier}: safe resource identifier")
-        require(identifier in catalog, f"{identifier}: catalog registration")
+        if identifier.startswith("woodland_"):
+            # Woodland entries are dynamically expanded from a name→target map.
+            short_name = identifier.removeprefix("woodland_")
+            present = re.search(r'"' + re.escape(short_name) + r'"\\s+to\\s+\\d+', catalog) is not None
+        else:
+            present = f'CatalogEntry("{identifier}"' in catalog
+        require(present, f"{identifier}: catalog registration")
         require(f'"{identifier}" -> R.drawable.{identifier}' in mapping,
                 f"{identifier}: Android drawable mapping")
         path = DEST / (identifier + ".png")
