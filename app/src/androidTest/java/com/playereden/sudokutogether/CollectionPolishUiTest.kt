@@ -78,7 +78,7 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("collection_next_unlock").assertExists()
 
         compose.runOnIdle { state.value = state.value.copy(profile = data.copy(records = emptyList())) }
-        compose.onNodeWithText("7 of 49 available").assertIsDisplayed()
+        compose.onNodeWithText("7 of 49 available").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
         compose.onAllNodesWithTag("portrait_farm_cow").assertCountEquals(1)
     }
@@ -213,7 +213,7 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
         compose.onNodeWithTag("portrait_garden_ladybug").performScrollTo().performClick()
         compose.onNodeWithText("Complete 4 puzzles").assertIsDisplayed()
-        compose.onNodeWithText("3 of 4 completed").assertIsDisplayed()
+        compose.onNodeWithText("3 of 4").assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
 
@@ -233,18 +233,23 @@ class CollectionPolishUiTest {
             }
         }
         compose.onNodeWithTag("nav_collection").performClick()
+        // The complete Basic chapter includes the starter Tile first, rather
+        // than extracting it into a separate Available section.
+        val tile = compose.onNodeWithTag("cosmetic_emblem_tile")
         val leaf = compose.onNodeWithTag("cosmetic_emblem_leaf")
         val duo = compose.onNodeWithTag("cosmetic_emblem_duo")
         val flash = compose.onNodeWithTag("cosmetic_emblem_flash")
-        leaf.performScrollTo()
+        tile.performScrollTo()
+        assertEquals(tile.getUnclippedBoundsInRoot().top, leaf.getUnclippedBoundsInRoot().top)
         assertEquals(leaf.getUnclippedBoundsInRoot().top, duo.getUnclippedBoundsInRoot().top)
-        assertEquals(duo.getUnclippedBoundsInRoot().top, flash.getUnclippedBoundsInRoot().top)
+        assertTrue(flash.getUnclippedBoundsInRoot().top > duo.getUnclippedBoundsInRoot().top)
 
         compose.runOnIdle { width.value = 320.dp }
-        leaf.performScrollTo()
-        assertEquals(leaf.getUnclippedBoundsInRoot().top, duo.getUnclippedBoundsInRoot().top)
-        assertTrue("The third icon must wrap on a narrow screen",
-            flash.getUnclippedBoundsInRoot().top > duo.getUnclippedBoundsInRoot().top)
+        tile.performScrollTo()
+        assertEquals(tile.getUnclippedBoundsInRoot().top, leaf.getUnclippedBoundsInRoot().top)
+        assertTrue("The third item must wrap on a narrow screen",
+            duo.getUnclippedBoundsInRoot().top > leaf.getUnclippedBoundsInRoot().top)
+        assertEquals(duo.getUnclippedBoundsInRoot().top, flash.getUnclippedBoundsInRoot().top)
     }
 
     @Test fun nextUnlockUsesRealProgressAndOpensExistingLockedPreview() {

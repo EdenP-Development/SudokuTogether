@@ -59,10 +59,9 @@ class Beta2AlbumOwnerUiTest {
             compose.onNodeWithTag("portrait_${members[1]}").performScrollTo().assertIsDisplayed()
             screenshot(family)
         }
-        // The standalone family filter should contain each member exactly once.
-        compose.onNodeWithText("Farm").performScrollTo().performClick()
-        compose.onAllNodesWithTag("portrait_farm_cow").assertCountEquals(1)
-        compose.onAllNodesWithTag("portrait_farm_chicken").assertCountEquals(1)
-        compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
+        // Four screenshots are the sole purpose of this test. Family-filter
+        // isolation is independently checked by CollectionPolishUiTest;
+        // selecting a horizontally scrolled chip from the bottom of this
+        // whole-page capture is intentionally not duplicated here.
     }
 }
