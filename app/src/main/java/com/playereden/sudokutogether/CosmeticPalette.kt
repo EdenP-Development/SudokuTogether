@@ -168,17 +168,19 @@ fun inkFor(id: String, darkBoard: Boolean): Color {
 }
 
 
-/**
- * Only 3x3 pencil glyphs use adaptive contrast; large digits and all saved
- * cosmetic colors keep their original palette. The same renderer serves
- * gameplay and the Coach proof board.
- */
-/** Keep the saved ink ID; optionally increase only rendered digit contrast on new themes. */
+/** Keep saved ink IDs unchanged. Only four Beta 2 boards adapt regular digits;
+ * pencil and Coach-note glyphs adapt on all boards to stay readable. */
 internal fun legibleBoardDigitInk(authoredInk: Color, cellBackground: Color, palette: BoardPalette): Color =
     if (palette.adaptiveNumberContrast) contrastSafeSmallInk(authoredInk, cellBackground, palette) else authoredInk
 
 internal fun pencilNoteInk(authoredInk: Color, cellBackground: Color, palette: BoardPalette): Color =
     contrastSafeSmallInk(if (palette.dark) authoredInk else Muted, cellBackground, palette)
+
+/** Selected and partner-highlighted conflicting digits may appear on a warmer
+ * cell fill. Leave the existing red unchanged when readable, otherwise adjust
+ * only its rendered foreground, not the board palette or saved appearance. */
+internal fun conflictDigitInk(cellBackground: Color, palette: BoardPalette): Color =
+    contrastSafeSmallInk(palette.conflictInk, cellBackground, palette)
 
 /** Coach's crossed-off candidate is also tiny; preserve red until it is faint. */
 internal fun crossedOffNoteInk(cellBackground: Color, palette: BoardPalette): Color =
