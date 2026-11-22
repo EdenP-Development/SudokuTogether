@@ -32,6 +32,7 @@ def main() -> None:
     mapping = MAPPING.read_text()
     data = json.loads(MANIFEST.read_text())
     items = data["items"]
+    verified = []
     require(len(items) == 8, "exactly eight original art records")
     require(len({item["id"] for item in items}) == 8, "eight unique original asset IDs")
     for item in items:
@@ -58,6 +59,8 @@ def main() -> None:
             print(f"REVIEW ONLY {identifier}: PNG differs from original approved-candidate hash")
         else:
             print(f"ORIGINAL {identifier}: SHA-256 matches source art")
+        verified.append({"id": identifier, "sha256": actual, "bytes": path.stat().st_size,
+                         "matches_original": actual == item["sha256"]})
     for family, expected in (("woodland", 17), ("ocean", 11),
                              ("garden", 9), ("farm", 6)):
         if family == "woodland":
@@ -69,6 +72,11 @@ def main() -> None:
                 "private val ", 1)[0]
             count = len(re.findall(r'CatalogEntry\("'+family+r'_', block))
         require(count == expected, f"{family}: {expected} stable portrait entries")
+    receipt = ROOT / "build/beta2-unified75-original-art-manifest.json"
+    receipt.parent.mkdir(parents=True, exist_ok=True)
+    receipt.write_text(json.dumps({"required_original_art": args.require_original_art,
+        "passed": len(verified) == 8 and all(x["matches_original"] for x in verified),
+        "items": verified}, indent=2) + "\n", encoding="utf-8")
     print("PASS: catalog/art provenance checks complete")
     if not args.require_original_art:
         print("NOTE: normal mode is staging-only. Release requires --require-original-art and owner visual review.")

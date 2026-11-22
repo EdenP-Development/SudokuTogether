@@ -17,10 +17,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install deterministic vector asset renderer dependencies
-        run: python -m pip install --disable-pip-version-check Pillow==11.3.0 CairoSVG==2.8.2
-      - name: Render eight separate RGBA sprites and verify SHA/alpha/bounds
-        run: python scripts/render_beta2_vector_icons.py
+      - name: Install Pillow for exact original PNG verification
+        run: python -m pip install --disable-pip-version-check Pillow==11.3.0
+      - name: Verify eight original PNG SHA-256s and all portrait mappings
+        run: python scripts/audit_beta2_original_art.py --require-original-art
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
@@ -76,7 +76,7 @@ jobs:
             GridMates-Beta2-Unified75-OwnerPreview.apk.sha256
             beta2-unified75-badging.txt
             beta2-unified75-signer.txt
-            build/beta2-unified75-render-manifest.json
+            build/beta2-unified75-original-art-manifest.json
             unified75-home-android.png
             unified75-*-android.png
           if-no-files-found: error
@@ -91,6 +91,6 @@ jobs:
             app/build/reports/tests/**
             app/build/reports/androidTests/**
             app/build/reports/lint-results-debug.html
-            build/beta2-unified75-render-manifest.json
+            build/beta2-unified75-original-art-manifest.json
           if-no-files-found: warn
           retention-days: 5
