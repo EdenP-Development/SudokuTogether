@@ -81,7 +81,7 @@ jobs:
             adb install app/build/outputs/apk/debug/app-debug.apk
             adb shell am start -W -n com.playereden.sudokutogether.qa.beta2v7/com.playereden.sudokutogether.MainActivity
             adb shell pidof com.playereden.sudokutogether.qa.beta2v7
-            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2V7Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusV7ArtUiTest,com.playereden.sudokutogether.HomeLivingBookUiTest,com.playereden.sudokutogether.Beta2StyleCompatibilityUiTest"
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2V7Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusV7ArtUiTest,com.playereden.sudokutogether.HomeLivingBookUiTest,com.playereden.sudokutogether.Beta2StyleCompatibilityUiTest,com.playereden.sudokutogether.CollectionPolishUiTest,com.playereden.sudokutogether.Beta2Unified75UiTest"
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             python3 scripts/beta2_v7_capture.py
       - name: Validate actual screenshots and distinct Co-op/Versus views
