@@ -12,7 +12,7 @@ import subprocess
 import time
 import xml.etree.ElementTree as ET
 
-PACKAGE = "com.playereden.sudokutogether.qa.beta2v7"
+PACKAGE = "com.playereden.sudokutogether.qa.beta2unlock"
 ACTIVITY = "com.playereden.sudokutogether.MainActivity"
 MAGIC = bytes((137,80,78,71,13,10,26,10))
 

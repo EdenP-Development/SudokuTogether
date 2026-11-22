@@ -54,31 +54,30 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("cosmetic_emblem_tile").performScrollTo().assertIsDisplayed()
     }
 
-    @Test fun equippedAndAvailableIconsAppearAheadOfLockedIcons() {
+    @Test fun themedChaptersKeepStarterEquippedAndLockedItemsTogetherWithoutDuplication() {
         val data = LocalPlayerData(records = listOf(GameRecord("race", VERSUS, "WIN", "p", 1000, 1, 1000)))
-        val state = mutableStateOf(GameUiState(page = Page.PROFILE, profile = data, appearance = Appearance(portrait = "woodland_rabbit")))
+        val state = mutableStateOf(GameUiState(page = Page.PROFILE, profile = data,
+            appearance = Appearance(portrait = "woodland_rabbit")))
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
 
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("8 of 49 available").assertIsDisplayed()
-        val equipped = compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
-        val starter = compose.onNodeWithTag("cosmetic_emblem_tile")
-        val lastAvailable = compose.onNodeWithTag("portrait_garden_honeybee")
-        val firstLocked = compose.onNodeWithTag("cosmetic_emblem_leaf")
-        val equippedBounds = equipped.getUnclippedBoundsInRoot()
-        val starterBounds = starter.getUnclippedBoundsInRoot()
-        assertTrue(
-            "The equipped icon should come first in the gallery",
-            equippedBounds.top < starterBounds.top ||
-                (equippedBounds.top == starterBounds.top && equippedBounds.left < starterBounds.left)
-        )
-        assertTrue("Locked icons should be below the available icons",
-            lastAvailable.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
+        for (chapter in 1..5) compose.onNodeWithTag("collection_chapter_$chapter").assertExists()
+        for (starter in listOf("woodland_owl", "woodland_fox", "ocean_octopus",
+            "garden_honeybee", "farm_cow")) {
+            compose.onAllNodesWithTag("portrait_$starter").assertCountEquals(1)
+        }
+        compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
+        compose.onAllNodesWithTag("portrait_woodland_rabbit").assertCountEquals(1)
+        compose.onNodeWithTag("portrait_woodland_skunk").assertExists()
+        compose.onNodeWithTag("portrait_farm_chicken").assertExists()
 
-        compose.runOnIdle { state.value = state.value.copy(profile = data.copy(records = emptyList())) }
+        compose.runOnIdle {
+            state.value = state.value.copy(profile = data.copy(records = emptyList()))
+        }
         compose.onNodeWithText("7 of 49 available").assertIsDisplayed()
-        equipped.assertIsSelected().assertIsDisplayed()
-        assertTrue(equipped.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
+        compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
+        compose.onAllNodesWithTag("portrait_farm_cow").assertCountEquals(1)
     }
 
     @Test fun newFarmFamilyCanBeBrowsedWithCowStarterAndLockedChicken() {
@@ -210,8 +209,8 @@ class CollectionPolishUiTest {
         compose.onNodeWithText("1 of 9 available").assertIsDisplayed()
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
         compose.onNodeWithTag("portrait_garden_ladybug").performScrollTo().performClick()
-        compose.onNodeWithText("Complete 4 puzzles").assertIsDisplayed()
-        compose.onNodeWithText("3 of 4 completed").assertIsDisplayed()
+        compose.onAllNodesWithText("Complete 4 puzzles").onLast().assertIsDisplayed()
+        compose.onAllNodesWithText("3 of 4 completed").onLast().assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
 
@@ -231,18 +230,23 @@ class CollectionPolishUiTest {
             }
         }
         compose.onNodeWithTag("nav_collection").performClick()
+        val starter = compose.onNodeWithTag("cosmetic_emblem_tile")
         val leaf = compose.onNodeWithTag("cosmetic_emblem_leaf")
         val duo = compose.onNodeWithTag("cosmetic_emblem_duo")
         val flash = compose.onNodeWithTag("cosmetic_emblem_flash")
-        leaf.performScrollTo()
+        // Starter now stays at the beginning of the Basic chapter, rather than
+        // being pulled into an unrelated available-items row.
+        starter.performScrollTo()
+        assertEquals(starter.getUnclippedBoundsInRoot().top, leaf.getUnclippedBoundsInRoot().top)
         assertEquals(leaf.getUnclippedBoundsInRoot().top, duo.getUnclippedBoundsInRoot().top)
-        assertEquals(duo.getUnclippedBoundsInRoot().top, flash.getUnclippedBoundsInRoot().top)
+        assertTrue(flash.getUnclippedBoundsInRoot().top > duo.getUnclippedBoundsInRoot().top)
 
         compose.runOnIdle { width.value = 320.dp }
-        leaf.performScrollTo()
-        assertEquals(leaf.getUnclippedBoundsInRoot().top, duo.getUnclippedBoundsInRoot().top)
-        assertTrue("The third icon must wrap on a narrow screen",
-            flash.getUnclippedBoundsInRoot().top > duo.getUnclippedBoundsInRoot().top)
+        starter.performScrollTo()
+        assertEquals(starter.getUnclippedBoundsInRoot().top, leaf.getUnclippedBoundsInRoot().top)
+        assertTrue("The third icon wraps on a narrow screen",
+            duo.getUnclippedBoundsInRoot().top > leaf.getUnclippedBoundsInRoot().top)
+        assertEquals(duo.getUnclippedBoundsInRoot().top, flash.getUnclippedBoundsInRoot().top)
     }
 
     @Test fun nextUnlockUsesRealProgressAndOpensExistingLockedPreview() {
@@ -256,9 +260,11 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("collection_chapter_4").assertExists()
         compose.onNodeWithTag("portrait_ocean_octopus").assertExists()
         compose.onNodeWithText("NEXT TO UNLOCK").assertIsDisplayed()
-        compose.onNodeWithText("0 of 1 · Solve 1 solo puzzle").assertIsDisplayed()
+        compose.onNodeWithText("0 of 1 completed").assertIsDisplayed()
         next.performClick()
-        compose.onNodeWithText("Solve 1 solo puzzle").assertIsDisplayed()
+        // Goal appears in the backdrop spotlight and in the preview dialog.
+        // Only assert the active, topmost dialog's matching label.
+        compose.onAllNodesWithText("Solve 1 solo puzzle").onLast().assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
     }
@@ -284,7 +290,8 @@ class CollectionPolishUiTest {
         compose.onNodeWithText("Close").performClick()
 
         compose.onNodeWithTag("portrait_garden_watering_can").performScrollTo().performClick()
-        compose.onNodeWithText("Complete 62 puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Complete 62 puzzles or complete 5 different Daily puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Challenge progress: 0 of 5").assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
     }
@@ -307,12 +314,14 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("portrait_garden_sunflower").assertDoesNotExist()
 
         compose.onNodeWithTag("portrait_farm_sheep").performScrollTo().performClick()
-        compose.onNodeWithText("Complete 20 puzzles").assertIsDisplayed()
+        compose.onAllNodesWithText("Complete 20 puzzles or solve 3 Medium solo puzzles").onLast().assertIsDisplayed()
+        compose.onNodeWithText("Challenge progress: 0 of 3").assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
 
         compose.onNodeWithTag("portrait_farm_pumpkin").performScrollTo().performClick()
-        compose.onNodeWithText("Complete 58 puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Complete 58 puzzles or complete 4 different Daily puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Challenge progress: 0 of 4").assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
     }

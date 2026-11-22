@@ -44,12 +44,18 @@ val beta2V7Preview = providers.gradleProperty("gridmatesBeta2V7Preview").orNull?
     require(it == "true") { "gridmatesBeta2V7Preview only accepts true" }
     true
 } ?: false
+// Dedicated owner-review build; never collides with a previously installed
+// V7 debug reviewer, whose temporary GitHub signer may differ between runs.
+val beta2UnlockPreview = providers.gradleProperty("gridmatesBeta2UnlockPreview").orNull?.let {
+    require(it == "true") { "gridmatesBeta2UnlockPreview only accepts true" }
+    true
+} ?: false
 // Separate-install board palette reviewer; never overwrites public Beta 1.
 val beta2BoardsPreview = providers.gradleProperty("gridmatesBeta2BoardsPreview").orNull?.let {
     require(it == "true") { "gridmatesBeta2BoardsPreview only accepts true" }
     true
 } ?: false
-require(listOf(beta2V7Preview, beta2MatrixPreview, beta2Unified79Preview, beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
+require(listOf(beta2UnlockPreview, beta2V7Preview, beta2MatrixPreview, beta2Unified79Preview, beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
     "Only one isolated preview type can be selected"
 }
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
@@ -68,6 +74,7 @@ require(!(beta2Unified75Preview && qaVersion != null)) { "Unified 75 preview mus
 require(!(beta2Unified79Preview && qaVersion != null)) { "Unified 79 preview must not share QA-update identity" }
 require(!(beta2MatrixPreview && qaVersion != null)) { "Matrix preview must not share QA-update identity" }
 require(!(beta2V7Preview && qaVersion != null)) { "Beta2 V7 preview must not share QA-update identity" }
+require(!(beta2UnlockPreview && qaVersion != null)) { "Beta2 unlock preview must not share QA-update identity" }
 require(!(beta2BoardsPreview && qaVersion != null)) { "Boards preview must not share QA-update identity" }
 require(!(woodlandV5Preview && qaVersion != null)) {
     "Woodland V5 preview must not use a same-package QA update"
@@ -102,6 +109,7 @@ android {
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
                 beta2BoardsPreview -> ".qa.beta2boards"
+                beta2UnlockPreview -> ".qa.beta2unlock"
                 beta2V7Preview -> ".qa.beta2v7"
                 beta2MatrixPreview -> ".qa.beta2matrix"
                 beta2Unified79Preview -> ".qa.beta2unified79"
@@ -114,6 +122,7 @@ android {
             }
             versionNameSuffix = when {
                 beta2BoardsPreview -> "-qa.beta2boards"
+                beta2UnlockPreview -> "-qa.beta2unlock"
                 beta2V7Preview -> "-qa.beta2v7"
                 beta2MatrixPreview -> "-qa.beta2matrix"
                 beta2Unified79Preview -> "-qa.beta2unified79"

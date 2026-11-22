@@ -1,7 +1,7 @@
 name: GridMates Beta 2 unified 79 Versus V7 and launcher review
 on:
   push:
-    branches: [feat/beta2-79-versusv7-integrated-review]
+    branches: [feat/beta2-79-versusv7-integrated-review, feat/beta2-meaningful-cosmetic-unlocks]
   workflow_dispatch:
 permissions:
   contents: read
@@ -35,20 +35,20 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x gradlew
-          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta2V7Preview=true --no-daemon --max-workers=2 --console=plain
+          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta2UnlockPreview=true --no-daemon --max-workers=2 --console=plain
       - name: Check separate APK package, signer, embedded art and new icon
         run: |
           set -euo pipefail
-          cp app/build/outputs/apk/debug/app-debug.apk GridMates-Beta2-79-V7-IconB-OwnerPreview.apk
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs GridMates-Beta2-79-V7-IconB-OwnerPreview.apk > integrated-signer.txt
-          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging GridMates-Beta2-79-V7-IconB-OwnerPreview.apk > integrated-badging.txt
-          grep -F "package: name='com.playereden.sudokutogether.qa.beta2v7'" integrated-badging.txt
-          sha256sum GridMates-Beta2-79-V7-IconB-OwnerPreview.apk > GridMates-Beta2-79-V7-IconB-OwnerPreview.apk.sha256
-          python scripts/verify_beta2_font_sources.py GridMates-Beta2-79-V7-IconB-OwnerPreview.apk
+          cp app/build/outputs/apk/debug/app-debug.apk GridMates-Beta2-79-CollectionUnlocks-OwnerPreview.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs GridMates-Beta2-79-CollectionUnlocks-OwnerPreview.apk > integrated-signer.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging GridMates-Beta2-79-CollectionUnlocks-OwnerPreview.apk > integrated-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta2unlock'" integrated-badging.txt
+          sha256sum GridMates-Beta2-79-CollectionUnlocks-OwnerPreview.apk > GridMates-Beta2-79-CollectionUnlocks-OwnerPreview.apk.sha256
+          python scripts/verify_beta2_font_sources.py GridMates-Beta2-79-CollectionUnlocks-OwnerPreview.apk
           python - <<'PY'
           import zipfile, hashlib, json
           from pathlib import Path
-          apk=Path("GridMates-Beta2-79-V7-IconB-OwnerPreview.apk")
+          apk=Path("GridMates-Beta2-79-CollectionUnlocks-OwnerPreview.apk")
           original=json.loads(Path("design/versus-v7/manifest.json").read_text())["output"]
           with zipfile.ZipFile(apk) as z:
               # Android aapt2 compiles nodpi to drawable-nodpi-v4; avoid assuming
@@ -79,9 +79,9 @@ jobs:
           script: |
             set -e
             adb install app/build/outputs/apk/debug/app-debug.apk
-            adb shell am start -W -n com.playereden.sudokutogether.qa.beta2v7/com.playereden.sudokutogether.MainActivity
-            adb shell pidof com.playereden.sudokutogether.qa.beta2v7
-            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2V7Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusV7ArtUiTest,com.playereden.sudokutogether.HomeLivingBookUiTest,com.playereden.sudokutogether.Beta2StyleCompatibilityUiTest"
+            adb shell am start -W -n com.playereden.sudokutogether.qa.beta2unlock/com.playereden.sudokutogether.MainActivity
+            adb shell pidof com.playereden.sudokutogether.qa.beta2unlock
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2UnlockPreview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusV7ArtUiTest,com.playereden.sudokutogether.HomeLivingBookUiTest,com.playereden.sudokutogether.Beta2StyleCompatibilityUiTest,com.playereden.sudokutogether.CollectionPolishUiTest,com.playereden.sudokutogether.Beta2Unified75UiTest"
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             python3 scripts/beta2_v7_capture.py
       - name: Validate actual screenshots and distinct Co-op/Versus views
@@ -90,10 +90,10 @@ jobs:
         if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: GridMates-Beta2-79-V7-IconB-OwnerPreview
+          name: GridMates-Beta2-79-CollectionUnlocks-OwnerPreview
           path: |
-            GridMates-Beta2-79-V7-IconB-OwnerPreview.apk
-            GridMates-Beta2-79-V7-IconB-OwnerPreview.apk.sha256
+            GridMates-Beta2-79-CollectionUnlocks-OwnerPreview.apk
+            GridMates-Beta2-79-CollectionUnlocks-OwnerPreview.apk.sha256
             integrated-badging.txt
             integrated-signer.txt
             beta2-v7-versus-android.png

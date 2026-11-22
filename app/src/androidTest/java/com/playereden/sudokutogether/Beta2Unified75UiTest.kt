@@ -49,7 +49,7 @@ class Beta2Unified75UiTest {
             capturePortrait(id)
         }
         compose.onNodeWithTag("portrait_ocean_clownfish").performScrollTo().performClick()
-        compose.onNodeWithText("Complete 95 puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Complete 95 puzzles or solve 5 Hard solo puzzles").assertIsDisplayed()
         compose.onNodeWithText("Close").performClick()
     }
 
@@ -68,7 +68,7 @@ class Beta2Unified75UiTest {
             capturePortrait(id)
         }
         compose.onNodeWithTag("portrait_woodland_skunk").performScrollTo().performClick()
-        compose.onNodeWithText("Complete 90 puzzles").assertIsDisplayed()
+        compose.onNodeWithText("Complete 90 puzzles or solve 12 solo puzzles without hints or checks").assertIsDisplayed()
         compose.onNodeWithText("Close").performClick()
     }
 }

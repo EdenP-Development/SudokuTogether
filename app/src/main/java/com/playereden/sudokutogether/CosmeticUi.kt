@@ -179,7 +179,11 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         // A compact next-goal spotlight, not a second wall of duplicated cards.
         val next = locked.minByOrNull {
             val goal = progress.getValue(it.id)
-            (goal.target - goal.current).coerceAtLeast(0)
+            minOf(
+                (goal.target - goal.current).coerceAtLeast(0),
+                if (goal.alternateTarget > 0) (goal.alternateTarget - goal.alternateCurrent).coerceAtLeast(0)
+                else Int.MAX_VALUE
+            )
         }
         if (next != null) {
             val goal = progress.getValue(next.id)
@@ -193,9 +197,16 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                     Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                         Eyebrow("NEXT TO UNLOCK")
                         Text(next.cosmetic.name, style = MaterialTheme.typography.titleSmall, color = Forest)
-                        Text("${goal.current} of ${goal.target} · ${next.cosmetic.requirement}",
+                        Text(next.cosmetic.requirement,
                             style = MaterialTheme.typography.bodySmall, color = Muted)
+                        Text("${goal.current} of ${goal.target} completed",
+                            style = MaterialTheme.typography.labelSmall, color = Forest)
                         MilestoneTrack(goal.current, goal.target)
+                        if (goal.alternateTarget > 0) {
+                            Text("Challenge: ${goal.alternateCurrent} of ${goal.alternateTarget}",
+                                style = MaterialTheme.typography.labelSmall, color = Muted)
+                            MilestoneTrack(goal.alternateCurrent, goal.alternateTarget)
+                        }
                     }
                     GameIcon(GameSymbol.RIGHT, Forest, Modifier.size(18.dp))
                 }
@@ -331,7 +342,14 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     }, shape = RoundedCornerShape(15.dp), color = if (equipped) GreenTint else Paper,
         border = BorderStroke(if (equipped) 2.dp else 1.dp, if (equipped) Forest else Rule)) {
         val sample = item.group.withItem(look, item.id)
-        val detail = if (equipped) status else family
+        // The themed chapter/filter already names the family. Avoid wasting
+        // a line repeating 'Garden' or 'Farm' on every portrait card.
+        val detail = when {
+            equipped -> status
+            progress.unlocked -> "Available"
+            iconGallery -> null
+            else -> family
+        }
         val label: @Composable () -> Unit = {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp),
                 horizontalAlignment = if (singleColumn) Alignment.Start else Alignment.CenterHorizontally) {
@@ -404,6 +422,11 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                 Text("${progress.current} of ${progress.target}" + if (item.group == CosmeticGroup.PORTRAIT) " completed" else "",
                     color = Muted, style = MaterialTheme.typography.bodySmall)
                 MilestoneTrack(progress.current, progress.target)
+                if (progress.alternateTarget > 0) {
+                    Text("Challenge progress: ${progress.alternateCurrent} of ${progress.alternateTarget}",
+                        color = Muted, style = MaterialTheme.typography.bodySmall)
+                    MilestoneTrack(progress.alternateCurrent, progress.alternateTarget)
+                }
             }
             if (item.family == null) {
                 StylePreview(sample, state.uniformNumbers && item.group == CosmeticGroup.BOARD,

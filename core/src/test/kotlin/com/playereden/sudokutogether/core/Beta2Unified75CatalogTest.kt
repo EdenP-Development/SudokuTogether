@@ -5,7 +5,7 @@ import org.junit.Test
 
 /** Regression tests for 43-icon, 75-cosmetic unified beta reviewer. */
 class Beta2Unified75CatalogTest {
-    private fun solved(i: Int) = GameRecord("unified-$i", SOLO, "SOLVED", "puzzle-$i", 1000, 1, i.toLong())
+    private fun solved(i: Int) = GameRecord("unified-$i", SOLO, "SOLVED", "puzzle-$i", 1000, 1, i.toLong(), assisted = true)
     private val newWoodland = linkedMapOf("woodland_chipmunk" to 16, "woodland_beaver" to 39,
         "woodland_woodpecker" to 56, "woodland_skunk" to 90)
     private val newOcean = linkedMapOf("ocean_seahorse" to 30, "ocean_dolphin" to 46,
@@ -30,11 +30,12 @@ class Beta2Unified75CatalogTest {
             it.id == "woodland_raccoon" }.requirement)
     }
 
-    @Test fun allEightMilestonesRequireQualifiedCompletedPuzzlesOnly() {
+    @Test fun allEightMilestonesKeepTheirOriginalCompletionRoute() {
         for ((id, target) in newWoodland + newOcean) {
             val prior = (1 until target).map(::solved)
             val earned = (1..target).map(::solved)
-            assertEquals("Complete $target puzzles", Cosmetics.portraits.first { it.id == id }.requirement)
+            assertTrue(Cosmetics.portraits.first { it.id == id }.requirement
+                .startsWith("Complete $target puzzles"))
             assertFalse(Cosmetics.allowed(id, prior))
             assertTrue(Cosmetics.allowed(id, earned))
             assertEquals(target, Cosmetics.progress(id, earned)?.target)
