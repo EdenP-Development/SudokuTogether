@@ -1,0 +1,104 @@
+name: GridMates Beta 2 unified 79 Fonts Android reviewer
+on:
+  push:
+    branches: [feat/beta2-unified79-number-fonts-review]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gridmates-beta2-unified79-review
+  cancel-in-progress: true
+jobs:
+  owner-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 48
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install deterministic vector asset renderer dependencies
+        run: python -m pip install --disable-pip-version-check Pillow==11.3.0 CairoSVG==2.8.2 fonttools==4.60.1
+      - name: Render eight separate RGBA sprites and verify SHA/alpha/bounds
+        run: python scripts/render_beta2_vector_icons.py
+      - name: Verify original OFL font binaries, numerals and licenses
+        run: python scripts/verify_beta2_font_sources.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Core and app JVM regressions, Android UI compile, lint, isolated APK
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta2Unified79Preview=true --no-daemon --max-workers=2 --console=plain
+      - name: Verify isolated debug signer, package and checksum
+        run: |
+          set -euo pipefail
+          cp app/build/outputs/apk/debug/app-debug.apk GridMates-Beta2-Unified79-OwnerPreview.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs GridMates-Beta2-Unified79-OwnerPreview.apk > beta2-unified79-signer.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging GridMates-Beta2-Unified79-OwnerPreview.apk > beta2-unified79-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta2unified79'" beta2-unified79-badging.txt
+          sha256sum GridMates-Beta2-Unified79-OwnerPreview.apk > GridMates-Beta2-Unified79-OwnerPreview.apk.sha256
+      - name: Enable emulator KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android 16 Collection portrait tests and REAL screenshot capture
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            set -e
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n com.playereden.sudokutogether.qa.beta2unified79/com.playereden.sudokutogether.MainActivity
+            adb shell pidof com.playereden.sudokutogether.qa.beta2unified79
+            sleep 5
+            adb exec-out screencap -p > unified79-home-android.png
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2Unified79Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.Beta2Unified75UiTest,com.playereden.sudokutogether.Beta2Unified79FontUiTest,com.playereden.sudokutogether.NumberFontPreviewTest"
+            for id in woodland_chipmunk woodland_beaver woodland_woodpecker woodland_skunk ocean_seahorse ocean_dolphin ocean_seashell ocean_clownfish; do adb pull "/sdcard/Pictures/GridMatesBeta2Unified75QA/gridmates-$id.png" "unified75-$id-android.png" || exit 1; done
+            for id in typewriter editorial soft_print tall_print; do adb pull "/sdcard/Pictures/GridMatesBeta2Unified79FontQA/gridmates-font-$id.png" "unified79-font-$id-android.png" || exit 1; done
+      - name: Reject invalid portrait PNG screenshots
+        run: python scripts/verify_beta2_unified75_capture.py
+      - name: Reject invalid number-font PNG screenshots
+        run: python scripts/verify_beta2_unified79_fonts_capture.py
+      - name: Verify bundled font binaries and OFL licenses in debug APK
+        run: python scripts/verify_beta2_font_sources.py GridMates-Beta2-Unified79-OwnerPreview.apk
+      - name: Publish review APK plus real Android screenshots and render receipt
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-Unified79-OwnerPreview
+          path: |
+            GridMates-Beta2-Unified79-OwnerPreview.apk
+            GridMates-Beta2-Unified79-OwnerPreview.apk.sha256
+            beta2-unified79-badging.txt
+            beta2-unified79-signer.txt
+            build/beta2-unified75-render-manifest.json
+            unified79-home-android.png
+            unified75-*-android.png
+            unified79-font-*-android.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Preserve diagnostics if any gate fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-Unified75-Failure-Diagnostics
+          path: |
+            core/build/reports/tests/**
+            app/build/reports/tests/**
+            app/build/reports/androidTests/**
+            app/build/reports/lint-results-debug.html
+            build/beta2-unified75-render-manifest.json
+          if-no-files-found: warn
+          retention-days: 5
