@@ -631,6 +631,12 @@ private fun roomStatusText(state: GameUiState): String {
                         // slightly larger on the full board. Mono is narrow enough
                         // to retain the enlarged note size on full boards.
                         val fitFactor = when {
+                            // At 150–200% system text, the existing correction
+                            // alone can still clip line metrics in 3×3 note slots.
+                            // Tighten only large-text pencil glyphs: normal-size
+                            // players retain their existing visual appearance.
+                            systemScale > 1.3f && size <= 300.dp -> .50f
+                            systemScale > 1.3f -> .55f
                             size <= 300.dp -> .68f
                             authored.font == "mono" -> .82f
                             authored.font == "clear" || authored.font == "serif" -> .72f
