@@ -209,7 +209,7 @@ class CollectionPolishUiTest {
         compose.onNodeWithText("1 of 9 available").assertIsDisplayed()
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
         compose.onNodeWithTag("portrait_garden_ladybug").performScrollTo().performClick()
-        compose.onNodeWithText("Complete 4 puzzles").assertIsDisplayed()
+        compose.onAllNodesWithText("Complete 4 puzzles").onLast().assertIsDisplayed()
         compose.onNodeWithText("3 of 4 completed").assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
@@ -314,7 +314,7 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("portrait_garden_sunflower").assertDoesNotExist()
 
         compose.onNodeWithTag("portrait_farm_sheep").performScrollTo().performClick()
-        compose.onNodeWithText("Complete 20 puzzles or solve 3 Medium solo puzzles").assertIsDisplayed()
+        compose.onAllNodesWithText("Complete 20 puzzles or solve 3 Medium solo puzzles").onLast().assertIsDisplayed()
         compose.onNodeWithText("Challenge progress: 0 of 3").assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
