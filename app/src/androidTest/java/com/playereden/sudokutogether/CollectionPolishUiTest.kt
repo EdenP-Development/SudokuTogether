@@ -257,7 +257,9 @@ class CollectionPolishUiTest {
         compose.onNodeWithText("NEXT TO UNLOCK").assertIsDisplayed()
         compose.onNodeWithText("0 of 1 completed").assertIsDisplayed()
         next.performClick()
-        compose.onNodeWithText("Solve 1 solo puzzle").assertIsDisplayed()
+        // Goal appears in the backdrop spotlight and in the preview dialog.
+        // Only assert the active, topmost dialog's matching label.
+        compose.onAllNodesWithText("Solve 1 solo puzzle").onLast().assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
     }
