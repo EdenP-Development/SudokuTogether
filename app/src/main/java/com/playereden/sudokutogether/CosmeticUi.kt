@@ -174,48 +174,44 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         Eyebrow("YOUR ALBUM", Gold)
         SectionTitle("${available.size} of ${items.size} available")
         MilestoneTrack(available.size, items.size)
-        CosmeticGrid(available.sortedByDescending { it.isEquipped(look) }, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
     }
     if (locked.isNotEmpty()) {
-        // Surface one attainable goal using the *existing* durable unlock
-        // counts. Browsing and equipping still use the usual preview dialog.
+        // A compact next-goal spotlight, not a second wall of duplicated cards.
         val next = locked.minByOrNull {
             val goal = progress.getValue(it.id)
             (goal.target - goal.current).coerceAtLeast(0)
         }
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SectionTitle("Locked")
-            if (next != null) {
-                val goal = progress.getValue(next.id)
-                Surface(onClick = { open(next) }, enabled = !state.busy,
-                    modifier = Modifier.fillMaxWidth().testTag("collection_next_unlock"),
-                    color = GoldTint.copy(alpha = .45f).compositeOver(Cream),
-                    shape = RoundedCornerShape(15.dp), border = BorderStroke(1.dp, Rule)) {
-                    Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        CosmeticSwatch(next, next.group.withItem(look, next.id), Modifier.size(48.dp))
-                        Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Eyebrow("NEXT TO UNLOCK")
-                            Text(next.cosmetic.name, style = MaterialTheme.typography.titleSmall, color = Forest)
-                            Text("${goal.current} of ${goal.target} · ${next.cosmetic.requirement}",
-                                style = MaterialTheme.typography.bodySmall, color = Muted)
-                            MilestoneTrack(goal.current, goal.target)
-                        }
-                        GameIcon(GameSymbol.RIGHT, Forest, Modifier.size(18.dp))
+        if (next != null) {
+            val goal = progress.getValue(next.id)
+            Surface(onClick = { open(next) }, enabled = !state.busy,
+                modifier = Modifier.fillMaxWidth().testTag("collection_next_unlock"),
+                color = GoldTint.copy(alpha = .45f).compositeOver(Cream),
+                shape = RoundedCornerShape(15.dp), border = BorderStroke(1.dp, Rule)) {
+                Row(Modifier.padding(12.dp), verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    CosmeticSwatch(next, next.group.withItem(look, next.id), Modifier.size(48.dp))
+                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+                        Eyebrow("NEXT TO UNLOCK")
+                        Text(next.cosmetic.name, style = MaterialTheme.typography.titleSmall, color = Forest)
+                        Text("${goal.current} of ${goal.target} · ${next.cosmetic.requirement}",
+                            style = MaterialTheme.typography.bodySmall, color = Muted)
+                        MilestoneTrack(goal.current, goal.target)
                     }
+                    GameIcon(GameSymbol.RIGHT, Forest, Modifier.size(18.dp))
                 }
-            }
-            if (category == CollectionCategory.ICONS && family == IconFamily.ALL) {
-                // Original catalog stays fully available. Distinct illustrated
-                // album chapters replace one uninterrupted wall of locked cards.
-                locked.groupBy { it.family }.entries.forEachIndexed { chapterIndex, (chapter, chapterItems) ->
-                    CollectionChapterHeading(chapter?.label ?: "Basic", chapterIndex + 1)
-                    CosmeticGrid(chapterItems, progress, look, !state.busy, iconGallery = true, open = open)
-                }
-            } else {
-                CosmeticGrid(locked, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
             }
         }
+    }
+    // Always render every item inside its own chapter. A starter or equipped
+    // portrait must not disappear from its collection just because it is owned.
+    // Each item appears once in the album, with its lock/equipped state intact.
+    if (category == CollectionCategory.ICONS && family == IconFamily.ALL) {
+        items.groupBy { it.family }.entries.forEachIndexed { chapterIndex, (chapter, chapterItems) ->
+            CollectionChapterHeading(chapter?.label ?: "Basic", chapterIndex + 1)
+            CosmeticGrid(chapterItems, progress, look, !state.busy, iconGallery = true, open = open)
+        }
+    } else {
+        CosmeticGrid(items, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
     }
     if (stylePreviewOpen) {
         AlertDialog(
