@@ -1,6 +1,28 @@
-<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
-    <path android:fillColor="#234F48" android:pathData="M0,0h108v108h-108z" />
-    <path android:fillColor="#F7F4EC" android:pathData="M24,24h60v60h-60z" />
-    <path android:strokeColor="#234F48" android:strokeWidth="3" android:pathData="M44,24v60M64,24v60M24,44h60M24,64h60" />
-    <path android:fillColor="#CF9D46" android:pathData="M28,28h12v12h-12zM68,68h12v12h-12z" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Matching legacy fallback with the same scalable foreground. -->
+    <path android:fillColor="#214F3F" android:pathData="M0,0H108V108H0Z"/>
+    <path android:fillColor="#D2A657" android:pathData="M34,21H74Q87,21 87,34V74Q87,87 74,87H34Q21,87 21,74V34Q21,21 34,21Z"/>
+    <path android:fillColor="#F8F5EC" android:pathData="M34,24H74Q84,24 84,34V74Q84,84 74,84H34Q24,84 24,74V34Q24,24 34,24Z"/>
+    <path android:fillColor="#E6B650" android:pathData="M44,44H64V64H44Z"/>
+    <path android:strokeColor="#214F3F" android:strokeWidth="2.3" android:strokeLineCap="round"
+        android:pathData="M44,24V84M64,24V84M24,44H84M24,64H84"/>
+    <!-- Upper-left 2 -->
+    <path android:strokeColor="#214F3F" android:strokeWidth="2.15"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M30,32.7C31.4,29.5 37.8,29.7 38,33C38.3,35.3 34.2,37.6 30,40H38.4"/>
+    <!-- Center 5: oversized, strong silhouette at 24px -->
+    <path android:strokeColor="#214F3F" android:strokeWidth="3.0"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M60,48.7H49.2V54.5H55.7C62.2,54.5 62,61.2 55.7,61.2C52.8,61.2 50.8,60.5 49.1,59"/>
+    <!-- Bottom-right 8 -->
+    <path android:strokeColor="#214F3F" android:strokeWidth="2.0"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M73.9,68.5C79.8,68.5 80,73.7 74,73.7C68,73.7 68,68.5 73.9,68.5Z
+            M74,73.7C80.7,73.7 80.4,80.2 74,80.2C67.7,80.2 67.5,73.7 74,73.7Z"/>
+    <!-- Tiny gold last-move check, no competing grid decoration -->
+    <path android:strokeColor="#C48C32" android:strokeWidth="2.5"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M68,36.3L71.1,39.2L77.3,32.8"/>
 </vector>
