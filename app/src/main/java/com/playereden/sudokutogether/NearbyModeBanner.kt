@@ -31,18 +31,23 @@ import androidx.compose.ui.unit.*
 @Composable internal fun NearbyModeBanner(mode: String, modifier: Modifier = Modifier) {
     val together = mode == "together"
     val largeText = LocalDensity.current.fontScale > 1.3f
-    // Names resolve dynamically while the V5 binary art import is pending.
-    // Original V4 scene and Collection sprites remain a safe fallback.
+    // Versus V7 is a new 1774x887 original forest scene with the exact
+    // canonical Collection Fox/Owl portraits composited behind verified 9x9
+    // decorative boards. Keep V5 assets in repo for safe visual comparison.
+    // Co-op continues using its original approved V5 banner unchanged.
     val context = LocalContext.current
-    val assetName = if (together) "gm_mode_coop_woodland_v5_hd"
+    val existingV5Name = if (together) "gm_mode_coop_woodland_v5_hd"
         else "gm_mode_versus_woodland_v5_hd"
-    val distinctAssetId = context.resources.getIdentifier(
-        assetName, "drawable", context.packageName
+    val existingV5Id = context.resources.getIdentifier(
+        existingV5Name, "drawable", context.packageName
     )
-    val hasV5Art = distinctAssetId != 0
-    val backgroundId = if (hasV5Art) distinctAssetId
-        else R.drawable.gm_woodland_storybook_hd_v4
-    // V5 supports independent mode illustrations without losing the working V4 fallback.
+    val usingVersusV7 = !together
+    val backgroundId = when {
+        usingVersusV7 -> R.drawable.gm_mode_versus_woodland_v7_hd
+        existingV5Id != 0 -> existingV5Id
+        else -> R.drawable.gm_woodland_storybook_hd_v4
+    }
+    val artworkIncludesMascots = usingVersusV7 || existingV5Id != 0
     val eyebrow = if (together) "PLAY TOGETHER" else "FRIENDLY COMPETITION"
     val heading = if (together) "Shared board" else "Race to finish"
 
@@ -55,9 +60,12 @@ import androidx.compose.ui.unit.*
             contentScale = ContentScale.Crop,
             modifier = Modifier.fillMaxSize().testTag("nearby_art_image")
         )
-        // V5 artwork already contains both animals; do not draw duplicates.
-        if (hasV5Art) {
-            Box(Modifier.matchParentSize().testTag("nearby_art_v5"))
+        // The V6 Versus asset includes canonical mascots; Co-op V5 includes
+        // its existing mascots. Never overlay another Fox/Owl on either image.
+        if (artworkIncludesMascots) {
+            Box(Modifier.matchParentSize().testTag(
+                if (usingVersusV7) "nearby_art_v7" else "nearby_art_v5"
+            ))
         } else {
             // Reuse real high-fidelity portrait assets already packaged for Collection.
             // These are decorative mascots, not a claim that a player owns them.
@@ -126,7 +134,7 @@ import androidx.compose.ui.unit.*
             Text(heading, color = OnForest,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = if (largeText) 15.sp else 23.sp,
+                fontSize = if (largeText) 15.sp else if (together) 23.sp else 21.sp,
                 lineHeight = if (largeText) 19.sp else 27.sp,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis)
