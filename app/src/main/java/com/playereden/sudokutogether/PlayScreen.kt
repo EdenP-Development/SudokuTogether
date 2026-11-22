@@ -646,7 +646,7 @@ private fun roomStatusText(state: GameUiState): String {
                                     if (n in noteNumbers) {
                                         val removed = n in crossedOff
                                         val color = if (removed) crossedOffNoteInk(background, palette) else pencilColor
-                                        Text(n.toString(), modifier = Modifier.fillMaxWidth(), color = color,
+                                        Text(n.toString(), modifier = Modifier.fillMaxWidth().testTag("pencil_cell_${i}_${n}"), color = color,
                                             style = inkNoteStyle, textAlign = TextAlign.Center,
                                             textDecoration = if (removed) TextDecoration.LineThrough else null,
                                             maxLines = 1, softWrap = false)
