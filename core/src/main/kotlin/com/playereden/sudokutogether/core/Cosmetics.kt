@@ -114,7 +114,12 @@ object Cosmetics {
         CatalogEntry("serif", "Bookish", 1),
         CatalogEntry("mono", "Terminal", 2, Milestone.COOP),
         CatalogEntry("rounded", "Rounded", 2, Milestone.FINISH),
-        CatalogEntry("pencil", "Pencil", 8, Milestone.FINISH)
+        CatalogEntry("pencil", "Pencil", 8, Milestone.FINISH),
+        // Four OFL-bundled Beta 2 number fonts; originals and unlocks unchanged.
+        CatalogEntry("typewriter", "Typewriter", 14, Milestone.FINISH),
+        CatalogEntry("editorial", "Editorial", 26, Milestone.FINISH),
+        CatalogEntry("soft_print", "Soft Print", 45, Milestone.FINISH),
+        CatalogEntry("tall_print", "Tall Print", 75, Milestone.FINISH)
     )
     private val emblemEntries = listOf(
         CatalogEntry("tile", "Gridkeeper"),
