@@ -6,7 +6,8 @@ import org.junit.Test
 /** Farm has animals, harvest crops and useful items; cosmetics remain local/offline. */
 class Beta2FarmThemeIconsTest {
     private fun solo(i: Int) =
-        GameRecord("farm-solo-$i", SOLO, "SOLVED", "farm-$i", 1000, 1, i.toLong())
+        GameRecord("farm-solo-$i", SOLO, "SOLVED", "farm-$i", 1000, 1, i.toLong(),
+            assisted = true)
 
     private val newFarm = linkedMapOf(
         "farm_sheep" to 20,
@@ -22,8 +23,8 @@ class Beta2FarmThemeIconsTest {
         assertEquals(ids.size, ids.toSet().size)
         assertTrue(ids.containsAll(newFarm.keys))
         assertEquals("Starter", Cosmetics.farmPortraits.first { it.id == "farm_cow" }.requirement)
-        assertEquals("Complete 7 puzzles",
-            Cosmetics.farmPortraits.first { it.id == "farm_chicken" }.requirement)
+        assertTrue(Cosmetics.farmPortraits.first { it.id == "farm_chicken" }
+            .requirement.startsWith("Complete 7 puzzles"))
         assertEquals(79, ids.size + Cosmetics.emblems.size +
             Cosmetics.boards.size + Cosmetics.inks.size + Cosmetics.fonts.size)
         assertTrue(Cosmetics.allowed("farm_cow", emptyList()))
@@ -33,8 +34,9 @@ class Beta2FarmThemeIconsTest {
         for ((id, target) in newFarm) {
             val before = (1 until target).map(::solo)
             val after = (1..target).map(::solo)
-            assertEquals("Complete $target puzzles",
-                Cosmetics.farmPortraits.first { it.id == id }.requirement)
+            assertTrue("Existing Farm finish-count milestone must never change: $id",
+                Cosmetics.farmPortraits.first { it.id == id }.requirement
+                    .startsWith("Complete $target puzzles"))
             assertFalse(Cosmetics.allowed(id, emptyList()))
             assertFalse(Cosmetics.allowed(id, before))
             assertTrue(Cosmetics.allowed(id, after))

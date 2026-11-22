@@ -348,7 +348,8 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     }, shape = RoundedCornerShape(15.dp), color = if (equipped) GreenTint else Paper,
         border = BorderStroke(if (equipped) 2.dp else 1.dp, if (equipped) Forest else Rule)) {
         val sample = item.group.withItem(look, item.id)
-        // The chapter heading already names the family; use this line for actual status.\n    val detail = if (iconGallery) status else if (equipped) status else family
+        // The chapter heading already names the family; use this line for actual status.
+        val detail = if (iconGallery) status else if (equipped) status else family
         val label: @Composable () -> Unit = {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp),
                 horizontalAlignment = if (singleColumn) Alignment.Start else Alignment.CenterHorizontally) {
