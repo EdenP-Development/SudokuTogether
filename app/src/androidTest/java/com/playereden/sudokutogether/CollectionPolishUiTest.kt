@@ -54,31 +54,33 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("cosmetic_emblem_tile").performScrollTo().assertIsDisplayed()
     }
 
-    @Test fun equippedAndAvailableIconsAppearAheadOfLockedIcons() {
+    @Test fun allIconChaptersContainStarterAndLockedPortraitsTogetherWithoutDuplicates() {
         val data = LocalPlayerData(records = listOf(GameRecord("race", VERSUS, "WIN", "p", 1000, 1, 1000)))
-        val state = mutableStateOf(GameUiState(page = Page.PROFILE, profile = data, appearance = Appearance(portrait = "woodland_rabbit")))
+        val state = mutableStateOf(GameUiState(page = Page.PROFILE, profile = data,
+            appearance = Appearance(portrait = "woodland_rabbit")))
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
 
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("8 of 49 available").assertIsDisplayed()
-        val equipped = compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
-        val starter = compose.onNodeWithTag("cosmetic_emblem_tile")
-        val lastAvailable = compose.onNodeWithTag("portrait_garden_honeybee")
-        val firstLocked = compose.onNodeWithTag("cosmetic_emblem_leaf")
-        val equippedBounds = equipped.getUnclippedBoundsInRoot()
-        val starterBounds = starter.getUnclippedBoundsInRoot()
-        assertTrue(
-            "The equipped icon should come first in the gallery",
-            equippedBounds.top < starterBounds.top ||
-                (equippedBounds.top == starterBounds.top && equippedBounds.left < starterBounds.left)
-        )
-        assertTrue("Locked icons should be below the available icons",
-            lastAvailable.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
+        // Five persistent chapters, even when their starter icon is already owned.
+        for (chapter in 1..5) compose.onNodeWithTag("collection_chapter_$chapter").assertExists()
+        for (id in listOf("woodland_owl", "woodland_fox", "woodland_rabbit",
+                          "ocean_octopus", "ocean_sea_turtle",
+                          "garden_honeybee", "garden_ladybug", "farm_cow", "farm_chicken")) {
+            compose.onAllNodesWithTag("portrait_$id").assertCountEquals(1)
+        }
+        // Starter and locked icons now sit in the same chapter and first row.
+        compose.onNodeWithTag("portrait_farm_cow").performScrollTo()
+        val cow = compose.onNodeWithTag("portrait_farm_cow").getUnclippedBoundsInRoot()
+        val chicken = compose.onNodeWithTag("portrait_farm_chicken").getUnclippedBoundsInRoot()
+        assertEquals(cow.top, chicken.top)
+        compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
+        compose.onNodeWithTag("collection_next_unlock").assertExists()
 
         compose.runOnIdle { state.value = state.value.copy(profile = data.copy(records = emptyList())) }
-        compose.onNodeWithText("7 of 49 available").assertIsDisplayed()
-        equipped.assertIsSelected().assertIsDisplayed()
-        assertTrue(equipped.getUnclippedBoundsInRoot().bottom <= firstLocked.getUnclippedBoundsInRoot().top)
+        compose.onNodeWithText("7 of 49 available").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
+        compose.onAllNodesWithTag("portrait_farm_cow").assertCountEquals(1)
     }
 
     @Test fun newFarmFamilyCanBeBrowsedWithCowStarterAndLockedChicken() {
@@ -211,7 +213,7 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("portrait_ocean_octopus").assertDoesNotExist()
         compose.onNodeWithTag("portrait_garden_ladybug").performScrollTo().performClick()
         compose.onNodeWithText("Complete 4 puzzles").assertIsDisplayed()
-        compose.onNodeWithText("3 of 4 completed").assertIsDisplayed()
+        compose.onNodeWithText("3 of 4").assertIsDisplayed()
         compose.onNodeWithText("Use icon").assertDoesNotExist()
         compose.onNodeWithText("Close").performClick()
 
@@ -231,18 +233,23 @@ class CollectionPolishUiTest {
             }
         }
         compose.onNodeWithTag("nav_collection").performClick()
+        // The complete Basic chapter includes the starter Tile first, rather
+        // than extracting it into a separate Available section.
+        val tile = compose.onNodeWithTag("cosmetic_emblem_tile")
         val leaf = compose.onNodeWithTag("cosmetic_emblem_leaf")
         val duo = compose.onNodeWithTag("cosmetic_emblem_duo")
         val flash = compose.onNodeWithTag("cosmetic_emblem_flash")
-        leaf.performScrollTo()
+        tile.performScrollTo()
+        assertEquals(tile.getUnclippedBoundsInRoot().top, leaf.getUnclippedBoundsInRoot().top)
         assertEquals(leaf.getUnclippedBoundsInRoot().top, duo.getUnclippedBoundsInRoot().top)
-        assertEquals(duo.getUnclippedBoundsInRoot().top, flash.getUnclippedBoundsInRoot().top)
+        assertTrue(flash.getUnclippedBoundsInRoot().top > duo.getUnclippedBoundsInRoot().top)
 
         compose.runOnIdle { width.value = 320.dp }
-        leaf.performScrollTo()
-        assertEquals(leaf.getUnclippedBoundsInRoot().top, duo.getUnclippedBoundsInRoot().top)
-        assertTrue("The third icon must wrap on a narrow screen",
-            flash.getUnclippedBoundsInRoot().top > duo.getUnclippedBoundsInRoot().top)
+        tile.performScrollTo()
+        assertEquals(tile.getUnclippedBoundsInRoot().top, leaf.getUnclippedBoundsInRoot().top)
+        assertTrue("The third item must wrap on a narrow screen",
+            duo.getUnclippedBoundsInRoot().top > leaf.getUnclippedBoundsInRoot().top)
+        assertEquals(duo.getUnclippedBoundsInRoot().top, flash.getUnclippedBoundsInRoot().top)
     }
 
     @Test fun nextUnlockUsesRealProgressAndOpensExistingLockedPreview() {

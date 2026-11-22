@@ -26,15 +26,17 @@ class Beta2Unified75CatalogTest {
         assertEquals(9, Cosmetics.fonts.size)
         assertEquals(6, Cosmetics.emblems.size)
         assertTrue(all.map { it.id }.containsAll(newWoodland.keys + newOcean.keys))
-        assertEquals("Complete 24 puzzles", Cosmetics.woodlandPortraits.first {
-            it.id == "woodland_raccoon" }.requirement)
+        assertTrue(Cosmetics.woodlandPortraits.first {
+            it.id == "woodland_raccoon" }.requirement.startsWith("Complete 24 puzzles"))
     }
 
     @Test fun allEightMilestonesRequireQualifiedCompletedPuzzlesOnly() {
         for ((id, target) in newWoodland + newOcean) {
             val prior = (1 until target).map(::solved)
             val earned = (1..target).map(::solved)
-            assertEquals("Complete $target puzzles", Cosmetics.portraits.first { it.id == id }.requirement)
+            assertTrue("Original $id achievement route must stay available",
+                Cosmetics.portraits.first { it.id == id }.requirement
+                    .startsWith("Complete $target puzzles"))
             assertFalse(Cosmetics.allowed(id, prior))
             assertTrue(Cosmetics.allowed(id, earned))
             assertEquals(target, Cosmetics.progress(id, earned)?.target)

@@ -174,17 +174,20 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         Eyebrow("YOUR ALBUM", Gold)
         SectionTitle("${available.size} of ${items.size} available")
         MilestoneTrack(available.size, items.size)
-        CosmeticGrid(available.sortedByDescending { it.isEquipped(look) }, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
+        // On the icon tab, the album chapters below show ALL portraits exactly
+        // once. Do not move unlocked starter characters outside their chapters.
+        if (category != CollectionCategory.ICONS) {
+            CosmeticGrid(available.sortedByDescending { it.isEquipped(look) },
+                progress, look, !state.busy, iconGallery = false, open = open)
+        }
     }
     if (locked.isNotEmpty()) {
-        // Surface one attainable goal using the *existing* durable unlock
-        // counts. Browsing and equipping still use the usual preview dialog.
         val next = locked.minByOrNull {
             val goal = progress.getValue(it.id)
             (goal.target - goal.current).coerceAtLeast(0)
         }
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            SectionTitle("Locked")
+            if (category != CollectionCategory.ICONS) SectionTitle("Locked")
             if (next != null) {
                 val goal = progress.getValue(next.id)
                 Surface(onClick = { open(next) }, enabled = !state.busy,
@@ -197,7 +200,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                         Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             Eyebrow("NEXT TO UNLOCK")
                             Text(next.cosmetic.name, style = MaterialTheme.typography.titleSmall, color = Forest)
-                            Text("${goal.current} of ${goal.target} · ${next.cosmetic.requirement}",
+                            Text("${goal.current} of ${goal.target} · ${goal.pathLabel ?: next.cosmetic.requirement}",
                                 style = MaterialTheme.typography.bodySmall, color = Muted)
                             MilestoneTrack(goal.current, goal.target)
                         }
@@ -205,16 +208,26 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                     }
                 }
             }
-            if (category == CollectionCategory.ICONS && family == IconFamily.ALL) {
-                // Original catalog stays fully available. Distinct illustrated
-                // album chapters replace one uninterrupted wall of locked cards.
-                locked.groupBy { it.family }.entries.forEachIndexed { chapterIndex, (chapter, chapterItems) ->
-                    CollectionChapterHeading(chapter?.label ?: "Basic", chapterIndex + 1)
-                    CosmeticGrid(chapterItems, progress, look, !state.busy, iconGallery = true, open = open)
-                }
-            } else {
-                CosmeticGrid(locked, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
+            if (category != CollectionCategory.ICONS) {
+                CosmeticGrid(locked, progress, look, !state.busy,
+                    iconGallery = false, open = open)
             }
+        }
+    }
+    if (category == CollectionCategory.ICONS) {
+        // Keep complete families together. Starters, earned and locked
+        // portraits occupy their original chapter in the same gallery row.
+        // Grouping never changes ID, milestone, equipped state, or ownership.
+        if (family == IconFamily.ALL) {
+            items.groupBy { it.family }.entries.forEachIndexed { index, (chapter, chapterItems) ->
+                CollectionChapterHeading(chapter?.label ?: "Basic", index + 1)
+                CosmeticGrid(chapterItems, progress, look, !state.busy,
+                    iconGallery = true, open = open)
+            }
+        } else {
+            CollectionChapterHeading(family.label, IconFamily.entries.indexOf(family))
+            CosmeticGrid(items, progress, look, !state.busy,
+                iconGallery = true, open = open)
         }
     }
     if (stylePreviewOpen) {
@@ -335,7 +348,8 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     }, shape = RoundedCornerShape(15.dp), color = if (equipped) GreenTint else Paper,
         border = BorderStroke(if (equipped) 2.dp else 1.dp, if (equipped) Forest else Rule)) {
         val sample = item.group.withItem(look, item.id)
-        val detail = if (equipped) status else family
+        // The chapter heading already names the family; use this line for actual status.
+        val detail = if (iconGallery) status else if (equipped) status else family
         val label: @Composable () -> Unit = {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp),
                 horizontalAlignment = if (singleColumn) Alignment.Start else Alignment.CenterHorizontally) {
@@ -405,7 +419,11 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                 color = Forest, style = MaterialTheme.typography.titleSmall)
             if (!equipped && !progress.unlocked) {
                 Text(item.cosmetic.requirement, color = Ink)
-                Text("${progress.current} of ${progress.target}" + if (item.group == CosmeticGroup.PORTRAIT) " completed" else "",
+                // The numbers below describe the quickest path, not a sum
+                // of unrelated puzzle totals. A prior completion route still
+                // permanently unlocks this same portrait.
+                Text("${progress.current} of ${progress.target}" +
+                    (progress.pathLabel?.let { " · $it" } ?: ""),
                     color = Muted, style = MaterialTheme.typography.bodySmall)
                 MilestoneTrack(progress.current, progress.target)
             }
