@@ -12,7 +12,7 @@ class Beta2FourBoardsTest {
         val ids = Cosmetics.boards.map { it.id }
         assertEquals(listOf("classic", "linen", "midnight", "circuit",
             "parchment", "ocean", "graphite", "moss", "rosewood", "pebble", "tidal"), ids)
-        assertEquals(79, Cosmetics.portraits.size + Cosmetics.emblems.size +
+        assertEquals(85, Cosmetics.portraits.size + Cosmetics.emblems.size +
             Cosmetics.boards.size + Cosmetics.inks.size + Cosmetics.fonts.size)
         assertEquals("Starter", Cosmetics.boards.first { it.id == "classic" }.requirement)
         assertEquals("Solve 2 solo puzzles",
