@@ -55,7 +55,9 @@ const val MAX_RECORDS = 10_000
     val records: List<GameRecord> = emptyList(),
     val dailyProgress: List<DailyProgress> = emptyList(),
     /** Durable locally earned cosmetic IDs; optional for all existing Beta 1 saves. */
-    val ownedCosmeticIds: List<String> = emptyList()
+    val ownedCosmeticIds: List<String> = emptyList(),
+    /** Persisted achievement medals survive record pruning and old-save upgrades. */
+    val earnedAchievementIds: List<String> = emptyList()
 )
 
 data class PersonalStats(

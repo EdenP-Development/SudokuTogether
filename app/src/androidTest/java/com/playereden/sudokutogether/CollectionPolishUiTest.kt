@@ -61,7 +61,7 @@ class CollectionPolishUiTest {
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
 
         compose.onNodeWithTag("nav_collection").performClick()
-        compose.onNodeWithText("8 of 49 available").assertIsDisplayed()
+        compose.onNodeWithText("8 of 55 available").assertIsDisplayed()
         for (chapter in 1..5) compose.onNodeWithTag("collection_chapter_$chapter").assertExists()
         for (starter in listOf("woodland_owl", "woodland_fox", "ocean_octopus",
             "garden_honeybee", "farm_cow")) {
@@ -75,7 +75,7 @@ class CollectionPolishUiTest {
         compose.runOnIdle {
             state.value = state.value.copy(profile = data.copy(records = emptyList()))
         }
-        compose.onNodeWithText("7 of 49 available").assertIsDisplayed()
+        compose.onNodeWithText("7 of 55 available").assertIsDisplayed()
         compose.onNodeWithTag("portrait_woodland_rabbit").assertIsSelected()
         compose.onAllNodesWithTag("portrait_farm_cow").assertCountEquals(1)
     }

@@ -48,7 +48,7 @@ internal enum class ProfileSection(val title: String) {
                         ProfileSection.OVERVIEW -> ProfileOverview(state, actions, openSection, collection)
                         ProfileSection.STATISTICS -> StatisticsContent(state)
                         ProfileSection.HISTORY -> HistoryContent(state, actions)
-                        ProfileSection.ACHIEVEMENTS -> AchievementsContent(state.profile.records)
+                        ProfileSection.ACHIEVEMENTS -> AchievementsContent(state.profile)
                     }
                     JournalTab.COLLECTION -> CollectionContent(state, actions, scroll)
                     JournalTab.SETTINGS -> SettingsContent(state, actions, help, share, settingsLocked, settingsExtra)
@@ -208,11 +208,16 @@ internal enum class ProfileSection(val title: String) {
         }
     }
 
-    val milestones = Achievements.progress(records)
+    val milestones = Achievements.progress(records, state.profile.earnedAchievementIds)
     val earned = milestones.count { it.unlocked }
     // Spotlight an actual saved-record milestone instead of inventing points,
     // daily streaks or a second progression system.
-    val upcoming = milestones.firstOrNull { !it.unlocked }
+    val upcoming = milestones.filterNot { it.unlocked }.minWithOrNull(
+        compareBy<AchievementProgress>(
+            { (it.target - it.current).coerceAtLeast(0).toFloat() / it.target.coerceAtLeast(1) },
+            { it.target }
+        )
+    )
     GamePanel(Modifier.fillMaxWidth(), color = GoldTint.copy(alpha = .55f).compositeOver(Cream), padding = 14.dp) {
         SectionTitle("Achievements", "$earned of ${milestones.size} earned")
         if (upcoming != null) {
@@ -333,20 +338,89 @@ internal enum class ProfileSection(val title: String) {
     }
 }
 
-@Composable private fun AchievementsContent(records: List<GameRecord>) {
-    val milestones = Achievements.progress(records)
-    Text("${milestones.count { it.unlocked }} of ${milestones.size} earned", style = MaterialTheme.typography.bodyMedium, color = Muted)
-    milestones.forEach { progress ->
-        GamePanel(Modifier.fillMaxWidth(),
-            color = if (progress.unlocked) GoldTint.copy(alpha = .45f).compositeOver(Cream) else Paper,
-            padding = 14.dp) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                GameIcon(GameSymbol.TROPHY, if (progress.unlocked) Gold else Muted, Modifier.size(22.dp))
-                Column(Modifier.weight(1f)) { SectionTitle(progress.title, progress.description) }
+@Composable private fun AchievementsContent(profile: LocalPlayerData) {
+    val milestones = remember(profile.records, profile.earnedAchievementIds) {
+        Achievements.progress(profile.records, profile.earnedAchievementIds)
+    }
+    val locked = milestones.filterNot { it.unlocked }.sortedWith(
+        compareBy<AchievementProgress>(
+            { (it.target - it.current).coerceAtLeast(0).toFloat() / it.target.coerceAtLeast(1) },
+            { it.target }
+        )
+    )
+    val earned = milestones.filter { it.unlocked }
+    var allGoals by rememberSaveable { mutableStateOf(false) }
+    var showEarned by rememberSaveable { mutableStateOf(false) }
+
+    SectionTitle("Your achievement album", "${earned.size} of ${milestones.size} earned")
+    Text("Every finished puzzle counts toward your goals. Older achievements stay earned, even when old game records roll off the history.",
+        color = Muted, style = MaterialTheme.typography.bodySmall)
+    if (locked.isEmpty()) {
+        GamePanel(Modifier.fillMaxWidth(), color = GoldTint.copy(alpha = .45f).compositeOver(Cream)) {
+            Text("You've earned every achievement — outstanding!", color = Forest,
+                style = MaterialTheme.typography.titleSmall)
+        }
+    } else {
+        SectionTitle("Closest goals", "A little something to work toward")
+        locked.take(3).forEach { AchievementMedal(it) }
+        if (locked.size > 3) {
+            OutlinedButton(
+                onClick = { allGoals = !allGoals },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                    .testTag("achievements_all_goals_toggle"),
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, Rule)
+            ) {
+                Text(if (allGoals) "Show closest goals only"
+                    else "Explore all ${locked.size} remaining goals", color = Forest)
             }
-            Text(if (progress.unlocked) "Earned" else "${progress.current} of ${progress.target}",
-                color = if (progress.unlocked) Forest else Muted, style = MaterialTheme.typography.bodySmall)
-            MilestoneTrack(progress.current, progress.target)
+            if (allGoals) {
+                locked.drop(3).groupBy { it.category }.forEach { (category, goals) ->
+                    Text(category, style = MaterialTheme.typography.titleMedium, color = Forest,
+                        modifier = Modifier.padding(top = 8.dp))
+                    goals.forEach { AchievementMedal(it) }
+                }
+            }
+        }
+    }
+    SectionTitle("Earned medals", "${earned.size} collected")
+    if (earned.isNotEmpty()) {
+        OutlinedButton(onClick = { showEarned = !showEarned },
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                .testTag("achievements_earned_toggle"),
+            shape = RoundedCornerShape(12.dp), border = BorderStroke(1.dp, Rule)) {
+            Text(if (showEarned) "Hide earned medals" else "Browse earned medals", color = Forest)
+        }
+        if (showEarned) earned.groupBy { it.category }.forEach { (category, medals) ->
+            Text(category, style = MaterialTheme.typography.titleMedium, color = Forest,
+                modifier = Modifier.padding(top = 8.dp))
+            medals.forEach { AchievementMedal(it) }
+        }
+    } else {
+        Text("Your first medal is just one Solo puzzle away.", color = Muted)
+    }
+}
+
+/** Compact reusable medal; avoids rendering dozens of full-height cards by default. */
+@Composable private fun AchievementMedal(progress: AchievementProgress) {
+    GamePanel(Modifier.fillMaxWidth().testTag("achievement_${progress.id}"),
+        color = if (progress.unlocked) GoldTint.copy(alpha = .45f).compositeOver(Cream) else Paper,
+        padding = 12.dp) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
+            GameIcon(GameSymbol.TROPHY, if (progress.unlocked) Gold else Muted, Modifier.size(23.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text(progress.title, style = MaterialTheme.typography.titleSmall, color = Forest)
+                Text(progress.description, style = MaterialTheme.typography.bodySmall, color = Muted)
+            }
+        }
+        Text(if (progress.unlocked) "Earned" else "${progress.current.coerceAtMost(progress.target)} / ${progress.target}",
+            color = if (progress.unlocked) Forest else Muted,
+            style = MaterialTheme.typography.bodySmall)
+        MilestoneTrack(progress.current, progress.target)
+        progress.rewardId?.let { reward ->
+            val name = Cosmetics.emblems.firstOrNull { it.id == reward }?.name
+            if (name != null) Text("Matching Collection reward: $name",
+                style = MaterialTheme.typography.labelSmall, color = Forest)
         }
     }
 }

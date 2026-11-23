@@ -4,6 +4,7 @@ import android.content.SharedPreferences
 import android.system.Os
 import android.system.OsConstants
 import android.util.AtomicFile
+import com.playereden.sudokutogether.core.Achievements
 import com.playereden.sudokutogether.core.Appearance
 import com.playereden.sudokutogether.core.Cosmetic
 import com.playereden.sudokutogether.core.Cosmetics
@@ -39,7 +40,8 @@ internal class ProgressBackupStore(
             checkReady(player)
             val previous = player.current()
             val snapshot = RecoverySnapshot(JOURNAL_SCHEMA, previous.playerId, BackupProgress(previous), preferencesSnapshot())
-            val next = Cosmetics.preserveEarned(preview.progress.forInstallation(previous.playerId))
+            val next = Achievements.preserveEarned(
+                Cosmetics.preserveEarned(preview.progress.forInstallation(previous.playerId)))
             val newSettings = preview.settings.copy(
                 appearance = Cosmetics.accessible(preview.settings.appearance, next.records, next.ownedCosmeticIds)
             ).preferenceValues()

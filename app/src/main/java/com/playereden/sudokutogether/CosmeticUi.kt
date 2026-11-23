@@ -38,6 +38,12 @@ fun emblemSymbol(id: String): String = when (id) {
     "flash" -> "ϟ"
     "star" -> "★"
     "laurel" -> "♛"
+    "constellation" -> "✦"
+    "sunrise" -> "☀"
+    "focus" -> "◉"
+    "compass" -> "✧"
+    "moonlight" -> "☾"
+    "grid_master" -> "❖"
     else -> "◆"
 }
 

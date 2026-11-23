@@ -17,10 +17,10 @@ class WoodlandCollectionTest {
             assertTrue("Restoring an unknown portrait must not block joining", Cosmetics.valid(restored))
         }
     }
-    @Test fun legacyIdentityKeepsSixEmblemsAndNoPortrait() {
+    @Test fun legacyIdentityRetainsOriginalSixEmblemsAndNoPortrait() {
         val old = Json.decodeFromString<Appearance>("""{"ink":"cobalt","board":"linen","font":"serif","emblem":"leaf"}""")
         assertEquals("", old.portrait);assertEquals("leaf", old.emblem);assertTrue(Cosmetics.valid(old))
-        assertEquals(listOf("tile", "leaf", "duo", "flash", "star", "laurel"), Cosmetics.emblems.map { it.id })
+        assertEquals(listOf("tile", "leaf", "duo", "flash", "star", "laurel"), Cosmetics.emblems.map { it.id }.take(6))
     }
     @Test fun expandedWoodlandRetainsTwoStarterChoicesAndVisibleMilestones() {
         val woodland = Cosmetics.portraits.filter { it.id.startsWith("woodland_") }

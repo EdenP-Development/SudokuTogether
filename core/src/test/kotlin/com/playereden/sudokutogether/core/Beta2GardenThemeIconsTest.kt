@@ -34,11 +34,11 @@ class Beta2GardenThemeIconsTest {
         )
         for ((id, expected) in original)
             assertEquals(expected, Cosmetics.gardenPortraits.first { it.id == id }.requirement)
-        assertEquals(6, Cosmetics.emblems.size)
+        assertEquals(12, Cosmetics.emblems.size)
         assertEquals(11, Cosmetics.boards.size)
         assertEquals(10, Cosmetics.inks.size)
         assertEquals(9, Cosmetics.fonts.size)
-        assertEquals(79, all.size + Cosmetics.emblems.size + Cosmetics.boards.size +
+        assertEquals(85, all.size + Cosmetics.emblems.size + Cosmetics.boards.size +
             Cosmetics.inks.size + Cosmetics.fonts.size)
     }
 
