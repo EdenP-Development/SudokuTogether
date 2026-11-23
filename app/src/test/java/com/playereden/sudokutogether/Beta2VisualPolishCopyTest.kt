@@ -9,7 +9,14 @@ class Beta2VisualPolishCopyTest {
         assertTrue(collectionNameIsLongSingleWord("Constellation"))
         assertFalse(collectionNameIsLongSingleWord("Focused Solver"))
         assertFalse(collectionNameIsLongSingleWord("Watering Can"))
-        assertFalse(collectionNameIsLongSingleWord("Strawberry"))
+        assertTrue(collectionNameIsLongSingleWord("Strawberry"))
+        assertTrue(collectionNameIsLongSingleWord("Woodpecker"))
+        assertTrue(collectionNameIsLongSingleWord("Dragonfly"))
+        assertEquals(12, collectionIconLabelSize("Woodpecker"))
+        assertEquals(11, collectionIconLabelSize("Constellation"))
+        assertEquals(12, collectionIconLabelSize("Strawberry"))
+        assertEquals(14, collectionIconLabelSize("Raccoon"))
+        assertEquals(14, collectionIconLabelSize("Focused Solver"))
     }
 
     @Test fun numberSampleVisiblySeparatesTwoSudokuDigits() {
