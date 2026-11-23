@@ -74,6 +74,9 @@ jobs:
             adb shell am start -W -n com.playereden.sudokutogether.qa.beta2artzip/com.playereden.sudokutogether.ArtReviewActivity
             adb shell pidof com.playereden.sudokutogether.qa.beta2artzip
             ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2ArtZipPreview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.ArtReviewZipUiTest"
+            # Connected Android tests may uninstall the target APK during cleanup.
+            # Reinstall the exact verified test APK before taking owner evidence.
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
             adb shell am start -W -n com.playereden.sudokutogether.qa.beta2artzip/com.playereden.sudokutogether.ArtReviewActivity
             adb shell screencap -p /sdcard/gridmates-art-review.png
             adb pull /sdcard/gridmates-art-review.png gridmates-art-review-android.png
