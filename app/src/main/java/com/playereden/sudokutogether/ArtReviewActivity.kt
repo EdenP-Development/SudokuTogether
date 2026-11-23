@@ -71,7 +71,7 @@ class ArtReviewActivity : ComponentActivity() {
                     }
                 }
                 ArtReviewScreen(candidates, notice) {
-                    picker.launch(arrayOf("application/zip", "application/octet-stream"))
+                    picker.launch(arrayOf("*/*"))
                 }
             }
         }
