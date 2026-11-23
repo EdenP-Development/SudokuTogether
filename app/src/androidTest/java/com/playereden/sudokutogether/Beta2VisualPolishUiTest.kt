@@ -20,7 +20,7 @@ class Beta2VisualPolishUiTest {
         val heading = compose.onNodeWithText("Shared board")
             .getUnclippedBoundsInRoot()
         assertTrue("Title should not enter the main character half",
-            heading.right <= banner.left + banner.width * .54f)
+            heading.right <= banner.left + (banner.right - banner.left) * .54f)
         compose.onNodeWithText("Start a game").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Join a game").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("require_code").performScrollTo().assertExists()
