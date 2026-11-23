@@ -13,7 +13,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -86,11 +85,11 @@ internal val versusV8MajorLines: List<Int> = listOf(0, 3, 6, 9)
             drawRect(paper)
             for (i in 0..9) {
                 val major = i % 3 == 0
-                val pos = size.width * versusV8GridPositions[i]
+                val pos = this.size.width * versusV8GridPositions[i]
                 val stroke = if (major) 1.65.dp.toPx() else .48.dp.toPx()
-                drawLine(lines, Offset(pos, 0f), Offset(pos, size.height), stroke)
-                val ypos = size.height * versusV8GridPositions[i]
-                drawLine(lines, Offset(0f, ypos), Offset(size.width, ypos), stroke)
+                drawLine(lines, Offset(pos, 0f), Offset(pos, this.size.height), stroke)
+                val ypos = this.size.height * versusV8GridPositions[i]
+                drawLine(lines, Offset(0f, ypos), Offset(this.size.width, ypos), stroke)
             }
         }
     }
