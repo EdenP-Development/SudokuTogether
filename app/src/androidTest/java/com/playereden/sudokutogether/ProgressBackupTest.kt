@@ -327,4 +327,36 @@ class ProgressBackupTest {
         assertEquals("rose", preferences.getString("cosmeticInk", null))
         assertTrue(Cosmetics.allowed("rose", restored.records, restored.ownedCosmeticIds))
     }
+
+    @Test fun earnedVeteranMedalsSurvivePortableBackupAndLegacyBackupStillImports() {
+        val records = (1..100).map {
+            GameRecord("veteran-$it", SOLO, "SOLVED", "p-$it", 1_200_000L, 32, it.toLong(),
+                difficulty = "EASY", assisted = true)
+        }
+        val earned = Achievements.preserveEarned(LocalPlayerData(playerId = "veteran",
+            records = records)).copy(records = emptyList())
+        assertTrue("solo-100" in earned.earnedAchievementIds)
+        val bytes = ProgressBackup.encode(earned, BackupSettings(), "1.0.0-beta.2", 1000L)
+        val imported = ProgressBackup.decode(bytes.inputStream()).progress.forInstallation("recipient")
+        assertEquals(earned.earnedAchievementIds, imported.earnedAchievementIds)
+        assertTrue(Achievements.progress(imported.records, imported.earnedAchievementIds)
+            .first { it.id == "solo-100" }.unlocked)
+
+        // Prior Beta 1 backups omit the new optional field; they must stay valid.
+        val envelope = Json.parseToJsonElement(bytes.decodeToString()).jsonObject.toMutableMap()
+        val progress = envelope.getValue("progress").jsonObject.toMutableMap()
+        progress.remove("earnedAchievementIds")
+        envelope["progress"] = JsonObject(progress)
+        val legacy = ProgressBackup.decode(JsonObject(envelope).toString().byteInputStream())
+        assertTrue(legacy.progress.earnedAchievementIds.isEmpty())
+
+        progress["earnedAchievementIds"] = JsonArray(listOf(JsonPrimitive("forged-medal")))
+        envelope["progress"] = JsonObject(progress)
+        try {
+            ProgressBackup.decode(JsonObject(envelope).toString().byteInputStream())
+            fail("Unknown achievement IDs cannot be restored")
+        } catch (expected: ProgressBackupException) {
+            assertEquals(ProgressBackupException.Reason.INVALID, expected.reason)
+        }
+    }
 }
