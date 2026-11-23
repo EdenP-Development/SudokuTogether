@@ -353,7 +353,7 @@ internal enum class ProfileSection(val title: String) {
     var showEarned by rememberSaveable { mutableStateOf(false) }
 
     SectionTitle("Your achievement album", "${earned.size} of ${milestones.size} earned")
-    Text("Every finished puzzle counts toward your goals. Older achievements stay earned, even when old game records roll off the history.",
+    Text("Every puzzle brings you closer to another medal. What you earn is yours to keep!",
         color = Muted, style = MaterialTheme.typography.bodySmall)
     if (locked.isEmpty()) {
         GamePanel(Modifier.fillMaxWidth(), color = GoldTint.copy(alpha = .45f).compositeOver(Cream)) {
@@ -401,14 +401,26 @@ internal enum class ProfileSection(val title: String) {
     }
 }
 
-/** Compact reusable medal; avoids rendering dozens of full-height cards by default. */
+/** Distinct, existing in-house line symbols; no new mixed-style emoji set. */
+internal fun achievementCategoryIcon(category: String): GameSymbol = when (category) {
+    "Solo" -> GameSymbol.GRID
+    "Daily" -> GameSymbol.CALENDAR
+    "Difficulty" -> GameSymbol.TROPHY
+    "Clean solves" -> GameSymbol.CHECK
+    "Together" -> GameSymbol.PEOPLE
+    "Versus" -> GameSymbol.TROPHY
+    else -> GameSymbol.TROPHY
+}
+
+/** Compact reusable medal; no full-height identical trophy wall by default. */
 @Composable private fun AchievementMedal(progress: AchievementProgress) {
     GamePanel(Modifier.fillMaxWidth().testTag("achievement_${progress.id}"),
         color = if (progress.unlocked) GoldTint.copy(alpha = .45f).compositeOver(Cream) else Paper,
-        padding = 12.dp) {
+        padding = 10.dp) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-            GameIcon(GameSymbol.TROPHY, if (progress.unlocked) Gold else Muted, Modifier.size(23.dp))
-            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            GameIcon(achievementCategoryIcon(progress.category),
+                if (progress.unlocked) Gold else Forest, Modifier.size(23.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
                 Text(progress.title, style = MaterialTheme.typography.titleSmall, color = Forest)
                 Text(progress.description, style = MaterialTheme.typography.bodySmall, color = Muted)
             }
