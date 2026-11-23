@@ -5,6 +5,11 @@ val signingFile = System.getenv("SUDOKU_SIGNING_FILE")?.let { file(it) }
 val privateSigning = Properties().apply { if (signingFile?.isFile == true) signingFile.inputStream().use(::load) }
 // Downloadable QA updates opt in to the original private debug identity.
 // Ordinary developer builds may still use their own local debug key.
+// Offline ZIP-based art reviewer. Separate package, never normal game data.
+val beta2ArtZipPreview = providers.gradleProperty("gridmatesBeta2ArtZipPreview").orNull?.let {
+    require(it == "true") { "gridmatesBeta2ArtZipPreview only accepts true" }
+    true
+} ?: false
 // Isolated owner art preview. No production signing or QA-update identity.
 val woodlandV5Preview = providers.gradleProperty("gridmatesWoodlandV5Preview").orNull?.let {
     require(it == "true") { "gridmatesWoodlandV5Preview only accepts true" }
@@ -55,7 +60,7 @@ val beta2BoardsPreview = providers.gradleProperty("gridmatesBeta2BoardsPreview")
     require(it == "true") { "gridmatesBeta2BoardsPreview only accepts true" }
     true
 } ?: false
-require(listOf(beta2UnlockPreview, beta2V7Preview, beta2MatrixPreview, beta2Unified79Preview, beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
+require(listOf(beta2ArtZipPreview, beta2UnlockPreview, beta2V7Preview, beta2MatrixPreview, beta2Unified79Preview, beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
     "Only one isolated preview type can be selected"
 }
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
@@ -74,6 +79,7 @@ require(!(beta2Unified75Preview && qaVersion != null)) { "Unified 75 preview mus
 require(!(beta2Unified79Preview && qaVersion != null)) { "Unified 79 preview must not share QA-update identity" }
 require(!(beta2MatrixPreview && qaVersion != null)) { "Matrix preview must not share QA-update identity" }
 require(!(beta2V7Preview && qaVersion != null)) { "Beta2 V7 preview must not share QA-update identity" }
+require(!(beta2ArtZipPreview && qaVersion != null)) { "Art ZIP reviewer must not share QA-update identity" }
 require(!(beta2UnlockPreview && qaVersion != null)) { "Beta2 unlock preview must not share QA-update identity" }
 require(!(beta2BoardsPreview && qaVersion != null)) { "Boards preview must not share QA-update identity" }
 require(!(woodlandV5Preview && qaVersion != null)) {
@@ -90,6 +96,8 @@ android {
         applicationId = "com.playereden.sudokutogether"
         minSdk = 26; targetSdk = 36; versionCode = qaVersion ?: 31; versionName = "1.0.0-beta.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders["beta2ArtReviewEnabled"] = beta2ArtZipPreview.toString()
+        manifestPlaceholders["beta2GameEnabled"] = (!beta2ArtZipPreview).toString()
     }
     if (privateSigning.isNotEmpty()) signingConfigs.create("privateKey") {
         storeFile = file(privateSigning.getProperty("storeFile"))
@@ -108,6 +116,7 @@ android {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
+                beta2ArtZipPreview -> ".qa.beta2artzip"
                 beta2BoardsPreview -> ".qa.beta2boards"
                 beta2UnlockPreview -> ".qa.beta2unlock"
                 beta2V7Preview -> ".qa.beta2v7"
@@ -121,6 +130,7 @@ android {
                 else -> ".qa"
             }
             versionNameSuffix = when {
+                beta2ArtZipPreview -> "-qa.beta2artzip"
                 beta2BoardsPreview -> "-qa.beta2boards"
                 beta2UnlockPreview -> "-qa.beta2unlock"
                 beta2V7Preview -> "-qa.beta2v7"
