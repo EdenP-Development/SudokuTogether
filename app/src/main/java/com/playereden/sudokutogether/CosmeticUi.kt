@@ -51,9 +51,17 @@ fun emblemSymbol(id: String): String = when (id) {
 /** Two Sudoku glyphs, with visible spacing so a sample is not misread as fifty-nine. */
 internal const val NUMBER_PREVIEW_SAMPLE = "5 9"
 
-/** A long single-word name must not split into an ugly extra line in 3-column albums. */
+/** Never let one-word icon names break into orphan letters on phone galleries. */
 internal fun collectionNameIsLongSingleWord(name: String): Boolean =
-    name.length >= 12 && name.none { it.isWhitespace() }
+    name.length >= 9 && name.none { it.isWhitespace() }
+
+/** Font sizes tested against three-column album widths, keeping whole words visible. */
+internal fun collectionIconLabelSize(name: String): Int = when {
+    name.any { it.isWhitespace() } -> 14
+    name.length >= 12 -> 11
+    name.length >= 9 -> 12
+    else -> 14
+}
 
 fun emblemName(id: String): String = Cosmetics.emblems.firstOrNull { it.id == id }?.name ?: "Gridkeeper"
 
@@ -367,15 +375,16 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         val label: @Composable () -> Unit = {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp),
                 horizontalAlignment = if (singleColumn) Alignment.Start else Alignment.CenterHorizontally) {
-                val compactName = !singleColumn && iconGallery && collectionNameIsLongSingleWord(item.cosmetic.name)
+                val singleWordIcon = !singleColumn && iconGallery &&
+                    item.cosmetic.name.none { it.isWhitespace() }
                 Text(item.cosmetic.name, color = Forest,
-                    // Preserve full names rather than breaking words mid-syllable,
-                    // e.g. "Constellati / on" on a 3-column phone layout.
-                    fontSize = if (compactName) 11.sp else 14.sp,
-                    lineHeight = if (compactName) 15.sp else 18.sp,
+                    // Prevent Woodpecke/r and Constellati/on: never break a
+                    // single-word portrait or emblem label across lines.
+                    fontSize = if (singleWordIcon) collectionIconLabelSize(item.cosmetic.name).sp else 14.sp,
+                    lineHeight = if (singleWordIcon) 15.sp else 18.sp,
                     fontWeight = FontWeight.SemiBold,
-                    maxLines = if (compactName) 1 else 2,
-                    softWrap = !compactName,
+                    maxLines = if (singleWordIcon) 1 else 2,
+                    softWrap = !singleWordIcon,
                     overflow = TextOverflow.Ellipsis,
                     textAlign = if (singleColumn) TextAlign.Start else TextAlign.Center)
                 if (detail != null) {
