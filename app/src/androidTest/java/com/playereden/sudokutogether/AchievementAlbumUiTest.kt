@@ -25,8 +25,9 @@ class AchievementAlbumUiTest {
         compose.onNodeWithTag("achievements_all_goals_toggle").performScrollTo().performClick()
         val row = compose.onNodeWithTag("achievement_solo-50")
             .performScrollTo().assertIsDisplayed()
+        val bounds = row.getUnclippedBoundsInRoot()
         assertTrue("Expanded goal index should be visibly shorter than the original full-height cards",
-            row.getUnclippedBoundsInRoot().height < 120.dp)
+            bounds.bottom - bounds.top < 120.dp)
         compose.onNodeWithText("Solve fifty solo puzzles").assertExists()
         compose.onNodeWithTag("earned_medal_gallery").assertDoesNotExist()
     }
