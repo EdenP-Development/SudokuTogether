@@ -7,6 +7,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
@@ -16,6 +18,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -120,7 +123,11 @@ import androidx.compose.ui.unit.*
             .54f to NightForest.copy(alpha = .08f),
             1f to Color.Transparent
         )))
-        Column(Modifier.fillMaxHeight().fillMaxWidth(.59f)
+        // Co-op's approved illustration places the fox and shared board close
+        // to the middle of the banner. Reserve a narrower text-only zone
+        // instead of letting "Shared board" cross the character's face.
+        val titleSafeWidth = if (together) .48f else .59f
+        Column(Modifier.fillMaxHeight().fillMaxWidth(titleSafeWidth)
             .padding(start = 17.dp, top = 14.dp, bottom = 13.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.Start) {
@@ -134,8 +141,14 @@ import androidx.compose.ui.unit.*
             Text(heading, color = OnForest,
                 fontFamily = FontFamily.Serif,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = if (largeText) 15.sp else if (together) 23.sp else 21.sp,
-                lineHeight = if (largeText) 19.sp else 27.sp,
+                fontSize = if (largeText) 15.sp else if (together) 21.sp else 21.sp,
+                lineHeight = if (largeText) 19.sp else 25.sp,
+                // A small dark halo preserves white type over woodland detail,
+                // without embedding text into the image or dulling the whole scene.
+                style = if (together) TextStyle(shadow = Shadow(
+                    color = NightForest.copy(alpha = .96f),
+                    offset = Offset(0f, 1.2f), blurRadius = 2.8f
+                )) else TextStyle.Default,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis)
         }

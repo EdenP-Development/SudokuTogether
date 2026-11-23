@@ -27,6 +27,7 @@ import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.playereden.sudokutogether.core.*
@@ -45,6 +46,21 @@ fun emblemSymbol(id: String): String = when (id) {
     "moonlight" -> "☾"
     "grid_master" -> "❖"
     else -> "◆"
+}
+
+/** Two Sudoku glyphs, with visible spacing so a sample is not misread as fifty-nine. */
+internal const val NUMBER_PREVIEW_SAMPLE = "5 9"
+
+/** Never let one-word icon names break into orphan letters on phone galleries. */
+internal fun collectionNameIsLongSingleWord(name: String): Boolean =
+    name.length >= 9 && name.none { it.isWhitespace() }
+
+/** Font sizes tested against three-column album widths, keeping whole words visible. */
+internal fun collectionIconLabelSize(name: String): Int = when {
+    name.any { it.isWhitespace() } -> 14
+    name.length >= 12 -> 11
+    name.length >= 9 -> 12
+    else -> 14
 }
 
 fun emblemName(id: String): String = Cosmetics.emblems.firstOrNull { it.id == id }?.name ?: "Gridkeeper"
@@ -147,7 +163,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                         .background(Cream).clearAndSetSemantics {},
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("59", fontFamily = fontFor(displayedNumbers.font),
+                    Text(NUMBER_PREVIEW_SAMPLE, fontFamily = fontFor(displayedNumbers.font),
                         color = inkFor(displayedNumbers.ink, false), fontSize = 22.sp)
                 }
             }
@@ -359,7 +375,17 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         val label: @Composable () -> Unit = {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp),
                 horizontalAlignment = if (singleColumn) Alignment.Start else Alignment.CenterHorizontally) {
-                Text(item.cosmetic.name, color = Forest, fontSize = 14.sp, lineHeight = 18.sp, fontWeight = FontWeight.SemiBold,
+                val singleWordIcon = !singleColumn && iconGallery &&
+                    item.cosmetic.name.none { it.isWhitespace() }
+                Text(item.cosmetic.name, color = Forest,
+                    // Prevent Woodpecke/r and Constellati/on: never break a
+                    // single-word portrait or emblem label across lines.
+                    fontSize = if (singleWordIcon) collectionIconLabelSize(item.cosmetic.name).sp else 14.sp,
+                    lineHeight = if (singleWordIcon) 15.sp else 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = if (singleWordIcon) 1 else 2,
+                    softWrap = !singleWordIcon,
+                    overflow = TextOverflow.Ellipsis,
                     textAlign = if (singleColumn) TextAlign.Start else TextAlign.Center)
                 if (detail != null) {
                     Text(detail, color = Muted, fontSize = 11.sp, lineHeight = 14.sp,
@@ -401,7 +427,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
             val scale = LocalDensity.current.fontScale.coerceAtLeast(1f)
             Box(modifier.clip(RoundedCornerShape(10.dp)).background(Cream).clearAndSetSemantics {},
                 contentAlignment = Alignment.Center) {
-                Text("59", color = inkFor(look.ink, false), fontFamily = fontFor(look.font), fontSize = (26f / scale).sp)
+                Text(NUMBER_PREVIEW_SAMPLE, color = inkFor(look.ink, false), fontFamily = fontFor(look.font), fontSize = (26f / scale).sp)
             }
         }
     }
@@ -417,7 +443,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
             if (item.family != null) {
                 Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(GreenTint)
                     .padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
-                    AnimalPortrait(sample, Modifier.size(96.dp).clearAndSetSemantics {})
+                    AnimalPortrait(sample, Modifier.size(116.dp).clearAndSetSemantics {})
                 }
             }
             Text(item.previewLabel, color = Muted, style = MaterialTheme.typography.bodySmall)

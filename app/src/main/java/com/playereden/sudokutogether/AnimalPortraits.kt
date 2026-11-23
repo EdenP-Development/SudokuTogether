@@ -87,7 +87,7 @@ internal fun portraitDisplayScale(id: String): Float = when (id) {
 
 @Composable internal fun AnimalPortrait(appearance: Appearance, modifier: Modifier = Modifier.size(48.dp)) {
     val drawable = animalDrawable(appearance.portrait)
-    BoxWithConstraints(modifier.sizeIn(minWidth = 24.dp, minHeight = 24.dp, maxWidth = 96.dp, maxHeight = 96.dp)
+    BoxWithConstraints(modifier.sizeIn(minWidth = 24.dp, minHeight = 24.dp, maxWidth = 140.dp, maxHeight = 140.dp)
         .clip(CircleShape).background(GreenTint)
         .testTag("portrait_image_${appearance.portrait.ifEmpty { appearance.emblem }}"), contentAlignment = Alignment.Center) {
         if (drawable != null) Image(painterResource(drawable), contentDescription = null,
