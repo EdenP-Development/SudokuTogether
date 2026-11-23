@@ -40,12 +40,14 @@ internal data class BackupSettings(
 @Serializable
 internal data class BackupProgress(
     val activeSolo: SoloProgress?, val dailyProgress: List<DailyProgress>, val records: List<GameRecord>,
-    val ownedCosmeticIds: List<String> = emptyList()
+    val ownedCosmeticIds: List<String> = emptyList(),
+    val earnedAchievementIds: List<String> = emptyList()
 ) {
-    constructor(profile: LocalPlayerData) : this(profile.activeSolo, profile.dailyProgress, profile.records, profile.ownedCosmeticIds)
+    constructor(profile: LocalPlayerData) : this(profile.activeSolo, profile.dailyProgress, profile.records,
+        profile.ownedCosmeticIds, profile.earnedAchievementIds)
     fun forInstallation(playerId: String) = LocalPlayerData(
         playerId = playerId, activeSolo = activeSolo, dailyProgress = dailyProgress, records = records,
-        ownedCosmeticIds = ownedCosmeticIds
+        ownedCosmeticIds = ownedCosmeticIds, earnedAchievementIds = earnedAchievementIds
     )
 }
 
