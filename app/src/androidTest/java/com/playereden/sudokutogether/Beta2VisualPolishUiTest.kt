@@ -36,7 +36,7 @@ class Beta2VisualPolishUiTest {
         compose.onNodeWithText("Basic").performScrollTo().performClick()
         compose.onNodeWithTag("cosmetic_emblem_constellation").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Constellation").assertExists()
-        compose.onNodeWithTag("nav_profile").performClick()
+        compose.onNodeWithTag("nav_records").performClick()
         compose.onNodeWithText("View achievements").performScrollTo().performClick()
         compose.onNodeWithText(
             "Every puzzle brings you closer to another medal. What you earn is yours to keep!"
