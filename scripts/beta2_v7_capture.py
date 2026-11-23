@@ -7,12 +7,13 @@ navigate using Android's accessibility bounds and capture live framebuffers.
 Compose instrumentation independently verifies V7/no-duplicate/Co-op behavior.
 """
 from pathlib import Path
+import os
 import re
 import subprocess
 import time
 import xml.etree.ElementTree as ET
 
-PACKAGE = "com.playereden.sudokutogether.qa.beta2unlock"
+PACKAGE = os.environ.get("GRIDMATES_REVIEW_PACKAGE", "com.playereden.sudokutogether.qa.beta2unlock")
 ACTIVITY = "com.playereden.sudokutogether.MainActivity"
 MAGIC = bytes((137,80,78,71,13,10,26,10))
 
