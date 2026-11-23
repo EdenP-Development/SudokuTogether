@@ -122,7 +122,7 @@ class MeaningfulPortraitUnlocksTest {
         }
     }
 
-    @Test fun alternateEarnedOwnershipSurvivesRecordPruningAndCatalogRemains79() {
+    @Test fun alternateEarnedOwnershipSurvivesRecordPruningAndVeteranEmblemsAdded() {
         val daily = (1..3).map { solved("daily-$it", DAILY, day = "2026-11-0$it") }
         val earned = Cosmetics.preserveEarned(LocalPlayerData(records = daily))
         assertTrue("ocean_seahorse" in earned.ownedCosmeticIds)
@@ -131,8 +131,8 @@ class MeaningfulPortraitUnlocksTest {
         assertEquals(earned.ownedCosmeticIds, pruned.ownedCosmeticIds)
         assertTrue(Cosmetics.allowed("ocean_seahorse", pruned.records, pruned.ownedCosmeticIds))
         val ids = Cosmetics.portraits + Cosmetics.boards + Cosmetics.inks + Cosmetics.fonts + Cosmetics.emblems
-        assertEquals(79, ids.size)
-        assertEquals(79, ids.map { it.id }.toSet().size)
+        assertEquals(85, ids.size)
+        assertEquals(85, ids.map { it.id }.toSet().size)
         assertEquals(setOf("woodland_owl", "woodland_fox", "ocean_octopus",
             "garden_honeybee", "farm_cow"),
             Cosmetics.portraits.filter { Cosmetics.allowed(it.id, emptyList()) }.map { it.id }.toSet())
