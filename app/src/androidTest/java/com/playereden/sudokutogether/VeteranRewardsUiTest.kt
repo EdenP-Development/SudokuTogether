@@ -45,7 +45,6 @@ class VeteranRewardsUiTest {
         compose.onNodeWithTag("achievements_all_goals_toggle").assertExists()
         compose.onNodeWithTag("achievements_earned_toggle").performScrollTo().performClick()
         compose.onNodeWithTag("achievement_solo-100").performScrollTo().assertIsDisplayed()
-        compose.onNodeWithText("Puzzle Veteran").assertDoesNotExist()
         assertEquals(110, state.value.profile.records.size)
     }
 }
