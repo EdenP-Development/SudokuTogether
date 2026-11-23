@@ -51,11 +51,11 @@ object Cosmetics {
     }
 
     /**
-     * Extra routes to selected portrait rewards—not a new economy.
+     * Extra routes to selected portraits and veteran emblems—not a new economy.
      * Original completed-puzzle targets stay valid for every existing player.
      * Alternative milestones are supported by the existing durable record fields.
      */
-    private val portraitAlternates = mapOf(
+    private val extraGoals = mapOf(
         "woodland_beaver" to AlternateGoal(Challenge.MEDIUM_SOLO, 5),
         "woodland_woodpecker" to AlternateGoal(Challenge.HARD_SOLO, 3),
         "woodland_skunk" to AlternateGoal(Challenge.CLEAN_SOLO, 12),
@@ -70,13 +70,20 @@ object Cosmetics {
         "farm_sheep" to AlternateGoal(Challenge.MEDIUM_SOLO, 3),
         "farm_pig" to AlternateGoal(Challenge.CLEAN_SOLO, 4),
         "farm_pumpkin" to AlternateGoal(Challenge.DAILY_DAYS, 4),
-        "farm_hay_bale" to AlternateGoal(Challenge.HARD_SOLO, 4)
+        "farm_hay_bale" to AlternateGoal(Challenge.HARD_SOLO, 4),
+        // Beta 2 veteran insignias: advanced paths in addition to total solves.
+        "constellation" to AlternateGoal(Challenge.HARD_SOLO, 15),
+        "sunrise" to AlternateGoal(Challenge.DAILY_DAYS, 15),
+        "focus" to AlternateGoal(Challenge.CLEAN_SOLO, 25),
+        "compass" to AlternateGoal(Challenge.MEDIUM_SOLO, 40),
+        "moonlight" to AlternateGoal(Challenge.DAILY_DAYS, 30),
+        "grid_master" to AlternateGoal(Challenge.HARD_SOLO, 50)
     )
 
     private data class CatalogEntry(val id: String, val name: String, val target: Int = 0, val milestone: Milestone = Milestone.SOLO) {
         fun cosmetic(): Cosmetic {
             val original = milestone.describe(target)
-            val alternative = portraitAlternates[id]
+            val alternative = extraGoals[id]
             return Cosmetic(id, name, if (alternative == null) original
                 else "$original or ${alternative.describe()}")
         }
@@ -174,7 +181,14 @@ object Cosmetics {
         CatalogEntry("duo", "Two Minds", 1, Milestone.COOP),
         CatalogEntry("flash", "Challenger", 1, Milestone.RACE),
         CatalogEntry("star", "Star Solver", 5),
-        CatalogEntry("laurel", "Champion", 3, Milestone.RACE)
+        CatalogEntry("laurel", "Champion", 3, Milestone.RACE),
+        // Six genuinely new earnable player insignias (no third-party sprites).
+        CatalogEntry("constellation", "Constellation", 135, Milestone.FINISH),
+        CatalogEntry("sunrise", "Sunrise", 160, Milestone.FINISH),
+        CatalogEntry("focus", "Focused Solver", 190, Milestone.FINISH),
+        CatalogEntry("compass", "True North", 230, Milestone.FINISH),
+        CatalogEntry("moonlight", "Moonlight", 300, Milestone.FINISH),
+        CatalogEntry("grid_master", "Grid Master", 500, Milestone.FINISH)
     )
     private val portraitEntries = woodlandEntries + oceanEntries + gardenEntries + farmEntries
     private val entries = (portraitEntries + inkEntries + boardEntries + fontEntries + emblemEntries).associateBy { it.id }
@@ -257,7 +271,7 @@ object Cosmetics {
             Milestone.COOP -> totals.coop
             Milestone.RACE -> totals.race
         }
-        val alternate = portraitAlternates[entry.id]
+        val alternate = extraGoals[entry.id]
         return CosmeticProgress(current, entry.target, earned,
             alternate?.let { totals.challengeCount(it.kind) } ?: 0,
             alternate?.target ?: 0)
