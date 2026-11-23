@@ -27,6 +27,7 @@ import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.playereden.sudokutogether.core.*
@@ -46,6 +47,13 @@ fun emblemSymbol(id: String): String = when (id) {
     "grid_master" -> "❖"
     else -> "◆"
 }
+
+/** Two Sudoku glyphs, with visible spacing so a sample is not misread as fifty-nine. */
+internal const val NUMBER_PREVIEW_SAMPLE = "5 9"
+
+/** A long single-word name must not split into an ugly extra line in 3-column albums. */
+internal fun collectionNameIsLongSingleWord(name: String): Boolean =
+    name.length >= 12 && name.none { it.isWhitespace() }
 
 fun emblemName(id: String): String = Cosmetics.emblems.firstOrNull { it.id == id }?.name ?: "Gridkeeper"
 
@@ -147,7 +155,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                         .background(Cream).clearAndSetSemantics {},
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("59", fontFamily = fontFor(displayedNumbers.font),
+                    Text(NUMBER_PREVIEW_SAMPLE, fontFamily = fontFor(displayedNumbers.font),
                         color = inkFor(displayedNumbers.ink, false), fontSize = 22.sp)
                 }
             }
@@ -359,7 +367,16 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         val label: @Composable () -> Unit = {
             Column(verticalArrangement = Arrangement.spacedBy(2.dp),
                 horizontalAlignment = if (singleColumn) Alignment.Start else Alignment.CenterHorizontally) {
-                Text(item.cosmetic.name, color = Forest, fontSize = 14.sp, lineHeight = 18.sp, fontWeight = FontWeight.SemiBold,
+                val compactName = !singleColumn && iconGallery && collectionNameIsLongSingleWord(item.cosmetic.name)
+                Text(item.cosmetic.name, color = Forest,
+                    // Preserve full names rather than breaking words mid-syllable,
+                    // e.g. "Constellati / on" on a 3-column phone layout.
+                    fontSize = if (compactName) 11.sp else 14.sp,
+                    lineHeight = if (compactName) 15.sp else 18.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = if (compactName) 1 else 2,
+                    softWrap = !compactName,
+                    overflow = TextOverflow.Ellipsis,
                     textAlign = if (singleColumn) TextAlign.Start else TextAlign.Center)
                 if (detail != null) {
                     Text(detail, color = Muted, fontSize = 11.sp, lineHeight = 14.sp,
@@ -401,7 +418,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
             val scale = LocalDensity.current.fontScale.coerceAtLeast(1f)
             Box(modifier.clip(RoundedCornerShape(10.dp)).background(Cream).clearAndSetSemantics {},
                 contentAlignment = Alignment.Center) {
-                Text("59", color = inkFor(look.ink, false), fontFamily = fontFor(look.font), fontSize = (26f / scale).sp)
+                Text(NUMBER_PREVIEW_SAMPLE, color = inkFor(look.ink, false), fontFamily = fontFor(look.font), fontSize = (26f / scale).sp)
             }
         }
     }
@@ -417,7 +434,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
             if (item.family != null) {
                 Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(GreenTint)
                     .padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
-                    AnimalPortrait(sample, Modifier.size(96.dp).clearAndSetSemantics {})
+                    AnimalPortrait(sample, Modifier.size(116.dp).clearAndSetSemantics {})
                 }
             }
             Text(item.previewLabel, color = Muted, style = MaterialTheme.typography.bodySmall)
