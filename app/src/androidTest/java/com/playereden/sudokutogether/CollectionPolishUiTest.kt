@@ -304,7 +304,7 @@ class CollectionPolishUiTest {
         }
         compose.onNodeWithTag("nav_collection").performClick()
         compose.onNodeWithText("Farm").performScrollTo().performClick().assertIsSelected()
-        compose.onNodeWithText("1 of 12 available").assertIsDisplayed()
+        compose.onNodeWithText("1 of 6 available").assertIsDisplayed()
         compose.onNodeWithTag("portrait_farm_cow").assertExists()
         compose.onNodeWithTag("portrait_farm_chicken").assertExists()
         compose.onNodeWithTag("portrait_farm_sheep").assertExists()
