@@ -19,8 +19,8 @@ class Beta2FourNumberFontsTest {
             Cosmetics.fonts.map { it.id })
         val catalog = Cosmetics.portraits + Cosmetics.emblems + Cosmetics.boards +
             Cosmetics.inks + Cosmetics.fonts
-        assertEquals(79, catalog.size)
-        assertEquals(79, catalog.map { it.id }.toSet().size)
+        assertEquals(85, catalog.size)
+        assertEquals(85, catalog.map { it.id }.toSet().size)
         assertEquals("Starter", Cosmetics.fonts.first { it.id == "clear" }.requirement)
         assertEquals("Complete 2 co-op puzzles",
             Cosmetics.fonts.first { it.id == "mono" }.requirement)
