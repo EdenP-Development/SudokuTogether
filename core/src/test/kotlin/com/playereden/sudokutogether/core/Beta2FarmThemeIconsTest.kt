@@ -24,7 +24,7 @@ class Beta2FarmThemeIconsTest {
         assertEquals("Starter", Cosmetics.farmPortraits.first { it.id == "farm_cow" }.requirement)
         assertEquals("Complete 7 puzzles",
             Cosmetics.farmPortraits.first { it.id == "farm_chicken" }.requirement)
-        assertEquals(79, ids.size + Cosmetics.emblems.size +
+        assertEquals(85, ids.size + Cosmetics.emblems.size +
             Cosmetics.boards.size + Cosmetics.inks.size + Cosmetics.fonts.size)
         assertTrue(Cosmetics.allowed("farm_cow", emptyList()))
     }
