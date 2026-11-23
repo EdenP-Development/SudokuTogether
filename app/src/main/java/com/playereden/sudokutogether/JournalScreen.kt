@@ -353,6 +353,9 @@ internal enum class ProfileSection(val title: String) {
     var showEarned by rememberSaveable { mutableStateOf(false) }
 
     SectionTitle("Your achievement album", "${earned.size} of ${milestones.size} earned")
+    // The album's single progress line summarizes the whole collection;
+    // individual unfinished goals show precise counts below.
+    MilestoneTrack(earned.size, milestones.size)
     Text("Every puzzle brings you closer to another medal. What you earn is yours to keep!",
         color = Muted, style = MaterialTheme.typography.bodySmall)
     if (locked.isEmpty()) {
@@ -378,7 +381,8 @@ internal enum class ProfileSection(val title: String) {
                 locked.drop(3).groupBy { it.category }.forEach { (category, goals) ->
                     Text(category, style = MaterialTheme.typography.titleMedium, color = Forest,
                         modifier = Modifier.padding(top = 8.dp))
-                    goals.forEach { AchievementMedal(it) }
+                    // The full list is an index, not another wall of large cards.
+                    goals.forEach { AchievementGoalRow(it) }
                 }
             }
         }
@@ -394,10 +398,87 @@ internal enum class ProfileSection(val title: String) {
         if (showEarned) earned.groupBy { it.category }.forEach { (category, medals) ->
             Text(category, style = MaterialTheme.typography.titleMedium, color = Forest,
                 modifier = Modifier.padding(top = 8.dp))
-            medals.forEach { AchievementMedal(it) }
+            EarnedMedalGallery(medals)
         }
     } else {
         Text("Your first medal is just one Solo puzzle away.", color = Muted)
+    }
+}
+
+/** Expanded achievement index: full goal text, compact footprint, exact progress. */
+@Composable private fun AchievementGoalRow(progress: AchievementProgress) {
+    Surface(
+        modifier = Modifier.fillMaxWidth().testTag("achievement_${progress.id}"),
+        shape = RoundedCornerShape(14.dp),
+        color = Paper,
+        border = BorderStroke(1.dp, Rule.copy(alpha = .7f))
+    ) {
+        Row(
+            Modifier.fillMaxWidth().heightIn(min = 58.dp)
+                .padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            GameIcon(achievementCategoryIcon(progress.category), Forest, Modifier.size(21.dp))
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                Text(progress.title, style = MaterialTheme.typography.titleSmall, color = Forest)
+                Text(progress.description, style = MaterialTheme.typography.bodySmall, color = Muted)
+                // The individual track adds value once a goal is actually underway.
+                if (progress.current > 0) MilestoneTrack(progress.current, progress.target)
+                progress.rewardId?.let { reward ->
+                    val name = Cosmetics.emblems.firstOrNull { it.id == reward }?.name
+                    if (name != null) Text("Reward: $name",
+                        style = MaterialTheme.typography.labelSmall, color = Forest)
+                }
+            }
+            Text("${progress.current.coerceAtMost(progress.target)} / ${progress.target}",
+                style = MaterialTheme.typography.labelSmall, color = Muted)
+        }
+    }
+}
+
+/** Earned achievements become a browsable medal shelf, not empty progress cards. */
+@Composable private fun EarnedMedalGallery(medals: List<AchievementProgress>) {
+    BoxWithConstraints(Modifier.fillMaxWidth().testTag("earned_medal_gallery")) {
+        val oneColumn = maxWidth < 300.dp || LocalDensity.current.fontScale > 1.3f
+        val columns = if (oneColumn) 1 else 2
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            medals.chunked(columns).forEach { group ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    group.forEach { medal ->
+                        Surface(
+                            Modifier.weight(1f).testTag("achievement_${medal.id}"),
+                            color = GoldTint.copy(alpha = .55f).compositeOver(Cream),
+                            shape = RoundedCornerShape(16.dp),
+                            border = BorderStroke(1.dp, Gold.copy(alpha = .45f))
+                        ) {
+                            Column(
+                                Modifier.fillMaxWidth().heightIn(min = 100.dp)
+                                    .padding(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(5.dp)
+                            ) {
+                                Row(verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(7.dp)) {
+                                    GameIcon(achievementCategoryIcon(medal.category),
+                                        Gold, Modifier.size(24.dp))
+                                    Text("EARNED", fontSize = 10.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        letterSpacing = 1.sp, color = Forest)
+                                }
+                                Text(medal.title, style = MaterialTheme.typography.titleSmall,
+                                    color = Forest)
+                                medal.rewardId?.let { reward ->
+                                    val name = Cosmetics.emblems.firstOrNull { it.id == reward }?.name
+                                    if (name != null) Text("Collection: $name",
+                                        style = MaterialTheme.typography.labelSmall, color = Forest)
+                                }
+                            }
+                        }
+                    }
+                    repeat(columns - group.size) { Spacer(Modifier.weight(1f)) }
+                }
+            }
+        }
     }
 }
 
