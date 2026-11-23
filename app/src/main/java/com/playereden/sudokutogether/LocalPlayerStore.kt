@@ -29,7 +29,7 @@ class LocalPlayerStore(file: File) {
         if (loaded != null) {
             // Old saves remain readable. Keep already-earned unlocks in memory;
             // only write the upgraded profile during a normal verified save.
-            data = Cosmetics.preserveEarned(loaded)
+            data = Achievements.preserveEarned(Cosmetics.preserveEarned(loaded))
             val preserve = buildList {
                 if (primary == null || hasSidecars(atomic)) addAll(sources(atomic))
                 if (backup == null || hasSidecars(recovery)) addAll(sources(recovery))
@@ -85,9 +85,10 @@ class LocalPlayerStore(file: File) {
         // Normal updates are monotonic for earned rewards: even a future caller
         // rebuilding a profile cannot accidentally drop previous ownership.
         // Explicit, confirmed portable restore uses replaceForRestore instead.
-        val next = Cosmetics.preserveEarned(proposed.copy(
-            ownedCosmeticIds = (data.ownedCosmeticIds + proposed.ownedCosmeticIds).distinct()
-        ))
+        val next = Achievements.preserveEarned(Cosmetics.preserveEarned(proposed.copy(
+            ownedCosmeticIds = (data.ownedCosmeticIds + proposed.ownedCosmeticIds).distinct(),
+            earnedAchievementIds = (data.earnedAchievementIds + proposed.earnedAchievementIds).distinct()
+        )))
         require(next.playerId == data.playerId)
         validateLocalPlayerData(next)
         if (next == data && !needsRepair) return data
@@ -103,7 +104,7 @@ class LocalPlayerStore(file: File) {
         }
         // Only replaying our private journal can recover an identity that had not yet been saved.
         require(rollback || next.playerId == data.playerId)
-        val migrated = Cosmetics.preserveEarned(next)
+        val migrated = Achievements.preserveEarned(Cosmetics.preserveEarned(next))
         validateLocalPlayerData(migrated)
         // The separate transaction journal protects the previous pair. Both normal
         // profile copies must agree with the settings after the restore commits.
@@ -149,6 +150,9 @@ internal fun validateLocalPlayerData(saved: LocalPlayerData) {
     require(saved.ownedCosmeticIds.size <= Cosmetics.knownIds.size &&
         saved.ownedCosmeticIds.toSet().size == saved.ownedCosmeticIds.size &&
         saved.ownedCosmeticIds.all { it in Cosmetics.knownIds })
+    require(saved.earnedAchievementIds.size <= Achievements.knownIds.size &&
+        saved.earnedAchievementIds.toSet().size == saved.earnedAchievementIds.size &&
+        saved.earnedAchievementIds.all { it in Achievements.knownIds })
     fun validCell(cell: Cell): Boolean = cell.value in 0..9 && cell.notes in 0..511 &&
         cell.revision >= 0 && (cell.value == 0 || cell.notes == 0)
     fun validateProgress(solo: SoloProgress) {
