@@ -1,0 +1,114 @@
+name: GridMates Beta 2 unified RC1 owner review
+on:
+  push:
+    branches: [feat/beta2-unified-rc1-staging]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: gridmates-beta2-unified-rc1
+  cancel-in-progress: true
+jobs:
+  real-android-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 58
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: '3.11'}
+      - name: Install PNG and license validation libraries
+        run: python -m pip install --disable-pip-version-check Pillow==11.3.0 fonttools==4.60.1
+      - name: Verify V7 original art, launcher icon resources and unchanged Co-op V5
+        run: python scripts/verify_beta2_v7_source.py
+      - name: Verify all 8 original Ocean Woodland PNGs
+        run: python scripts/audit_beta2_original_art.py --require-original-art
+      - name: Verify original four number fonts and OFL licenses
+        run: python scripts/verify_beta2_font_sources.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Build integrated 85-cosmetic RC1 app, JVM tests, lint and Android tests
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta2Rc1Preview=true --no-daemon --max-workers=2 --console=plain
+      - name: Check separate APK package, signer, embedded art and new icon
+        run: |
+          set -euo pipefail
+          cp app/build/outputs/apk/debug/app-debug.apk GridMates-Beta2-Unified-RC1-OwnerPreview.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs GridMates-Beta2-Unified-RC1-OwnerPreview.apk > integrated-signer.txt
+          "$ANDROID_HOME/build-tools/35.0.0/aapt" dump badging GridMates-Beta2-Unified-RC1-OwnerPreview.apk > integrated-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta2rc1'" integrated-badging.txt
+          sha256sum GridMates-Beta2-Unified-RC1-OwnerPreview.apk > GridMates-Beta2-Unified-RC1-OwnerPreview.apk.sha256
+          python scripts/verify_beta2_font_sources.py GridMates-Beta2-Unified-RC1-OwnerPreview.apk
+          python - <<'PY'
+          import zipfile, hashlib, json
+          from pathlib import Path
+          apk=Path("GridMates-Beta2-Unified-RC1-OwnerPreview.apk")
+          original=json.loads(Path("design/versus-v7/manifest.json").read_text())["output"]
+          with zipfile.ZipFile(apk) as z:
+              # Android aapt2 compiles nodpi to drawable-nodpi-v4; avoid assuming
+              # that package resource paths are identical to source folders.
+              images=[p for p in z.namelist() if p.endswith("/gm_mode_versus_woodland_v7_hd.png")]
+              assert len(images)==1, f"Expected exactly one original V7 PNG: {images}"
+              image=z.read(images[0])
+              assert hashlib.sha256(image).hexdigest()==original["sha256"], "V7 pixels changed in APK"
+              assert len(image)==original["bytes"], "V7 image byte count changed"
+              for name in ("ic_launcher_foreground.xml","ic_launcher_monochrome.xml"):
+                  assert any(p.endswith("/"+name) for p in z.namelist()), f"Missing compiled launcher asset {name}"
+              print("PASS: original byte-exact V7 PNG and launcher vectors packaged at",images[0])
+          PY
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Android 16 RC1 Achievement album, Collection and Co-op regression
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect
+          disable-animations: true
+          script: |
+            set -e
+            adb install app/build/outputs/apk/debug/app-debug.apk
+            adb shell am start -W -n com.playereden.sudokutogether.qa.beta2rc1/com.playereden.sudokutogether.MainActivity
+            adb shell pidof com.playereden.sudokutogether.qa.beta2rc1
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2Rc1Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusV7ArtUiTest,com.playereden.sudokutogether.HomeLivingBookUiTest,com.playereden.sudokutogether.Beta2StyleCompatibilityUiTest,com.playereden.sudokutogether.CollectionPolishUiTest,com.playereden.sudokutogether.Beta2Unified75UiTest,com.playereden.sudokutogether.VeteranRewardsUiTest,com.playereden.sudokutogether.Beta2VisualPolishUiTest,com.playereden.sudokutogether.AchievementAlbumUiTest"
+            adb install -r app/build/outputs/apk/debug/app-debug.apk
+            GRIDMATES_REVIEW_PACKAGE=com.playereden.sudokutogether.qa.beta2rc1 python3 scripts/beta2_v7_capture.py
+      - name: Validate actual screenshots and distinct Co-op/Versus views
+        run: python scripts/verify_beta2_v7_screens.py
+      - name: Publish complete reviewer APK and Android screenshot evidence
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-Unified-RC1-OwnerPreview
+          path: |
+            GridMates-Beta2-Unified-RC1-OwnerPreview.apk
+            GridMates-Beta2-Unified-RC1-OwnerPreview.apk.sha256
+            integrated-badging.txt
+            integrated-signer.txt
+            beta2-v7-versus-android.png
+            beta2-v7-coop-android.png
+          if-no-files-found: error
+          retention-days: 14
+      - name: Preserve diagnostics if regression fails
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-Unified-RC1-Failure-Diagnostics
+          path: |
+            core/build/reports/tests/**
+            app/build/reports/tests/**
+            app/build/reports/androidTests/**
+            app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
+          retention-days: 5
