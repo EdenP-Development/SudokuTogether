@@ -66,6 +66,7 @@ import kotlinx.coroutines.delay
             if (snapshot == null) OpeningPuzzle(Modifier.weight(1f).fillMaxWidth())
             else BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
                 val wide = maxWidth >= 520.dp && maxWidth > maxHeight && !snapshot.completed
+                val availablePlayHeight = maxHeight
                 if (wide) {
                     val railWidth = (maxWidth * .46f).coerceIn(288.dp, 352.dp)
                     Row(Modifier.fillMaxSize().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -89,7 +90,7 @@ import kotlinx.coroutines.delay
                     // Preserve the original scrolling board on short phones,
                     // large-font layouts and all multiplayer modes.
                     val centerSoloBoard = state.role == SOLO && snapshot.mode == SOLO &&
-                        !snapshot.completed && maxHeight >= 670.dp &&
+                        !snapshot.completed && availablePlayHeight >= 670.dp &&
                         LocalDensity.current.fontScale <= 1.3f
                     if (centerSoloBoard) {
                         Box(Modifier.weight(1f).fillMaxWidth(),
