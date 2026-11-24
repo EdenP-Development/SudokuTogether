@@ -1,5 +1,8 @@
 # GridMates: Sudoku — Beta 2 changelog and itch.io devlog draft
 
+**November 24 update — unpublished:** Current draft includes 85 cosmetics, 47 achievements (16 additional veteran milestones), approved dedicated Bear/Rabbit Versus scene, Co-op woodland scene and five refined illustrated portraits. Earned cosmetic and achievement ownership persists locally. Portable progress backup and restore passed a synthetic 750-game cross-installation rehearsal; actual public update/migration remains unverified. Do not advertise a replacement package or normal update until its corresponding release path is accepted. Shared standards: https://github.com/PlayerEden/Eden-Development-Standards.
+
+
 **Not published.** Prepared November 17, 2026; use only after the actual Beta 2 APK is signed with the original public certificate, has passed the real Beta 1 install-over preservation test, and receives owner approval. This is release copy, **not** evidence that Beta 2 is downloadable yet.
 
 ## Short changelog (copy-ready after release acceptance)

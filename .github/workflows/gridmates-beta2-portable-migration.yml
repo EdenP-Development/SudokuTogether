@@ -1,0 +1,57 @@
+name: GridMates Beta 1 to Beta 2 portable migration rehearsal
+on:
+  push:
+    branches: [feat/beta2-portable-migration-rehearsal]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  separate-installation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: 76cbfc149569938b97286f3efe4ad44e08c5934f
+          path: beta1
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          path: beta2
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Build original exporter and separate reviewer importer
+        run: |
+          set -euo pipefail
+          cp beta2/scripts/portable-migration-fixtures/Beta1PortableExporterTest.kt beta1/app/src/androidTest/java/com/playereden/sudokutogether/
+          cp beta2/scripts/portable-migration-fixtures/Beta2PortableImporterTest.kt beta2/app/src/androidTest/java/com/playereden/sudokutogether/
+          (cd beta1 && chmod +x gradlew && ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon --max-workers=2 --console=plain)
+          (cd beta2 && chmod +x gradlew && ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest -PgridmatesBeta2IntegratedRc3Preview=true --no-daemon --max-workers=2 --console=plain)
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
+          disable-animations: true
+          script: bash beta2/scripts/run_beta2_portable_migration.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: portable-migration-test-logs
+          path: |
+            portable-export.txt
+            portable-import.txt
+          if-no-files-found: warn
+          retention-days: 7
