@@ -71,7 +71,8 @@ class CompactPlayLayoutTest {
         for (number in 1..9) compose.onNodeWithTag("number_$number").performScrollTo().assertIsDisplayed()
         capture("landscape-controls")
     }
-    @Test fun compactVersusLandscapeKeepsPresenceAboveTheKeypadBesideTheBoard() {
+    private fun launchVersusLandscape(wide: Boolean) {
+        if (wide) shell("wm size 1200x2000")
         launch(true)
         val state = fixture(HOST, VERSUS).let {
             it.copy(snapshot = requireNotNull(it.snapshot).copy(guestName = "Taylor"),
@@ -79,12 +80,25 @@ class CompactPlayLayoutTest {
         }
         scenario!!.onActivity { it.setContent { SudokuTogetherTheme { SudokuApp(state, actions, {}) } } }
 
+    }
+    @Test fun compactVersusLandscapeKeepsEveryCellAndToolReachable() {
+        launchVersusLandscape(wide = false)
+        // At the compact fixture's density the viewport can be below 520dp.
+        // The intended stacked fallback must still expose every board cell.
+        compose.onNodeWithTag("versus_presence").performScrollTo().assertIsDisplayed()
+        for (cell in 0..80) compose.onNodeWithTag("cell_$cell").performScrollTo().assertIsDisplayed()
+        for (tool in listOf("Notes", "Erase", "Undo")) compose.onNodeWithText(tool).performScrollTo().assertIsDisplayed()
+        for (number in 1..9) compose.onNodeWithTag("number_$number").performScrollTo().assertIsDisplayed()
+        capture("versus-compact-controls")
+    }
+    @Test fun wideVersusLandscapeKeepsPresenceAboveTheKeypadBesideTheBoard() {
+        launchVersusLandscape(wide = true)
         val presence = compose.onNodeWithTag("versus_presence").assertIsDisplayed().getUnclippedBoundsInRoot()
         val board = compose.onNodeWithTag("board_frame").assertIsDisplayed().getUnclippedBoundsInRoot()
         val dock = compose.onNodeWithTag("input_dock").getUnclippedBoundsInRoot()
-        assertTrue(presence.left >= board.right)
-        assertTrue(presence.bottom <= dock.top)
-        capture("versus-landscape")
+        assertTrue("Wide layout must keep presence beside board", presence.left >= board.right)
+        assertTrue("Presence must precede controls", presence.bottom <= dock.top)
+        capture("versus-wide-landscape")
         compose.onNodeWithTag("number_9").performScrollTo().assertIsDisplayed()
     }
     @Test fun hostHeadersAt200PercentKeepCodeAndActionsVisibleWithUnreadChat() {
