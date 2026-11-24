@@ -80,6 +80,8 @@ These reflect the previous phone audit and **preliminary art-direction grading**
 | Woodpecker | **REDRAW CANDIDATE (high)** | Narrow side-facing/full-body silhouette, inconsistent apparent mass; label-wrap bug is **separate** and fixed in UI polish |
 | Skunk | **TWEAK / inspect** | Later art wave; check head/torso visual weight and outline |
 
+**Concept A 48dp review finding (2026-11-23):** The independently exported 512×512 transparent Woodpecker concept A fills the icon better than the original side-profile but **reads too much like a generic penguin/baby bird** at 48dp. This is **TWEAK**, not PASS: retain the broad face-forward mass while making the red crest, pointed beak and woodpecker identity unmistakable. Do not overwrite the original `woodland_woodpecker.png` yet.
+
 **First redesign draft (not approved):** [Woodpecker concept A](../design/collection-art/woodpecker-concept-a.svg) is an editable front-facing, source-preserving vector experiment; [its brief](../design/collection-art/WOODPECKER_REDESIGN_BRIEF.md) specifies transparency, Android-size comparisons and explicit owner sign-off. It is **not** loaded by the app or a replacement for the canonical PNG.\n\n**Current art state:** the Beaver/Chipmunk/Woodpecker/Skunk source PNGs remain original in the 85-cosmetic review. Existing display-scaling correction and the larger preview control are **not proof of an artistic redraw**. A previous Woodland four-character illustration concept pack was discussed but not confirmed as an import-ready approved replacement in GitHub. No silent swaps.
 
 ### Ocean — 11 existing portraits
@@ -154,6 +156,8 @@ A “PASS CANDIDATE” **does not authorize import**. These names and IDs were d
 - Preserve font licenses, stable catalog IDs, save compatibility, and unlocked ownership. No gameplay or LAN mutation in an art-only PR.
 
 ## F. Integration and release policy
+
+**Six-insignia first native Android screenshot review (2026-11-23/24):** The first [owner-research run #45297641088](https://github.com/PlayerEden/SudokuTogether/actions/runs/45297641088) passed and its Constellation current/proposed screenshot showed a clean connected-star device-native vector with appropriately muted green/gold. **Only Constellation was visually inspected in a readable capture; that is not approval of all six.** The initial screenshot capture missed the lower gallery rows and the popup duplicated new artwork. [Draft #123](https://github.com/PlayerEden/SudokuTogether/pull/123) has fixes to show the actual six-card gallery and a single old/new comparison; re-QA and per-icon owner review remain required.
 
 **First matching-set study:** [six editable Basic insignia concepts and Android comparison gate](../design/collection-art/BASIC_INSIGNIAS_V1_REVIEW.md) are available in a separate preview branch. These are **not** owner-approved replacements; the existing symbols and reward IDs remain the default outside the test build.\n\n**Priority 1 — current mismatches:** evaluate Woodpecker redraw, compare Beaver/Chipmunk/Skunk with anchors; refine the six Basic symbols **as a set**; record render-size and source-art fixes separately.
 
