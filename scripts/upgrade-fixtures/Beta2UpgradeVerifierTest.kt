@@ -22,6 +22,11 @@ class Beta2UpgradeVerifierTest {
         val oldBytes = file.readBytes()
         assertFalse("The original Beta 1 file should not contain Beta 2-owned IDs",
             oldBytes.toString(Charsets.UTF_8).contains("ownedCosmeticIds"))
+        assertFalse("The original Beta 1 file should not contain Beta 2-earned medals",
+            oldBytes.toString(Charsets.UTF_8).contains("earnedAchievementIds"))
+        // Five clean, 90-second Easy solves in the legacy seeder qualify for
+        // exactly these four medals; the other 27 must remain locked.
+        val expectedMedals = setOf("first-grid", "steady-hand", "clean-5", "quick-thinker")
         val original = Json.decodeFromString<LocalPlayerData>(oldBytes.toString(Charsets.UTF_8))
         val store = LocalPlayerStore(file)
         val upgraded = store.current()
@@ -46,6 +51,12 @@ class Beta2UpgradeVerifierTest {
         assertTrue("Rare items are not auto-granted",
             !Cosmetics.allowed("ocean_narwhal", upgraded.records, upgraded.ownedCosmeticIds))
 
+        assertEquals("All 31 achievement IDs are available", 31, Achievements.knownIds.size)
+        assertEquals("Legacy history earns exactly the qualifying medals on load",
+            expectedMedals, upgraded.earnedAchievementIds.toSet())
+        assertEquals(expectedMedals, Achievements.progress(upgraded.records, upgraded.earnedAchievementIds)
+            .filter { it.unlocked }.map { it.id }.toSet())
+
         val prefs = context.getSharedPreferences("settings", 0)
         assertEquals("Upgrade Player", prefs.getString("name", null))
         assertEquals("rose", prefs.getString("cosmeticInk", null))
@@ -65,6 +76,9 @@ class Beta2UpgradeVerifierTest {
         assertEquals(original.records, reopened.records)
         assertTrue(reopened.ownedCosmeticIds.containsAll(listOf("rose", "woodland_robin")))
         assertTrue(file.readText().contains("ownedCosmeticIds"))
+        assertTrue(file.readText().contains("earnedAchievementIds"))
+        assertEquals("Retroactive medals persist across a verified save and reload",
+            expectedMedals, reopened.earnedAchievementIds.toSet())
 
         // Future retention cannot retroactively revoke the earned styles.
         val trimmed = store.update { it.copy(records = it.records.take(2)) }
@@ -73,5 +87,13 @@ class Beta2UpgradeVerifierTest {
         assertEquals(original.activeSolo, trimmed.activeSolo)
         assertEquals(original.dailyProgress, trimmed.dailyProgress)
         assertEquals(original.playerId, trimmed.playerId)
+        val afterTrim = LocalPlayerStore(file).current()
+        assertEquals("Earned medals survive pruning and reopening",
+            expectedMedals, afterTrim.earnedAchievementIds.toSet())
+        assertEquals("No unrelated medal is granted",
+            expectedMedals, Achievements.progress(afterTrim.records, afterTrim.earnedAchievementIds)
+                .filter { it.unlocked }.map { it.id }.toSet())
+        assertEquals(original.activeSolo, afterTrim.activeSolo)
+        assertEquals(original.dailyProgress, afterTrim.dailyProgress)
     }
 }

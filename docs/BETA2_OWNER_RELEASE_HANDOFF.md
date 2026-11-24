@@ -127,7 +127,7 @@ This branch now also includes [Collection Art Bible](GRIDMATES_COLLECTION_ART_BI
 | Versus | Prior V7 in RC2; actual V8-B board/mascot overlay source from #121 now integrated into isolated RC3 #126 | Owner approval, compare with Co-op; V7 retained as fallback in normal builds |
 | Extra seven portraits | Existing #114 ZIP reviewer, not imported into the 85-item production catalog | Four provisional pass and three tweak; source art must be approved at 48/62/96dp before any catalog expansion |
 | Woodpecker | Current original narrow-side portrait, Concept A only design sketch | A genuinely woodpecker-specific revised raster and phone approval; no generic bird substitution |
-| Real LAN | Emulator tests and source implementation | TWO Android phones on same Wi-Fi: host/join, code optional, Co-op/Versus, completion, rematch, disconnect/reconnect |
+| Real LAN | Owner confirms regular real two-phone play with wife on existing installed version; RC3 emulator regression passed | Brief final-build Co-op/Versus smoke test; preserve proven LAN flows, no rework without a defect |
 | Beta1->Beta2 save-safe upgrade | Standalone QA APKs use separate package names and blank isolated progress | Verified original signer, production version increase, backed-up same-package upgrade and restoration of all saved activity |
 
 ### Verified build history
@@ -142,5 +142,14 @@ This branch now also includes [Collection Art Bible](GRIDMATES_COLLECTION_ART_BI
 1. Verify RC3 Android build, sources, screenshots and one standalone APK; review all six icon tiles and Versus mode in real phone images.
 2. Redraw and approve Woodpecker only if an original cohesive species-specific sprite is available; treat existing animal PNGs as golden references.
 3. Approve only worthwhile seven-sprite candidates; do not claim 92 until the actual bytes are integrated and tested.
-4. Two-phone LAN host/join, room code, live Co-op/Versus, finish/rematch, disconnect/reconnect and Solo fallback.
+4. Brief final-build same-Wi-Fi Co-op and Versus smoke test, including host/join and finish/rematch. Existing family play is positive real-device evidence; no unnecessary LAN redesign.
 5. Back up real Beta1 before same-package same-signer higher-versionCode test, verify profile, earned cosmetics, solved stats, Daily and in-progress puzzle survive; freeze binary hash and get spouse/owner release go/no-go.
+
+
+## 10. RC3 verified checkpoint — November 24, 2026
+
+- [Draft PR #126](https://github.com/PlayerEden/SudokuTogether/pull/126), runtime source `717b460dcbd08a4172010b4f7f304de3b1cdcb51`, passed [Android run 45328412989](https://github.com/PlayerEden/SudokuTogether/actions/runs/45328412989), including compile, core/app tests, lint, package/asset checks, **31 connected Android tests**, and six screenshot outputs. Earlier compilation failure is resolved.
+- [RC3 owner-review ZIP artifact 14891706648](https://github.com/PlayerEden/SudokuTogether/actions/runs/45328412989/artifacts/14891706648) contains the isolated APK and Android screenshot evidence. Artifact expires December 8, 2026. It is **not** a production install-over APK. Owner can keep Beta 1 and install the reviewer side by side.
+- Reviewed priority: actual phone visual acceptance for Solo spacing, Basic insignias, Versus and Album; species-specific Woodpecker and optional seven candidate portraits remain unapproved. Keep the 85-item catalog until approved art is truly integrated. No source art or gameplay changed in this checkpoint.
+- Save safety: historical debug-signer rehearsal passed; production signer still unverified. The upgrade verifier fixture now additionally checks exactly four retroactively earned medals from the legacy five-clean-solve profile, all 31 available medal IDs, no unrelated awards, and persistence through save/reload and history pruning. **New fixture assertions not yet run**; use the manual upgrade rehearsal on this branch before production signing. This test change does not modify the runtime or the already-verified RC3 APK.
+- Original release certificate and verified backup/restore remain mandatory. Never uninstall Beta 1 or publish an unverified update. Continue with visual review while preparing the upgrade check; one brief final family LAN regression is enough absent defects.
