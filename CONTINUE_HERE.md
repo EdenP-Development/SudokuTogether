@@ -1,5 +1,19 @@
 # Continue GridMates: Sudoku
 
+## Latest authoritative release checkpoint — 2026-11-24
+
+Repository transferred to EdenP-Development/SudokuTogether; organization installation and read/write access verified. **Resume on `feat/beta2-permanent-identity-staging`**, not main or the older integrated review PR #126. Latest verified staging source d490fc32d7c4a381b07b4d542b6bd685e1824813. Public itch.io remains Beta 1. No signed Beta 2 APK published.
+
+- Game scope frozen: 85 cosmetics, 47 achievements; 113 Android regression tests passed at ba620d247d10e9d4cbe7ecaeb0a4dc6819a69ff0. Owner physical Beta1 QA -> Beta2 reviewer backup restore matched visible counts and equipped portrait. 750-record automated portable migration passed; temporary signer install-over passed. Wife's individual and two-phone tests deferred by owner; not passed. Actual production migration/restart/full save comparison not yet verified.
+- New itch.io beta package `com.playereden.gridmates.sudoku.beta`, versionCode 31, versionName 1.0.0-beta.2. Legacy public package/signature preserved, original key unresolved. Proposed future Play package com.playereden.gridmates.sudoku; no promised beta-to-Play progress migration. Existing QA unchanged.
+- Dedicated beta signer SHA-256 `9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d`; alias gridmates-sudoku-beta. Organization secrets GRIDMATES_SUDOKU_BETA_KEYSTORE_BASE64 and GRIDMATES_SUDOKU_BETA_KEYSTORE_PASSWORD restricted to this repository per owner setup. [Signing preflight PASSED](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45479430913): matching cert and private-key proof. [Unsigned staging PASSED](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45479430644): build/lint/package/permissions. Owner independent backup still unconfirmed; secrets are not recoverable backup.
+- NEXT: implement dedicated fail-closed signed beta build (do not use legacy secrets), promote exact owner-approved artwork and verify art guard, verify signed APK package/version/cert/digest/permissions/non-debug status, test launch/restore/restart and future update continuity, obtain owner release acceptance, publish with one-time migration instructions. Never uninstall legacy before verifying transfer. See docs/BETA2_ITCH_RELEASE_DRAFT.md. No automatic publication. Minor notification/profile polish, expanded collections and advanced Coach deferred to Beta 3.
+- Owner is design director; assistant handles engineering. Keep beta processes proportionate. Other projects must audit existing signers before generating anything; no reuse of Sudoku key across projects.
+- Prior reviewer APK digest claims in older comments not independently substantiated by this checkpoint; use CI evidence, verify actual bytes before asserting exact APK hash. No private save data or credentials in GitHub.
+
+Historical checkpoints below are retained for context, superseded by this section where inconsistent.
+
+
 ## Current Beta 2 checkpoint — November 24, 2026
 
 **This section supersedes all historical checkpoints below.** Active draft [PR #126](https://github.com/PlayerEden/SudokuTogether/pull/126), branch `feat/beta2-integrated-rc3-review`. Last tested game source `ba620d247d10e9d4cbe7ecaeb0a4dc6819a69ff0`; subsequent test/documentation-only integration does not alter game runtime. Public itch.io remains Beta 1; Beta 2 is not published.
