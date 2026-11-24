@@ -116,7 +116,7 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           import struct
-          pics=("beta2-rc2-solo-board-android.png","beta2-rc2-basic-gallery-android.png","beta2-rc2-insignia-comparison-android.png")
+          pics=("beta2-rc2-solo-board-android.png","beta2-rc2-basic-gallery-android.png","beta2-rc2-six-insignias-android.png","beta2-rc2-insignia-comparison-android.png")
           blobs=[]
           for name in pics:
               blob=Path(name).read_bytes()
@@ -126,7 +126,7 @@ jobs:
               assert len(blob)>16000,(name,len(blob))
               blobs.append(blob)
           assert len(set(blobs))==3,"screens cannot be duplicates"
-          print("PASS: three distinct actual RC2 Android visual evidence screens")
+          print("PASS: four distinct actual RC2 Android visual evidence screens")
           PY
       - name: Publish complete reviewer APK and Android screenshot evidence
         if: success()
@@ -142,6 +142,7 @@ jobs:
             beta2-v7-coop-android.png
             beta2-rc2-solo-board-android.png
             beta2-rc2-basic-gallery-android.png
+            beta2-rc2-six-insignias-android.png
             beta2-rc2-insignia-comparison-android.png
           if-no-files-found: error
           retention-days: 14
