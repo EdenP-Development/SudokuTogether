@@ -2,7 +2,7 @@
 
 **Updated:** 2026-11-23. **Status:** development / owner phone-review; NOT yet a public Beta 2 release.
 
-**Read this document first if a ChatGPT conversation fills up.** Open the current GitHub PRs, compare head SHAs, inspect tests, and continue from the latest green source. Do not assume GitHub's default branch already contains the draft Beta 2 features. This document records confirmed work, unresolved decisions, known risks, and an actionable order. It should be amended after each accepted visual pass and prior to release.
+**Companion Collection art authority:** [GridMates Collection Art Bible](GRIDMATES_COLLECTION_ART_BIBLE.md). Its per-asset statuses are preliminary until actual owner approval; do not use a previous chat's blanket PASS statements as authorization to import art.\n\n**Read this document first if a ChatGPT conversation fills up.** Open the current GitHub PRs, compare head SHAs, inspect tests, and continue from the latest green source. Do not assume GitHub's default branch already contains the draft Beta 2 features. This document records confirmed work, unresolved decisions, known risks, and an actionable order. It should be amended after each accepted visual pass and prior to release.
 
 ## 1. Product and owner decisions (authoritative)
 
