@@ -1,12 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- GridMates Beta 2: ORIGINAL editable vector candidate (compass), gated reviewer only. -->
+<!-- GridMates RC2 V2: border-free optical-centered concept; profile frames are a separate cosmetic layer. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="96dp" android:height="96dp"
     android:viewportWidth="96" android:viewportHeight="96">
-  <path android:pathData="M48,10 C69,10 86,27 86,48 C86,69 69,86 48,86 C27,86 10,69 10,48 C10,27 27,10 48,10 Z" android:fillColor="#00000000" android:strokeColor="#214F3F" android:strokeWidth="2.9" android:strokeLineCap="round" android:strokeLineJoin="round"/>
-  <path android:pathData="M48,22 C62,22 74,34 74,48 C74,62 62,74 48,74 C34,74 22,62 22,48 C22,34 34,22 48,22 Z" android:fillColor="#00000000" android:strokeColor="#214F3F" android:strokeWidth="3.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
-  <path android:pathData="M48,14 L48,22 M48,74 L48,82 M14,48 L22,48 M74,48 L82,48" android:fillColor="#00000000" android:strokeColor="#214F3F" android:strokeWidth="3.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
-  <path android:pathData="M48,27 L60,56 L48,50 L36,56 Z" android:fillColor="#9A7641" android:strokeColor="#214F3F" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round"/>
-  <path android:pathData="M48,69 L36,40 L48,46 L60,40 Z" android:fillColor="#F4E7C4" android:strokeColor="#214F3F" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round"/>
-  <path android:pathData="M45,44 C47,42 49,42 51,44 C53,46 53,49 51,51 C49,53 47,53 45,51 C43,49 43,46 45,44" android:fillColor="#214F3F" android:strokeColor="#00000000" android:strokeWidth="0" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M48,22 C63,22 74,33 74,48 C74,63 63,74 48,74 C33,74 22,63 22,48 C22,33 33,22 48,22 Z" android:fillColor="#00000000" android:strokeColor="#214F3F" android:strokeWidth="4" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M48,27 L59,59 L48,52 L37,59 Z" android:fillColor="#9A7641" android:strokeColor="#214F3F" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M48,69 L37,40 L48,46 L59,40 Z" android:fillColor="#F4E7C4" android:strokeColor="#214F3F" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round"/>
 </vector>
