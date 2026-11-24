@@ -112,3 +112,35 @@ This branch now also includes [Collection Art Bible](GRIDMATES_COLLECTION_ART_BI
 - **Main art blocker:** V7 Versus rejected by owner; V8 needed.
 - **Other release blockers:** Co-op text, Collection/emblem visual consistency, seven candidate sprite owner review, two-phone LAN final regression, and same-signer save-preserving Beta 1→Beta 2 upgrade.
 - **Immediate next action:** implement tightly scoped low-risk UI polish + targeted tests, produce separate owner APK, solicit screenshots; in parallel prepare a **separate** approved-art V8 proposal without altering the accepted Solo forest hero.
+
+## 9. Beta 2 consolidated release drive — Nov 23/24 2026
+
+**Goal: one cohesive app that the family can actually use, not another collection of independent demonstrations.** This checkpoint supersedes stale status paragraphs above. Beta 1 stays installed and untouched until a backed-up, same-signer upgrade has been verified.
+
+| Workstream | Real source / status | Last release gate |
+|---|---|---|
+| 85 cosmetics, 43 portraits, 31 achievements | Integrated from #116 through #120, #124, #125 and #126 | Family player progression/reward pacing playthrough |
+| Co-op visual / Collection labels | #118 already integrated | Owner phone captures approved Co-op appearance |
+| Compact Achievement Album | #120 integrated and Android-tested | Owner needs expanded earned/locked album screenshots |
+| Six new Basic insignias | #123 exact source, simplified borderless and rebalanced V2 in #125 | #45323324666 green; actual all-twelve owner visual acceptance remains open |
+| Solo board-to-keypad gap | First centering attempt ineffective; RC3 #126 now centers the weighted board cluster itself on tall portrait phones | Actual Android and physical-phone spacing screenshots, short-screen and large font regression |
+| Versus | Prior V7 in RC2; actual V8-B board/mascot overlay source from #121 now integrated into isolated RC3 #126 | Owner approval, compare with Co-op; V7 retained as fallback in normal builds |
+| Extra seven portraits | Existing #114 ZIP reviewer, not imported into the 85-item production catalog | Four provisional pass and three tweak; source art must be approved at 48/62/96dp before any catalog expansion |
+| Woodpecker | Current original narrow-side portrait, Concept A only design sketch | A genuinely woodpecker-specific revised raster and phone approval; no generic bird substitution |
+| Real LAN | Emulator tests and source implementation | TWO Android phones on same Wi-Fi: host/join, code optional, Co-op/Versus, completion, rematch, disconnect/reconnect |
+| Beta1->Beta2 save-safe upgrade | Standalone QA APKs use separate package names and blank isolated progress | Verified original signer, production version increase, backed-up same-package upgrade and restoration of all saved activity |
+
+### Verified build history
+
+- RC1 #124 green Android run #45304413304, owner ten screenshots said visually too subtle.
+- RC2 #125 simplified border-free insignias, Android run #45323324666 green, artifact #14888374075.
+- Additional RC2 screenshot CI #45325064729 ran Android tests and captured six emulator images, then failed due to stale three-image uniqueness assertion after expanding to four screenshots. Source fixed in #125 commit 5f329d9. Treat as QA-script mistake, not failed gameplay.
+- RC3 #126: one integrated staging build combining V8-B, border-free six Basic insignias, existing Achievement Album, 85 cosmetics and real Solo layout fix. Property gridmatesBeta2IntegratedRc3Preview=true, isolated package com.playereden.sudokutogether.qa.beta2integratedrc3. Android green must be checked at exact latest head; no production merge until owner approves.
+
+### Stop/go sequence
+
+1. Verify RC3 Android build, sources, screenshots and one standalone APK; review all six icon tiles and Versus mode in real phone images.
+2. Redraw and approve Woodpecker only if an original cohesive species-specific sprite is available; treat existing animal PNGs as golden references.
+3. Approve only worthwhile seven-sprite candidates; do not claim 92 until the actual bytes are integrated and tested.
+4. Two-phone LAN host/join, room code, live Co-op/Versus, finish/rematch, disconnect/reconnect and Solo fallback.
+5. Back up real Beta1 before same-package same-signer higher-versionCode test, verify profile, earned cosmetics, solved stats, Daily and in-progress puzzle survive; freeze binary hash and get spouse/owner release go/no-go.
