@@ -155,7 +155,7 @@ A “PASS CANDIDATE” **does not authorize import**. These names and IDs were d
 
 ## F. Integration and release policy
 
-**Priority 1 — current mismatches:** evaluate Woodpecker redraw, compare Beaver/Chipmunk/Skunk with anchors; refine the six Basic symbols **as a set**; record render-size and source-art fixes separately.
+**First matching-set study:** [six editable Basic insignia concepts and Android comparison gate](../design/collection-art/BASIC_INSIGNIAS_V1_REVIEW.md) are available in a separate preview branch. These are **not** owner-approved replacements; the existing symbols and reward IDs remain the default outside the test build.\n\n**Priority 1 — current mismatches:** evaluate Woodpecker redraw, compare Beaver/Chipmunk/Skunk with anchors; refine the six Basic symbols **as a set**; record render-size and source-art fixes separately.
 
 **Priority 2 — seven candidate gate:** independently approve Duck, Snail, Daisy, Sea Star on Android; review Goat, Mushroom, Barn with specific adjustments. Do not auto-import partial or full packs.
 
