@@ -81,8 +81,26 @@ import kotlinx.coroutines.delay
                         }
                     }
                 } else Column(Modifier.fillMaxSize()) {
-                    PlayBoardPane(state, actions, new,
-                        Modifier.weight(1f).fillMaxWidth(), roomStatus = true)
+                    // On tall portrait phones keep the entire board/meta/
+                    // caption cluster *visually centered* in the weighted
+                    // play area. The old scrollable Column received infinite
+                    // vertical constraints and Arrangement.Center had no
+                    // effect; hence the large empty board-to-keypad gap.
+                    // Preserve the original scrolling board on short phones,
+                    // large-font layouts and all multiplayer modes.
+                    val centerSoloBoard = state.role == SOLO && snapshot.mode == SOLO &&
+                        !snapshot.completed && maxHeight >= 670.dp &&
+                        LocalDensity.current.fontScale <= 1.3f
+                    if (centerSoloBoard) {
+                        Box(Modifier.weight(1f).fillMaxWidth(),
+                            contentAlignment = Alignment.Center) {
+                            PlayBoardPane(state, actions, new,
+                                Modifier.fillMaxWidth(), roomStatus = true, scrollable = false)
+                        }
+                    } else {
+                        PlayBoardPane(state, actions, new,
+                            Modifier.weight(1f).fillMaxWidth(), roomStatus = true)
+                    }
                     if (!snapshot.completed) SudokuInputDock(snapshot, state, actions, ::tick)
                 }
             }
