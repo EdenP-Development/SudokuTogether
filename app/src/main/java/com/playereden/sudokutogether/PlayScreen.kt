@@ -500,10 +500,9 @@ private fun roomStatusText(state: GameUiState): String {
             if (state.role == SOLO) DockTool("Hint", GameSymbol.HELP, state.canEdit, modifier = Modifier.weight(1f),
                 description = "Request a solo Sudoku hint") { actions.hint() }
         }
-        if (!state.notes) {
-            Text(if (!editable) "Select an empty square to enter a number"
-                else "Small numbers show how many of each digit are left",
-                color = if (!editable) Forest else Muted, fontSize = 10.sp, lineHeight = 14.sp,
+        if (!state.notes && editable) {
+            Text("Small numbers show how many of each digit are left",
+                color = Muted, fontSize = 10.sp, lineHeight = 14.sp,
                 modifier = Modifier.testTag("keypad_remaining_explanation"),
                 textAlign = TextAlign.Center)
         }

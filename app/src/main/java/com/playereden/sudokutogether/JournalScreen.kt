@@ -322,8 +322,8 @@ internal enum class ProfileSection(val title: String) {
         val recent = state.profile.records.takeLast(15).reversed()
         if (recent.isEmpty()) Text("No games yet.", fontSize = 14.sp, color = Muted)
         recent.forEach { result ->
-            val mode = when (result.mode) { COOP -> "CO-OP"; else -> result.mode.uppercase() }
-            Text("$mode · ${result.result} · ${difficultyName(result.difficulty)}" +
+            val mode = historyModeLabel(result.mode)
+            Text("$mode · ${historyResultLabel(result.result)} · ${difficultyName(result.difficulty)}" +
                 (if (result.mode == SOLO || result.mode == DAILY) (if (result.assisted) " · Assisted" else " · Unassisted") else ""),
                 fontSize = 13.sp, color = Ink)
             Text(when {

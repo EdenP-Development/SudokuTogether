@@ -165,7 +165,7 @@ class DailyFinishUiTest {
         EmulatorSystemDialogs.dismiss()
         compose.onNodeWithTag("daily_history_$recentDate").performScrollTo().assertIsDisplayed()
         capture("14-daily-history-large-landscape.png")
-        compose.onAllNodesWithText("DAILY · SOLVED · Easy · Assisted").onFirst().performScrollTo().assertIsDisplayed()
+        compose.onAllNodesWithText("Daily · Solved · Easy · Assisted").onFirst().performScrollTo().assertIsDisplayed()
         capture("15-recent-records-large-landscape.png")
     }
     @Test fun soloFinishMetadataAndReplayRemainReachableWithLargeText() {
