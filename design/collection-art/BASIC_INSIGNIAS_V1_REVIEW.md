@@ -1,5 +1,13 @@
 # Beta 2 — cohesive Basic veteran insignia study (six original vectors)
 
+## V2 revision — user phone feedback, 2026-11-23
+
+**Current Android design files in this branch are V2, not the older V1 screenshot.** Owner found the first six new Basic vectors messy and some of the twelve Basic icons optically off-center. The repeated **outer medallion perimeter ring has been removed from all six revised vector XMLs**; those rings clashed with the future idea of separately unlockable/equippable *profile-border cosmetics*. A compass dial, a magnifying-glass lens or a circular body feature remains appropriate because it belongs to the symbol itself, rather than framing the avatar.
+
+The six shapes were reduced to stronger strokes, fewer micro-details and balanced positions in the fixed 96×96 viewport. The actual SVG contact sheet is regenerated from **exact V2 vector paths**, not a previous approximation. Current one-sprite variants are unapproved until small-size Android owner review.
+
+**Source-only requirements:** transparent outside symbol, do not bake any portrait borders into the icon, preserve existing six stable IDs and permanent unlock routes. Review *all 12 Basic glyphs* for optical centering on phone; avoid bulk changing the older six without visual evidence. Re-run actual 48/62/96dp samples and screenshots with the new images.
+
 **2026-11-23 · Status: SOURCE IMPLEMENTED IN ISOLATED REVIEWER; NOT ARTISTICALLY APPROVED OR RELEASED**
 
 This branch stacks on the [Collection Art Bible (#122)](https://github.com/PlayerEden/SudokuTogether/pull/122). The current 85-cosmetic game has twelve Basic insignias, but the last six use independent Unicode symbols. The owner phone screenshots show a bright yellow Sunrise, thin Moonlight, Constellation/True North lookalikes, and Grid Master too similar to starter Gridkeeper. This study replaces **only their test-build visual representation**, not their IDs, requirements, permanent unlocks, or production app.
