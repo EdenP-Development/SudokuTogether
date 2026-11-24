@@ -1,3 +1,9 @@
+# Beta 3 progress — active checkpoint
+
+2026-11-24: B3-00 ACTIVE. Initial static source/tree and branch audit recorded in [BETA3_FOUNDATION_AUDIT.md](BETA3_FOUNDATION_AUDIT.md). Active branch `feat/beta3-foundation` created from f0e0ec350344dffc0dfc670681ce233d4665644c. Next: finish focused audit and establish fresh regression baseline, then typed backup feedback and icon. No runtime changes or fresh tests yet. Existing signed Beta2 unchanged.
+
+Historical planning checkpoint follows.
+
 # Beta 3 progress — living checkpoint
 
 Last updated 2026-11-24. Planning only; no Beta 3 gameplay implementation or fresh audit completed.

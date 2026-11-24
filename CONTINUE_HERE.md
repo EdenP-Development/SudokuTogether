@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Active Beta 3 checkpoint — 2026-11-24
+
+Resume on `feat/beta3-foundation`. B3-00 ACTIVE, initial static audit in docs/BETA3_FOUNDATION_AUDIT.md, roadmap and progress in docs/BETA3_ROADMAP.md and docs/BETA3_PROGRESS.md. No new runtime edits or tests. Finish focused audit and baseline QA; then B3-01 typed backup feedback and approved icon. Older branch instructions below are historical. Keep published Beta2 unchanged.
+
+
 ## Active Beta 3 roadmap — 2026-11-24
 
 Owner approved the Beta 3 direction and requested a living roadmap. Read [Beta 3 roadmap](docs/BETA3_ROADMAP.md) and [progress checkpoint](docs/BETA3_PROGRESS.md) first. **Next: B3-00 foundation audit**, not implementation yet. Current branch feat/beta2-permanent-identity-staging; preserve accepted Beta 2 source and signing identity. Establish reviewed Beta 3 branch after inspecting main/PR state. Roadmap status and acceptance evidence must be maintained across chats. Existing branding/release records below remain historical evidence. No fresh audit, build, CI or runtime changes in this planning checkpoint.

@@ -1,0 +1,21 @@
+# B3-00 foundation audit — initial source review, 2026-11-24
+
+Status ACTIVE; partial static audit, no fresh runtime tests. Inspected complete tree at f0e0ec350344dffc0dfc670681ce233d4665644c. Main 770d0d2e0448c76975559854bec4f8e890b4d500 is ancestor, staging ahead 224 commits/204 changed files; PR126 open on older review head 86ba3c82be264ea708ff463757aaf195e345c6b0, not latest signed source. New Beta3 branch derives from accepted staging plus documentation, not outdated main. Do not merge broadly without review.
+
+Inventory: 511 blobs, 162 Kotlin files including 107 test files, 29 workflow files. Runtime res drawable-nodpi 55 files / 20,556,419 bytes; font 10 / 3,596,924 bytes. These are uncompressed Git source bytes, not APK or memory footprint. Four font OFL directories and several illustration manifests exist; full rights/provenance audit outstanding.
+
+## Findings / prioritized backlog
+- High release continuity: accepted Beta2 code31 source c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c; CI 45487842212. Owner same-version reinstall preserved progress. Actual higher-version upgrade, durable archive, public byte verification, independent key backup and source promotion remain open. Keep exact signer and package. No new publication.
+- Medium UX confirmed source: ProgressBackupSettings.kt routes backup.message through Notice; GameViewModel.kt lines 140/166/206 emits success and error via same untyped message. Owner observed red success. Introduce typed status and propagate to Home without treating failures as success; test both paths and recovery lock. First small candidate change.
+- Medium UX confirmed source: HomeChapterArt.kt lines 32–40 maps ocean/garden but Farm falls through to woodland wording; only woodland has actual environment PNG, other collections neutral gradient. Add explicit habitat mapping and fallback tests before art integration.
+- Coach roadmap correction: HumanSudoku.kt already implements singles, locked candidates, naked/hidden pairs and X-Wing plus optional solution reveal; CoachPractice.kt has six technique lessons, with existing CoachPracticeTest/HumanSudokuTest/SudokuCoachTest and three focused Android tests. Improve progression, explanation clarity, candidate evidence, graduated hints and assistance accounting; audit validity/edge cases before extending techniques. Do not rebuild or claim these six techniques are new Beta3 features.
+- Asset efficiency: runtime includes Versus V5/V7/V8/V9 PNGs and design copy of V8 empty (same Git blob), several >2 MB. Audit actual references and variant use; no removal until proven unused across QA/release. Source size is not measured performance.
+- Code maintainability: GameViewModel.kt 50,473 bytes, PlayScreen.kt 44,823, CosmeticUi.kt 33,804, JournalScreen.kt 31,397. Size alone not defect. Prefer targeted extraction alongside feature tests.
+- Manifest: INTERNET, ACCESS_NETWORK_STATE, ACCESS_WIFI_STATE, CHANGE_WIFI_MULTICAST_STATE; allowBackup=false, non-exported FileProvider with applicationId authority, existing launcher mipmap. No permission expansion proposed. Full networking/privacy/persistence review still pending.
+- Icon: approved leaf-accent fox source must be recovered and archived exactly; adaptive mask and size checks pending. No substitute without approval.
+
+## Next steps
+1. Finish focused release/CI/asset provenance, persistence, networking and accessibility audit; establish current baseline test run on new branch using trusted workflow, no signing changes.
+2. Preserve exact approved artwork and release bytes if accessible; distinguish unresolved from completed.
+3. B3-01 first small implementation: typed backup notice fix (unit/UI tests), then icon integration with exact approved asset. Farm mapping in B3-02.
+4. Maintain progress and roadmap; do not claim fresh CI or physical tests from this static review.

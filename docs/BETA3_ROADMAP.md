@@ -3,7 +3,7 @@
 Living roadmap, revision 1 — 2026-11-24. Owner endorsed the direction in conversation. Individual implementation decisions remain subject to playtesting and revision. This is the canonical Beta 3 plan, not evidence that features are implemented. Historical docs/ROADMAP_V08_TO_LAUNCH.md remains historical.
 
 ## Current checkpoint
-B3-00 is next; no Beta 3 runtime changes yet. Beta 2 owner-reported published at https://sir-spudacus.itch.io/gridmates-sudoku; devlog https://sir-spudacus.itch.io/gridmates-sudoku/devlog/1804670/gridmates-sudoku-beta-2-growing-our-little-puzzle-game . Accepted build 31 / 1.0.0-beta.2, source c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c, signed CI https://github.com/EdenP-Development/SudokuTogether/actions/runs/45487842212 . Permanent itch package com.playereden.gridmates.sudoku.beta and certificate SHA256 9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d. Keep signing secrets and existing save schemas compatible. Public download checksum/live listing independent verification, durable APK/art archive, independent owner key backup and reviewed source promotion remain open; do not claim completed. Owner confirmed same-version signed reinstall retained progress; higher-version install-over and two-device testing remain outstanding. Do not rebuild or replace published Beta 2 merely for documentation.
+B3-00 ACTIVE on feat/beta3-foundation; see BETA3_FOUNDATION_AUDIT.md. Existing Coach already supports six techniques including X-Wing; B3-04 extends existing engine. No Beta 3 runtime changes yet. Beta 2 owner-reported published at https://sir-spudacus.itch.io/gridmates-sudoku; devlog https://sir-spudacus.itch.io/gridmates-sudoku/devlog/1804670/gridmates-sudoku-beta-2-growing-our-little-puzzle-game . Accepted build 31 / 1.0.0-beta.2, source c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c, signed CI https://github.com/EdenP-Development/SudokuTogether/actions/runs/45487842212 . Permanent itch package com.playereden.gridmates.sudoku.beta and certificate SHA256 9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d. Keep signing secrets and existing save schemas compatible. Public download checksum/live listing independent verification, durable APK/art archive, independent owner key backup and reviewed source promotion remain open; do not claim completed. Owner confirmed same-version signed reinstall retained progress; higher-version install-over and two-device testing remain outstanding. Do not rebuild or replace published Beta 2 merely for documentation.
 
 Baseline: Solo/Daily/Co-op/Versus, three difficulty levels, offline-first, local Wi-Fi multiplayer, existing Coach, profiles/stats/history, backup/restore, 85 cosmetics (43 portraits, 12 insignias, 11 boards, 10 inks, 9 fonts), 47 achievements. Preserve all earned rewards, current unlock thresholds and assisted/unassisted accounting. Existing generated promo panels are illustrations, not raw UI evidence.
 
@@ -15,7 +15,7 @@ Statuses: NOT STARTED / ACTIVE / REVIEW / DONE / DEFERRED. Mark DONE only with e
 
 | ID | Scope | Status |
 | --- | --- | --- |
-| B3-00 | Foundation audit | NEXT |
+| B3-00 | Foundation audit | ACTIVE |
 | B3-01 | Branding and design system | NOT STARTED |
 | B3-02 | Personalized puzzle corner | NOT STARTED |
 | B3-03 | Gameplay experience | NOT STARTED |
