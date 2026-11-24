@@ -1,5 +1,17 @@
 # Continue GridMates: Sudoku
 
+## Latest release checkpoint — 2026-11-24 (signed Beta 2 candidate)
+
+**Resume on `feat/beta2-permanent-identity-staging`.** Public itch.io remains Beta 1; no publication yet. Signed candidate source c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c, [CI run 45487842212](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45487842212), job 138777865597: all steps passed, including approved art gate, dedicated signer, core tests/release lint/assembly, package/version/certificate/permission checks and exact six artwork hashes resolved through the compiled Android resource table. [Candidate ZIP](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45487842212/artifacts/14962779795), archive size 29144606 bytes, SHA-256 0dc6b20ac75db841f5b2fd407e4991111764301d6f9f28faead74c01afd9b432, expires 2026-12-08T21:12:14Z. This is archive metadata, not APK hash; independent downloaded-byte verification pending. Receipt inside artifact.
+
+- New beta package com.playereden.gridmates.sudoku.beta, code 31, version 1.0.0-beta.2, certificate SHA-256 9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d. Organization secrets verified; owner independent backup not confirmed. Do not regenerate signer. Legacy public package remains separate.
+- Owner's signed-candidate phone screenshots show launch/home, intended dynamic equipped companion (explicitly liked and retained), approved Co-op Fox/Owl and Versus Bear/Rabbit, profile counts matching earlier restore, 47-achievement catalog and detailed assisted/unassisted statistics. Positive visual feedback; not a complete signed-candidate migration, cold restart, puzzle or two-phone test. Wife and additional two-phone tests deferred by owner. No personal screenshots or save contents committed.
+- Scope frozen at 85 cosmetics / 47 achievements. Earlier 113 Android regression checks and 750-record portable rehearsal remain recorded below. Beta 3 backlog: success banner semantics, profile name wrapping, audit Farm companion wording and explore themed habitats, advanced Coach, collections and visual polish. No extra Beta 2 features.
+- NEXT: independently verify candidate receipt/APK if accessible, confirm signed-candidate acceptance and same-beta-identity update continuity, prepare durable release archive and public migration instructions (keep legacy installed), obtain explicit publication approval and publish to itch.io. No automatic publication. Shared hub canonical URL https://github.com/EdenP-Development/Eden-Development-Standards. Owner directs, assistant handles technical work. Keep beta processes proportionate.
+
+Earlier checkpoints retained below; this section supersedes conflicting status.
+
+
 ## Latest authoritative release checkpoint — 2026-11-24
 
 Repository transferred to EdenP-Development/SudokuTogether; organization installation and read/write access verified. **Resume on `feat/beta2-permanent-identity-staging`**, not main or the older integrated review PR #126. Latest verified staging source d490fc32d7c4a381b07b4d542b6bd685e1824813. Public itch.io remains Beta 1. No signed Beta 2 APK published.

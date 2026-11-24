@@ -1,5 +1,5 @@
 {
-  "status": "signer_verified_signed_candidate_pending",
+  "status": "signed_candidate_ci_passed_owner_visual_feedback_positive_publication_pending",
   "owner_decision": "conditional separate-package fallback approved 2026-11-24",
   "legacy_package": "com.playereden.sudokutogether",
   "legacy_certificate_sha256": "d362dab018a255ccb313582df1e3cf836246e7da1778a198eb1da03a7cfe7cd1",
@@ -9,11 +9,20 @@
   "certificate_sha256": "9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d",
   "key_custody": "organization secret signing verified; owner independent backup unconfirmed",
   "distribution_authorized": false,
-  "shared_standards": "https://github.com/PlayerEden/Eden-Development-Standards",
+  "shared_standards": "https://github.com/EdenP-Development/Eden-Development-Standards",
   "channel": "itch.io public beta",
   "future_google_play_package_proposed": "com.playereden.gridmates.sudoku",
   "google_play_progress_migration": "not promised",
   "key_alias": "gridmates-sudoku-beta",
   "signing_preflight": "https://github.com/EdenP-Development/SudokuTogether/actions/runs/45479430913",
-  "unsigned_staging": "https://github.com/EdenP-Development/SudokuTogether/actions/runs/45479430644"
+  "unsigned_staging": "https://github.com/EdenP-Development/SudokuTogether/actions/runs/45479430644",
+  "candidate": {
+    "source": "c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c",
+    "run_id": 45487842212,
+    "artifact_id": 14962779795,
+    "archive_sha256": "0dc6b20ac75db841f5b2fd407e4991111764301d6f9f28faead74c01afd9b432",
+    "apk_sha256": null,
+    "owner_visual_feedback": "positive; screenshots of launch, artwork, profile and statistics",
+    "publication": "not published"
+  }
 }
