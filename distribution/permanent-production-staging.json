@@ -8,7 +8,7 @@
   "version_name": "1.0.0-beta.2",
   "certificate_sha256": "9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d",
   "key_custody": "organization secret signing verified; owner independent backup unconfirmed",
-  "distribution_authorized": false,
+  "distribution_authorized": true,
   "shared_standards": "https://github.com/EdenP-Development/Eden-Development-Standards",
   "channel": "itch.io public beta",
   "future_google_play_package_proposed": "com.playereden.gridmates.sudoku",
@@ -23,11 +23,12 @@
     "archive_sha256": "0dc6b20ac75db841f5b2fd407e4991111764301d6f9f28faead74c01afd9b432",
     "apk_sha256": "28f9fb4888f6ee32e960d22152b84aeed4daef55e9ec0230cb53725daa50b89c",
     "owner_visual_feedback": "positive; screenshots of launch, artwork, profile and statistics",
-    "publication": "owner reported published 2026-11-24; independent live verification pending",
+    "publication": "owner reported published 2026-11-24; repeat web check cached Beta 1 / devlog cache miss",
     "apk_size_bytes": 29602050,
     "independent_integrity": "Downloaded archive hash matched GitHub; archive and APK CRC passed; APK digest and size matched CI receipt; six packaged artwork hashes matched. Android signer and manifest identity verified by CI, not independently re-run locally.",
     "owner_reinstall": "Owner reports same-version signed Beta 2 reinstall accepted with progress retained; higher-version upgrade and cold restart not independently verified",
     "public_url": "https://sir-spudacus.itch.io/gridmates-sudoku",
     "devlog_url": "https://sir-spudacus.itch.io/gridmates-sudoku/devlog/1804670/gridmates-sudoku-beta-2-growing-our-little-puzzle-game"
-  }
+  },
+  "distribution_authorization_basis": "Owner personally uploaded and reported publishing Beta 2; no authorization for additional releases implied"
 }
