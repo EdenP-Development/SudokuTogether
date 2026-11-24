@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Woodpecker front-facing collection portrait candidate A, NOT approved">
+  <title>GridMates Woodpecker — front-facing concept A — not approved</title>
+  <!-- Transparent source art; use Woodland Rabbit/Bear for side-by-side sizing, not a drop-in replacement. -->
+  <g stroke="#073E2D" stroke-width="10" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Rounded torso designed to occupy the same visual mass as the older bust portraits. -->
+    <path d="M107 419 Q114 327 172 316 L340 316 Q401 334 405 419 Q368 470 257 470 Q144 470 107 419Z" fill="#315C4D"/>
+    <path d="M198 340 Q256 361 314 340 Q353 396 331 465 L179 465 Q157 400 198 340Z" fill="#F4EAD8" stroke-width="0"/>
+    <!-- Crest: recognizable woodpecker silhouette without tall skinny full-body layout. -->
+    <path d="M213 109 Q183 71 186 44 Q222 56 240 93 Q252 40 286 30 Q305 68 287 103 Q330 66 350 74 Q352 114 321 146Z" fill="#C96643"/>
+    <path d="M131 244 Q119 149 174 112 Q215 78 270 103 Q330 92 369 134 Q406 184 390 254 Q374 331 318 352 Q255 380 193 350 Q137 325 131 244Z" fill="#32564D"/>
+    <!-- Signature cream cheek blocks and raised central mask. -->
+    <path d="M156 229 Q166 187 201 183 Q239 184 259 230 Q278 181 318 181 Q356 180 372 227 Q381 291 339 324 Q297 347 259 326 Q215 352 177 320 Q147 297 156 229Z" fill="#F6EBDD" stroke-width="0"/>
+    <path d="M248 162 Q256 146 268 162 L281 187 Q260 201 233 185Z" fill="#D69C5A" stroke-width="0"/>
+    <!-- Eyes read at 48 dp; no tiny ornamental pupils. -->
+    <ellipse cx="216" cy="249" rx="12" ry="14" fill="#073E2D" stroke="none"/>
+    <ellipse cx="310" cy="249" rx="12" ry="14" fill="#073E2D" stroke="none"/>
+    <!-- Warm compact beak, frontal so it feels like the fox/owl/rabbit portraits. -->
+    <path d="M237 277 Q258 263 281 277 Q282 293 259 310 Q234 295 237 277Z" fill="#DDA451" stroke-width="8"/>
+    <!-- Low, folded wings to provide bird identity without creating another narrow stick silhouette. -->
+    <path d="M132 357 Q99 361 89 396 Q93 435 149 443 Q169 418 164 390Z" fill="#326051"/>
+    <path d="M380 357 Q413 362 423 396 Q420 435 365 443 Q345 420 349 390Z" fill="#326051"/>
+    <path d="M108 396 Q124 408 147 408" fill="none" stroke="#D6B07B" stroke-width="9"/>
+    <path d="M404 396 Q388 409 365 408" fill="none" stroke="#D6B07B" stroke-width="9"/>
+  </g>
+</svg>
