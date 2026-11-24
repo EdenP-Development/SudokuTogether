@@ -21,7 +21,8 @@ class InsigniaConceptUiTest {
         ids.forEach { id ->
             compose.onNodeWithTag("cosmetic_emblem_$id")
                 .performScrollTo().performClick()
-            compose.onNodeWithTag("insignia_comparison_$id").assertExists()
+            compose.onAllNodesWithTag("insignia_comparison_$id")
+                .assertCountEquals(1)
             compose.onNodeWithTag("insignia_candidate_art_$id", useUnmergedTree = true).assertExists()
             compose.onNodeWithText("ART STUDY · CURRENT / PROPOSED").assertExists()
             compose.onNodeWithText("Close").performClick()
