@@ -80,7 +80,7 @@ These reflect the previous phone audit and **preliminary art-direction grading**
 | Woodpecker | **REDRAW CANDIDATE (high)** | Narrow side-facing/full-body silhouette, inconsistent apparent mass; label-wrap bug is **separate** and fixed in UI polish |
 | Skunk | **TWEAK / inspect** | Later art wave; check head/torso visual weight and outline |
 
-**Current art state:** the Beaver/Chipmunk/Woodpecker/Skunk source PNGs remain original in the 85-cosmetic review. Existing display-scaling correction and the larger preview control are **not proof of an artistic redraw**. A previous Woodland four-character illustration concept pack was discussed but not confirmed as an import-ready approved replacement in GitHub. No silent swaps.
+**First redesign draft (not approved):** [Woodpecker concept A](../design/collection-art/woodpecker-concept-a.svg) is an editable front-facing, source-preserving vector experiment; [its brief](../design/collection-art/WOODPECKER_REDESIGN_BRIEF.md) specifies transparency, Android-size comparisons and explicit owner sign-off. It is **not** loaded by the app or a replacement for the canonical PNG.\n\n**Current art state:** the Beaver/Chipmunk/Woodpecker/Skunk source PNGs remain original in the 85-cosmetic review. Existing display-scaling correction and the larger preview control are **not proof of an artistic redraw**. A previous Woodland four-character illustration concept pack was discussed but not confirmed as an import-ready approved replacement in GitHub. No silent swaps.
 
 ### Ocean — 11 existing portraits
 
