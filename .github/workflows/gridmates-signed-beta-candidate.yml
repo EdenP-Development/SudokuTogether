@@ -104,23 +104,42 @@ jobs:
           actual = set(re.findall(r"^uses-permission: name='([^']+)'", Path('permissions-check.txt').read_text(), re.M))
           assert actual <= allowed, actual - allowed
           PY
+          "$tools/aapt2" dump resources "$apk" > resource-table.txt
           sha256sum "$apk" > "$apk.sha256"
           export RELEASE_APK="$apk" RELEASE_PACKAGE="$package" RELEASE_CODE="$code" RELEASE_VERSION="$version" RELEASE_SIGNER="$signer"
           python3 - <<'PY'
-          import hashlib, json, os
+          import hashlib, json, os, re
           from pathlib import Path
           apk = Path(os.environ['RELEASE_APK'])
           import zipfile
           manifest = json.loads(Path('design/versus-v9/manifest.json').read_text())
           portraits = json.loads(Path('design/collection-art/illustrated-five-manifest.json').read_text())
+          # Release resource optimization can shorten ZIP paths. Resolve the
+          # actual drawable resource through the compiled resource table, not
+          # by guessing the archived filename or searching for arbitrary bytes.
+          resources = {}
+          current = None
+          for line in Path('resource-table.txt').read_text().splitlines():
+              header = re.search(r'^\s*resource\s+0x[0-9a-fA-F]+\s+(\S+)', line)
+              if header:
+                  current = header.group(1).split(':')[-1]
+                  continue
+              if current and '(file)' in line:
+                  match = re.search(r'\(file\)\s+(\S+)', line)
+                  if match:
+                      resources.setdefault(current, []).append(match.group(1))
+          verified_art = {}
           with zipfile.ZipFile(apk) as package:
               for entry in [manifest] + portraits['records']:
-                  matches = [p for p in package.namelist() if p.endswith('/' + Path(entry['path']).name)]
-                  if len(matches) != 1:
-                      raise SystemExit('BLOCKED: missing or duplicate packaged artwork ' + entry['path'])
+                  name = 'drawable/' + Path(entry['path']).stem
+                  matches = resources.get(name, [])
+                  if len(matches) != 1 or matches[0] not in package.namelist():
+                      raise SystemExit(f'BLOCKED: unresolved compiled drawable {name}: {matches}')
                   data = package.read(matches[0])
                   if len(data) != entry['size_bytes'] or hashlib.sha256(data).hexdigest() != entry['sha256']:
                       raise SystemExit('BLOCKED: packaged artwork differs from manifest ' + entry['path'])
+                  verified_art[name] = matches[0]
+                  print(f'PASS: {name} -> {matches[0]} (exact source bytes)')
           receipt = {
               'status': 'UNPUBLISHED_NOT_APPROVED_FOR_ITCH',
               'source_commit': os.environ['GITHUB_SHA'],
@@ -131,6 +150,7 @@ jobs:
               'version_code': int(os.environ['RELEASE_CODE']),
               'version_name': os.environ['RELEASE_VERSION'],
               'public_signer_sha256': os.environ['RELEASE_SIGNER'],
+              'verified_drawable_paths': verified_art,
               'versus_v9_sha256': manifest['sha256'],
               'illustrated_portraits': {entry['id']: entry['sha256'] for entry in portraits['records']},
               'acceptance_remaining': ['portable_public_beta1_restore_and_same_beta_identity_update', 'owner_phone_visual_review', 'itch_publication_approval']
