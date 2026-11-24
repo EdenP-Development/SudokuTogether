@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GridMates Beta 2: ORIGINAL editable vector candidate (moonlight), gated reviewer only. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp" android:height="96dp"
+    android:viewportWidth="96" android:viewportHeight="96">
+  <path android:pathData="M48,10 C69,10 86,27 86,48 C86,69 69,86 48,86 C27,86 10,69 10,48 C10,27 27,10 48,10 Z" android:fillColor="#00000000" android:strokeColor="#214F3F" android:strokeWidth="2.9" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M60,25 C48,27 41,37 41,49 C41,62 50,71 63,71 C67,71 71,70 75,67 C70,76 60,81 48,78 C30,75 23,61 26,46 C29,32 43,23 60,25 Z" android:fillColor="#F4E7C4" android:strokeColor="#214F3F" android:strokeWidth="3.7" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M65,29 L67,35 L73,37 L67,39 L65,45 L63,39 L57,37 L63,35 Z" android:fillColor="#9A7641" android:strokeColor="#214F3F" android:strokeWidth="1.6" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M73,49 L74.5,53 L79,54.5 L74.5,56 L73,60 L71.5,56 L67,54.5 L71.5,53 Z" android:fillColor="#9A7641" android:strokeColor="#214F3F" android:strokeWidth="1.4" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+</vector>
