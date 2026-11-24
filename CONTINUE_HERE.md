@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Active Beta 3 roadmap — 2026-11-24
+
+Owner approved the Beta 3 direction and requested a living roadmap. Read [Beta 3 roadmap](docs/BETA3_ROADMAP.md) and [progress checkpoint](docs/BETA3_PROGRESS.md) first. **Next: B3-00 foundation audit**, not implementation yet. Current branch feat/beta2-permanent-identity-staging; preserve accepted Beta 2 source and signing identity. Establish reviewed Beta 3 branch after inspecting main/PR state. Roadmap status and acceptance evidence must be maintained across chats. Existing branding/release records below remain historical evidence. No fresh audit, build, CI or runtime changes in this planning checkpoint.
+
+
 ## Final branding handoff — 2026-11-24
 
 Beta 2 is owner-reported published. Storefront, devlog and evergreen promo designs completed in conversation. Owner selected the first text-free fox/grid icon (plain forest background) for itch favicon and the second (leaf accents) for future Beta 3 Android launcher icon. Retain full fox emblem with title for promotional branding. Do not change the accepted Beta 2 APK. Actual upload of all optional metadata images not individually verified. Android adaptive icon masks, small-size readability and launcher implementation are pending Beta 3. Keep project name and signing identity unchanged.
