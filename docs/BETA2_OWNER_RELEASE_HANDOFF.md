@@ -92,6 +92,18 @@ Versus V7 uses `gm_mode_versus_woodland_v7_hd.png`, a single 1774×887 raster al
 6. Save/backup/production-signature and real-LAN gates are mandatory, never assumed from emulator testing.
 7. At conversation handoff, update a dated **Current checkpoint** below with commit, PR, passing QA run, next step, and unresolved blockers.
 
+## 8. Unified RC1 integration checkpoint — 2026-11-23 evening
+
+**Branch:** `feat/beta2-unified-rc1-staging`, based on Android-16-green achievement album [#120](https://github.com/PlayerEden/SudokuTogether/pull/120) at `f82d3e30b0371ac7fb85b5c90e4b5b3970a32ee9`. This ancestry already contains the approved baseline work from #116 and UI polish #118, including the **Woodpecker single-word label fix**. It has **85 cosmetics / 43 portraits / 31 achievements**. The **achievement album layout remains an owner-review candidate**, not final approved UI.
+
+This branch now also includes [Collection Art Bible](GRIDMATES_COLLECTION_ART_BIBLE.md), the experimental [Woodpecker sketch](../design/collection-art/woodpecker-concept-a.svg), and its [redesign brief](../design/collection-art/WOODPECKER_REDESIGN_BRIEF.md) as **documentation/design files only**. No live sprite PNG, reward IDs, achievement thresholds, saved profiles or gameplay have been changed for consolidation.
+
+**Independent reviewer identity:** `com.playereden.sudokutogether.qa.beta2rc1`, enabled only by `-PgridmatesBeta2Rc1Preview=true`. The separate Android workflow is `.github/workflows/gridmates-beta2-unified-rc1-android-review.yml`. A successful workflow allows the owner to review a single current app without affecting Beta 1. It **does not** establish a same-package production update or owner art acceptance.
+
+**Explicitly excluded**: rejected V8-A (#119); unapproved Versus V8-B (#121); unapproved six-vector Basic insignia prototype (#123); and seven recovered Farm/Garden/Ocean candidate sprites (#112/#114), which remain entirely outside the 85-cosmetic runtime. Do **not** claim the 92-cosmetic expansion is already integrated.
+
+**Next:** run full workflow and inspect owner phone screenshots of the compact achievement index and real collectible gallery; decide Versus scene art and six-insignia look from separate previews; gate seven sprites individually; then open a second unified branch incorporating only owner-approved art. Finish two-phone LAN and same-signature saved-progress install-over tests before shipping a Beta 2 update to the family player.
+
 ## 7. Current checkpoint — 2026-11-23
 
 - **Stable public Beta 1** must remain installed/untouched.
