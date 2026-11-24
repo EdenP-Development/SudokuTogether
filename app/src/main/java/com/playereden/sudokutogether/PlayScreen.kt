@@ -181,8 +181,17 @@ import kotlinx.coroutines.delay
             val scroll = key(race?.epoch, race?.completed) { rememberScrollState() }
             Modifier.fillMaxSize().verticalScroll(scroll)
         } else Modifier.fillMaxWidth()
-        Column(contentModifier.padding(horizontal = 10.dp, vertical = 4.dp), horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        // On tall portrait phones the grid reaches its width-based maximum
+        // while the weighted board pane is taller than its contents. Center
+        // the Solo board cluster in that spare area, cutting the apparent
+        // dead zone between its caption and the bottom keypad in half.
+        // Retain scrolling for small phones / large fonts, and leave LAN
+        // boards and finished-result layouts unchanged.
+        val soloActive = state.role == SOLO && snapshot.mode == SOLO && !snapshot.completed
+        Column(contentModifier.padding(horizontal = 10.dp, vertical = 4.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = if (soloActive && scrollable) Arrangement.Center
+                else Arrangement.spacedBy(8.dp)) {
             if (snapshot.completed) {
                 if (race != null) VersusResults(state, race, { actions.rematch(race.epoch) }) { actions.showJoin(true) }
                 else PuzzleFinishCard(state, actions, new)
