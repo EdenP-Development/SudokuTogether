@@ -125,7 +125,7 @@ jobs:
               assert w>=320 and h>=500,(name,w,h)
               assert len(blob)>16000,(name,len(blob))
               blobs.append(blob)
-          assert len(set(blobs))==3,"screens cannot be duplicates"
+          assert len(set(blobs))==len(pics),"screens cannot be duplicates"
           print("PASS: four distinct actual RC2 Android visual evidence screens")
           PY
       - name: Publish complete reviewer APK and Android screenshot evidence
