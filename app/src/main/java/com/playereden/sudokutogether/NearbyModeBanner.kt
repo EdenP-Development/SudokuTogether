@@ -44,17 +44,19 @@ import androidx.compose.ui.unit.*
     val existingV5Id = context.resources.getIdentifier(
         existingV5Name, "drawable", context.packageName
     )
-    val usingVersusV7 = !together
+    val usingVersusV8B = !together && context.resources.getBoolean(R.bool.gridmates_versus_v8b_enabled)
+    val usingVersusV7 = !together && !usingVersusV8B
     val backgroundId = when {
+        usingVersusV8B -> R.drawable.gm_mode_versus_woodland_v8_empty
         usingVersusV7 -> R.drawable.gm_mode_versus_woodland_v7_hd
         existingV5Id != 0 -> existingV5Id
         else -> R.drawable.gm_woodland_storybook_hd_v4
     }
-    val artworkIncludesMascots = usingVersusV7 || existingV5Id != 0
+    val artworkIncludesMascots = !usingVersusV8B && (usingVersusV7 || existingV5Id != 0)
     val eyebrow = if (together) "PLAY TOGETHER" else "FRIENDLY COMPETITION"
     val heading = if (together) "Shared board" else "Race to finish"
 
-    Box(modifier.height(if (largeText) 128.dp else 137.dp)
+    Box(modifier.height(if (usingVersusV8B && !largeText) 153.dp else if (largeText) 128.dp else 137.dp)
         .clip(RoundedCornerShape(topStart = 19.dp, topEnd = 19.dp))
         .testTag(if (together) "nearby_art_coop" else "nearby_art_versus")) {
         Image(
@@ -65,7 +67,9 @@ import androidx.compose.ui.unit.*
         )
         // The V6 Versus asset includes canonical mascots; Co-op V5 includes
         // its existing mascots. Never overlay another Fox/Owl on either image.
-        if (artworkIncludesMascots) {
+        if (usingVersusV8B) {
+            VersusV8NaturalArt(Modifier.matchParentSize())
+        } else if (artworkIncludesMascots) {
             Box(Modifier.matchParentSize().testTag(
                 if (usingVersusV7) "nearby_art_v7" else "nearby_art_v5"
             ))
@@ -126,7 +130,7 @@ import androidx.compose.ui.unit.*
         // Co-op's approved illustration places the fox and shared board close
         // to the middle of the banner. Reserve a narrower text-only zone
         // instead of letting "Shared board" cross the character's face.
-        val titleSafeWidth = if (together) .48f else .59f
+        val titleSafeWidth = if (together) .48f else if (usingVersusV8B) .41f else .59f
         Column(Modifier.fillMaxHeight().fillMaxWidth(titleSafeWidth)
             .padding(start = 17.dp, top = 14.dp, bottom = 13.dp),
             verticalArrangement = Arrangement.Center,
