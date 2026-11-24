@@ -119,6 +119,11 @@ val qaKeystore = System.getenv("SUDOKU_QA_KEYSTORE_FILE")?.let { file(it) }
 if (qaUpdateFlag == "true") require(qaKeystore?.isFile == true) {
     "Restore the existing private QA keystore before building an update; do not generate a replacement key"
 }
+// Owner approval is deliberately separate from a green reviewer build.
+val beta2ArtApproval = Properties().apply {
+    rootProject.file("design/versus-v9/release.properties").inputStream().use(::load)
+}
+val beta2ApprovedArt = beta2ArtApproval.getProperty("ownerApproved") == "true"
 android {
     namespace = "com.playereden.sudokutogether"
     compileSdk = 36
@@ -128,6 +133,9 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("bool", "gridmates_insignia_preview_enabled",
             (beta2VisualRc2Preview || beta2IntegratedRc3Preview).toString())
+        resValue("bool", "gridmates_insignia_art_enabled",
+            (beta2VisualRc2Preview || beta2IntegratedRc3Preview).toString())
+        resValue("bool", "gridmates_versus_v9_enabled", beta2IntegratedRc3Preview.toString())
         resValue("bool", "gridmates_versus_v8b_enabled", beta2IntegratedRc3Preview.toString())
         resValue("bool", "gridmates_portrait_refinement_enabled", beta2IntegratedRc3Preview.toString())
     }
@@ -189,6 +197,12 @@ android {
             if (qaVersion != null) signingConfig = signingConfigs.getByName("qaContinuity")
         }
         release {
+            // Production displays accepted art, but never the comparison dialog.
+            resValue("bool", "gridmates_insignia_art_enabled", beta2ApprovedArt.toString())
+            resValue("bool", "gridmates_portrait_refinement_enabled", beta2ApprovedArt.toString())
+            resValue("bool", "gridmates_versus_v9_enabled", beta2ApprovedArt.toString())
+            resValue("bool", "gridmates_insignia_preview_enabled", "false")
+            resValue("bool", "gridmates_versus_v8b_enabled", "false")
             isMinifyEnabled = false
             if (privateSigning.isNotEmpty()) signingConfig = signingConfigs.getByName("privateKey")
         }

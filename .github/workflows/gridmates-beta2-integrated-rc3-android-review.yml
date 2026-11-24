@@ -18,6 +18,8 @@ jobs:
         with: {python-version: '3.11'}
       - name: Install PNG and license validation libraries
         run: python -m pip install --disable-pip-version-check Pillow==11.3.0 fonttools==4.60.1 cairosvg==2.7.1
+      - name: Verify dedicated V9 source if imported
+        run: python scripts/verify_versus_v9_source.py
       - name: Audit every original Collection portrait and candidate source
         run: python scripts/audit_collection_art_complete.py
       - name: Publish source audit independently of Android result
@@ -95,6 +97,11 @@ jobs:
               assert len(image)==original["bytes"], "V7 image byte count changed"
               for name in ("ic_launcher_foreground.xml","ic_launcher_monochrome.xml"):
                   assert any(p.endswith("/"+name) for p in z.namelist()), f"Missing compiled launcher asset {name}"
+              v9=json.loads(Path("design/versus-v9/manifest.json").read_text())
+              if Path(v9["path"]).exists():
+                  matches=[p for p in z.namelist() if p.endswith("/gm_mode_versus_woodland_v9_hd.png")]
+                  assert len(matches)==1,matches
+                  assert hashlib.sha256(z.read(matches[0])).hexdigest()==v9["sha256"]
               print("PASS: original byte-exact V7 PNG and launcher vectors packaged at",images[0])
           PY
       - name: Enable KVM

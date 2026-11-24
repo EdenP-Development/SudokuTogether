@@ -14,9 +14,18 @@ class VersusV8BNaturalUiTest {
         compose.setContent { SudokuTogetherTheme { SudokuApp(GameUiState(), polishActions(), {}) } }
         compose.onNodeWithTag("home_mode_versus").performScrollTo().performClick()
         compose.onNodeWithTag("nearby_art_versus").assertIsDisplayed()
-        compose.onNodeWithTag("versus_v8b_natural_art", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag("versus_v8b_fox", useUnmergedTree = true).assertExists()
-        compose.onNodeWithTag("versus_v8b_owl", useUnmergedTree = true).assertExists()
+        val context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
+        val v9Present = context.resources.getIdentifier("gm_mode_versus_woodland_v9_hd", "drawable", context.packageName) != 0
+        if (v9Present) {
+            compose.onNodeWithTag("nearby_art_v9", useUnmergedTree = true).assertExists()
+            for (tag in listOf("versus_v8b_natural_art", "versus_v8b_fox", "versus_v8b_owl")) {
+                compose.onNodeWithTag(tag, useUnmergedTree = true).assertDoesNotExist()
+            }
+        } else {
+            compose.onNodeWithTag("versus_v8b_natural_art", useUnmergedTree = true).assertExists()
+            compose.onNodeWithTag("versus_v8b_fox", useUnmergedTree = true).assertExists()
+            compose.onNodeWithTag("versus_v8b_owl", useUnmergedTree = true).assertExists()
+        }
         compose.onNodeWithTag("nearby_art_v7", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithTag("versus_v8_board_fox", useUnmergedTree = true).assertDoesNotExist()
         compose.onNodeWithTag("versus_v8_board_owl", useUnmergedTree = true).assertDoesNotExist()

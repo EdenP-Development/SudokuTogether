@@ -49,15 +49,21 @@ class PortraitRefinementUiTest {
         }
     }
 
-    @Test fun fireflyAndWoodpeckerStillOpenTheirRealLockedCollectionDetails() {
+    @Test fun woodpeckerStillOpensItsRealLockedCollectionDetail() {
+        checkLockedDetail("Woodland", "woodland_woodpecker")
+    }
+
+    @Test fun fireflyStillOpensItsRealLockedCollectionDetail() {
+        checkLockedDetail("Garden", "garden_firefly")
+    }
+
+    private fun checkLockedDetail(family: String, id: String) {
         compose.setContent { SudokuTogetherTheme { SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {}) } }
         compose.onNodeWithTag("nav_collection").performClick()
-        for (pair in listOf("Woodland" to "woodland_woodpecker", "Garden" to "garden_firefly")) {
-            compose.onNodeWithText(pair.first).performScrollTo().performClick()
-            compose.onNodeWithTag("portrait_${pair.second}").performScrollTo().performClick()
-            compose.onNodeWithTag("collection_detail_art").assertIsDisplayed()
-            compose.onNodeWithText("Locked").assertIsDisplayed()
-            compose.onNodeWithText("Close").performClick()
-        }
+        compose.onNodeWithText(family).performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithTag("portrait_$id").performScrollTo().performClick()
+        compose.onNodeWithTag("collection_detail_art").assertIsDisplayed()
+        compose.onNodeWithText("Locked").assertIsDisplayed()
+        compose.onNodeWithText("Close").performClick()
     }
 }

@@ -107,7 +107,7 @@ internal fun portraitDisplayScale(id: String): Float = when (id) {
     // Unapproved designs show only inside their separate QA build; all normal
     // users retain existing Basic emblems and their saved chosen IDs.
     val concept = if (appearance.portrait.isEmpty() &&
-        LocalContext.current.resources.getBoolean(R.bool.gridmates_insignia_preview_enabled)
+        LocalContext.current.resources.getBoolean(R.bool.gridmates_insignia_art_enabled)
     ) candidateInsigniaDrawable(appearance.emblem) else null
     BoxWithConstraints(modifier.sizeIn(minWidth = 24.dp, minHeight = 24.dp, maxWidth = 140.dp, maxHeight = 140.dp)
         .clip(CircleShape).background(GreenTint)

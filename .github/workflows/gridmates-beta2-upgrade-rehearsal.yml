@@ -4,6 +4,11 @@ name: GridMates Beta 1 to Beta 2 update rehearsal (manual test signer)
 # Uses only a temporary runner debug certificate and a fresh emulator.
 # Beta 1 source is pinned; change the pinned baseline deliberately for later releases.
 on:
+  push:
+    branches: [feat/beta2-integrated-rc3-review]
+    paths:
+      - '.github/workflows/gridmates-beta2-upgrade-rehearsal.yml'
+      - 'scripts/upgrade-fixtures/**'
   workflow_dispatch:
 
 permissions:

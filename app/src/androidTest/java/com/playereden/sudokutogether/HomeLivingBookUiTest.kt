@@ -53,7 +53,13 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("nearby_art_versus", useUnmergedTree = true).assertIsDisplayed()
         val naturalReviewer = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
             .targetContext.resources.getBoolean(R.bool.gridmates_versus_v8b_enabled)
-        if (naturalReviewer) {
+        val resources = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext
+        val dedicatedV9 = resources.resources.getBoolean(R.bool.gridmates_versus_v9_enabled) &&
+            resources.resources.getIdentifier("gm_mode_versus_woodland_v9_hd", "drawable", resources.packageName) != 0
+        if (dedicatedV9) {
+            compose.onNodeWithTag("nearby_art_v9", useUnmergedTree = true).assertExists()
+            compose.onNodeWithTag("versus_v8b_natural_art", useUnmergedTree = true).assertDoesNotExist()
+        } else if (naturalReviewer) {
             compose.onNodeWithTag("versus_v8b_natural_art", useUnmergedTree = true).assertExists()
             compose.onNodeWithTag("nearby_art_v7", useUnmergedTree = true).assertDoesNotExist()
         } else {
@@ -106,9 +112,11 @@ class HomeLivingBookUiTest {
             .fetchSemanticsNodes().isNotEmpty()
         val naturalV8B = compose.onAllNodesWithTag("versus_v8b_natural_art", useUnmergedTree = true)
             .fetchSemanticsNodes().isNotEmpty()
-        assertFalse("Only one complete banner can be active", embeddedV5 && (embeddedV7 || naturalV8B))
-        assertFalse("V7 and V8B must never appear together", embeddedV7 && naturalV8B)
-        if (embeddedV5 || embeddedV7 || naturalV8B) {
+        val dedicatedV9 = compose.onAllNodesWithTag("nearby_art_v9", useUnmergedTree = true)
+            .fetchSemanticsNodes().isNotEmpty()
+        assertFalse("Only one complete banner can be active",
+            listOf(embeddedV5, embeddedV7, naturalV8B, dedicatedV9).count { it } > 1)
+        if (embeddedV5 || embeddedV7 || naturalV8B || dedicatedV9) {
             compose.onNodeWithTag("nearby_art_motif", useUnmergedTree = true).assertDoesNotExist()
             compose.onNodeWithTag("nearby_art_fox", useUnmergedTree = true).assertDoesNotExist()
             compose.onNodeWithTag("nearby_art_owl", useUnmergedTree = true).assertDoesNotExist()
