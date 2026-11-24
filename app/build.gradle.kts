@@ -1,6 +1,15 @@
 import java.util.Properties
 
 plugins { id("com.android.application"); kotlin("android"); kotlin("plugin.compose"); kotlin("plugin.serialization") }
+// Explicit separate-package transition; legacy and existing QA remain the default.
+// Staging cannot use the legacy signing environment or emit a signed replacement.
+val permanentIdentityStaging = providers.gradleProperty("gridmatesPermanentIdentityStaging").orNull?.let {
+    require(it == "true") { "gridmatesPermanentIdentityStaging only accepts true" }
+    true
+} ?: false
+if (permanentIdentityStaging) require(System.getenv("SUDOKU_SIGNING_FILE").isNullOrBlank()) {
+    "Permanent identity staging is unsigned; never use legacy production signing material"
+}
 val signingFile = System.getenv("SUDOKU_SIGNING_FILE")?.let { file(it) }
 val privateSigning = Properties().apply { if (signingFile?.isFile == true) signingFile.inputStream().use(::load) }
 // Downloadable QA updates opt in to the original private debug identity.
@@ -128,7 +137,7 @@ android {
     namespace = "com.playereden.sudokutogether"
     compileSdk = 36
     defaultConfig {
-        applicationId = "com.playereden.sudokutogether"
+        applicationId = if (permanentIdentityStaging) "com.playereden.gridmates.sudoku" else "com.playereden.sudokutogether"
         minSdk = 26; targetSdk = 36; versionCode = qaVersion ?: 31; versionName = "1.0.0-beta.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("bool", "gridmates_insignia_preview_enabled",
@@ -211,6 +220,12 @@ android {
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+}
+// Do not create altered QA/debug variants when staging the new production ID.
+androidComponents {
+    beforeVariants(selector().withBuildType("debug")) { variant ->
+        if (permanentIdentityStaging) variant.enable = false
+    }
 }
 dependencies {
     implementation(project(":core"))

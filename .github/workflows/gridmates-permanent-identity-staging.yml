@@ -1,0 +1,57 @@
+name: GridMates permanent identity unsigned staging
+on:
+  push:
+    branches: [feat/beta2-permanent-identity-staging]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  unsigned-release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Compile and lint unsigned release
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:test :app:lintRelease :app:assembleRelease -PgridmatesPermanentIdentityStaging=true --no-daemon --max-workers=2 --console=plain
+      - name: Verify unsigned release metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          apk=app/build/outputs/apk/release/app-release-unsigned.apk
+          test -s "$apk"
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          "$tools/aapt" dump badging "$apk" > staging-badging.txt
+          "$tools/aapt" dump permissions "$apk" > staging-permissions.txt
+          grep -Fq "package: name='com.playereden.gridmates.sudoku' versionCode='31' versionName='1.0.0-beta.2'" staging-badging.txt
+          grep -Fxq "sdkVersion:'26'" staging-badging.txt
+          grep -Fxq "targetSdkVersion:'36'" staging-badging.txt
+          ! grep -q '^application-debuggable' staging-badging.txt
+          if "$tools/apksigner" verify "$apk" >/dev/null 2>&1; then
+            echo 'BLOCKED: staging must not be signed'; exit 1
+          fi
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          allowed = {'android.permission.INTERNET','android.permission.ACCESS_NETWORK_STATE','android.permission.ACCESS_WIFI_STATE','android.permission.CHANGE_WIFI_MULTICAST_STATE','com.playereden.gridmates.sudoku.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'}
+          actual = set(re.findall(r"^uses-permission: name='([^']+)'", Path('staging-permissions.txt').read_text(), re.M))
+          assert actual <= allowed, actual - allowed
+          assert allowed - {'com.playereden.gridmates.sudoku.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'} <= actual
+          print('PASS: expected unsigned separate package and permission allowlist.')
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: permanent-identity-metadata-only
+          path: |
+            staging-badging.txt
+            staging-permissions.txt
+          retention-days: 7
