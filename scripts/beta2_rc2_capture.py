@@ -20,7 +20,19 @@ def main():
     relaunch()
     tap_text("Collection", allow_scroll=True)
     screenshot("beta2-rc2-basic-gallery-android.png")
-    tap_text("Constellation", allow_scroll=True)
+    # The Basic album is below a summary and the six new icons are rows 3–4.
+    # Scrolling WITHOUT tapping yields the screenshot that actually proves the
+    # six candidate vectors appear together in the real game.
+    from beta2_v7_capture import find
+    for attempt in range(5):
+        if find("Constellation") is not None and find("Grid Master") is not None:
+            break
+        adb("shell", "input", "swipe", "540", "1780", "535", "960", "350")
+        time.sleep(.8)
+    else:
+        raise RuntimeError("Could not display all six candidate insignias in album")
+    screenshot("beta2-rc2-six-insignias-android.png")
+    tap_text("Constellation")
     screenshot("beta2-rc2-insignia-comparison-android.png")
     print("PASS: solo board/dock, basic gallery and original-vs-vector comparison",flush=True)
 
