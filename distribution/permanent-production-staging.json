@@ -1,16 +1,17 @@
 {
-  "status": "unsigned_staging_only",
+  "status": "unsigned_staging_passed_new_signer_generated",
   "owner_decision": "conditional separate-package fallback approved 2026-11-24",
   "legacy_package": "com.playereden.sudokutogether",
   "legacy_certificate_sha256": "d362dab018a255ccb313582df1e3cf836246e7da1778a198eb1da03a7cfe7cd1",
   "proposed_package": "com.playereden.gridmates.sudoku.beta",
   "version_code": 31,
   "version_name": "1.0.0-beta.2",
-  "certificate_sha256": null,
-  "key_custody": "not_provisioned",
+  "certificate_sha256": "9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d",
+  "key_custody": "generated locally; owner backup and organization secrets pending verification",
   "distribution_authorized": false,
   "shared_standards": "https://github.com/PlayerEden/Eden-Development-Standards",
   "channel": "itch.io public beta",
   "future_google_play_package_proposed": "com.playereden.gridmates.sudoku",
-  "google_play_progress_migration": "not promised"
+  "google_play_progress_migration": "not promised",
+  "key_alias": "gridmates-sudoku-beta"
 }

@@ -1,0 +1,33 @@
+name: GridMates beta signing preflight
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Verify dedicated beta key without printing credentials
+        env:
+          BETA_KEY: ${{ secrets.GRIDMATES_SUDOKU_BETA_KEYSTORE_BASE64 }}
+          BETA_PASSWORD: ${{ secrets.GRIDMATES_SUDOKU_BETA_KEYSTORE_PASSWORD }}
+          EXPECTED: 9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+          test -n "$BETA_KEY" && test -n "$BETA_PASSWORD"
+          printf '%s' "$BETA_KEY" | base64 --decode > "$tmp/key.p12"
+          printf '%s' "$BETA_PASSWORD" > "$tmp/password"
+          keytool -exportcert -alias gridmates-sudoku-beta -keystore "$tmp/key.p12" -storetype PKCS12 -storepass:file "$tmp/password" > "$tmp/cert.der"
+          actual=$(sha256sum "$tmp/cert.der" | cut -d' ' -f1)
+          test "$actual" = "$EXPECTED"
+          keytool -certreq -alias gridmates-sudoku-beta -keystore "$tmp/key.p12" -storetype PKCS12 -storepass:file "$tmp/password" -keypass:file "$tmp/password" -file "$tmp/proof.csr"
+          echo 'PASS: dedicated beta certificate matches and private key can sign.'
