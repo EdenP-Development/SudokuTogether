@@ -1,5 +1,10 @@
 # GridMates: Sudoku — BETA 2 OWNER HANDOFF / SINGLE SOURCE OF TRUTH
 
+## Beta 2 publication — 2026-11-24 (owner reported)
+
+Owner reports upload of clean GridMates-Sudoku-Beta2.apk, evergreen listing and installation instructions, new evergreen woodland cover, promotional panels and published Beta 2 devlog. Upload editor screenshots show success and Android selected; legacy Beta 1 retained but hidden. Public project: https://sir-spudacus.itch.io/gridmates-sudoku . Devlog: https://sir-spudacus.itch.io/gridmates-sudoku/devlog/1804670/gridmates-sudoku-beta-2-growing-our-little-puzzle-game . Public web retrieval still returns cached Beta 1 page and devlog fetch unavailable; actual public download checksum, current listing layout and devlog rendering not independently verified. No claim of fresh public verification. Accepted build remains source c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c, CI 45487842212, package com.playereden.gridmates.sudoku.beta, code 31. Owner reported same-version reinstall and retained progress. Keep original backups and migration instructions. Next: verify live download, durable archive, reviewed source promotion, then Beta 3. Promotional illustrations are AI-assisted; use actual cropped original screenshots for factual UI evidence, not generated recreations. No private data committed.
+
+
 ## Release preparation checkpoint — 2026-11-24
 
 Accepted candidate remains build 31 from c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c. No gameplay rebuild requested. Owner reports same-version reinstall with retained progress; sufficient physical acceptance for beta preparation, not higher-version upgrade evidence. Final public announcement and migration guide in docs/BETA2_ITCH_RELEASE_DRAFT.md. Publication and durable archive still pending; no direct release-asset or itch publishing capability confirmed. Do not claim published. Keep legacy download and player backups. Next: owner publication decision/upload and record actual public release URL, then promote reviewed source and resume Beta 3. Independent owner key backup remains unconfirmed.

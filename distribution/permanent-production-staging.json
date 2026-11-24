@@ -1,5 +1,5 @@
 {
-  "status": "signed_candidate_ci_passed_owner_visual_feedback_positive_publication_pending",
+  "status": "beta2_published_owner_report_public_verification_pending",
   "owner_decision": "conditional separate-package fallback approved 2026-11-24",
   "legacy_package": "com.playereden.sudokutogether",
   "legacy_certificate_sha256": "d362dab018a255ccb313582df1e3cf836246e7da1778a198eb1da03a7cfe7cd1",
@@ -23,9 +23,11 @@
     "archive_sha256": "0dc6b20ac75db841f5b2fd407e4991111764301d6f9f28faead74c01afd9b432",
     "apk_sha256": "28f9fb4888f6ee32e960d22152b84aeed4daef55e9ec0230cb53725daa50b89c",
     "owner_visual_feedback": "positive; screenshots of launch, artwork, profile and statistics",
-    "publication": "not published",
+    "publication": "owner reported published 2026-11-24; independent live verification pending",
     "apk_size_bytes": 29602050,
     "independent_integrity": "Downloaded archive hash matched GitHub; archive and APK CRC passed; APK digest and size matched CI receipt; six packaged artwork hashes matched. Android signer and manifest identity verified by CI, not independently re-run locally.",
-    "owner_reinstall": "Owner reports same-version signed Beta 2 reinstall accepted with progress retained; higher-version upgrade and cold restart not independently verified"
+    "owner_reinstall": "Owner reports same-version signed Beta 2 reinstall accepted with progress retained; higher-version upgrade and cold restart not independently verified",
+    "public_url": "https://sir-spudacus.itch.io/gridmates-sudoku",
+    "devlog_url": "https://sir-spudacus.itch.io/gridmates-sudoku/devlog/1804670/gridmates-sudoku-beta-2-growing-our-little-puzzle-game"
   }
 }
