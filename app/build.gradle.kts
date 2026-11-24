@@ -44,6 +44,11 @@ val beta2V7Preview = providers.gradleProperty("gridmatesBeta2V7Preview").orNull?
     require(it == "true") { "gridmatesBeta2V7Preview only accepts true" }
     true
 } ?: false
+// One integrated owner-review package, never production Beta 1 install-over.
+val beta2Rc1Preview = providers.gradleProperty("gridmatesBeta2Rc1Preview").orNull?.let {
+    require(it == "true") { "gridmatesBeta2Rc1Preview only accepts true" }
+    true
+} ?: false
 // Dedicated compact-achievement-album reviewer. No install-over of existing test builds.
 val beta2AlbumPreview = providers.gradleProperty("gridmatesBeta2AlbumPreview").orNull?.let {
     require(it == "true") { "gridmatesBeta2AlbumPreview only accepts true" }
@@ -70,7 +75,7 @@ val beta2BoardsPreview = providers.gradleProperty("gridmatesBeta2BoardsPreview")
     require(it == "true") { "gridmatesBeta2BoardsPreview only accepts true" }
     true
 } ?: false
-require(listOf(beta2AlbumPreview, beta2PolishPreview, beta2VeteranPreview, beta2UnlockPreview, beta2V7Preview, beta2MatrixPreview, beta2Unified79Preview, beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
+require(listOf(beta2Rc1Preview, beta2AlbumPreview, beta2PolishPreview, beta2VeteranPreview, beta2UnlockPreview, beta2V7Preview, beta2MatrixPreview, beta2Unified79Preview, beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
     "Only one isolated preview type can be selected"
 }
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
@@ -89,6 +94,7 @@ require(!(beta2Unified75Preview && qaVersion != null)) { "Unified 75 preview mus
 require(!(beta2Unified79Preview && qaVersion != null)) { "Unified 79 preview must not share QA-update identity" }
 require(!(beta2MatrixPreview && qaVersion != null)) { "Matrix preview must not share QA-update identity" }
 require(!(beta2V7Preview && qaVersion != null)) { "Beta2 V7 preview must not share QA-update identity" }
+require(!(beta2Rc1Preview && qaVersion != null)) { "RC1 reviewer must not share QA-update identity" }
 require(!(beta2AlbumPreview && qaVersion != null)) { "Beta2 album preview must not share QA-update identity" }
 require(!(beta2PolishPreview && qaVersion != null)) { "Beta2 polish preview must not share QA-update identity" }
 require(!(beta2VeteranPreview && qaVersion != null)) { "Beta2 veteran preview must not share QA-update identity" }
@@ -127,6 +133,7 @@ android {
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
                 beta2BoardsPreview -> ".qa.beta2boards"
+                beta2Rc1Preview -> ".qa.beta2rc1"
                 beta2AlbumPreview -> ".qa.beta2album"
                 beta2PolishPreview -> ".qa.beta2polish"
                 beta2VeteranPreview -> ".qa.beta2veteran"
@@ -143,6 +150,7 @@ android {
             }
             versionNameSuffix = when {
                 beta2BoardsPreview -> "-qa.beta2boards"
+                beta2Rc1Preview -> "-qa.beta2rc1"
                 beta2AlbumPreview -> "-qa.beta2album"
                 beta2PolishPreview -> "-qa.beta2polish"
                 beta2VeteranPreview -> "-qa.beta2veteran"
