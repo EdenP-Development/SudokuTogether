@@ -1,0 +1,162 @@
+name: GridMates signed itch beta candidate
+on:
+  push:
+    branches: [feat/beta2-permanent-identity-staging]
+    paths: ['.github/workflows/gridmates-signed-beta-candidate.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build-unpublished-beta2-candidate:
+    name: Build verified Beta 2 (visible to readers if uploaded)
+    if: github.ref == 'refs/heads/feat/beta2-permanent-identity-staging'
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Require owner-approved art and exact V9 source before signing
+        run: python3 scripts/verify_versus_v9_source.py --release
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - name: Install declared Android 36 SDK
+        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Prepare dedicated beta signing identity privately
+        env:
+          KEYSTORE_BASE64: ${{ secrets.GRIDMATES_SUDOKU_BETA_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.GRIDMATES_SUDOKU_BETA_KEYSTORE_PASSWORD }}
+          EXPECTED_CERT_SHA256: 9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d
+        shell: bash
+        run: |
+          set -euo pipefail
+          umask 077
+          private_dir="$RUNNER_TEMP/gridmates-beta2-dedicated-signing"
+          mkdir -p "$private_dir"
+          if [[ -z "${KEYSTORE_BASE64:-}" || -z "${KEYSTORE_PASSWORD:-}" ]]; then
+            echo 'BLOCKED: Production signing secrets are unavailable. No APK produced.'
+            exit 1
+          fi
+          if ! printf '%s' "$KEYSTORE_BASE64" | base64 --decode > "$private_dir/release.jks" 2>/dev/null; then
+            echo 'BLOCKED: Existing keystore backup is not decodable.'
+            exit 1
+          fi
+          if ! cert_sha=$(keytool -exportcert -alias gridmates-sudoku-beta \
+            -storepass:env KEYSTORE_PASSWORD -keystore "$private_dir/release.jks" \
+            2>/dev/null | sha256sum | awk '{print $1}'); then
+            echo 'BLOCKED: Existing signing key cannot be opened.'
+            exit 1
+          fi
+          if [[ "$cert_sha" != "$EXPECTED_CERT_SHA256" ]]; then
+            echo 'BLOCKED: Existing key does not match dedicated beta. No APK produced.'
+            exit 1
+          fi
+          {
+            printf 'storeFile=%s\n' "$private_dir/release.jks"
+            printf 'storePassword=%s\n' "$KEYSTORE_PASSWORD"
+            printf 'keyAlias=gridmates-sudoku-beta\n'
+            printf 'keyPassword=%s\n' "$KEYSTORE_PASSWORD"
+          } > "$private_dir/signing.properties"
+          chmod 600 "$private_dir/"*
+          echo "GRIDMATES_BETA_SIGNING_FILE=$private_dir/signing.properties" >> "$GITHUB_ENV"
+          echo 'Dedicated beta signer prepared without exposing its bytes or password.'
+      - name: Compile, test and assemble signed release candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x gradlew
+          ./gradlew :core:test :app:lintRelease :app:assembleRelease -PgridmatesSignedBeta=true --no-daemon --max-workers=2 --console=plain
+      - name: Verify APK identity, version and certificate and write receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          source_apk=app/build/outputs/apk/release/app-release.apk
+          apk=GridMates-Sudoku-Beta2-UNPUBLISHED-CANDIDATE.apk
+          test -s "$source_apk"
+          cp "$source_apk" "$apk"
+          "$tools/apksigner" verify --min-sdk-version 26 --print-certs "$apk" > signing-check.txt
+          signer=$(awk '/certificate SHA-256 digest:/ {print $NF}' signing-check.txt)
+          # Read all aapt output before choosing the package line. Piping to
+          # head can return SIGPIPE under set -o pipefail and abort valid builds.
+          badging=$("$tools/aapt" dump badging "$apk")
+          package_line=$(printf '%s\n' "$badging" | sed -n '1p')
+          package=$(sed -n "s/^package: name='\\([^']*\\)'.*/\\1/p" <<< "$package_line")
+          code=$(sed -n "s/.*versionCode='\\([0-9]*\\)'.*/\\1/p" <<< "$package_line")
+          version=$(sed -n "s/.*versionName='\\([^']*\\)'.*/\\1/p" <<< "$package_line")
+          echo "Inspected package=$package versionCode=$code versionName=$version"
+          [[ "$package" == 'com.playereden.gridmates.sudoku.beta' ]] || { echo 'BLOCKED: wrong release package'; exit 1; }
+          [[ "$code" == '31' ]] || { echo 'BLOCKED: wrong Beta 2 versionCode'; exit 1; }
+          [[ "$version" == '1.0.0-beta.2' ]] || { echo 'BLOCKED: wrong Beta 2 versionName'; exit 1; }
+          [[ "$signer" == '9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d' ]] || {
+            echo 'BLOCKED: dedicated beta signing fingerprint mismatch'; exit 1;
+          }
+          ! grep -q '^application-debuggable' <<< "$badging"
+          "$tools/aapt" dump permissions "$apk" > permissions-check.txt
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          allowed = {'android.permission.INTERNET','android.permission.ACCESS_NETWORK_STATE','android.permission.ACCESS_WIFI_STATE','android.permission.CHANGE_WIFI_MULTICAST_STATE','com.playereden.gridmates.sudoku.beta.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'}
+          actual = set(re.findall(r"^uses-permission: name='([^']+)'", Path('permissions-check.txt').read_text(), re.M))
+          assert actual <= allowed, actual - allowed
+          PY
+          sha256sum "$apk" > "$apk.sha256"
+          export RELEASE_APK="$apk" RELEASE_PACKAGE="$package" RELEASE_CODE="$code" RELEASE_VERSION="$version" RELEASE_SIGNER="$signer"
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          apk = Path(os.environ['RELEASE_APK'])
+          import zipfile
+          manifest = json.loads(Path('design/versus-v9/manifest.json').read_text())
+          portraits = json.loads(Path('design/collection-art/illustrated-five-manifest.json').read_text())
+          with zipfile.ZipFile(apk) as package:
+              for entry in [manifest] + portraits['records']:
+                  matches = [p for p in package.namelist() if p.endswith('/' + Path(entry['path']).name)]
+                  if len(matches) != 1:
+                      raise SystemExit('BLOCKED: missing or duplicate packaged artwork ' + entry['path'])
+                  data = package.read(matches[0])
+                  if len(data) != entry['size_bytes'] or hashlib.sha256(data).hexdigest() != entry['sha256']:
+                      raise SystemExit('BLOCKED: packaged artwork differs from manifest ' + entry['path'])
+          receipt = {
+              'status': 'UNPUBLISHED_NOT_APPROVED_FOR_ITCH',
+              'source_commit': os.environ['GITHUB_SHA'],
+              'file_name': apk.name,
+              'sha256': hashlib.sha256(apk.read_bytes()).hexdigest(),
+              'size_bytes': apk.stat().st_size,
+              'application_id': os.environ['RELEASE_PACKAGE'],
+              'version_code': int(os.environ['RELEASE_CODE']),
+              'version_name': os.environ['RELEASE_VERSION'],
+              'public_signer_sha256': os.environ['RELEASE_SIGNER'],
+              'versus_v9_sha256': manifest['sha256'],
+              'illustrated_portraits': {entry['id']: entry['sha256'] for entry in portraits['records']},
+              'acceptance_remaining': ['portable_public_beta1_restore_and_same_beta_identity_update', 'owner_phone_visual_review', 'itch_publication_approval']
+          }
+          Path('GridMates-Sudoku-Beta2-UNPUBLISHED-CANDIDATE.receipt.json').write_text(
+              json.dumps(receipt, indent=2) + '\n', encoding='utf-8'
+          )
+          PY
+          rm -f signing-check.txt
+          {
+            echo '### Unpublished Beta 2 candidate verified'
+            echo 'Dedicated beta certificate, package and versionCode 31 all matched.'
+            echo 'No itch.io upload, Google Play submission, or user-device install performed.'
+            echo 'IMPORTANT: GitHub Actions artifacts in this public repository are accessible to repository readers.'
+            echo 'Portable restore and same-beta-identity update acceptance remain required.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload beta candidate for owner acceptance
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-UNPUBLISHED-CANDIDATE-${{ github.sha }}
+          path: |
+            GridMates-Sudoku-Beta2-UNPUBLISHED-CANDIDATE.apk
+            GridMates-Sudoku-Beta2-UNPUBLISHED-CANDIDATE.apk.sha256
+            GridMates-Sudoku-Beta2-UNPUBLISHED-CANDIDATE.receipt.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Securely remove temporary signing files
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/gridmates-beta2-dedicated-signing"

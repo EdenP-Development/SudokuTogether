@@ -10,7 +10,14 @@ val permanentIdentityStaging = providers.gradleProperty("gridmatesPermanentIdent
 if (permanentIdentityStaging) require(System.getenv("SUDOKU_SIGNING_FILE").isNullOrBlank()) {
     "Permanent identity staging is unsigned; never use legacy production signing material"
 }
-val signingFile = System.getenv("SUDOKU_SIGNING_FILE")?.let { file(it) }
+val signedBeta = providers.gradleProperty("gridmatesSignedBeta").orNull?.let {
+    require(it == "true")
+    true
+} ?: false
+require(!(signedBeta && permanentIdentityStaging))
+if (signedBeta) require(System.getenv("SUDOKU_SIGNING_FILE").isNullOrBlank()) { "Legacy signing is forbidden for the new beta" }
+val signingFile = System.getenv(if (signedBeta) "GRIDMATES_BETA_SIGNING_FILE" else "SUDOKU_SIGNING_FILE")?.let { file(it) }
+if (signedBeta) require(signingFile?.isFile == true) { "Dedicated beta signing file required" }
 val privateSigning = Properties().apply { if (signingFile?.isFile == true) signingFile.inputStream().use(::load) }
 // Downloadable QA updates opt in to the original private debug identity.
 // Ordinary developer builds may still use their own local debug key.
@@ -133,11 +140,12 @@ val beta2ArtApproval = Properties().apply {
     rootProject.file("design/versus-v9/release.properties").inputStream().use(::load)
 }
 val beta2ApprovedArt = beta2ArtApproval.getProperty("ownerApproved") == "true"
+if (signedBeta) require(beta2ApprovedArt && privateSigning.isNotEmpty() && qaVersion == null) { "Approved art, dedicated signing and release version required" }
 android {
     namespace = "com.playereden.sudokutogether"
     compileSdk = 36
     defaultConfig {
-        applicationId = if (permanentIdentityStaging) "com.playereden.gridmates.sudoku.beta" else "com.playereden.sudokutogether"
+        applicationId = if (permanentIdentityStaging || signedBeta) "com.playereden.gridmates.sudoku.beta" else "com.playereden.sudokutogether"
         minSdk = 26; targetSdk = 36; versionCode = qaVersion ?: 31; versionName = "1.0.0-beta.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("bool", "gridmates_insignia_preview_enabled",
@@ -224,7 +232,7 @@ android {
 // Do not create altered QA/debug variants when staging the new production ID.
 androidComponents {
     beforeVariants(selector().withBuildType("debug")) { variant ->
-        if (permanentIdentityStaging) variant.enable = false
+        if (permanentIdentityStaging || signedBeta) variant.enable = false
     }
 }
 dependencies {
