@@ -1,5 +1,10 @@
 # GridMates: Sudoku — BETA 2 OWNER HANDOFF / SINGLE SOURCE OF TRUTH
 
+## Owner acceptance checkpoint — 2026-11-24
+
+Owner reports signed Beta 2 APK installed over existing signed Beta 2 without uninstall and existing progress retained. This is physical same-version reinstall evidence, not a higher-version upgrade or independent cold-restart check. Earlier positive visual review and portable migration evidence remain valid. Beta 2 publication pending explicit approval; public itch.io remains Beta 1. Preserve legacy app and backup; do not regenerate signing key. Next: archive candidate and prepare publication. No private player data recorded.
+
+
 ## Verified downloadable candidate — November 24, 2026
 
 Downloaded actual signed artifact 14962779795 from run 45487842212. Archive SHA-256 matched GitHub metadata; archive and APK CRC checks passed. APK SHA-256 `28f9fb4888f6ee32e960d22152b84aeed4daef55e9ec0230cb53725daa50b89c`, 29602050 bytes, matches build receipt and checksum file. All six packaged artwork byte hashes independently matched. Local Android signing tools unavailable; signer/package checks rely on successful CI. Candidate remains unpublished; owner positive visual review recorded, same-identity update test and final publication acceptance pending. GitHub Actions archive expires Dec 8; save local copy. No release-asset upload action available in connector. Do not confuse candidate with public release.

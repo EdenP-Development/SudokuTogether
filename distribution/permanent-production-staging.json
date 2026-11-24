@@ -25,6 +25,7 @@
     "owner_visual_feedback": "positive; screenshots of launch, artwork, profile and statistics",
     "publication": "not published",
     "apk_size_bytes": 29602050,
-    "independent_integrity": "Downloaded archive hash matched GitHub; archive and APK CRC passed; APK digest and size matched CI receipt; six packaged artwork hashes matched. Android signer and manifest identity verified by CI, not independently re-run locally."
+    "independent_integrity": "Downloaded archive hash matched GitHub; archive and APK CRC passed; APK digest and size matched CI receipt; six packaged artwork hashes matched. Android signer and manifest identity verified by CI, not independently re-run locally.",
+    "owner_reinstall": "Owner reports same-version signed Beta 2 reinstall accepted with progress retained; higher-version upgrade and cold restart not independently verified"
   }
 }

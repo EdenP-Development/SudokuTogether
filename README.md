@@ -1,5 +1,10 @@
 # GridMates: Sudoku
 
+## Owner acceptance checkpoint — 2026-11-24
+
+Owner reports signed Beta 2 APK installed over existing signed Beta 2 without uninstall and existing progress retained. This is physical same-version reinstall evidence, not a higher-version upgrade or independent cold-restart check. Earlier positive visual review and portable migration evidence remain valid. Beta 2 publication pending explicit approval; public itch.io remains Beta 1. Preserve legacy app and backup; do not regenerate signing key. Next: archive candidate and prepare publication. No private player data recorded.
+
+
 ## Latest release checkpoint — 2026-11-24 (signed Beta 2 candidate)
 
 **Resume on `feat/beta2-permanent-identity-staging`.** Public itch.io remains Beta 1; no publication yet. Signed candidate source c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c, [CI run 45487842212](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45487842212), job 138777865597: all steps passed, including approved art gate, dedicated signer, core tests/release lint/assembly, package/version/certificate/permission checks and exact six artwork hashes resolved through the compiled Android resource table. [Candidate ZIP](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45487842212/artifacts/14962779795), archive size 29144606 bytes, SHA-256 0dc6b20ac75db841f5b2fd407e4991111764301d6f9f28faead74c01afd9b432, expires 2026-12-08T21:12:14Z. This is archive metadata, not APK hash; independent downloaded-byte verification pending. Receipt inside artifact.
