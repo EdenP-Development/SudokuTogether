@@ -51,7 +51,14 @@ class HomeLivingBookUiTest {
         compose.onNodeWithTag("home_mode_versus").performScrollTo().performClick()
         compose.onNodeWithTag("nearby_setup").assertIsDisplayed()
         compose.onNodeWithTag("nearby_art_versus", useUnmergedTree = true).assertIsDisplayed()
-        compose.onNodeWithTag("nearby_art_v7", useUnmergedTree = true).assertExists()
+        val naturalReviewer = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+            .targetContext.resources.getBoolean(R.bool.gridmates_versus_v8b_enabled)
+        if (naturalReviewer) {
+            compose.onNodeWithTag("versus_v8b_natural_art", useUnmergedTree = true).assertExists()
+            compose.onNodeWithTag("nearby_art_v7", useUnmergedTree = true).assertDoesNotExist()
+        } else {
+            compose.onNodeWithTag("nearby_art_v7", useUnmergedTree = true).assertExists()
+        }
         compose.onNodeWithTag("nearby_art_v5", useUnmergedTree = true).assertDoesNotExist()
         assertModeArtDoesNotDuplicateMascots()
         compose.onNodeWithTag("nearby_art_coop", useUnmergedTree = true).assertDoesNotExist()
@@ -95,10 +102,13 @@ class HomeLivingBookUiTest {
     private fun assertModeArtDoesNotDuplicateMascots() {
         val embeddedV5 = compose.onAllNodesWithTag("nearby_art_v5", useUnmergedTree = true)
             .fetchSemanticsNodes().isNotEmpty()
-        val embeddedV6 = compose.onAllNodesWithTag("nearby_art_v7", useUnmergedTree = true)
+        val embeddedV7 = compose.onAllNodesWithTag("nearby_art_v7", useUnmergedTree = true)
             .fetchSemanticsNodes().isNotEmpty()
-        assertFalse("Only one complete banner can be active", embeddedV5 && embeddedV6)
-        if (embeddedV5 || embeddedV6) {
+        val naturalV8B = compose.onAllNodesWithTag("versus_v8b_natural_art", useUnmergedTree = true)
+            .fetchSemanticsNodes().isNotEmpty()
+        assertFalse("Only one complete banner can be active", embeddedV5 && (embeddedV7 || naturalV8B))
+        assertFalse("V7 and V8B must never appear together", embeddedV7 && naturalV8B)
+        if (embeddedV5 || embeddedV7 || naturalV8B) {
             compose.onNodeWithTag("nearby_art_motif", useUnmergedTree = true).assertDoesNotExist()
             compose.onNodeWithTag("nearby_art_fox", useUnmergedTree = true).assertDoesNotExist()
             compose.onNodeWithTag("nearby_art_owl", useUnmergedTree = true).assertDoesNotExist()
