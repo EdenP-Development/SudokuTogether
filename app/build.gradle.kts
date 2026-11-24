@@ -137,7 +137,7 @@ android {
     namespace = "com.playereden.sudokutogether"
     compileSdk = 36
     defaultConfig {
-        applicationId = if (permanentIdentityStaging) "com.playereden.gridmates.sudoku" else "com.playereden.sudokutogether"
+        applicationId = if (permanentIdentityStaging) "com.playereden.gridmates.sudoku.beta" else "com.playereden.sudokutogether"
         minSdk = 26; targetSdk = 36; versionCode = qaVersion ?: 31; versionName = "1.0.0-beta.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         resValue("bool", "gridmates_insignia_preview_enabled",
