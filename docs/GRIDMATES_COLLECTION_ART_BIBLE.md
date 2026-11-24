@@ -174,3 +174,8 @@ A “PASS CANDIDATE” **does not authorize import**. These names and IDs were d
 - **Future updates:** Add dated source hash, current branch/PR, screenshot evidence, and owner PASS/TWEAK/REDRAW/HOLD for *each* changed image. Never rewrite an unapproved candidate's status as approved because CI is green.
 
 **Owner release rule:** A sprite belongs in Beta 2 only when it is technically valid, readable at the intended size, unmistakably from the GridMates visual family, sufficiently distinct to be worth earning, and explicitly approved in the actual Android interface.
+
+
+## H. RC3 physical-phone feedback and corrective source — November 24
+
+Owner rejects original Woodpecker again and notes a clipped-looking lower-left Firefly edge. Actual Firefly PNG was inspected and shows an irregular soft glow outside the body; do not assert UI crop as a proven cause. Concept A is not final; the previously shared checkerboard raster is reference-only. [Woodpecker B](../design/collection-art/woodpecker-concept-b.svg) and [Firefly V2](../design/collection-art/firefly-clean-edge-v2.svg) are editable source studies now rendered as native candidate vectors only in the integrated RC3 reviewer. Original PNGs and IDs remain intact. The [complete source audit](../scripts/audit_collection_art_complete.py) checks 43 original assets and exports transparent candidate PNGs and 48/62/96dp comparison sheets. The original PNG source rule still applies to final approved portraits; candidate vectors are review-only. Detail art is 136dp without increasing panel height. Assess all collections against canonical anchors; never infer approval from hashes or screenshot existence. No seven expansion assets have been integrated.

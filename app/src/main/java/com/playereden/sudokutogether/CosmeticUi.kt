@@ -448,9 +448,14 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                     // one place. Avoid a redundant third oversized proposed image.
                     InsigniaCandidateComparison(item.id)
                 } else {
+                    val portrait = item.group == CosmeticGroup.PORTRAIT
                     Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(GreenTint)
-                        .padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
-                        AnimalPortrait(sample, Modifier.size(116.dp).clearAndSetSemantics {})
+                        .padding(vertical = if (portrait) 4.dp else 12.dp)
+                        .testTag("collection_detail_art"), contentAlignment = Alignment.Center) {
+                        // Give the actual collectible more of the same panel,
+                        // instead of adding blank height to the detail dialog.
+                        AnimalPortrait(sample, Modifier.size(if (portrait) 136.dp else 116.dp)
+                            .clearAndSetSemantics {})
                     }
                 }
             }

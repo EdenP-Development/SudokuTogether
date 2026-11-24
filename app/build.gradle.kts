@@ -129,6 +129,7 @@ android {
         resValue("bool", "gridmates_insignia_preview_enabled",
             (beta2VisualRc2Preview || beta2IntegratedRc3Preview).toString())
         resValue("bool", "gridmates_versus_v8b_enabled", beta2IntegratedRc3Preview.toString())
+        resValue("bool", "gridmates_portrait_refinement_enabled", beta2IntegratedRc3Preview.toString())
     }
     if (privateSigning.isNotEmpty()) signingConfigs.create("privateKey") {
         storeFile = file(privateSigning.getProperty("storeFile"))

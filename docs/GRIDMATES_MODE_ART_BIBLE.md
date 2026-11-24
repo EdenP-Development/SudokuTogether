@@ -81,3 +81,8 @@ Seven additional Farm/Garden/Ocean characters are subject to art approval in #11
 - Versus V7 **is not approved** despite its technical pass, and requires V8 with more present, on-model characters.
 - Use richer environments and simple recognizable characters; do not remove good Solo art to match bad Versus.
 - Co-op heading can be fixed through native typography/contrast/placement; avoid replacing good artwork just for text.
+
+
+## RC3 owner verdict — November 24: V8-B rejected, dedicated V9 required
+
+On the owner's physical phone the static canonical Fox/Owl busts above the two boards look pasted on. This explicitly rejects the V8-B experiment regardless of green Android tests. Do not rearrange the same portrait layers again. Use the **Co-op V5 dedicated illustration and interaction** as the composition benchmark. Characters must physically engage with separate in-scene boards (paws/wings, posture, expressive rivalry), preserve canonical visual style without copying Solo's static pose, and consider a different character pairing. Native heading remains separate. The existing scene, art manifests and all rejected versions are retained for reference only. V9 is not yet produced or integrated; current preview is still rejected V8-B until the real new scene exists.

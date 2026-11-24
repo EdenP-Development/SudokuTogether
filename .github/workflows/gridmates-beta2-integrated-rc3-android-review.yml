@@ -17,7 +17,17 @@ jobs:
       - uses: actions/setup-python@v5
         with: {python-version: '3.11'}
       - name: Install PNG and license validation libraries
-        run: python -m pip install --disable-pip-version-check Pillow==11.3.0 fonttools==4.60.1
+        run: python -m pip install --disable-pip-version-check Pillow==11.3.0 fonttools==4.60.1 cairosvg==2.7.1
+      - name: Audit every original Collection portrait and candidate source
+        run: python scripts/audit_collection_art_complete.py
+      - name: Publish source audit independently of Android result
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Beta2-Collection-Art-Audit
+          path: art-audit/
+          if-no-files-found: warn
+          retention-days: 14
       - name: Verify V7 original art, launcher icon resources and unchanged Co-op V5
         run: python scripts/verify_beta2_v7_source.py
       - name: Verify all 8 original Ocean Woodland PNGs
@@ -106,7 +116,7 @@ jobs:
             adb install app/build/outputs/apk/debug/app-debug.apk
             adb shell am start -W -n com.playereden.sudokutogether.qa.beta2integratedrc3/com.playereden.sudokutogether.MainActivity
             adb shell pidof com.playereden.sudokutogether.qa.beta2integratedrc3
-            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2IntegratedRc3Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusV8BNaturalUiTest,com.playereden.sudokutogether.HomeLivingBookUiTest,com.playereden.sudokutogether.Beta2StyleCompatibilityUiTest,com.playereden.sudokutogether.CollectionPolishUiTest,com.playereden.sudokutogether.Beta2Unified75UiTest,com.playereden.sudokutogether.VeteranRewardsUiTest,com.playereden.sudokutogether.Beta2VisualPolishUiTest,com.playereden.sudokutogether.AchievementAlbumUiTest,com.playereden.sudokutogether.InsigniaConceptUiTest"
+            ./gradlew :app:connectedDebugAndroidTest -PgridmatesBeta2IntegratedRc3Preview=true --no-daemon --max-workers=2 --console=plain "-Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.VersusV8BNaturalUiTest,com.playereden.sudokutogether.HomeLivingBookUiTest,com.playereden.sudokutogether.Beta2StyleCompatibilityUiTest,com.playereden.sudokutogether.CollectionPolishUiTest,com.playereden.sudokutogether.Beta2Unified75UiTest,com.playereden.sudokutogether.VeteranRewardsUiTest,com.playereden.sudokutogether.Beta2VisualPolishUiTest,com.playereden.sudokutogether.AchievementAlbumUiTest,com.playereden.sudokutogether.InsigniaConceptUiTest,com.playereden.sudokutogether.PortraitRefinementUiTest"
             adb install -r app/build/outputs/apk/debug/app-debug.apk
             GRIDMATES_REVIEW_PACKAGE=com.playereden.sudokutogether.qa.beta2integratedrc3 python3 scripts/beta2_v7_capture.py
             GRIDMATES_REVIEW_PACKAGE=com.playereden.sudokutogether.qa.beta2integratedrc3 python3 scripts/beta2_rc2_capture.py

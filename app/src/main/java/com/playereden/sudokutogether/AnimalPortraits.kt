@@ -64,6 +64,21 @@ internal fun animalDrawable(id: String): Int? = when (id) {
     else -> null
 }
 
+/** Preserve original portrait resources and stable IDs. Review replacements
+ * in the combined RC3 app, including the equipped Home companion. */
+internal fun refinedAnimalDrawable(id: String, enabled: Boolean): Int? =
+    if (enabled) when (id) {
+        "woodland_woodpecker" -> R.drawable.gm_portrait_woodpecker_b
+        "garden_firefly" -> R.drawable.gm_portrait_firefly_v2
+        else -> animalDrawable(id)
+    } else animalDrawable(id)
+
+@Composable internal fun portraitRefinementEnabled(): Boolean =
+    LocalContext.current.resources.getBoolean(R.bool.gridmates_portrait_refinement_enabled)
+
+internal fun refinedPortraitScale(id: String, enabled: Boolean): Float =
+    if (enabled && id in setOf("woodland_woodpecker", "garden_firefly")) 1f else portraitDisplayScale(id)
+
 internal fun identityStyleName(appearance: Appearance): String {
     Cosmetics.farmPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Farm" }
     Cosmetics.gardenPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Garden" }
@@ -87,7 +102,8 @@ internal fun portraitDisplayScale(id: String): Float = when (id) {
 }
 
 @Composable internal fun AnimalPortrait(appearance: Appearance, modifier: Modifier = Modifier.size(48.dp)) {
-    val drawable = animalDrawable(appearance.portrait)
+    val refinement = portraitRefinementEnabled()
+    val drawable = refinedAnimalDrawable(appearance.portrait, refinement)
     // Unapproved designs show only inside their separate QA build; all normal
     // users retain existing Basic emblems and their saved chosen IDs.
     val concept = if (appearance.portrait.isEmpty() &&
@@ -98,7 +114,7 @@ internal fun portraitDisplayScale(id: String): Float = when (id) {
         .testTag("portrait_image_${appearance.portrait.ifEmpty { appearance.emblem }}"), contentAlignment = Alignment.Center) {
         if (drawable != null) Image(painterResource(drawable), contentDescription = null,
             modifier = Modifier.fillMaxSize().padding(maxWidth * .08f)
-                .scale(portraitDisplayScale(appearance.portrait)),
+                .scale(refinedPortraitScale(appearance.portrait, refinement)),
             contentScale = ContentScale.Fit)
         else if (concept != null) Image(painterResource(concept), contentDescription = null,
             modifier = Modifier.fillMaxSize().padding(maxWidth * .08f),
