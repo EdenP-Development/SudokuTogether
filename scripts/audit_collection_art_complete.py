@@ -19,10 +19,7 @@ OUT.mkdir(exist_ok=True)
 FAMILIES = {"woodland": 17, "ocean": 11, "garden": 9, "farm": 6}
 SCALES = {"woodland_chipmunk": 1.30, "woodland_beaver": 1.28,
           "woodland_woodpecker": 1.26, "woodland_skunk": 1.28}
-CANDIDATES = {
-    "woodland_woodpecker": ("woodpecker-concept-b.svg", "gm_portrait_woodpecker_b.xml"),
-    "garden_firefly": ("firefly-clean-edge-v2.svg", "gm_portrait_firefly_v2.xml"),
-}
+MANIFEST = ROOT / "design/collection-art/illustrated-five-manifest.json"
 GREEN = (226, 235, 223, 255)
 BG = (249, 247, 239, 255)
 INK = (25, 67, 51, 255)
@@ -115,43 +112,37 @@ def main():
         sheet(family+"-all-originals",entries)
     assert len(records)==43
     compare=[]
-    for id,(filename,xmlname) in CANDIDATES.items():
-        path=ROOT/"design/collection-art"/filename
-        im=render_vector(path)
-        import xml.etree.ElementTree as ET
-        ns="{http://schemas.android.com/apk/res/android}"
-        svg=ET.parse(path).getroot()
-        vector=ET.parse(VECTORS/xmlname).getroot()
-        assert vector.attrib[ns+"viewportWidth"]=="512"
-        svg_paths=[e for e in svg if e.tag.endswith("}path")]
-        vector_paths=list(vector)
-        assert len(svg_paths)==len(vector_paths)
-        for a,b in zip(svg_paths,vector_paths):
-            assert a.attrib["d"]==b.attrib[ns+"pathData"],id
-            for key,attr in (("fill","fillColor"),("stroke","strokeColor")):
-                assert (a.attrib[key] if a.attrib[key]!="none" else "#00000000")==b.attrib[ns+attr],id
-            assert a.attrib["stroke-width"]==b.attrib[ns+"strokeWidth"],id
+    manifest = json.loads(MANIFEST.read_text())
+    assert len(manifest["records"]) == 5
+    for entry in manifest["records"]:
+        id = entry["id"]
+        path = ROOT / entry["path"]
+        assert sha(path) == entry["sha256"] and path.stat().st_size == entry["size_bytes"], id
+        assert re.search(r'"'+re.escape(id)+r'"\s*->\s*R\.drawable\.'+re.escape(path.stem)+r'\b',code), id
+        with Image.open(path) as opened:
+            assert opened.mode == "RGBA" and opened.size == (512,512), id
+            im = opened.copy()
+        assert all(im.getpixel(p)[3] == 0 for p in ((0,0),(0,511),(511,0),(511,511))), id
         stats=source_stats(im,1)
-        assert not stats["source_edge_contact"],id
-        assert stats["circle_alpha_loss_pct"] < 1, (id,stats)
-        records.append({"id":id,"kind":"candidate","sha256":sha(path),
-                        "android_vector_sha256":sha(VECTORS/xmlname),**stats})
-        anchor="woodland_rabbit" if id.startswith("woodland") else "garden_honeybee"
-        compare.extend([(anchor,originals[anchor],1),(id+" original",originals[id],SCALES.get(id,1)),
-                        (id+" revised",im,1)])
+        assert not stats["source_edge_contact"] and stats["circle_alpha_loss_pct"] < 1, (id,stats)
+        assert entry["sha256"] not in hashes, ("duplicate candidate",id)
+        hashes.add(entry["sha256"])
+        records.append({"id":id,"kind":"candidate","sha256":entry["sha256"],**stats})
+        anchor="woodland_bear" if id.startswith("woodland") else "garden_honeybee"
+        compare.extend([(anchor,originals[anchor],1),(id+" original",originals[id],SCALES.get(id,1)),(id+" illustrated",im,1)])
         im.save(OUT/(id+"-candidate.png"))
     sheet("targeted-before-after",compare)
     # Native vector source inventory and every packaged hero background.
     heroes=[]
     for p in sorted(RES.glob("gm_*")):
-        if p.suffix not in (".png",".webp"): continue
+        if p.suffix not in (".png",".webp") or p.name.startswith("gm_portrait_"): continue
         with Image.open(p) as src:
             heroes.append({"path":p.name,"size":list(src.size),"sha256":sha(p)})
     insignias=[{"path":p.name,"sha256":sha(p)} for p in sorted(VECTORS.glob("gm_insignia_candidate_*.xml"))]
     assert len(insignias)==6
     (OUT/"audit.json").write_text(json.dumps({"portrait_records":records,"hero_sources":heroes,
       "insignia_sources":insignias,"notes":"Source checks and simulated framing only; inspect actual Android and human style review separately."},indent=2)+"\n")
-    print("PASS: 43 original portraits, 2 candidate vector/PNG comparisons, six Basic vector sources and",len(heroes),"hero resources inventoried.")
+    print("PASS: 43 original portraits, 5 illustrated raster comparisons, six Basic vector sources and",len(heroes),"hero resources inventoried.")
     for row in records:
         if row["circle_alpha_loss_pct"]>1 or row["source_edge_contact"]:
             print("REVIEW framing",row["id"],row["kind"],row["circle_alpha_loss_pct"],row["source_edge_contact"])

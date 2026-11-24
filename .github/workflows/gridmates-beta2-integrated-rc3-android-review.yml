@@ -102,7 +102,13 @@ jobs:
                   matches=[p for p in z.namelist() if p.endswith("/gm_mode_versus_woodland_v9_hd.png")]
                   assert len(matches)==1,matches
                   assert hashlib.sha256(z.read(matches[0])).hexdigest()==v9["sha256"]
-              print("PASS: original byte-exact V7 PNG and launcher vectors packaged at",images[0])
+              portraits=json.loads(Path("design/collection-art/illustrated-five-manifest.json").read_text())
+              for entry in portraits["records"]:
+                  matches=[p for p in z.namelist() if p.endswith("/"+Path(entry["path"]).name)]
+                  assert len(matches)==1,entry["id"]
+                  data=z.read(matches[0])
+                  assert len(data)==entry["size_bytes"] and hashlib.sha256(data).hexdigest()==entry["sha256"],entry["id"]
+              print("PASS: exact five illustrated PNGs, original V7 and launcher vectors packaged")
           PY
       - name: Enable KVM
         run: |

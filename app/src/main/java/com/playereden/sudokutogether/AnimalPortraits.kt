@@ -68,8 +68,11 @@ internal fun animalDrawable(id: String): Int? = when (id) {
  * in the combined RC3 app, including the equipped Home companion. */
 internal fun refinedAnimalDrawable(id: String, enabled: Boolean): Int? =
     if (enabled) when (id) {
-        "woodland_woodpecker" -> R.drawable.gm_portrait_woodpecker_b
-        "garden_firefly" -> R.drawable.gm_portrait_firefly_v2
+        "woodland_woodpecker" -> R.drawable.gm_portrait_woodland_woodpecker_illustrated
+        "woodland_chipmunk" -> R.drawable.gm_portrait_woodland_chipmunk_illustrated
+        "woodland_beaver" -> R.drawable.gm_portrait_woodland_beaver_illustrated
+        "woodland_skunk" -> R.drawable.gm_portrait_woodland_skunk_illustrated
+        "garden_firefly" -> R.drawable.gm_portrait_garden_firefly_illustrated
         else -> animalDrawable(id)
     } else animalDrawable(id)
 
@@ -77,7 +80,7 @@ internal fun refinedAnimalDrawable(id: String, enabled: Boolean): Int? =
     LocalContext.current.resources.getBoolean(R.bool.gridmates_portrait_refinement_enabled)
 
 internal fun refinedPortraitScale(id: String, enabled: Boolean): Float =
-    if (enabled && id in setOf("woodland_woodpecker", "garden_firefly")) 1f else portraitDisplayScale(id)
+    if (enabled && id in setOf("woodland_woodpecker", "woodland_chipmunk", "woodland_beaver", "woodland_skunk", "garden_firefly")) 1f else portraitDisplayScale(id)
 
 internal fun identityStyleName(appearance: Appearance): String {
     Cosmetics.farmPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Farm" }

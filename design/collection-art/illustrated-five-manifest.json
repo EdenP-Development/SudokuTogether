@@ -1,0 +1,42 @@
+{
+  "status": "integrated-review-candidates-awaiting-owner-phone-approval",
+  "source": "Generated illustrated transparent character sheet, isolated and normalized RGBA 512px sprites. Owner accepted simplified concept direction; exact exports await review.",
+  "display_scale": 1,
+  "records": [
+    {
+      "id": "woodland_woodpecker",
+      "path": "app/src/main/res/drawable-nodpi/gm_portrait_woodland_woodpecker_illustrated.png",
+      "git_blob_sha": "39956b5240a28ab58c37ec595ca08421ae93cc6e",
+      "size_bytes": 139000,
+      "sha256": "3fcf0052a6259d8a47fb07b1f533a838a9aef41550f1054f1f34c0a2c19d2d0b"
+    },
+    {
+      "id": "woodland_chipmunk",
+      "path": "app/src/main/res/drawable-nodpi/gm_portrait_woodland_chipmunk_illustrated.png",
+      "git_blob_sha": "e5b94183ac67ca90e6713d48c5ad9f36f25068d1",
+      "size_bytes": 178340,
+      "sha256": "9afb1cd98dfaa0e1d18d627fb1f469571b76d748ef811837480e83d0bc184788"
+    },
+    {
+      "id": "woodland_beaver",
+      "path": "app/src/main/res/drawable-nodpi/gm_portrait_woodland_beaver_illustrated.png",
+      "git_blob_sha": "748117710928a215eaecba8dfd947799bf4753e4",
+      "size_bytes": 162684,
+      "sha256": "3ab4294f8ce7ddd37dd9b93502d6ece91ea83a2443b13bb1c8cd7ef0017c42ab"
+    },
+    {
+      "id": "woodland_skunk",
+      "path": "app/src/main/res/drawable-nodpi/gm_portrait_woodland_skunk_illustrated.png",
+      "git_blob_sha": "7cc5f39f6e22fc3db17c19623b6ce33d5aff2a40",
+      "size_bytes": 163521,
+      "sha256": "585455748a858c479040390697fee04610cd33bf6a43aa70964b98a19abf792d"
+    },
+    {
+      "id": "garden_firefly",
+      "path": "app/src/main/res/drawable-nodpi/gm_portrait_garden_firefly_illustrated.png",
+      "git_blob_sha": "3f8a187c1844e586f0fb81e8b019a83fee3be88f",
+      "size_bytes": 163777,
+      "sha256": "efe0ce5c80fac1862471a4a0d42d81ebc04cdc20d33f1d26412e989d566cddb3"
+    }
+  ]
+}

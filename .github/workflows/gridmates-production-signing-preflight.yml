@@ -163,6 +163,17 @@ jobs:
           import hashlib, json, os
           from pathlib import Path
           apk = Path(os.environ['RELEASE_APK'])
+          import zipfile
+          manifest = json.loads(Path('design/versus-v9/manifest.json').read_text())
+          portraits = json.loads(Path('design/collection-art/illustrated-five-manifest.json').read_text())
+          with zipfile.ZipFile(apk) as package:
+              for entry in [manifest] + portraits['records']:
+                  matches = [p for p in package.namelist() if p.endswith('/' + Path(entry['path']).name)]
+                  if len(matches) != 1:
+                      raise SystemExit('BLOCKED: missing or duplicate packaged artwork ' + entry['path'])
+                  data = package.read(matches[0])
+                  if len(data) != entry['size_bytes'] or hashlib.sha256(data).hexdigest() != entry['sha256']:
+                      raise SystemExit('BLOCKED: packaged artwork differs from manifest ' + entry['path'])
           receipt = {
               'status': 'UNPUBLISHED_NOT_APPROVED_FOR_ITCH',
               'source_commit': os.environ['GITHUB_SHA'],
@@ -173,6 +184,8 @@ jobs:
               'version_code': int(os.environ['RELEASE_CODE']),
               'version_name': os.environ['RELEASE_VERSION'],
               'public_signer_sha256': os.environ['RELEASE_SIGNER'],
+              'versus_v9_sha256': manifest['sha256'],
+              'illustrated_portraits': {entry['id']: entry['sha256'] for entry in portraits['records']},
               'acceptance_remaining': ['actual_public_beta1_apk_install_over', 'owner_phone_visual_review', 'itch_publication_approval']
           }
           Path('GridMates-Sudoku-Beta2-UNPUBLISHED-CANDIDATE.receipt.json').write_text(
