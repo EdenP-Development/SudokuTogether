@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GridMates RC2 V2: border-free optical-centered concept; profile frames are a separate cosmetic layer. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp" android:height="96dp"
+    android:viewportWidth="96" android:viewportHeight="96">
+  <path android:pathData="M58,23 C46,29 40,39 40,50 C40,64 50,72 64,70 C68,70 71,69 75,66 C69,77 59,81 48,77 C33,73 26,63 26,49 C26,34 38,23 58,23 Z" android:fillColor="#F4E7C4" android:strokeColor="#214F3F" android:strokeWidth="4" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M70,28 L73,37 L82,40 L73,43 L70,52 L67,43 L58,40 L67,37 Z" android:fillColor="#9A7641" android:strokeColor="#214F3F" android:strokeWidth="2.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+</vector>

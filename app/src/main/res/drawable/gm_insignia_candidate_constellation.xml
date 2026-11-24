@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- GridMates RC2 V2: border-free optical-centered concept; profile frames are a separate cosmetic layer. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp" android:height="96dp"
+    android:viewportWidth="96" android:viewportHeight="96">
+  <path android:pathData="M25,61 L39,36 L65,35 L73,60 L51,72 L25,61" android:fillColor="#00000000" android:strokeColor="#214F3F" android:strokeWidth="3.8" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M39,26 L43,35 L52,39 L43,43 L39,52 L35,43 L26,39 L35,35 Z" android:fillColor="#9A7641" android:strokeColor="#214F3F" android:strokeWidth="2.5" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M65,29 C69,29 72,32 72,36 C72,40 69,43 65,43 C61,43 58,40 58,36 C58,32 61,29 65,29" android:fillColor="#F4E7C4" android:strokeColor="#214F3F" android:strokeWidth="3" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M72,56 C75,56 78,58 78,61 C78,64 75,66 72,66 C69,66 66,64 66,61 C66,58 69,56 72,56" android:fillColor="#F4E7C4" android:strokeColor="#214F3F" android:strokeWidth="2.8" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+  <path android:pathData="M51,67 C54,67 57,69 57,72 C57,75 54,77 51,77 C48,77 45,75 45,72 C45,69 48,67 51,67" android:fillColor="#F4E7C4" android:strokeColor="#214F3F" android:strokeWidth="2.8" android:strokeLineCap="round" android:strokeLineJoin="round"/>
+</vector>
