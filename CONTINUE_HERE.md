@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Verified downloadable candidate — November 24, 2026
+
+Downloaded actual signed artifact 14962779795 from run 45487842212. Archive SHA-256 matched GitHub metadata; archive and APK CRC checks passed. APK SHA-256 `28f9fb4888f6ee32e960d22152b84aeed4daef55e9ec0230cb53725daa50b89c`, 29602050 bytes, matches build receipt and checksum file. All six packaged artwork byte hashes independently matched. Local Android signing tools unavailable; signer/package checks rely on successful CI. Candidate remains unpublished; owner positive visual review recorded, same-identity update test and final publication acceptance pending. GitHub Actions archive expires Dec 8; save local copy. No release-asset upload action available in connector. Do not confuse candidate with public release.
+
+
 ## Latest release checkpoint — 2026-11-24 (signed Beta 2 candidate)
 
 **Resume on `feat/beta2-permanent-identity-staging`.** Public itch.io remains Beta 1; no publication yet. Signed candidate source c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c, [CI run 45487842212](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45487842212), job 138777865597: all steps passed, including approved art gate, dedicated signer, core tests/release lint/assembly, package/version/certificate/permission checks and exact six artwork hashes resolved through the compiled Android resource table. [Candidate ZIP](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45487842212/artifacts/14962779795), archive size 29144606 bytes, SHA-256 0dc6b20ac75db841f5b2fd407e4991111764301d6f9f28faead74c01afd9b432, expires 2026-12-08T21:12:14Z. This is archive metadata, not APK hash; independent downloaded-byte verification pending. Receipt inside artifact.
