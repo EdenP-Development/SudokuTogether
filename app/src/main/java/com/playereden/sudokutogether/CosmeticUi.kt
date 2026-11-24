@@ -445,6 +445,9 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                     .padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
                     AnimalPortrait(sample, Modifier.size(116.dp).clearAndSetSemantics {})
                 }
+                if (item.group == CosmeticGroup.EMBLEM) {
+                    InsigniaCandidateComparison(item.id)
+                }
             }
             Text(item.previewLabel, color = Muted, style = MaterialTheme.typography.bodySmall)
             Text(when { equipped -> "Equipped"; progress.unlocked -> "Available to use"; else -> "Locked" },
