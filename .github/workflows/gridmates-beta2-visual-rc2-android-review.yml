@@ -36,12 +36,18 @@ jobs:
               root=ET.parse(p).getroot()
               assert root.tag=="vector" and root.attrib[n+"viewportWidth"]=="96"
               paths=list(root)
-              assert len(paths)>=4
+              assert len(paths)>=2, (name, len(paths))
+              # The image must be the glyph, NEVER a pre-baked avatar/profile
+              # ring. Borders may become their own independently equipped
+              # cosmetic in a later release.
+              forbidden="M48,10 C69,10 86,27 86,48"
+              assert not any(forbidden in part.attrib[n+"pathData"] for part in paths),name
               for part in paths:
                   assert part.tag=="path"
                   assert part.attrib[n+"fillColor"] in palette
                   assert part.attrib[n+"strokeColor"] in palette
-              print("PASS",name)
+                  assert part.attrib[n+"pathData"], name
+              print("PASS: border-free",name)
           PY
       - uses: actions/setup-java@v4
         with:
