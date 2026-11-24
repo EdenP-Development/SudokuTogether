@@ -13,7 +13,8 @@ def relaunch():
 
 def main():
     relaunch()
-    tap_text("Solo", allow_scroll=True)
+    # The fresh home opens directly on Solo's "Play Sudoku" hero and the
+    # "New puzzle" button; there is no top-level button named "Solo" here.
     tap_text("New puzzle", allow_scroll=True)
     screenshot("beta2-rc2-solo-board-android.png")
     relaunch()
