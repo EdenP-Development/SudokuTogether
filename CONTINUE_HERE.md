@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Release preparation checkpoint — 2026-11-24
+
+Accepted candidate remains build 31 from c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c. No gameplay rebuild requested. Owner reports same-version reinstall with retained progress; sufficient physical acceptance for beta preparation, not higher-version upgrade evidence. Final public announcement and migration guide in docs/BETA2_ITCH_RELEASE_DRAFT.md. Publication and durable archive still pending; no direct release-asset or itch publishing capability confirmed. Do not claim published. Keep legacy download and player backups. Next: owner publication decision/upload and record actual public release URL, then promote reviewed source and resume Beta 3. Independent owner key backup remains unconfirmed.
+
+
 ## Owner acceptance checkpoint — 2026-11-24
 
 Owner reports signed Beta 2 APK installed over existing signed Beta 2 without uninstall and existing progress retained. This is physical same-version reinstall evidence, not a higher-version upgrade or independent cold-restart check. Earlier positive visual review and portable migration evidence remain valid. Beta 2 publication pending explicit approval; public itch.io remains Beta 1. Preserve legacy app and backup; do not regenerate signing key. Next: archive candidate and prepare publication. No private player data recorded.
