@@ -1,10 +1,11 @@
 {
-  "status": "candidate-awaiting-binary-import-and-owner-approval",
+  "status": "integrated-review-candidate-awaiting-android-and-owner-approval",
   "path": "app/src/main/res/drawable-nodpi/gm_mode_versus_woodland_v9_hd.png",
   "sha256": "7063f19076f25be4d8175683b728530029837fc328357bd8b97447216f2bc97a",
   "size_bytes": 2211554,
   "width": 1881,
   "height": 836,
   "source": "Generated Rabbit/Bear dedicated scene; perspective grid correction, 10 lines per axis, bold at 0/3/6/9; original hands/tiles retained.",
-  "owner_approval": false
+  "owner_approval": false,
+  "git_blob_sha": "6fac1301ef366d7842c1f085736d2af0a7d7d902"
 }

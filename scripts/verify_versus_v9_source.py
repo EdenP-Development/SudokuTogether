@@ -13,9 +13,7 @@ approved = "ownerApproved=true" in (root / "design/versus-v9/release.properties"
 if args.release and not approved:
     raise SystemExit("BLOCKED: owner visual approval and approved art promotion are required")
 if not asset.exists():
-    if args.release or approved:
-        raise SystemExit("BLOCKED: exact V9 artwork is missing")
-    print("V9 source not imported: fallback reviewer only, NOT release eligible.")
+    raise SystemExit("BLOCKED: exact V9 artwork is missing; no fallback reviewer may pass")
 else:
     data = asset.read_bytes()
     assert data[:8] == b"\x89PNG\r\n\x1a\n"

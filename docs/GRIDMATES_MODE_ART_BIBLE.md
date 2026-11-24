@@ -91,3 +91,8 @@ On the owner's physical phone the static canonical Fox/Owl busts above the two b
 ### V9 import-ready candidate checkpoint
 
 Dedicated Bear/Rabbit interaction artwork generated and its decorative board grids corrected in perspective. Pinned file metadata: [manifest](../design/versus-v9/manifest.json). Actual binary remains local to conversation pending upload. No new overlays; the integrated reviewer auto-selects the dedicated bitmap only when present. Owner approval, crop, original-source and APK hash checks still required. Keep old V8-B only as rejected comparison fallback.
+
+
+### V9 binary integration resolved
+
+The exact corrected Rabbit/Bear PNG is now in drawable-nodpi and pinned in the manifest, not an external attachment. The source and APK checks and the Android test must verify its presence. The integrated reviewer selects V9; old V8-B layers must not appear. No owner approval is inferred from technical success. For future binary assets, lossless base64 staging with numbered text lines, checksum verification and the GitHub binary blob API is a working transfer method; do not redraw an existing asset to solve an upload limitation.
