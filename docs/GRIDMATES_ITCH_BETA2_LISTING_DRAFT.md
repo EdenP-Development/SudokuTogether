@@ -23,7 +23,7 @@ GridMates: Sudoku brings a traditional paperback-puzzle feeling to Android, with
 - **Sudoku Coach:** Logical help and short practice lessons when you need a hand.
 - **Nearby Co-op:** Share one Sudoku board between two Android phones on the same Wi-Fi.
 - **Nearby Versus:** Race a friend on matching puzzles, with separate boards.
-- **Your Collection:** Discover 85 cosmetics, including 55 player icons, board designs, number colors and fonts. Earn 31 achievements as you play.
+- **Your Collection:** Discover 85 cosmetics, including 55 player icons, board designs, number colors and fonts. Earn 47 achievements as you play.
 - **Local progress:** Continue unfinished Solo/Daily puzzles and export or restore a progress-backup file.
 
 **No account required.** Solo and Daily play work without internet access. Nearby multiplayer connects the two phones directly over a shared, reachable local Wi-Fi network. Internet matchmaking and Bluetooth-only play are not included in Beta 2.

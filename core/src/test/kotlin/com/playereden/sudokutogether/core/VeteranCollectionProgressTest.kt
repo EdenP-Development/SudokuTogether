@@ -97,9 +97,9 @@ class VeteranCollectionProgressTest {
         assertFalse(Cosmetics.allowed("sunrise", repeat))
     }
 
-    @Test fun thirtyOneAchievementsProvideLongTermSoloDailyDifficultyAndCleanGoals() {
+    @Test fun fortySevenAchievementsProvideLongTermSoloDailyDifficultyAndCleanGoals() {
         val medals = Achievements.progress(emptyList())
-        assertEquals(31, medals.size)
+        assertEquals(47, medals.size)
         assertEquals(medals.size, medals.map { it.id }.toSet().size)
         assertTrue(medals.map { it.category }.toSet().containsAll(
             listOf("Solo", "Daily", "Difficulty", "Clean solves", "Together", "Versus")
@@ -144,5 +144,40 @@ class VeteranCollectionProgressTest {
         assertEquals(3, medal.current)
         assertFalse(medal.unlocked)
         assertTrue(Achievements.progress(bad).first { it.id == "daily-3" }.unlocked)
+    }
+
+    @Test fun expandedVeteranGoalsUnlockAtExactBoundariesAndSurvivePruning() {
+        val cases = listOf(
+            Triple("solo-750", 750, (1..1500).map { solved("solo-$it") }),
+            Triple("solo-1000", 1000, (1..1500).map { solved("solo-$it") }),
+            Triple("solo-1500", 1500, (1..1500).map { solved("solo-$it") }),
+            Triple("medium-100", 100, (1..250).map { solved("medium-$it", difficulty = "MEDIUM", assisted = true) }),
+            Triple("medium-250", 250, (1..250).map { solved("medium-$it", difficulty = "MEDIUM") }),
+            Triple("hard-100", 100, (1..250).map { solved("hard-$it", difficulty = "HARD") }),
+            Triple("hard-250", 250, (1..250).map { solved("hard-$it", difficulty = "HARD") }),
+            Triple("clean-100", 100, (1..250).map { solved("clean-$it") }),
+            Triple("clean-250", 250, (1..250).map { solved("clean-$it") }),
+            Triple("daily-100", 100, (1..180).map { solved("daily-$it", DAILY, date = java.time.LocalDate.of(2026, 1, 1).plusDays(it.toLong()).toString()) }),
+            Triple("daily-180", 180, (1..180).map { solved("daily-$it", DAILY, date = java.time.LocalDate.of(2026, 1, 1).plusDays(it.toLong()).toString()) }),
+            Triple("team-30", 30, (1..75).map { solved("coop-$it", COOP) }),
+            Triple("team-75", 75, (1..75).map { solved("coop-$it", COOP) }),
+            Triple("versus-50", 50, (1..100).map { solved("race-$it", VERSUS).copy(result = "LOSS") }),
+            Triple("versus-100", 100, (1..100).map { solved("race-$it", VERSUS).copy(result = "DRAW") }),
+            Triple("versus-win-75", 75, (1..75).map { solved("race-$it", VERSUS).copy(result = "WIN") })
+        )
+        for ((id, target, records) in cases) {
+            val before = records.take(target - 1)
+            val at = records.take(target)
+            fun medal(r: List<GameRecord>) = Achievements.progress(r).first { it.id == id }
+            assertEquals(target, medal(at).target)
+            assertFalse(id, medal(before + before).unlocked)
+            assertTrue(id, medal(at).unlocked)
+            val saved = Achievements.preserveEarned(LocalPlayerData(records = at))
+            assertTrue(id, Achievements.progress(emptyList(), saved.earnedAchievementIds).first { it.id == id }.unlocked)
+        }
+        val assisted = (1..250).map { solved("assisted-$it", assisted = true, hints = 1) }
+        assertFalse(Achievements.progress(assisted).first { it.id == "clean-100" }.unlocked)
+        val losses = (1..100).map { solved("loss-$it", VERSUS).copy(result = "LOSS") }
+        assertFalse(Achievements.progress(losses).first { it.id == "versus-win-75" }.unlocked)
     }
 }

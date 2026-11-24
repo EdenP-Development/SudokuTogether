@@ -51,7 +51,7 @@ class Beta2UpgradeVerifierTest {
         assertTrue("Rare items are not auto-granted",
             !Cosmetics.allowed("ocean_narwhal", upgraded.records, upgraded.ownedCosmeticIds))
 
-        assertEquals("All 31 achievement IDs are available", 31, Achievements.knownIds.size)
+        assertEquals("All 47 achievement IDs are available", 47, Achievements.knownIds.size)
         assertEquals("Legacy history earns exactly the qualifying medals on load",
             expectedMedals, upgraded.earnedAchievementIds.toSet())
         assertEquals(expectedMedals, Achievements.progress(upgraded.records, upgraded.earnedAchievementIds)
