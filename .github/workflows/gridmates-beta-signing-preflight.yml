@@ -1,5 +1,8 @@
 name: GridMates beta signing preflight
 on:
+  push:
+    branches: [feat/beta2-permanent-identity-staging]
+    paths: ['.github/workflows/gridmates-beta-signing-preflight.yml']
   workflow_dispatch:
 permissions:
   contents: read
