@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
@@ -87,12 +88,20 @@ internal fun portraitDisplayScale(id: String): Float = when (id) {
 
 @Composable internal fun AnimalPortrait(appearance: Appearance, modifier: Modifier = Modifier.size(48.dp)) {
     val drawable = animalDrawable(appearance.portrait)
+    // Unapproved designs show only inside their separate QA build; all normal
+    // users retain existing Basic emblems and their saved chosen IDs.
+    val concept = if (appearance.portrait.isEmpty() &&
+        LocalContext.current.resources.getBoolean(R.bool.gridmates_insignia_preview_enabled)
+    ) candidateInsigniaDrawable(appearance.emblem) else null
     BoxWithConstraints(modifier.sizeIn(minWidth = 24.dp, minHeight = 24.dp, maxWidth = 140.dp, maxHeight = 140.dp)
         .clip(CircleShape).background(GreenTint)
         .testTag("portrait_image_${appearance.portrait.ifEmpty { appearance.emblem }}"), contentAlignment = Alignment.Center) {
         if (drawable != null) Image(painterResource(drawable), contentDescription = null,
             modifier = Modifier.fillMaxSize().padding(maxWidth * .08f)
                 .scale(portraitDisplayScale(appearance.portrait)),
+            contentScale = ContentScale.Fit)
+        else if (concept != null) Image(painterResource(concept), contentDescription = null,
+            modifier = Modifier.fillMaxSize().padding(maxWidth * .08f),
             contentScale = ContentScale.Fit)
         else Text(emblemSymbol(appearance.emblem), color = inkFor(appearance.ink, false),
             fontSize = (minOf(maxWidth.value, maxHeight.value) * .64f / LocalDensity.current.fontScale.coerceAtLeast(1f)).sp)

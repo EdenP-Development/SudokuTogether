@@ -441,9 +441,17 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     AlertDialog(onDismissRequest = close, title = { Text(item.cosmetic.name) }, text = {
         Column(Modifier.fillMaxWidth().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
             if (item.family != null) {
-                Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(GreenTint)
-                    .padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
-                    AnimalPortrait(sample, Modifier.size(116.dp).clearAndSetSemantics {})
+                val reviewingNewInsignia = item.group == CosmeticGroup.EMBLEM &&
+                    insigniaArtReviewEnabled() && candidateInsigniaDrawable(item.id) != null
+                if (reviewingNewInsignia) {
+                    // This owner-only art reviewer compares originals with new art in
+                    // one place. Avoid a redundant third oversized proposed image.
+                    InsigniaCandidateComparison(item.id)
+                } else {
+                    Box(Modifier.fillMaxWidth().clip(RoundedCornerShape(16.dp)).background(GreenTint)
+                        .padding(vertical = 12.dp), contentAlignment = Alignment.Center) {
+                        AnimalPortrait(sample, Modifier.size(116.dp).clearAndSetSemantics {})
+                    }
                 }
             }
             Text(item.previewLabel, color = Muted, style = MaterialTheme.typography.bodySmall)

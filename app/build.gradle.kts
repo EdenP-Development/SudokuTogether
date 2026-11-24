@@ -44,6 +44,11 @@ val beta2V7Preview = providers.gradleProperty("gridmatesBeta2V7Preview").orNull?
     require(it == "true") { "gridmatesBeta2V7Preview only accepts true" }
     true
 } ?: false
+// Separate test-only artwork ID. Normal builds must keep the existing insignias.
+val beta2InsigniaPreview = providers.gradleProperty("gridmatesBeta2InsigniaPreview").orNull?.let {
+    require(it == "true") { "gridmatesBeta2InsigniaPreview only accepts true" }
+    true
+} ?: false
 // One-time owner screenshot reviewer for Beta 2 layout refinements.
 val beta2PolishPreview = providers.gradleProperty("gridmatesBeta2PolishPreview").orNull?.let {
     require(it == "true") { "gridmatesBeta2PolishPreview only accepts true" }
@@ -65,7 +70,7 @@ val beta2BoardsPreview = providers.gradleProperty("gridmatesBeta2BoardsPreview")
     require(it == "true") { "gridmatesBeta2BoardsPreview only accepts true" }
     true
 } ?: false
-require(listOf(beta2PolishPreview, beta2VeteranPreview, beta2UnlockPreview, beta2V7Preview, beta2MatrixPreview, beta2Unified79Preview, beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
+require(listOf(beta2InsigniaPreview, beta2PolishPreview, beta2VeteranPreview, beta2UnlockPreview, beta2V7Preview, beta2MatrixPreview, beta2Unified79Preview, beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
     "Only one isolated preview type can be selected"
 }
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
@@ -84,6 +89,7 @@ require(!(beta2Unified75Preview && qaVersion != null)) { "Unified 75 preview mus
 require(!(beta2Unified79Preview && qaVersion != null)) { "Unified 79 preview must not share QA-update identity" }
 require(!(beta2MatrixPreview && qaVersion != null)) { "Matrix preview must not share QA-update identity" }
 require(!(beta2V7Preview && qaVersion != null)) { "Beta2 V7 preview must not share QA-update identity" }
+require(!(beta2InsigniaPreview && qaVersion != null)) { "Insignia preview must not share QA update identity" }
 require(!(beta2PolishPreview && qaVersion != null)) { "Beta2 polish preview must not share QA-update identity" }
 require(!(beta2VeteranPreview && qaVersion != null)) { "Beta2 veteran preview must not share QA-update identity" }
 require(!(beta2UnlockPreview && qaVersion != null)) { "Beta2 unlock preview must not share QA-update identity" }
@@ -102,6 +108,7 @@ android {
         applicationId = "com.playereden.sudokutogether"
         minSdk = 26; targetSdk = 36; versionCode = qaVersion ?: 31; versionName = "1.0.0-beta.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        resValue("bool", "gridmates_insignia_preview_enabled", beta2InsigniaPreview.toString())
     }
     if (privateSigning.isNotEmpty()) signingConfigs.create("privateKey") {
         storeFile = file(privateSigning.getProperty("storeFile"))
@@ -121,6 +128,7 @@ android {
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
                 beta2BoardsPreview -> ".qa.beta2boards"
+                beta2InsigniaPreview -> ".qa.insignias"
                 beta2PolishPreview -> ".qa.beta2polish"
                 beta2VeteranPreview -> ".qa.beta2veteran"
                 beta2UnlockPreview -> ".qa.beta2unlock"
@@ -136,6 +144,7 @@ android {
             }
             versionNameSuffix = when {
                 beta2BoardsPreview -> "-qa.beta2boards"
+                beta2InsigniaPreview -> "-qa.insignias"
                 beta2PolishPreview -> "-qa.beta2polish"
                 beta2VeteranPreview -> "-qa.beta2veteran"
                 beta2UnlockPreview -> "-qa.beta2unlock"
