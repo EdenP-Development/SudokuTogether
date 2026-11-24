@@ -52,7 +52,7 @@ class PlaySmokeTest {
         awaitWindowFocus()
         compose.onNodeWithContentDescription("How to play Sudoku").performClick()
         compose.onNodeWithText("How to play Sudoku").assertExists()
-        compose.onNodeWithText("Fill each row", substring = true).assertExists()
+        compose.onNodeWithText("Place 1–9 once in each row, column, and 3×3 box.").assertIsDisplayed()
         compose.onNodeWithText("Got it").performClick()
         compose.onNodeWithText("Co-op").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText("Join a game").assertExists()
@@ -200,8 +200,9 @@ class PlaySmokeTest {
 
     @Test fun raceHostWaitsForSecondPlayerBeforeAllowingInput() {
         compose.onNodeWithText("Versus", substring = false).performScrollTo().performClick()
-        // Keep this pause-rule test independent of another test's difficulty preference.
-        compose.onNodeWithTag("difficulty_EASY").performScrollTo().assertIsEnabled().performClick()
+        // Nearby modes have their own visible difficulty picker.
+        compose.onNodeWithTag("nearby_difficulty_EASY").performScrollTo().assertIsEnabled().performClick()
+        compose.onNodeWithTag("nearby_difficulty_EASY").assertIsSelected()
         compose.onNodeWithText("Start a race").performScrollTo().assertIsEnabled().performClick()
         // Like co-op, a prior run can leave a saved race that needs explicit replacement.
         if (compose.onAllNodesWithText("Start new").fetchSemanticsNodes().isNotEmpty()) {

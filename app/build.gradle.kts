@@ -44,6 +44,11 @@ val beta2V7Preview = providers.gradleProperty("gridmatesBeta2V7Preview").orNull?
     require(it == "true") { "gridmatesBeta2V7Preview only accepts true" }
     true
 } ?: false
+// Integrated owner test only: revised Basic vector emblems + Versus V8-B.
+val beta2IntegratedRc3Preview = providers.gradleProperty("gridmatesBeta2IntegratedRc3Preview").orNull?.let {
+    require(it == "true") { "gridmatesBeta2IntegratedRc3Preview only accepts true" }
+    true
+} ?: false
 // Visible Beta 2 RC2 reviewer; do NOT enable unapproved art for ordinary builds.
 val beta2VisualRc2Preview = providers.gradleProperty("gridmatesBeta2VisualRc2Preview").orNull?.let {
     require(it == "true") { "gridmatesBeta2VisualRc2Preview only accepts true" }
@@ -80,7 +85,7 @@ val beta2BoardsPreview = providers.gradleProperty("gridmatesBeta2BoardsPreview")
     require(it == "true") { "gridmatesBeta2BoardsPreview only accepts true" }
     true
 } ?: false
-require(listOf(beta2VisualRc2Preview, beta2Rc1Preview, beta2AlbumPreview, beta2PolishPreview, beta2VeteranPreview, beta2UnlockPreview, beta2V7Preview, beta2MatrixPreview, beta2Unified79Preview, beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
+require(listOf(beta2IntegratedRc3Preview, beta2VisualRc2Preview, beta2Rc1Preview, beta2AlbumPreview, beta2PolishPreview, beta2VeteranPreview, beta2UnlockPreview, beta2V7Preview, beta2MatrixPreview, beta2Unified79Preview, beta2Unified75Preview, beta2BoardsPreview, beta2FarmPreview, beta2GardenPreview, beta2PortraitPreview, woodlandV5Preview).count { it } <= 1) {
     "Only one isolated preview type can be selected"
 }
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
@@ -99,6 +104,7 @@ require(!(beta2Unified75Preview && qaVersion != null)) { "Unified 75 preview mus
 require(!(beta2Unified79Preview && qaVersion != null)) { "Unified 79 preview must not share QA-update identity" }
 require(!(beta2MatrixPreview && qaVersion != null)) { "Matrix preview must not share QA-update identity" }
 require(!(beta2V7Preview && qaVersion != null)) { "Beta2 V7 preview must not share QA-update identity" }
+require(!(beta2IntegratedRc3Preview && qaVersion != null)) { "Integrated RC3 must not use QA-update identity" }
 require(!(beta2VisualRc2Preview && qaVersion != null)) { "Visual RC2 must not use QA-update identity" }
 require(!(beta2Rc1Preview && qaVersion != null)) { "RC1 reviewer must not share QA-update identity" }
 require(!(beta2AlbumPreview && qaVersion != null)) { "Beta2 album preview must not share QA-update identity" }
@@ -113,6 +119,11 @@ val qaKeystore = System.getenv("SUDOKU_QA_KEYSTORE_FILE")?.let { file(it) }
 if (qaUpdateFlag == "true") require(qaKeystore?.isFile == true) {
     "Restore the existing private QA keystore before building an update; do not generate a replacement key"
 }
+// Owner approval is deliberately separate from a green reviewer build.
+val beta2ArtApproval = Properties().apply {
+    rootProject.file("design/versus-v9/release.properties").inputStream().use(::load)
+}
+val beta2ApprovedArt = beta2ArtApproval.getProperty("ownerApproved") == "true"
 android {
     namespace = "com.playereden.sudokutogether"
     compileSdk = 36
@@ -120,7 +131,13 @@ android {
         applicationId = "com.playereden.sudokutogether"
         minSdk = 26; targetSdk = 36; versionCode = qaVersion ?: 31; versionName = "1.0.0-beta.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-        resValue("bool", "gridmates_insignia_preview_enabled", beta2VisualRc2Preview.toString())
+        resValue("bool", "gridmates_insignia_preview_enabled",
+            (beta2VisualRc2Preview || beta2IntegratedRc3Preview).toString())
+        resValue("bool", "gridmates_insignia_art_enabled",
+            (beta2VisualRc2Preview || beta2IntegratedRc3Preview).toString())
+        resValue("bool", "gridmates_versus_v9_enabled", beta2IntegratedRc3Preview.toString())
+        resValue("bool", "gridmates_versus_v8b_enabled", beta2IntegratedRc3Preview.toString())
+        resValue("bool", "gridmates_portrait_refinement_enabled", beta2IntegratedRc3Preview.toString())
     }
     if (privateSigning.isNotEmpty()) signingConfigs.create("privateKey") {
         storeFile = file(privateSigning.getProperty("storeFile"))
@@ -140,6 +157,7 @@ android {
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
                 beta2BoardsPreview -> ".qa.beta2boards"
+                beta2IntegratedRc3Preview -> ".qa.beta2integratedrc3"
                 beta2VisualRc2Preview -> ".qa.beta2visualrc2"
                 beta2Rc1Preview -> ".qa.beta2rc1"
                 beta2AlbumPreview -> ".qa.beta2album"
@@ -158,6 +176,7 @@ android {
             }
             versionNameSuffix = when {
                 beta2BoardsPreview -> "-qa.beta2boards"
+                beta2IntegratedRc3Preview -> "-qa.beta2integratedrc3"
                 beta2VisualRc2Preview -> "-qa.beta2visualrc2"
                 beta2Rc1Preview -> "-qa.beta2rc1"
                 beta2AlbumPreview -> "-qa.beta2album"
@@ -178,6 +197,12 @@ android {
             if (qaVersion != null) signingConfig = signingConfigs.getByName("qaContinuity")
         }
         release {
+            // Production displays accepted art, but never the comparison dialog.
+            resValue("bool", "gridmates_insignia_art_enabled", beta2ApprovedArt.toString())
+            resValue("bool", "gridmates_portrait_refinement_enabled", beta2ApprovedArt.toString())
+            resValue("bool", "gridmates_versus_v9_enabled", beta2ApprovedArt.toString())
+            resValue("bool", "gridmates_insignia_preview_enabled", "false")
+            resValue("bool", "gridmates_versus_v8b_enabled", "false")
             isMinifyEnabled = false
             if (privateSigning.isNotEmpty()) signingConfig = signingConfigs.getByName("privateKey")
         }

@@ -64,6 +64,24 @@ internal fun animalDrawable(id: String): Int? = when (id) {
     else -> null
 }
 
+/** Preserve original portrait resources and stable IDs. Review replacements
+ * in the combined RC3 app, including the equipped Home companion. */
+internal fun refinedAnimalDrawable(id: String, enabled: Boolean): Int? =
+    if (enabled) when (id) {
+        "woodland_woodpecker" -> R.drawable.gm_portrait_woodland_woodpecker_illustrated
+        "woodland_chipmunk" -> R.drawable.gm_portrait_woodland_chipmunk_illustrated
+        "woodland_beaver" -> R.drawable.gm_portrait_woodland_beaver_illustrated
+        "woodland_skunk" -> R.drawable.gm_portrait_woodland_skunk_illustrated
+        "garden_firefly" -> R.drawable.gm_portrait_garden_firefly_illustrated
+        else -> animalDrawable(id)
+    } else animalDrawable(id)
+
+@Composable internal fun portraitRefinementEnabled(): Boolean =
+    LocalContext.current.resources.getBoolean(R.bool.gridmates_portrait_refinement_enabled)
+
+internal fun refinedPortraitScale(id: String, enabled: Boolean): Float =
+    if (enabled && id in setOf("woodland_woodpecker", "woodland_chipmunk", "woodland_beaver", "woodland_skunk", "garden_firefly")) 1f else portraitDisplayScale(id)
+
 internal fun identityStyleName(appearance: Appearance): String {
     Cosmetics.farmPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Farm" }
     Cosmetics.gardenPortraits.firstOrNull { it.id == appearance.portrait }?.let { return "${it.name} · Garden" }
@@ -87,18 +105,19 @@ internal fun portraitDisplayScale(id: String): Float = when (id) {
 }
 
 @Composable internal fun AnimalPortrait(appearance: Appearance, modifier: Modifier = Modifier.size(48.dp)) {
-    val drawable = animalDrawable(appearance.portrait)
+    val refinement = portraitRefinementEnabled()
+    val drawable = refinedAnimalDrawable(appearance.portrait, refinement)
     // Unapproved designs show only inside their separate QA build; all normal
     // users retain existing Basic emblems and their saved chosen IDs.
     val concept = if (appearance.portrait.isEmpty() &&
-        LocalContext.current.resources.getBoolean(R.bool.gridmates_insignia_preview_enabled)
+        LocalContext.current.resources.getBoolean(R.bool.gridmates_insignia_art_enabled)
     ) candidateInsigniaDrawable(appearance.emblem) else null
     BoxWithConstraints(modifier.sizeIn(minWidth = 24.dp, minHeight = 24.dp, maxWidth = 140.dp, maxHeight = 140.dp)
         .clip(CircleShape).background(GreenTint)
         .testTag("portrait_image_${appearance.portrait.ifEmpty { appearance.emblem }}"), contentAlignment = Alignment.Center) {
         if (drawable != null) Image(painterResource(drawable), contentDescription = null,
             modifier = Modifier.fillMaxSize().padding(maxWidth * .08f)
-                .scale(portraitDisplayScale(appearance.portrait)),
+                .scale(refinedPortraitScale(appearance.portrait, refinement)),
             contentScale = ContentScale.Fit)
         else if (concept != null) Image(painterResource(concept), contentDescription = null,
             modifier = Modifier.fillMaxSize().padding(maxWidth * .08f),

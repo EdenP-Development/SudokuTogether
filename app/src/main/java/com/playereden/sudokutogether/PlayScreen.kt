@@ -66,6 +66,7 @@ import kotlinx.coroutines.delay
             if (snapshot == null) OpeningPuzzle(Modifier.weight(1f).fillMaxWidth())
             else BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
                 val wide = maxWidth >= 520.dp && maxWidth > maxHeight && !snapshot.completed
+                val availablePlayHeight = maxHeight
                 if (wide) {
                     val railWidth = (maxWidth * .46f).coerceIn(288.dp, 352.dp)
                     Row(Modifier.fillMaxSize().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -81,8 +82,26 @@ import kotlinx.coroutines.delay
                         }
                     }
                 } else Column(Modifier.fillMaxSize()) {
-                    PlayBoardPane(state, actions, new,
-                        Modifier.weight(1f).fillMaxWidth(), roomStatus = true)
+                    // On tall portrait phones keep the entire board/meta/
+                    // caption cluster *visually centered* in the weighted
+                    // play area. The old scrollable Column received infinite
+                    // vertical constraints and Arrangement.Center had no
+                    // effect; hence the large empty board-to-keypad gap.
+                    // Preserve the original scrolling board on short phones,
+                    // large-font layouts and all multiplayer modes.
+                    val centerSoloBoard = state.role == SOLO && snapshot.mode == SOLO &&
+                        !snapshot.completed && availablePlayHeight >= 670.dp &&
+                        LocalDensity.current.fontScale <= 1.3f
+                    if (centerSoloBoard) {
+                        Box(Modifier.weight(1f).fillMaxWidth(),
+                            contentAlignment = Alignment.Center) {
+                            PlayBoardPane(state, actions, new,
+                                Modifier.fillMaxWidth(), roomStatus = true, scrollable = false)
+                        }
+                    } else {
+                        PlayBoardPane(state, actions, new,
+                            Modifier.weight(1f).fillMaxWidth(), roomStatus = true)
+                    }
                     if (!snapshot.completed) SudokuInputDock(snapshot, state, actions, ::tick)
                 }
             }
@@ -481,10 +500,9 @@ private fun roomStatusText(state: GameUiState): String {
             if (state.role == SOLO) DockTool("Hint", GameSymbol.HELP, state.canEdit, modifier = Modifier.weight(1f),
                 description = "Request a solo Sudoku hint") { actions.hint() }
         }
-        if (!state.notes) {
-            Text(if (!editable) "Select an empty square to enter a number"
-                else "Small numbers show how many of each digit are left",
-                color = if (!editable) Forest else Muted, fontSize = 10.sp, lineHeight = 14.sp,
+        if (!state.notes && editable) {
+            Text("Small numbers show how many of each digit are left",
+                color = Muted, fontSize = 10.sp, lineHeight = 14.sp,
                 modifier = Modifier.testTag("keypad_remaining_explanation"),
                 textAlign = TextAlign.Center)
         }

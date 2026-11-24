@@ -30,7 +30,7 @@ import com.playereden.sudokutogether.core.Appearance
 @Composable internal fun HomeChapterArt(appearance: Appearance, modifier: Modifier = Modifier) {
     val largeText = LocalDensity.current.fontScale > 1.3f
     val portraitId = appearance.portrait
-    val portraitDrawable = animalDrawable(portraitId)
+    val portraitDrawable = refinedAnimalDrawable(portraitId, portraitRefinementEnabled())
     val woodland = portraitDrawable == null || portraitId.startsWith("woodland_")
     val companion = when {
         portraitDrawable == null -> "A quiet moment, one grid at a time"

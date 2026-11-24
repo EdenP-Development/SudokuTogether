@@ -1,5 +1,22 @@
 # GridMates: Sudoku — BETA 2 OWNER HANDOFF / SINGLE SOURCE OF TRUTH
 
+## Current Beta 2 checkpoint — November 24, 2026
+
+**This section supersedes all historical checkpoints below.** Active draft [PR #126](https://github.com/PlayerEden/SudokuTogether/pull/126), branch `feat/beta2-integrated-rc3-review`. Last tested game source `ba620d247d10e9d4cbe7ecaeb0a4dc6819a69ff0`; subsequent test/documentation-only integration does not alter game runtime. Public itch.io remains Beta 1; Beta 2 is not published.
+
+- 85 cosmetics (43 portraits, 12 Basic insignias, 11 boards, 10 inks, 9 fonts), 47 achievements. Approved Versus V9, Co-op V5, Solo/Home retained, five illustrated replacement portraits and Ocean art frozen. No new Beta 2 content.
+- [Android regression](https://github.com/PlayerEden/SudokuTogether/actions/runs/45451955312) attempt 2: 113/113 passed, same source as first attempt's capture timeout. [Isolated reviewer archive](https://github.com/PlayerEden/SudokuTogether/actions/runs/45451955312/artifacts/14952310625), expires Dec 8; not a production update. ZIP digest e3d9cb58ff346681368b383e359100dea61f6591946e974870c65d6dbc3300cf. Independent latest APK hash check pending.
+- [Install-over rehearsal](https://github.com/PlayerEden/SudokuTogether/actions/runs/45451955470) GREEN with temporary matching test signer, exact Beta1 source -> Beta2, not actual public signing continuity.
+- [Portable migration rehearsal](https://github.com/PlayerEden/SudokuTogether/actions/runs/45464118951) GREEN: test-only commit `70cf8e186d5b07961b2e0cb7a9ec4ac8bc014e7d`, original Beta1 source 76cbfc149569938b97286f3efe4ad44e08c5934f and separate Beta2 reviewer package. Two instrumentation tests passed, 750 synthetic records, Solo/Daily, notes, Undo/hints, preferences, equipped cosmetics, retroactive medals (solo-750 earned, solo-1000 locked), destination identity and reopened save verified; old profile/settings byte-identical. Actual family save and published APK not tested. Tests integrated below scripts/portable-migration-fixtures and workflow; use manual workflow dispatch or dedicated staging branch. No production key generated.
+- Owner deferred physical two-phone retest to public feedback/Beta3; not a passed check. Focused multiplayer source audit found unchanged HostServer, GuestClient, Protocol, SessionStore, RoomDiscovery, TransportTest; GameSession emoji fix and ViewModel round/input/error refinements. Trusted local Wi-Fi, unencrypted transport. Critical data-loss/security/broken functionality remains release-blocking.
+- **BLOCKED: original production signing custody.** Package com.playereden.sudokutogether, Beta1 code30, intended Beta2 code31, cert SHA256 d362dab018a255ccb313582df1e3cf836246e7da1778a198eb1da03a7cfe7cd1. Last preflight missing original secrets. Never generate substitute for existing package; no uninstall/clear data. Original APK exposes public certificate only. Private original backup location unknown.
+- Shared [Eden Development Standards](https://github.com/PlayerEden/Eden-Development-Standards): release, signing, backup, save and recovery rules and APP_REGISTRY.json. Owner-controlled encrypted vault and independent recovery copy still unverified. Keep keys/passwords out of Git, logs and chat.
+- Preferred release: recover original key, certificate preflight, owner-authorized release art flag, inspect actual production APK and rehearse actual public install-over on backed-up noncritical data. Fallback only with owner approval: distinct permanent package and securely backed-up new signer, export/restore using Settings -> Progress, preserve original app until actual migration verified. Existing live room credentials not portable; destination player ID retained. No new identity or public release authorized.
+- Next: check signing backup custody, verify latest reviewer APK receipt/hash, finish release variant permissions/art/ancestry checks and approved support/privacy/disclosure copy. Update current handoff and shared registry with evidence; no secrets. Beta3 advanced Coach, longer-term collectibles, further art and multiplayer feedback. See [release tracker #115](https://github.com/PlayerEden/SudokuTogether/issues/115) and [audit #127](https://github.com/PlayerEden/SudokuTogether/issues/127).
+
+---
+
+
 **Updated:** 2026-11-23. **Status:** development / owner phone-review; NOT yet a public Beta 2 release.
 
 **Read this document first if a ChatGPT conversation fills up.** Open the current GitHub PRs, compare head SHAs, inspect tests, and continue from the latest green source. Do not assume GitHub's default branch already contains the draft Beta 2 features. This document records confirmed work, unresolved decisions, known risks, and an actionable order. It should be amended after each accepted visual pass and prior to release.
@@ -112,3 +129,72 @@ This branch now also includes [Collection Art Bible](GRIDMATES_COLLECTION_ART_BI
 - **Main art blocker:** V7 Versus rejected by owner; V8 needed.
 - **Other release blockers:** Co-op text, Collection/emblem visual consistency, seven candidate sprite owner review, two-phone LAN final regression, and same-signer save-preserving Beta 1→Beta 2 upgrade.
 - **Immediate next action:** implement tightly scoped low-risk UI polish + targeted tests, produce separate owner APK, solicit screenshots; in parallel prepare a **separate** approved-art V8 proposal without altering the accepted Solo forest hero.
+
+## 9. Beta 2 consolidated release drive — Nov 23/24 2026
+
+**Goal: one cohesive app that the family can actually use, not another collection of independent demonstrations.** This checkpoint supersedes stale status paragraphs above. Beta 1 stays installed and untouched until a backed-up, same-signer upgrade has been verified.
+
+| Workstream | Real source / status | Last release gate |
+|---|---|---|
+| 85 cosmetics, 43 portraits, 31 achievements | Integrated from #116 through #120, #124, #125 and #126 | Family player progression/reward pacing playthrough |
+| Co-op visual / Collection labels | #118 already integrated | Owner phone captures approved Co-op appearance |
+| Compact Achievement Album | #120 integrated and Android-tested | Owner needs expanded earned/locked album screenshots |
+| Six new Basic insignias | #123 exact source, simplified borderless and rebalanced V2 in #125 | #45323324666 green; actual all-twelve owner visual acceptance remains open |
+| Solo board-to-keypad gap | First centering attempt ineffective; RC3 #126 now centers the weighted board cluster itself on tall portrait phones | Actual Android and physical-phone spacing screenshots, short-screen and large font regression |
+| Versus | Prior V7 in RC2; actual V8-B board/mascot overlay source from #121 now integrated into isolated RC3 #126 | Owner approval, compare with Co-op; V7 retained as fallback in normal builds |
+| Extra seven portraits | Existing #114 ZIP reviewer, not imported into the 85-item production catalog | Four provisional pass and three tweak; source art must be approved at 48/62/96dp before any catalog expansion |
+| Woodpecker | Current original narrow-side portrait, Concept A only design sketch | A genuinely woodpecker-specific revised raster and phone approval; no generic bird substitution |
+| Real LAN | Owner confirms regular real two-phone play with wife on existing installed version; RC3 emulator regression passed | Brief final-build Co-op/Versus smoke test; preserve proven LAN flows, no rework without a defect |
+| Beta1->Beta2 save-safe upgrade | Standalone QA APKs use separate package names and blank isolated progress | Verified original signer, production version increase, backed-up same-package upgrade and restoration of all saved activity |
+
+### Verified build history
+
+- RC1 #124 green Android run #45304413304, owner ten screenshots said visually too subtle.
+- RC2 #125 simplified border-free insignias, Android run #45323324666 green, artifact #14888374075.
+- Additional RC2 screenshot CI #45325064729 ran Android tests and captured six emulator images, then failed due to stale three-image uniqueness assertion after expanding to four screenshots. Source fixed in #125 commit 5f329d9. Treat as QA-script mistake, not failed gameplay.
+- RC3 #126: one integrated staging build combining V8-B, border-free six Basic insignias, existing Achievement Album, 85 cosmetics and real Solo layout fix. Property gridmatesBeta2IntegratedRc3Preview=true, isolated package com.playereden.sudokutogether.qa.beta2integratedrc3. Android green must be checked at exact latest head; no production merge until owner approves.
+
+### Stop/go sequence
+
+1. Verify RC3 Android build, sources, screenshots and one standalone APK; review all six icon tiles and Versus mode in real phone images.
+2. Redraw and approve Woodpecker only if an original cohesive species-specific sprite is available; treat existing animal PNGs as golden references.
+3. Approve only worthwhile seven-sprite candidates; do not claim 92 until the actual bytes are integrated and tested.
+4. Brief final-build same-Wi-Fi Co-op and Versus smoke test, including host/join and finish/rematch. Existing family play is positive real-device evidence; no unnecessary LAN redesign.
+5. Back up real Beta1 before same-package same-signer higher-versionCode test, verify profile, earned cosmetics, solved stats, Daily and in-progress puzzle survive; freeze binary hash and get spouse/owner release go/no-go.
+
+
+## 10. RC3 verified checkpoint — November 24, 2026
+
+- [Draft PR #126](https://github.com/PlayerEden/SudokuTogether/pull/126), runtime source `717b460dcbd08a4172010b4f7f304de3b1cdcb51`, passed [Android run 45328412989](https://github.com/PlayerEden/SudokuTogether/actions/runs/45328412989), including compile, core/app tests, lint, package/asset checks, **31 connected Android tests**, and six screenshot outputs. Earlier compilation failure is resolved.
+- [RC3 owner-review ZIP artifact 14891706648](https://github.com/PlayerEden/SudokuTogether/actions/runs/45328412989/artifacts/14891706648) contains the isolated APK and Android screenshot evidence. Artifact expires December 8, 2026. It is **not** a production install-over APK. Owner can keep Beta 1 and install the reviewer side by side.
+- Reviewed priority: actual phone visual acceptance for Solo spacing, Basic insignias, Versus and Album; species-specific Woodpecker and optional seven candidate portraits remain unapproved. Keep the 85-item catalog until approved art is truly integrated. No source art or gameplay changed in this checkpoint.
+- Save safety: historical debug-signer rehearsal passed; production signer still unverified. The upgrade verifier fixture now additionally checks exactly four retroactively earned medals from the legacy five-clean-solve profile, all 31 available medal IDs, no unrelated awards, and persistence through save/reload and history pruning. **New fixture assertions not yet run**; use the manual upgrade rehearsal on this branch before production signing. This test change does not modify the runtime or the already-verified RC3 APK.
+- Original release certificate and verified backup/restore remain mandatory. Never uninstall Beta 1 or publish an unverified update. Continue with visual review while preparing the upgrade check; one brief final family LAN regression is enough absent defects.
+
+
+## 11. Owner RC3 screenshot verdict and consolidated correction pass — November 24
+
+- RC3 Versus V8-B is **REJECTED** by owner: the detached Fox/Owl busts look pasted over the scenery. Do not repeat V6/V7/V8A/V8B by moving the same static portraits. V9 must be a dedicated illustration following the approved Co-op interaction method; keep native typography and two distinct naturally integrated boards, try a different on-model character pairing. Preserve accepted Solo and Co-op pixels. The current renderer still shows V8-B until the actual V9 raster is available; it is not approved.
+- Woodpecker original is explicitly rejected. Recovered Concept A SVG and previous checkerboard raster are design-only. New Concept B uses a broad bust, pointed longer bill, swept red crest and cream cheeks. Firefly source inspected: original soft pale glow has an irregular lower-left edge and the on-phone silhouette appears clipped; exact cause of the screen defect is not proven. V2 encloses amber glow within abdomen and removes irregular external glow while retaining friendly face/wings. Both revised native vectors are wired into the existing integrated reviewer (including equipped Home), stable IDs and original PNGs unchanged. These are review candidates, not approved final source PNGs. Source SVGs + Android XML are committed together; the audit exports real transparent 512px RGBA review PNGs.
+- Portrait detail preview now shows 136dp art instead of 116dp with less vertical padding and no larger panel. New actual Android tests exercise 48/62/96dp and both locked detail paths. New source audit inventories all 43 originals, compares both candidates to canonical anchors, records bounds/alpha/circle loss and hashes, produces contact sheets by family, and inventories six Basic vectors and hero sources. Human art verdicts and Android screenshots remain distinct from automated checks.
+- User asks to finish actual assets and audit all art, not spend repeated chats recreating briefs. Work remains on #126, original artwork and release/save identity protected. Next: dedicated V9 raster, actual device review of both revised sprites, inspect the audit sheet and the remaining Chipmunk/Beaver/Skunk/Hay Bale/Dragonfly candidates, then recover/import only approved seven expansion sprites. No unnecessary LAN redesign. No new approval claim or APK until exact-head Android result passes.
+
+
+## 12. Beta 2 closeout — November 24
+
+- Source visual audit complete: 38 keep, three inspect/retain, two correction originals; no widespread crop defect. [Issue #112](https://github.com/PlayerEden/SudokuTogether/issues/112) contains individual verdicts. Seven extra portraits are optional and deferred until recovered; do not delay core Beta 2 for 92 cosmetics.
+- Prior run 45424306282 compiled, passed source checks and 33/34 Android tests; new combined Woodpecker/Garden test failed finding Firefly after changing family. Separate fresh-state tests now verify each locked detail and assert selected family. No claim this proves runtime navigation fixed until rerun.
+- V9 dedicated Rabbit/Bear scene has a corrected local raster: exact path/hash in design/versus-v9/manifest.json. **The binary has not been transferred into GitHub**. Owner upload of that single PNG to the manifest path on this existing branch is required. Renderer automatically selects it in integrated reviewer once present; no V8 overlays; source + APK hash gates and large-text regression remain. Existing V8-B fallback is rejected and is not release eligible.
+- Expanded debug-signer upgrade rehearsal now triggers automatically on its scoped workflow/fixture changes on this branch (not on unrelated art edits). Actual result required. Production signer preflight last recorded blocked; never uninstall Beta 1. Release art promotion now uses explicit ownerApproved=false record; release variants will use approved Basic/portrait/V9 art after owner approval, not review comparison panels. Signing candidate workflow refuses to proceed without approval and exact V9 binary. No signing credential values exposed or changed.
+
+
+## 13. Binary import resolved and expanded tests green — November 24
+
+- Exact-head 1f442b7 [Android run 45426595153](https://github.com/PlayerEden/SudokuTogether/actions/runs/45426595153) passed **35/35 connected Android tests**, compile/unit/lint/source checks and six real screenshots. Artifact #14936839055 includes both native portrait replacements but still shows rejected fallback V8-B because V9 had not been imported at that head.
+- [Expanded Beta 1 to Beta 2 install-over run 45426595403](https://github.com/PlayerEden/SudokuTogether/actions/runs/45426595403) passed both real emulator seed/verify tests. Same temporary test signer, versionCode 30 to 31, verified preservation including the expanded achievement assertions. This is not the public production certificate; the original production signer remains a separate blocker.
+- **Actual dedicated V9 PNG now committed in this change**, not a placeholder: 1881×836, 2,211,554 bytes, SHA-256 7063f19076f25be4d8175683b728530029837fc328357bd8b97447216f2bc97a, Git blob 6fac1301ef366d7842c1f085736d2af0a7d7d902. Lossless transfer succeeded using a temporary line-numbered text encoding and GitHub binary blob API, with SHA-256 matched before upload. No owner manual upload needed. Source validation now refuses missing artwork, and Android V9 test requires the new scene with no V8 overlays. Re-run exact-head Android verification before supplying a V9 APK. Owner art approval remains false. No production publication or change to user saves.
+
+
+## November 24 — owner-directed five illustrated portrait correction
+
+Physical reviewer: owner accepts V9 Versus direction and Ocean set. Woodpecker B, Chipmunk, Beaver, Skunk and Firefly V2 rejected. Simplified illustrated concept direction accepted (not final export approval). Five real 512×512 transparent PNG replacements are pinned in [illustrated-five-manifest.json](../design/collection-art/illustrated-five-manifest.json). Original PNGs and historical vector candidates retained; reviewer selects these five rasters at 1.0 scale, preserving stable IDs and unlock rules. Source and packaged bytes must match manifest; actual phone review still required. Do not add frames, labels or primitive code-drawn animals. Anchor new artwork to real Bear, Fox, Owl, Honeybee and existing Ocean/Farm. Future Beta 3 Ocean and Farm expansion, including ship in a bottle, is deferred. No new content count or save changes. Original production signer and approval remain mandatory.

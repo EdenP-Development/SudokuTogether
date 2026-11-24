@@ -489,7 +489,7 @@ class GameViewModel @JvmOverloads constructor(
                     startSoloClock(progress)
                 }
             } catch (e: Exception) {
-                if (generation.get() == current) _state.update { it.copy(page = Page.HOME, busy = false, message = "Could not save the solo puzzle: " + (e.message ?: "storage unavailable")) }
+                if (generation.get() == current) _state.update { it.copy(page = Page.HOME, busy = false, message = "Couldn't save the new puzzle. Check available storage and try again.") }
             }
         }
     }
@@ -640,7 +640,7 @@ class GameViewModel @JvmOverloads constructor(
                 val address = discovery.localAddresses().firstOrNull()?.let { "$it:$port" } ?: "Connect this phone to home Wi-Fi"
                 _state.update { it.copy(busy = false, roomCode = if (session.requiresCode) hosted.code else "", address = address, resumeHost = if (versus) it.resumeHost else true, resumeRace = if (versus) true else it.resumeRace, saveIssue = null) }
                 discovery.startHosting(session.snapshot().hostName, port, session.snapshot().sessionId, session.requiresCode)
-            } catch (e: Exception) { if (generation.get() == current) _state.update { it.copy(page = Page.HOME, busy = false, message = e.message ?: "Couldn't open the saved puzzle.") } }
+            } catch (e: Exception) { if (generation.get() == current) _state.update { it.copy(page = Page.HOME, busy = false, message = if (resume) "Couldn't open the saved game. Try again." else "Couldn't start a nearby game. Check Wi-Fi and available storage, then try again.") } }
         }
     }
     fun showJoin(resume: Boolean = false) {
@@ -703,7 +703,7 @@ class GameViewModel @JvmOverloads constructor(
                 preferences.edit().putString("lastAddress", formatted).apply()
             } catch (e: Exception) {
                 client.close()
-                if (generation.get() == current) _state.update { it.copy(busy = false, connected = false, message = if (!discovery.hasWifi()) "Wi-Fi disconnected. Connect both phones to the same home Wi-Fi and join again." else e.message ?: "Couldn't reach the host. Check that both phones are on the same Wi-Fi.") }
+                if (generation.get() == current) _state.update { it.copy(busy = false, connected = false, message = if (!discovery.hasWifi()) "Wi-Fi disconnected. Connect both phones to the same home Wi-Fi and join again." else nearbyJoinFailureMessage(e.message)) }
             }
         }
     }
