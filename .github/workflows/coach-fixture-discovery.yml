@@ -1,0 +1,31 @@
+name: Coach fixture discovery
+on:
+  push:
+    branches: [feat/beta3-foundation]
+    paths: ['.github/workflows/coach-fixture-discovery.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  discovery:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Search and independently validate fixture
+        env:
+          GRIDMATES_COACH_DISCOVERY: '1'
+        run: |
+          set -o pipefail
+          ./gradlew :core:test --tests '*CoachFixtureDiscoveryTest' --rerun-tasks --no-daemon --max-workers=2 --console=plain | tee coach-discovery.txt
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coach-fixture-discovery
+          path: coach-discovery.txt
+          retention-days: 14

@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — bounded Coach fixture discovery
+
+Naked triple gate 45562709560 passed; previous ad hoc search timed out. Added opt-in JVM discovery test using fixed random seed and original completed grid, bounded uniqueness checks, 5000 attempts and 90-second search budget. Validates discovered triple eliminations independently via solution count and prints reproducible grid and proof. Dedicated unsigned workflow uploads search log; ordinary regression skips discovery. Successful workflow alone does not prove a fixture was found: inspect COACH_FIXTURE_FOUND marker. Next pin verified fixture and add practice lesson. No runtime changes.
+
+
 ## B3-04 — naked triple engine, slice 5
 
 Multi-step navigation gate 45562106365 passed at 88949996. Added Coach-only naked triple search after existing six techniques, exact pre-step candidate evidence and observation prompt. Unit-mask tests cover three nonidentical pairs, independently enumerate distinct assignments, reject four-digit unions, no-op and malformed input. Full uniquely-solvable puzzle integration fixture and practice lesson still required; no claims of device validation. Existing grading branch exits before additional Coach techniques. Fresh CI pending; next hidden triples after integration audit.
