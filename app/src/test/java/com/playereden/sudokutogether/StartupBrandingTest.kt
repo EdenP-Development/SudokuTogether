@@ -4,6 +4,12 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class StartupBrandingTest {
+    @Test fun sharedTimingTrial() {
+        assertEquals(300, STARTUP_FADE_MS)
+        assertEquals(1500, STARTUP_HOLD_MS)
+        assertEquals(4200, 2 * (2 * STARTUP_FADE_MS + STARTUP_HOLD_MS))
+    }
+
     @Test fun missingSeriesArtworkDoesNotCreatePlaceholderStage() {
         assertEquals(listOf(R.drawable.spudacus_v1_full_transparent), startupBrandingStages())
     }
