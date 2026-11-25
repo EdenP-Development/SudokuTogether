@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Latest — B3-04 Coach proof fidelity
+
+Gameplay1 preview 45555816455 passed, artifact 14996246056; physical portrait evidence logged in acc2bd99. B3-04 active: exact pre-deduction proof candidates captured and used in live hint board, regression coverage added. Verify CI; next audit teaching copy, hint navigation and proof visualization, then consider additional techniques without changing generation grading. Outstanding gameplay device checks remain open. No public release.
+
+
 ## Latest — Gameplay Review 1
 
 B3-03 slices 1–4 passed ordinary CI through 45555324321. Completion presentation and isolated Gameplay1 review workflow now configured; verify latest CI and artifact before owner testing. See docs/BETA3_PROGRESS.md for details. Do not mark instrumentation executed or production upgrade verified. After physical gameplay review continue Coach milestone; preserve approved startup, public Beta2 and save/signing continuity.

@@ -130,7 +130,8 @@ import com.playereden.sudokutogether.core.SudokuAssistance
     val preview = remember(snapshot, step, explained) {
         snapshot.copy(cells = snapshot.cells.mapIndexed { cellIndex, cell ->
             val removed = if (explained) step.eliminations[cellIndex].orEmpty() else emptyList()
-            val supporting = if (step.eliminations.isNotEmpty() && cellIndex in sources) step.digits else emptyList()
+            val supporting = if (step.eliminations.isNotEmpty() && cellIndex in sources)
+                step.proofCandidates[cellIndex].orEmpty().filter { it in step.digits } else emptyList()
             cell.copy(notes = (removed + supporting).fold(0) { notes, digit -> notes or (1 shl (digit - 1)) })
         })
     }

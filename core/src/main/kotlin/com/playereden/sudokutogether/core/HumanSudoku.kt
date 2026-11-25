@@ -136,7 +136,7 @@ object HumanSudoku {
                     "$location is the only place for $digit in ${unitName(unitIndex)}."
                 }
                 proof.add(SudokuAssistance.CoachStep(technique, source, target, placedDigit,
-                    explanation, emptyMap()))
+                    explanation, emptyMap(), mapOf(cell to digits(candidates[cell]))))
             }
             board[cell] = digit
             candidates[cell] = 0
@@ -173,7 +173,8 @@ object HumanSudoku {
                     else -> reason
                 }
                 proof.add(SudokuAssistance.CoachStep(technique, source, affected, support,
-                    explanation, eliminations))
+                    explanation, eliminations,
+                    (source + affected).distinct().sorted().associateWith { digits(candidates[it]) }))
             }
             for (cell in affected) candidates[cell] = candidates[cell] and mask.inv()
             steps.add(Step(technique, affected, removed, reason))

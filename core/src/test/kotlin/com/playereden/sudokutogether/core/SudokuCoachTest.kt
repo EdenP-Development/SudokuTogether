@@ -131,5 +131,29 @@ class SudokuCoachTest {
         assertNull(SudokuAssistance.nextCoachHint(puzzle, puzzle.clues))
     }
 
+    @Test fun proofCandidatesMatchTheGridAfterEarlierEliminations() {
+        for (lesson in CoachPractice.lessons) {
+            val puzzle = lesson.puzzle
+            val trace = SudokuAssistance.nextCoachHint(puzzle, puzzle.clues)!!.steps
+            val candidates = puzzle.clues.indices.associateWith { cell ->
+                if (puzzle.clues[cell] != 0) mutableSetOf<Int>() else (1..9).filter { digit ->
+                    puzzle.clues.indices.none { peer -> SudokuAssistance.isPeer(cell, peer) && puzzle.clues[peer] == digit }
+                }.toMutableSet()
+            }
+            for (step in trace) {
+                if (step.technique == HumanSudoku.Technique.SOLUTION_REVEAL) continue
+                val proofCells = if (step.eliminations.isEmpty()) step.targetCells else (step.sourceCells + step.targetCells).distinct()
+                assertEquals(proofCells.toSet(), step.proofCandidates.keys)
+                for (cell in proofCells) {
+                    assertEquals(candidates.getValue(cell).sorted(), step.proofCandidates.getValue(cell))
+                }
+                for ((cell, removed) in step.eliminations) {
+                    assertTrue(candidates.getValue(cell).containsAll(removed))
+                    candidates.getValue(cell).removeAll(removed.toSet())
+                }
+            }
+        }
+    }
+
     private fun puzzle(clues: String) = Puzzle("coach-reference", clues.map { it.digitToInt() })
 }

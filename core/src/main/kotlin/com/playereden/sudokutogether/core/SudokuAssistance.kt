@@ -23,7 +23,9 @@ object SudokuAssistance {
         val digits: List<Int>,
         val explanation: String,
         /** Candidates removed from each target at this step, empty for placements. */
-        val eliminations: Map<Int, List<Int>>
+        val eliminations: Map<Int, List<Int>>,
+        /** Actual candidates in proof squares immediately before this deduction. */
+        val proofCandidates: Map<Int, List<Int>> = emptyMap()
     )
 
     enum class CheckKind { CONFLICT, INCORRECT_ENTRY, CORRECT_SO_FAR, NO_ENTRIES }

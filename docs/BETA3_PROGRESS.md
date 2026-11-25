@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — Coach proof fidelity, slice 1
+
+Audited existing six techniques, six practice fixtures, graduated hints and explicit solution-check/reveal paths. Added per-step candidate snapshots for placement target and elimination proof cells, captured before mutation. Live proof supporting marks now intersect support digits with actual candidates at that step; no invented candidates. JVM test replays candidate removals for all six practice traces and checks snapshot fidelity. No change to solver scan order, generation grading, assistance counting, persistence or practice eligibility. Fresh CI and physical Coach review pending. B3-03 portrait evidence recorded; remaining integrated tests open.
+
+
 ## Gameplay Review 1 — physical portrait evidence
 
 Owner supplied five physical screenshots of Solo Easy gameplay, showing stable board/dock positioning across selection, value entry, notes and conflict states; disabled Erase/Undo on initial empty square; enabled controls after entry; remaining counts updated for entered digits; four active pencil marks 2/4/6/8 reflected in keypad check indicators; repeated entered digits red and underlined even after moving selection; two-line conflict caption fits without board movement. No explicit owner acceptance statement yet. Screenshots establish visible behavior, not executed undo/erase, note removal, completion/reward expansion, persistence, Daily, landscape, large text, multiplayer or TalkBack validation. Note candidates are manually entered, not automatically validated. Review source e00e2b1954b69c027bbef73f8f572a4f6dc84633; ordinary gate 45555816433 passed; preview run 45555816455 completed/success; artifact 14996246056. Keep current visual layout pending owner feedback; next milestone B3-04 Coach can proceed independently with outstanding review items tracked. No production release or upgrade test.
