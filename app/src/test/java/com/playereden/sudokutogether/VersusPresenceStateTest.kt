@@ -76,6 +76,10 @@ class VersusPresenceStateTest {
         val rejoined = versusPresenceState(room.snapshotForGuest(), GUEST, active, connected = true)
 
         assertEquals(VersusPhase.PAUSED, hostView.phase)
+        assertEquals("Waiting for your rival to return.", hostView.statusDetail)
+        assertEquals("Waiting for the host to return.", guestView.statusDetail)
+        assertEquals("Reconnect to continue the race.", disconnected.statusDetail)
+        assertNull(rejoined.statusDetail)
         assertEquals(VersusPlayer("Taylor", guestLook, 1), hostView.rival)
         assertEquals(VersusPhase.PAUSED, guestView.phase)
         assertEquals(VersusPhase.DISCONNECTED, disconnected.phase)

@@ -274,7 +274,7 @@ import kotlinx.coroutines.delay
                 if (state.role != SOLO && snapshot.mode == VERSUS) {
                     if (roomStatus && !snapshot.completed) VersusPresence(state, snapshot) { actions.showJoin(true) }
                 } else {
-                    if (roomStatus && state.role != SOLO) Text(roomStatusText(state), color = Forest, fontSize = 11.sp, lineHeight = 16.sp)
+                    if (roomStatus && state.role != SOLO) Text(coopPresence(state).label, color = Forest, fontSize = 11.sp, lineHeight = 16.sp)
                     if (sharedBoardName != null) Text("Shared board · $sharedBoardName", color = Forest, fontSize = 11.sp, lineHeight = 16.sp)
                     PuzzleMeta(state)
                 }

@@ -20,7 +20,8 @@ internal data class VersusPresenceState(
     val self: VersusPlayer,
     val rival: VersusPlayer?,
     val target: Int,
-    val phase: VersusPhase
+    val phase: VersusPhase,
+    val statusDetail: String? = null
 )
 
 internal fun versusPresenceState(
@@ -42,6 +43,11 @@ internal fun versusPresenceState(
         !status.hostActive || !status.guestActive -> VersusPhase.PAUSED
         else -> VersusPhase.LIVE
     }
-    return if (role == HOST) VersusPresenceState(host, guest.takeIf { snapshot.guestName != null }, target, phase)
-    else VersusPresenceState(guest, host, target, phase)
+    val detail = when (phase) {
+        VersusPhase.PAUSED -> if (!status.hostActive) "Waiting for the host to return." else "Waiting for your rival to return."
+        VersusPhase.DISCONNECTED -> "Reconnect to continue the race."
+        else -> null
+    }
+    return if (role == HOST) VersusPresenceState(host, guest.takeIf { snapshot.guestName != null }, target, phase, detail)
+    else VersusPresenceState(guest, host, target, phase, detail)
 }

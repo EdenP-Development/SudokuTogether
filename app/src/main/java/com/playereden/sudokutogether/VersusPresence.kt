@@ -51,11 +51,14 @@ import com.playereden.sudokutogether.core.Snapshot
                 fontSize = 12.sp, lineHeight = 16.sp,
                 modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite }
             )
+            presence.statusDetail?.let { detail ->
+                Text(detail, color = Muted, fontSize = 12.sp, lineHeight = 16.sp)
+            }
             VersusLanes(presence)
             if (state.role == GUEST && !state.connected) {
                 TextButton(
                     onClick = reconnect, enabled = !state.busy,
-                    modifier = Modifier.align(Alignment.End).heightIn(min = 48.dp)
+                    modifier = Modifier.align(Alignment.End).heightIn(min = 48.dp).testTag("versus_reconnect")
                 ) { Text("Reconnect") }
             }
         }

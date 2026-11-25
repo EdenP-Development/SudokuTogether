@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-07.02 — Versus pause details and Co-op compile repair
+
+Gate 45590467586 failed because one completed-board call still referenced removed roomStatusText; switched to coopPresence(state).label. Versus presence retains existing phases and scores while adding explicit host-away/rival-away/disconnected guidance, stable reconnect test tag and regression assertions. No protocol or gameplay changes. Fresh integrated gate pending; physical review pending. Next verify CI and inspect reconnect token/session continuity and completed Co-op reconnect affordance.
+
+
 ## B3-07.01 — Co-op presence presentation
 
 Owner plans private single-track music proof before paying for new commercially licensed tracks; keep free prototype out of public repo/APK. Inspected existing Co-op/Versus presence, status and UI fixtures. Extracted Co-op presence presenter for explicit open seat, reserved partner away, host away, disconnected and completed states; accessible polite announcement, attention tint and busy-guarded 48dp reconnect control. Disconnected completed guest still sees reconnect status when room card is rendered. Added JVM fixtures; fresh CI pending. No networking, authoritative move eligibility, save or protocol change. Next verify gate, inspect actual room card placement for completed boards, audit Versus status and rejoin.
