@@ -102,6 +102,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         Technique.NAKED_TRIPLE -> "Look for three squares in one row, column or box whose candidates together use only three digits."
         Technique.HIDDEN_TRIPLE -> "Look for three digits that can only appear within the same three squares of one group."
         Technique.NAKED_QUADRUPLE -> "Look for four squares in one row, column or box whose combined candidates contain exactly four digits."
+        Technique.HIDDEN_QUADRUPLE -> "Look for four digits that can only appear within the same four squares of one group."
         SOLUTION_REVEAL -> ""
     }
     val targets = step.targetCells.toSet()

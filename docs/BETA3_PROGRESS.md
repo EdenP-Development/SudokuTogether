@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — hidden quadruple engine
+
+Ninth lesson gate 45568742101 passed. Added Coach-only hidden quadruple search after existing nine techniques, exact evidence and observation/explanation text. Tests cover four confined digit position pairs, exhaustive reserved assignments, fifth position rejection, no-op and malformed masks. Research workflow targets HIDDEN_QUADRUPLE. Fresh CI and complete-puzzle fixture pending. No grading, scoring or save changes.
+
+
 ## B3-04 — naked quadruple practice integration
 
 Discovery 45567877813 FOUND original unique position on attempt 613: 534678912672195348198000567000000020026050791700020050961500204287419635000000109. Ordinary gate 45567877886 passed; corrected hidden-triple gate 45567337291 also passed. Sources 27/31/33/35 reserve 3/4/6/8. Seven removals at 28:[4],29:[3],30:[3,8],32:[3,4,6] independently verified. Trace locked candidate → naked quadruple → explicit reveal. Ninth lesson and pinned proof, candidate, oracle and grade regression; Android wrong/correct/replay fixture added. Fresh CI and device tests pending. Next hidden quadruple. No grading, scoring or save changes.
