@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## Owner direction — audit-led Coach development (2026-11-25)
+
+Owner prefers code verification and audits as the primary Coach development gates, with deeper real-world gameplay feedback after Beta 3 is published on itch.io. Do not block each technique or small UI increment on manual owner playtesting. Continue bounded deterministic pattern tests, independent solution oracles, generated-puzzle and regression audits, performance/invalid-input checks, UI automation where executable, and save/scoring isolation checks. Distinguish compiled instrumentation from executed tests. Consolidate physical checks at meaningful UI/release checkpoints; public feedback complements rather than replaces pre-release correctness and upgrade-safety checks. Coach Review 2 is optional for immediate owner review, not a prerequisite to further engine development. Next: audit existing ten-technique coverage and gaps, then expand advanced techniques with verified original fixtures. No publication authorized by this direction.
+
+
 ## B3-04 — Coach Review 2 integrated gate and package
 
 Integrated gate 45579221416 passed at 3e6eddd5, including responsive footer, naked-single evidence and grouped curriculum. Earlier cancelled gates superseded. Configured isolated Coach2 package com.playereden.sudokutogether.qa.beta3coach2 and artifact GridMates-Sudoku-Beta3-Coach2 using existing verified branding workflow. Coach1 and public Beta2 remain separate. Fresh preview artifact and device verification pending. Test observation→evidence→explanation, both single diagrams, incorrect-entry preview and explicit erase, responsive footer, ten lessons in four sections and library return. Instrumentation compiled, not executed by this workflow. No public signing, scoring or save schema changes.

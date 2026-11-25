@@ -1,5 +1,10 @@
 # GridMates Sudoku — Coach teaching architecture (B3-04)
 
+## Owner direction — audit-led Coach development (2026-11-25)
+
+Owner prefers code verification and audits as the primary Coach development gates, with deeper real-world gameplay feedback after Beta 3 is published on itch.io. Do not block each technique or small UI increment on manual owner playtesting. Continue bounded deterministic pattern tests, independent solution oracles, generated-puzzle and regression audits, performance/invalid-input checks, UI automation where executable, and save/scoring isolation checks. Distinguish compiled instrumentation from executed tests. Consolidate physical checks at meaningful UI/release checkpoints; public feedback complements rather than replaces pre-release correctness and upgrade-safety checks. Coach Review 2 is optional for immediate owner review, not a prerequisite to further engine development. Next: audit existing ten-technique coverage and gaps, then expand advanced techniques with verified original fixtures. No publication authorized by this direction.
+
+
 Owner direction: make the Coach genuinely excellent at teaching independence, not merely supplying answers. Proposed architecture, not implemented feature claims.
 
 ## Cross-project inspiration
