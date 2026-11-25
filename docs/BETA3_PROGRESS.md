@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — grouped practice curriculum
+
+At review, footer gate 45578263801 cancelled by newer gate 45578697014 (running). Organized all ten unchanged lessons into Foundations (3), Pairs (2), Triples and quadruples (4), Advanced patterns (1). No prerequisites, unlocks or saved learning state. Compact cards identify placement vs elimination; full explanations remain in exercises. Library scroll retained on lesson return. Added core exact membership/order and UI access/return regression fixtures. Fresh CI and device review pending. Next verify integrated gate and package Coach Review 2. No puzzle, scoring, save or public identity changes.
+
+
 ## B3-04 — explicit naked-single digit exclusions
 
 Responsive footer gate 45578263801 was still running when checked. Added transient naked-single evidence for each of eight excluded digits, identifying actual matching peer or one-based prior elimination step. Read-only 3×3 candidate chart and reasons appear after Show why only. Tests verify visible blockers for the foundation practice puzzle and replay any naked singles in existing practice traces, including earlier elimination references when present. Fresh CI and device review pending; no grading, solving rule, scoring or save changes. Next practice library polish and Coach Review 2.

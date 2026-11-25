@@ -89,6 +89,27 @@ object CoachPractice {
         )
     }
 
+    data class Section(val id: String, val title: String, val description: String, val lessons: List<Lesson>)
+
+    /** A suggested learning order, not a progression gate. All lessons stay available. */
+    val sections: List<Section> by lazy {
+        val byId = lessons.associateBy { it.id }
+        fun section(id: String, title: String, description: String, vararg ids: String) =
+            Section(id, title, description, ids.map { byId.getValue(it) })
+        listOf(
+            section("foundations", "Foundations", "Learn to find a number that must fit.",
+                "only-digit", "only-square", "locked-candidate"),
+            section("pairs", "Pairs", "Recognize two digits working together.",
+                "naked-pair", "hidden-pair"),
+            section("larger-subsets", "Triples and quadruples", "Find groups of three or four reserved digits.",
+                "naked-triple", "hidden-triple", "naked-quadruple", "hidden-quadruple"),
+            section("advanced-patterns", "Advanced patterns", "Use relationships across multiple rows and columns.",
+                "x-wing")
+        ).also { groups ->
+            check(groups.flatMap { it.lessons }.map { it.id } == lessons.map { it.id })
+        }
+    }
+
     private fun lesson(id: String, technique: Technique, description: String, clues: String): Lesson {
         val puzzle = Puzzle("practice-$id", clues.map { it.digitToInt() })
         val trace = checkNotNull(SudokuAssistance.nextCoachHint(puzzle, puzzle.clues)) {

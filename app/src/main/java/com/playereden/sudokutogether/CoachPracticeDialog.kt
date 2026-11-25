@@ -33,6 +33,7 @@ import com.playereden.sudokutogether.core.Snapshot
 ) {
     var lessonId by rememberSaveable { mutableStateOf<String?>(null) }
     val lesson = CoachPractice.lessons.firstOrNull { it.id == lessonId }
+    val libraryScroll = rememberScrollState()
     val back: () -> Unit = { if (lesson == null) close() else lessonId = null }
 
     Dialog(onDismissRequest = back, properties = DialogProperties(
@@ -46,7 +47,7 @@ import com.playereden.sudokutogether.core.Snapshot
                     Text(if (lesson == null) "Home" else "Lessons")
                 }
                 key(lessonId) {
-                    val scroll = rememberScrollState()
+                    val scroll = if (lesson == null) libraryScroll else rememberScrollState()
                     BoxWithConstraints(Modifier.weight(1f).fillMaxWidth()) {
                         val boardLimit = maxHeight.coerceAtMost(360.dp)
                         Column(
@@ -56,22 +57,39 @@ import com.playereden.sudokutogether.core.Snapshot
                             if (lesson == null) {
                                 Text("Coach practice", style = MaterialTheme.typography.headlineMedium,
                                     color = Forest, fontFamily = FontFamily.Serif)
-                                Text("Pick a technique and try one move on a practice board.", color = Ink)
-                                for (entry in CoachPractice.lessons) {
-                                    OutlinedCard(
-                                        onClick = { lessonId = entry.id },
-                                        modifier = Modifier.fillMaxWidth().testTag("practice_lesson_${entry.id}")
-                                    ) {
-                                        Row(Modifier.fillMaxWidth().padding(14.dp),
-                                            verticalAlignment = Alignment.CenterVertically) {
-                                            Column(Modifier.weight(1f)) {
-                                                Text(entry.technique.label, color = Forest,
-                                                    style = MaterialTheme.typography.titleMedium)
-                                                Text(entry.description, color = Ink,
-                                                    style = MaterialTheme.typography.bodyMedium)
+                                Text("Build your skills one move at a time. Start with the foundations or choose any technique.", color = Ink)
+                                Text("${CoachPractice.lessons.size} lessons · No effect on puzzle scores or records",
+                                    color = Muted, style = MaterialTheme.typography.bodySmall)
+                                for ((index, section) in CoachPractice.sections.withIndex()) {
+                                    Column(Modifier.fillMaxWidth().testTag("practice_section_${section.id}"),
+                                        verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        HorizontalDivider(color = Forest.copy(alpha = 0.2f))
+                                        Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                                            Text("${index + 1}. ${section.title}", color = Forest,
+                                                style = MaterialTheme.typography.titleLarge,
+                                                modifier = Modifier.weight(1f))
+                                            Text("${section.lessons.size} " + if (section.lessons.size == 1) "lesson" else "lessons",
+                                                color = Muted, style = MaterialTheme.typography.bodySmall)
+                                        }
+                                        Text(section.description, color = Ink, style = MaterialTheme.typography.bodyMedium)
+                                        for (entry in section.lessons) {
+                                            OutlinedCard(
+                                                onClick = { lessonId = entry.id },
+                                                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)
+                                                    .testTag("practice_lesson_${entry.id}")
+                                            ) {
+                                                Row(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 10.dp),
+                                                    verticalAlignment = Alignment.CenterVertically) {
+                                                    Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                                        Text(entry.technique.label, color = Forest,
+                                                            style = MaterialTheme.typography.titleMedium)
+                                                        Text(if (entry.step.eliminations.isEmpty()) "Place a number" else "Remove a candidate",
+                                                            color = Muted, style = MaterialTheme.typography.bodySmall)
+                                                    }
+                                                    Spacer(Modifier.width(8.dp))
+                                                    GameIcon(GameSymbol.RIGHT, modifier = Modifier.size(20.dp))
+                                                }
                                             }
-                                            Spacer(Modifier.width(8.dp))
-                                            GameIcon(GameSymbol.RIGHT, modifier = Modifier.size(20.dp))
                                         }
                                     }
                                 }

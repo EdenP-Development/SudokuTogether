@@ -22,6 +22,19 @@ import org.junit.Test
 class CoachPracticeUiTest {
     @get:Rule val compose = createComposeRule()
 
+    @Test fun curriculumOffersEveryLessonWithoutUnlocksAndReturnsToLibrary() {
+        compose.setContent { SudokuTogetherTheme { CoachPracticeDialog(Appearance(), false) {} } }
+        for (section in CoachPractice.sections) {
+            compose.onNodeWithTag("practice_section_${section.id}").assertExists()
+            for (entry in section.lessons) {
+                compose.onNodeWithTag("practice_lesson_${entry.id}").performScrollTo().assertIsDisplayed()
+            }
+        }
+        compose.onNodeWithTag("practice_lesson_x-wing").performScrollTo().performClick()
+        compose.onNodeWithText("Lessons").performClick()
+        compose.onNodeWithTag("practice_lesson_x-wing").assertIsDisplayed()
+    }
+
     @Test fun xWingCanBePracticedWithLargeText() {
         val lesson = CoachPractice.lessons.single { it.id == "x-wing" }
         compose.setContent { SudokuTogetherTheme { CoachPracticeDialog(Appearance(), false) {} } }
