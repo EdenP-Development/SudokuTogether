@@ -38,8 +38,11 @@ class CoachProofUiTest {
         }
 
         compose.onNodeWithText("Look at the outlined squares.").assertExists()
+        compose.onNodeWithText("Look for a digit whose possible squares are confined to one line or box.").assertExists()
+        compose.onNodeWithText(hint.steps.first().explanation).assertDoesNotExist()
         compose.onNodeWithText("Show why").performScrollTo().performClick()
         compose.onNodeWithText("Step 1 of 2").assertExists()
+        compose.onNodeWithText("Crossed-off pencil marks are no longer possible. These changes are shown in the example only.").assertExists()
         compose.onNodeWithTag("coach_cell_78")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Proof square"))
         compose.onNodeWithTag("coach_cell_62")

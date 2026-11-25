@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
+import com.playereden.sudokutogether.core.HumanSudoku.Technique
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.SOLUTION_REVEAL
 import com.playereden.sudokutogether.core.SOLO
 import com.playereden.sudokutogether.core.SudokuAssistance
@@ -88,6 +89,15 @@ import com.playereden.sudokutogether.core.SudokuAssistance
     LaunchedEffect(index) { scroll.scrollTo(0) }
     val step = hint.steps[index.coerceIn(hint.steps.indices)]
     val reveal = step.technique == SOLUTION_REVEAL
+    val observation = when (step.technique) {
+        Technique.NAKED_SINGLE -> "Which digits are already used in the highlighted square’s row, column and box?"
+        Technique.HIDDEN_SINGLE -> "Which digit has only one possible home in a row, column or box?"
+        Technique.LOCKED_CANDIDATE -> "Look for a digit whose possible squares are confined to one line or box."
+        Technique.NAKED_PAIR -> "Look for two squares in the same group that share just two possible digits."
+        Technique.HIDDEN_PAIR -> "Look for two digits that can only fit in the same two squares."
+        Technique.X_WING -> "Look for one digit confined to the same two positions in two parallel lines."
+        SOLUTION_REVEAL -> ""
+    }
     val targets = step.targetCells.toSet()
     val sources = if (explained) step.sourceCells.toSet() else emptySet()
     if (explained && hint.steps.size > 1) {
@@ -118,7 +128,10 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         val cell = step.targetCells.singleOrNull()
         Text(if (cell == null) "Look at the outlined squares."
             else "Look at row ${cell / 9 + 1}, column ${cell % 9 + 1}.", color = Ink)
-        OutlinedButton(onClick = { explained = true }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Show why") }
+        Text(observation, color = Ink, style = MaterialTheme.typography.bodyMedium)
+        Text("Try spotting the pattern before opening the explanation.", color = Muted,
+            style = MaterialTheme.typography.bodySmall)
+        OutlinedButton(onClick = { explained = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Show why") }
     }
     val placementShown = if (reveal) revealed else explained
     if (placementShown && step.eliminations.isEmpty()) {
@@ -142,6 +155,9 @@ import com.playereden.sudokutogether.core.SudokuAssistance
             proofEliminations = if (explained) step.eliminations else emptyMap())
     }
     if (explained && !reveal) {
+        Text(if (step.eliminations.isEmpty()) "Use the highlighted evidence to work out the number, then return to your puzzle."
+            else "Crossed-off pencil marks are no longer possible. These changes are shown in the example only.", color = Ink,
+            style = MaterialTheme.typography.bodySmall)
         Text("Outlined squares are the focus. Shaded squares support the deduction.", color = Muted,
             style = MaterialTheme.typography.bodySmall)
         for ((cell, digits) in step.eliminations) {

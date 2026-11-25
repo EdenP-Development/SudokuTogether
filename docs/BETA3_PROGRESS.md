@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — guided observation, slice 2
+
+Proof fidelity gate 45558322123 passed at 007120ad (including JVM trace tests; instrumentation compiled only). Added technique-specific observation prompts before Show why, without exposing specific answer digits, and clear explanation that crossed-off marks are demonstration-only. Existing full explanation and reveal gates retained, no scoring or solver changes. Expanded CoachProofUiTest for prompt visibility, hidden explanation and example-only guidance. Fresh CI and physical review pending.
+
+
 ## B3-04 — Coach proof fidelity, slice 1
 
 Audited existing six techniques, six practice fixtures, graduated hints and explicit solution-check/reveal paths. Added per-step candidate snapshots for placement target and elimination proof cells, captured before mutation. Live proof supporting marks now intersect support digits with actual candidates at that step; no invented candidates. JVM test replays candidate removals for all six practice traces and checks snapshot fidelity. No change to solver scan order, generation grading, assistance counting, persistence or practice eligibility. Fresh CI and physical Coach review pending. B3-03 portrait evidence recorded; remaining integrated tests open.
