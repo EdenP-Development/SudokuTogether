@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — read-only entry review preview
+
+Hidden-single reasoning gate 45576014100 passed. Added read-only board preview to explicit incorrect-entry and repeated-number review. Target is outlined, known conflict peers shaded, actual entries preserved; no correct solution digit injected. Erase requires editable state and selected cell matching reviewed cell. Added screenshot-based UI fixture checking preview, no implicit erase on back, and explicit erase callback. Fresh CI and device execution pending. No scoring/save changes. Next compact dialog controls and naked-single explanations.
+
+
 ## B3-04 — explicit hidden-single exclusions
 
 Evidence stage gate 45575171448 passed. Added ephemeral proof metadata for hidden-single group and each alternative square: occupied, matching peer blocker, or prior logical deduction. Read-only group diagram and per-square explanations appear only after Show why; no placement or answer leakage in earlier stages. Added regression transcribed from owner Coach1 screenshot (R7C6=8). Fresh CI and physical review pending; no algorithm, scoring or save schema changes. Next compact controls and error review preview.

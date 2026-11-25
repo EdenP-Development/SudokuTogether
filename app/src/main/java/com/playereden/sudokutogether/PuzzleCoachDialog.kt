@@ -53,6 +53,24 @@ import com.playereden.sudokutogether.core.SudokuAssistance
                             SudokuAssistance.CheckKind.CORRECT_SO_FAR -> "Your entries match the puzzle's solution so far."
                             SudokuAssistance.CheckKind.NO_ENTRIES -> "Place a number first."
                         },color=Ink)
+                        val reviewSnapshot = state.snapshot
+                        if (check.cell in 0..80 && reviewSnapshot != null &&
+                            (check.kind == SudokuAssistance.CheckKind.INCORRECT_ENTRY ||
+                                check.kind == SudokuAssistance.CheckKind.CONFLICT)) {
+                            BoxWithConstraints(Modifier.fillMaxWidth().testTag("coach_entry_review_board"),
+                                contentAlignment = Alignment.Center) {
+                                SudokuBoard(reviewSnapshot, selected = -1, partner = -1,
+                                    size = maxWidth.coerceAtMost(280.dp), select = null,
+                                    boardTheme = state.appearance.board, localStyle = state.appearance,
+                                    solo = true, uniformNumbers = state.uniformNumbers,
+                                    proofTargets = setOf(check.cell),
+                                    proofSources = check.conflicts - check.cell)
+                            }
+                            Text(if (check.kind == SudokuAssistance.CheckKind.INCORRECT_ENTRY)
+                                "The outlined square contains your entry. You can erase it or return to the puzzle to review it yourself."
+                                else "The outlined square is the entry to review. Shaded squares contain conflicting numbers.",
+                                color = Muted, style = MaterialTheme.typography.bodySmall)
+                        }
                         if (check.usesSolution) Text("This puzzle is marked Assisted.",color=Muted)
                     }
                     hint != null -> {
@@ -74,7 +92,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         dismissButton = {
             when {
                 check?.kind == SudokuAssistance.CheckKind.INCORRECT_ENTRY ->
-                    TextButton(onClick={ actions.dismissHint();actions.erase() },enabled=state.canEdit,
+                    TextButton(onClick={ actions.dismissHint();actions.erase() },enabled=state.canEdit && state.selected == check.cell,
                         modifier=Modifier.heightIn(min=48.dp)) { Text("Erase entry") }
                 check == null -> TextButton(onClick=actions.checkWork,enabled=state.canEdit,
                     modifier=Modifier.heightIn(min=48.dp)) { Text("Check my work") }

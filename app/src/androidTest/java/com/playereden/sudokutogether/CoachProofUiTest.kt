@@ -104,6 +104,39 @@ class CoachProofUiTest {
                 listOf("Row 6 column 4, empty, notes 2 3 9, cross off 9")))
     }
 
+    @Test fun entryReviewShowsWrongEntryWithoutReplacingIt() {
+        val clues = "001000080000001400600983020020000000005804210300009000006000050070000098008050300".map(Char::digitToInt)
+        val values = clues.toMutableList().apply { this[57] = 2 }
+        val puzzle = Puzzle("coach-entry-review", clues, "HARD")
+        val check = requireNotNull(SudokuAssistance.checkEntries(puzzle, values))
+        assertEquals(SudokuAssistance.CheckKind.INCORRECT_ENTRY, check.kind)
+        assertEquals(57, check.cell)
+        val snapshot = Snapshot("review", "round", puzzle, values.map { Cell(it) })
+        var eraseCalls = 0
+        var dismissCalls = 0
+        compose.setContent {
+            SudokuTogetherTheme {
+                PuzzleCoachDialog(GameUiState(page = Page.PLAY, role = SOLO, snapshot = snapshot,
+                    selected = check.cell, entryCheck = check),
+                    polishActions().copy(erase = { eraseCalls++ }, dismissHint = { dismissCalls++ }))
+            }
+        }
+        compose.onNodeWithTag("coach_entry_review_board").assertExists()
+        compose.onNodeWithTag("coach_cell_57").assert(SemanticsMatcher.expectValue(
+            SemanticsProperties.StateDescription, "Hint target"))
+        compose.runOnIdle {
+            assertEquals(0, eraseCalls)
+            assertEquals(values, snapshot.cells.map { it.value })
+        }
+        compose.onNodeWithText("Back to puzzle").performClick()
+        compose.runOnIdle {
+            assertEquals(1, dismissCalls)
+            assertEquals(0, eraseCalls)
+        }
+        compose.onNodeWithText("Erase entry").assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals(1, eraseCalls) }
+    }
+
     @Test fun solutionNumberStaysHiddenUntilAskedAndReturningOnlySelectsTheSquare() {
         val values = "100007090030020008009600500005300900010080002600004000300000010041000007007000300"
             .map(Char::digitToInt)
