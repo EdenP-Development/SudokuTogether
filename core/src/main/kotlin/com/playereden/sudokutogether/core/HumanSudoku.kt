@@ -209,8 +209,20 @@ object HumanSudoku {
                 } else {
                     "$location is the only place for $digit in ${unitName(unitIndex)}."
                 }
+                val group = unitIndex?.let { units[it].toList() }.orEmpty()
+                val exclusions = group.filter { it != cell }.map { other ->
+                    val blocker = peers[other].firstOrNull { board[it] == digit }
+                    when {
+                        board[other] != 0 -> SudokuAssistance.PlacementExclusion(other,
+                            SudokuAssistance.ExclusionKind.OCCUPIED)
+                        blocker != null -> SudokuAssistance.PlacementExclusion(other,
+                            SudokuAssistance.ExclusionKind.PEER_DIGIT, blocker)
+                        else -> SudokuAssistance.PlacementExclusion(other,
+                            SudokuAssistance.ExclusionKind.EARLIER_DEDUCTION)
+                    }
+                }
                 proof.add(SudokuAssistance.CoachStep(technique, source, target, placedDigit,
-                    explanation, emptyMap(), mapOf(cell to digits(candidates[cell]))))
+                    explanation, emptyMap(), mapOf(cell to digits(candidates[cell])), group, exclusions))
             }
             board[cell] = digit
             candidates[cell] = 0

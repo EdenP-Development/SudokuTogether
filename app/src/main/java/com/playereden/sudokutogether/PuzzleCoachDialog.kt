@@ -1,6 +1,10 @@
 package com.playereden.sudokutogether
 
 import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -157,6 +161,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
     } else if (explained) {
         Text(step.technique.label, color = Forest, style = MaterialTheme.typography.labelLarge)
         Text(step.explanation, color = Ink)
+        if (step.placementExclusions.isNotEmpty()) HiddenSingleEvidence(step, snapshot.cells.map { it.value })
     } else {
         val cell = step.targetCells.singleOrNull()
         Text(if (cell == null) "Look at the outlined squares."
@@ -203,5 +208,45 @@ import com.playereden.sudokutogether.core.SudokuAssistance
                 color = Forest, style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.testTag("coach_result_$cell"))
         }
+    }
+}
+
+/** A compact, read-only group diagram. Crosses are explanations, never player marks. */
+@Composable private fun HiddenSingleEvidence(step: SudokuAssistance.CoachStep, values: List<Int>) {
+    val target = step.targetCells.single()
+    val digit = step.digits.single()
+    val excluded = step.placementExclusions.associateBy { it.cell }
+    fun location(cell: Int) = "R${cell / 9 + 1}C${cell % 9 + 1}"
+    val group = step.placementGroup
+    val lines = if (group.map { it / 9 }.distinct().size == 1) listOf(group)
+        else if (group.map { it % 9 }.distinct().size == 1) group.chunked(3)
+        else group.chunked(3)
+    Text("Why the other squares cannot take $digit", color = Forest,
+        style = MaterialTheme.typography.titleSmall)
+    Column(Modifier.fillMaxWidth().testTag("coach_hidden_single_group"), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        for (line in lines) Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+            for (cell in line) {
+                val occupied = values[cell] != 0
+                Box(Modifier.weight(1f).heightIn(min = 30.dp)
+                    .background(if (cell == target) Color(0xFFF0E2B7) else Color(0xFFF1F2EC), RoundedCornerShape(3.dp))
+                    .border(1.dp, if (cell == target) Color(0xFFB38A3D) else Color(0xFFBEC8BB), RoundedCornerShape(3.dp)),
+                    contentAlignment = Alignment.Center) {
+                    Text(if (occupied) values[cell].toString() else if (cell == target) digit.toString() else "×",
+                        color = if (occupied || cell == target) Forest else Muted,
+                        style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+    }
+    Text("× = ruled out for $digit; filled squares are already occupied.", color = Muted,
+        style = MaterialTheme.typography.bodySmall)
+    for (exclusion in step.placementExclusions) {
+        val reason = when (exclusion.kind) {
+            SudokuAssistance.ExclusionKind.OCCUPIED -> "already contains ${values[exclusion.cell]}"
+            SudokuAssistance.ExclusionKind.PEER_DIGIT -> "blocked by $digit at ${location(requireNotNull(exclusion.blocker))}"
+            SudokuAssistance.ExclusionKind.EARLIER_DEDUCTION -> "ruled out by an earlier deduction"
+        }
+        Text("${location(exclusion.cell)}: $reason.", color = Ink,
+            style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("coach_exclusion_${exclusion.cell}"))
     }
 }

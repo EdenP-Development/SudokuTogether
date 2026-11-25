@@ -15,6 +15,10 @@ object SudokuAssistance {
         val explanation: String get() = steps.first().explanation
     }
 
+    /** Why an alternative square in the hidden single's group cannot contain the digit. */
+    enum class ExclusionKind { OCCUPIED, PEER_DIGIT, EARLIER_DEDUCTION }
+    data class PlacementExclusion(val cell: Int, val kind: ExclusionKind, val blocker: Int? = null)
+
     data class CoachStep(
         val technique: HumanSudoku.Technique,
         val sourceCells: List<Int>,
@@ -25,7 +29,9 @@ object SudokuAssistance {
         /** Candidates removed from each target at this step, empty for placements. */
         val eliminations: Map<Int, List<Int>>,
         /** Actual candidates in proof squares immediately before this deduction. */
-        val proofCandidates: Map<Int, List<Int>> = emptyMap()
+        val proofCandidates: Map<Int, List<Int>> = emptyMap(),
+        val placementGroup: List<Int> = emptyList(),
+        val placementExclusions: List<PlacementExclusion> = emptyList()
     )
 
     enum class CheckKind { CONFLICT, INCORRECT_ENTRY, CORRECT_SO_FAR, NO_ENTRIES }

@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — explicit hidden-single exclusions
+
+Evidence stage gate 45575171448 passed. Added ephemeral proof metadata for hidden-single group and each alternative square: occupied, matching peer blocker, or prior logical deduction. Read-only group diagram and per-square explanations appear only after Show why; no placement or answer leakage in earlier stages. Added regression transcribed from owner Coach1 screenshot (R7C6=8). Fresh CI and physical review pending; no algorithm, scoring or save schema changes. Next compact controls and error review preview.
+
+
 ## B3-04 — Coach Review 1 physical feedback and evidence stage
 
 Coach1 artifact 15002054797, run 45572700126 and ordinary gate 45572700108 passed at 053fee97. Owner screenshots show observation, hidden-single explanation (R7C6=8), no-logical-step state, incorrect entry review R7C4 and explicit erase returning to selected empty square with filled count 6→5. Multi-step/advanced lessons, startup timing, large text and persistence not physically confirmed. Added per-step Show evidence stage before Show why; source shading and exact candidates for elimination steps without crossed-off marks, placement candidate answers withheld. Board moved above variable explanation copy (visual stability requires device confirmation); softened unavailable copy. Updated UI test fixtures, no solver/scoring/save changes. Fresh CI pending. Next refine hidden-single ruled-out visual and error-review preview.
