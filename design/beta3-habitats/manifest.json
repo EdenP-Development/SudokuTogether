@@ -1,0 +1,36 @@
+{
+  "status": "visual review candidate; independent pre-transfer hash comparison and owner device acceptance pending",
+  "originals": [
+    {
+      "path": "design/beta3-habitats/ocean-reef-a.png",
+      "git_blob": "f93d05c728b3ac2b83a99ff0a6f4b64072afa704",
+      "bytes": 2451504,
+      "generation": "83f6bd47-e22e-4e49-b16c-e4fcbf75b8df"
+    },
+    {
+      "path": "design/beta3-habitats/ocean-reef-b.png",
+      "git_blob": "d179ff83795fd3e220f0988b2a3b658f93f8885c",
+      "bytes": 2431358,
+      "generation": "250fbdb5-d5fc-4ca8-81dc-2ad98fe92ef1"
+    },
+    {
+      "path": "design/beta3-habitats/garden.png",
+      "git_blob": "aab6170deb2ce5e375c960ccb8f9571a1ae56867",
+      "bytes": 3123930,
+      "generation": "d57c8469-e24f-429e-948a-3b479c80416b"
+    },
+    {
+      "path": "design/beta3-habitats/farm.png",
+      "git_blob": "6216bbbe492557c5100e2d8e89b0c5ff8f0d4e76",
+      "bytes": 3081335,
+      "generation": "d8cf0646-8b53-47f4-b948-bf352220932f"
+    }
+  ],
+  "runtime": {
+    "ocean": "ocean-reef-b.png (provisional review selection)",
+    "garden": "garden.png",
+    "farm": "farm.png"
+  },
+  "provenance": "AI-generated conversation assets; original PNGs transferred individually through private Drive raw fetch b64_string and GitHub create_blob base64; no image re-encoding. Woodland unchanged.",
+  "note": "Runtime uses original PNGs for review; optimize before release after visual acceptance. Both Ocean candidates preserved."
+}

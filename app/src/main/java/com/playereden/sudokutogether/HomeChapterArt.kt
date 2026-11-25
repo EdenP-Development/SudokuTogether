@@ -37,21 +37,22 @@ import com.playereden.sudokutogether.core.Appearance
 
     Box(modifier.clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
         .testTag("home_chapter_art")) {
-        if (woodland) {
-            Image(
-                painter = painterResource(R.drawable.gm_woodland_storybook_hd_v4),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize().testTag("home_woodland_backdrop")
-            )
-        } else {
-            // Non-Woodland appearances remain neutral until their own illustrated masters are approved.
-            Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(
-                listOf(Color(0xFF527467), Color(0xFFDCE9DE), Color(0xFFF2EBD7))
-            )))
+        val backdrop = when (habitat) {
+            CompanionHabitat.DEFAULT, CompanionHabitat.WOODLAND -> R.drawable.gm_woodland_storybook_hd_v4
+            CompanionHabitat.OCEAN -> R.drawable.gm_habitat_ocean_v1
+            CompanionHabitat.GARDEN -> R.drawable.gm_habitat_garden_v1
+            CompanionHabitat.FARM -> R.drawable.gm_habitat_farm_v1
         }
+        val backdropTag = if (woodland) "home_woodland_backdrop" else
+            "home_" + habitat.name.lowercase(java.util.Locale.ROOT) + "_backdrop"
+        Image(
+            painter = painterResource(backdrop),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier.fillMaxSize().testTag(backdropTag)
+        )
         Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(
-            listOf(NightForest.copy(alpha = if (woodland) .68f else .42f),
+            listOf(NightForest.copy(alpha = if (woodland) .68f else .82f),
                 NightForest.copy(alpha = .13f), Color.Transparent)
         )))
         Row(
