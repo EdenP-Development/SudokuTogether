@@ -65,7 +65,8 @@ Statuses: NOT STARTED / ACTIVE / REVIEW / DONE / DEFERRED. Mark DONE only with e
 | B3-06 | Sound and haptics | REVIEW |
 | B3-07 | Multiplayer refinement | REVIEW |
 | B3-08 | Integrated polish | ACTIVE |
-| B3-09 | Beta 3 release | NOT STARTED |
+| B3-09 | Beta 3 release (itch continuity) | NOT STARTED |
+| B3-AMZ | Amazon Appstore readiness (parallel, separate approval) | NOT STARTED |
 
 ### B3-00 — Foundation audit
 Inspect exact current branch, main/PR differences, build configuration, release receipts, tests and workflows. Inventory screens, components, assets, asset reuse and licensing/provenance; assess accessibility, performance, persistence, networking and Coach. Create findings with severity, evidence, reproduction and recommended disposition; avoid assuming a clean build means bug-free. Address release archival/source promotion through normal reviewed workflow, recover exact approved icon and art binaries (no regenerated substitutes without approval). Record public verification status and technical debt. Establish a Beta 3 development branch from reviewed baseline; do not disrupt other projects or publish.
@@ -105,6 +106,9 @@ Acceptance: targeted automated tests plus real-device evidence or explicit owner
 ### B3-08 — Integrated polish
 Run full regression, verify art manifests, accessibility, performance, Android lifecycle and persistence, validate signed upgrade from actual Beta 2 with backed-up noncritical data. Review new/old saves, achievements/cosmetics, assisted counts and restoration. Inspect APK identity, permissions, version and signature. Record failures, fixes and deferrals; don't erase data to make tests pass.
 Acceptance: release scope frozen, no known critical defects, accepted build and test receipt, owner review.
+
+### B3-AMZ — Amazon Appstore readiness
+Owner reports Spudacus account approved and Sudoku listing configured. Follow [BETA3_AMAZON_READINESS.md](BETA3_AMAZON_READINESS.md) for ten gates covering Fire tablets, signing and cross-store continuity, saves, privacy and LAN/chat, public privacy policy, child-directed audience, official icons, actual tablet screenshots and Live App Testing. Amazon standard re-signing is a blocking compatibility investigation; preserve existing itch identity/key and never require uninstall. Separate owner approval for LAT/publication. Continue B3-08 audio and integrated polish; no runtime changes in this planning checkpoint.
 
 ### B3-09 — Release
 Use shared ITCH_PUBLISHING_GUIDE.md and RELEASE_POLICY.md. Increase versionCode above 31; proposed public version 1.0.0-beta.3 (confirm against registry before implementation). Sign using existing permanent beta identity, keep exact accepted APK, verify and archive it, prepare concise personal changelog and release-specific cover. Keep evergreen storefront unless needed. Owner approves publication. Update public links, release receipts, handoff and shared registry. Independent verification limitations remain explicit.

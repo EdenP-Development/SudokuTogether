@@ -1,5 +1,9 @@
 # Continue GridMates: Sudoku
 
+## B3-AMZ — Amazon readiness added (2026-11-25)
+
+Owner reports account/listing configured. Canonical roadmap now includes parallel Amazon milestone and docs/BETA3_AMAZON_READINESS.md, with ten release gates. Standard Amazon re-signing may prevent itch install-over; verify developer-signed eligibility and actual delivered signer before any submission. Existing package/key/save format unchanged. Continue audio review and B3-08. No LAT or publication authorized.
+
 ## AUD-08 — integrated review ready
 
 Gate 45692435411 and preview 45692435615 passed at afee70a; artifact 15059657081. Owner checklist in docs/BETA3_AUDIO_REVIEW_CHECKLIST.md; updated handoff evidence. Next owner listening/device testing, fix findings, production promotion, signed upgrade and hub handoff. Public Beta2 unchanged.
