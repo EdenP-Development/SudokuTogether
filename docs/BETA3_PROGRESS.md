@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — mid-game fixture research
+
+Discovery 45564717185 passed but returned NOT_FOUND; ordinary gate 45564717142 passed. The first search only inspected initial positions. Expanded research to advance generated puzzles through logical placements and inspect each position; added attributed HoDoKu n302 reference probe (GFDL 1.3, research only, no player-facing lesson import). Preserve bounded search and independent elimination checks. Fresh results pending; pin original fixture before shipping lesson. No runtime changes.
+
+
 ## B3-04 — bounded Coach fixture discovery
 
 Naked triple gate 45562709560 passed; previous ad hoc search timed out. Added opt-in JVM discovery test using fixed random seed and original completed grid, bounded uniqueness checks, 5000 attempts and 90-second search budget. Validates discovered triple eliminations independently via solution count and prints reproducible grid and proof. Dedicated unsigned workflow uploads search log; ordinary regression skips discovery. Successful workflow alone does not prove a fixture was found: inspect COACH_FIXTURE_FOUND marker. Next pin verified fixture and add practice lesson. No runtime changes.

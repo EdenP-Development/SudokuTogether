@@ -17,7 +17,7 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: gradle
-      - name: Search and independently validate fixture
+      - name: Search reference and generated mid-game positions
         env:
           GRIDMATES_COACH_DISCOVERY: '1'
         run: |
