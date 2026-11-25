@@ -20,8 +20,8 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
 /**
- * Debug-only, user-selected audio audition. No bundled assets, internet,
- * progress-save changes or automatic playback. Activity-level owner keeps music playing between screens.
+ * Debug-only soundtrack review. Device-local preferences, no progress-save changes.
+ * Activity-level owner keeps music playing between screens. Playback starts on explicit action.
  */
 @Composable internal fun rememberPrivateMusicPilot(enabled: Boolean): @Composable () -> Unit {
     val context = LocalContext.current
@@ -40,7 +40,15 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     var expanded by remember { mutableStateOf(false) }
     var playing by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf(if (bundled.isEmpty()) "Choose the soundtrack files." else "Soundtrack ready.") }
-    var volume by remember { mutableStateOf(.25f) }
+    val preferences = remember(context) { context.getSharedPreferences("gridmates_music", Context.MODE_PRIVATE) }
+    var volume by remember { mutableStateOf(normalizeMusicVolume(
+        runCatching { preferences.getFloat("volume", .25f) }.getOrDefault(.25f))) }
+    var musicEnabled by remember { mutableStateOf(
+        runCatching { preferences.getBoolean("enabled", false) }.getOrDefault(false)) }
+    fun setMusicEnabled(value: Boolean) {
+        musicEnabled = value
+        preferences.edit().putBoolean("enabled", value).apply()
+    }
     var index by remember { mutableIntStateOf(0) }
     var order by remember {
         val main = bundled.entries.firstOrNull { it.value == "Warm Puzzle Time" }?.key
@@ -51,7 +59,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
             null, null, null)?.use { if (it.moveToFirst()) it.getString(0) else null }
     }.getOrNull()?.substringBeforeLast('.') ?: "Track"
     fun playAt(position: Int) {
-        if (order.isEmpty()) return
+        if (!enabled || order.isEmpty() || !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
         index = position.mod(order.size)
         val selected = order[index]
         playing = player.start(selected, volume, looping = order.size == 1,
@@ -85,6 +93,14 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     return {
         GamePanel(Modifier.fillMaxWidth()) {
             SectionTitle("The Music Corner")
+            Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
+                Text("Background music", modifier = Modifier.weight(1f), color = Forest)
+                Switch(checked = musicEnabled, enabled = enabled, onCheckedChange = { value ->
+                    setMusicEnabled(value)
+                    if (value && order.isNotEmpty()) playAt(index)
+                    else { player.stop(); playing = false; message = "Music stopped." }
+                })
+            }
             Text("Good puzzles. Good company.", color = Muted, style = MaterialTheme.typography.bodySmall)
             if (order.isEmpty()) {
                 Text("Choose the soundtrack files to begin.", color = Muted, style = MaterialTheme.typography.bodySmall)
@@ -96,19 +112,20 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                     TextButton(onClick = { if (playing) playAt(index - 1) else index = (index - 1).mod(order.size) },
                         enabled = enabled && order.size > 1, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Previous") }
                     Button(onClick = {
-                        if (playing) { player.stop(); playing = false; message = "Music stopped." }
-                        else playAt(index)
+                        if (playing) { setMusicEnabled(false); player.stop(); playing = false; message = "Music stopped." }
+                        else { setMusicEnabled(true); playAt(index) }
                     }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text(if (playing) "Stop" else "Play") }
                     TextButton(onClick = { if (playing) playAt(index + 1) else index = (index + 1).mod(order.size) },
                         enabled = enabled && order.size > 1, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Next") }
                 }
                 Text("Music volume: ${(volume * 100).toInt()}%", color = Forest)
-                Slider(value = volume, onValueChange = { volume = it; player.volume(it) }, enabled = enabled)
+                Slider(value = volume, onValueChange = { volume = normalizeMusicVolume(it); player.volume(volume) },
+                    onValueChangeFinished = { preferences.edit().putFloat("volume", volume).apply() }, enabled = enabled)
                 TextButton(onClick = { expanded = !expanded }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                     Text(if (expanded) "Hide soundtrack" else "View soundtrack (${order.size})")
                 }
                 if (expanded) order.forEachIndexed { position, track ->
-                    OutlinedButton(onClick = { playAt(position) }, enabled = enabled,
+                    OutlinedButton(onClick = { setMusicEnabled(true); playAt(position) }, enabled = enabled,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                         Text("${if (position == index) "• " else ""}${titles[track] ?: "Track"}")
                     }
@@ -198,3 +215,5 @@ private class PilotPlayer(private val context: Context) {
         } else runCatching { manager.abandonAudioFocus(listener) }
     }
 }
+
+internal fun normalizeMusicVolume(value: Float): Float = if (value.isFinite()) value.coerceIn(0f, 1f) else .25f

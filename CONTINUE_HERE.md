@@ -1,5 +1,9 @@
 # Continue GridMates: Sudoku
 
+## AUD-07.01 — local music preferences
+
+Completion gate 45690392399 passed at 444d577. Music Corner now stores enabled preference and slider volume in separate device-local SharedPreferences, independent from progress/backup schema. Explicit Play/switch/track action starts playback; restored enabled preference does not yet auto-start (silent splash and foreground resume policy pending). Volume sanitized; fresh gate and handset verification pending. No public release changes.
+
 ## AUD-05.03 — completion feedback
 
 Feedback repair gate 45689483591 passed at 54b0f95. Added original 720ms three-note completion cue, higher SoundPool priority, confirmation haptic on API30+ with keyboard fallback. Guard emits once on observed same-round incomplete-to-complete transition, no first-loaded completed board or changed-round celebration, suppress Versus loss cue. Does not stack separate reward sounds. New tests for round guard and cue duration. Fresh gate and handset listening pending; no public/save changes.

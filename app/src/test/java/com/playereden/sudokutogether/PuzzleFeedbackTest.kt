@@ -54,4 +54,11 @@ class PuzzleFeedbackTest {
         assertEquals(false, guard.observe(null, false))
         assertEquals(false, guard.observe("b:1", true))
     }
+    @Test fun musicVolumeNormalization() {
+        assertEquals(.25f, normalizeMusicVolume(Float.NaN), 0f)
+        assertEquals(.25f, normalizeMusicVolume(Float.POSITIVE_INFINITY), 0f)
+        assertEquals(0f, normalizeMusicVolume(-1f), 0f)
+        assertEquals(1f, normalizeMusicVolume(2f), 0f)
+        assertEquals(.42f, normalizeMusicVolume(.42f), 0f)
+    }
 }
