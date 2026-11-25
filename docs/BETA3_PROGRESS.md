@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## Latest checkpoint — GridMates v1.0 two-stage startup pilot
+
+Visual2 CI 45546351053 and standard gate 45546362833 passed. Owner approved exact GridMates series logo and Sudoku-only pilot. Implementation commit fb9e4afd91d6aa58fac642d932e9f5620c7c60af bundles exact GridMates asset, enables second stage, configures both checksum gates and Visual3 isolated debug build, and updates B3-01 roadmap. See docs/BETA3_STARTUP_PILOT.md for source hashes, timings, scaling, skip behavior and limitations. Fresh CI and physical feedback pending. No rollout to other games or public release; existing production package/signing/saves unchanged. Next verify Visual3, obtain owner feedback and refine before documenting reusable central implementation. Continue existing Beta3 gameplay roadmap.
+
+
 ## Latest checkpoint — Visual Review 2 implementation
 
 Visual1 physical screenshots show fox launcher and default/Ocean/Garden/Farm/Woodland habitat switching, not complete acceptance. Visual2 source 8be7f32606297e9934f42f16d05351af6383b800 adds exact Spudacus startup overlay (780ms nominal, silent, tap/Back skip, disabled-animation skip, stop/recreation skip), optional disabled GridMates stage, stronger non-Woodland caption gradient and 58dp adaptive foreground (previously 54dp). Isolated package com.playereden.sudokutogether.qa.beta3visual2 uses temporary debug signer; public Beta2 untouched. CI run 45546351053 observed checksum and icon generation passed, compilation pending; newer ordinary quality gate 45546362833 includes stage ordering tests at 63467c670d8867688faa3cc4c9bb188ed277f8fb. Earlier independent Spudacus checksum and baseline gate 45545507332 passed. Next inspect both final runs, deliver verified Visual2 APK, physically test cold/warm launch, skip, reduced motion, orientation, habitat readability and masks. GridMates art pending; Woodland wrapping and native launcher promotion still open. No public release or save changes. Historical checkpoints below.
