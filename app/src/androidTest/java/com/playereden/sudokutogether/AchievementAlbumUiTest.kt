@@ -48,6 +48,11 @@ class AchievementAlbumUiTest {
         compose.onNodeWithTag("earned_medal_gallery").performScrollTo().assertExists()
         compose.onNodeWithTag("achievement_solo-100").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Century Club").assertExists()
+        compose.onNodeWithTag("achievement_solo-100").performClick()
+        compose.onNodeWithText("Earned medal · Solo").assertIsDisplayed()
+        compose.onNodeWithText("This achievement is yours to keep.").assertIsDisplayed()
+        compose.onNodeWithText("Close").performClick()
+        compose.onNodeWithTag("achievement_solo-100").assertIsDisplayed()
     }
 
     @Test fun woodpeckerStaysOneLineInActualThreeColumnCollection() {

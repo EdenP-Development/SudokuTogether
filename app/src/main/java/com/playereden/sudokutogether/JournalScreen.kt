@@ -351,6 +351,7 @@ internal enum class ProfileSection(val title: String) {
     val earned = milestones.filter { it.unlocked }
     var allGoals by rememberSaveable { mutableStateOf(false) }
     var showEarned by rememberSaveable { mutableStateOf(false) }
+    var selectedMedalId by rememberSaveable { mutableStateOf<String?>(null) }
 
     SectionTitle("Your achievement album", "${earned.size} of ${milestones.size} earned")
     // The album's single progress line summarizes the whole collection;
@@ -398,10 +399,33 @@ internal enum class ProfileSection(val title: String) {
         if (showEarned) earned.groupBy { it.category }.forEach { (category, medals) ->
             Text(category, style = MaterialTheme.typography.titleMedium, color = Forest,
                 modifier = Modifier.padding(top = 8.dp))
-            EarnedMedalGallery(medals)
+            EarnedMedalGallery(medals) { selectedMedalId = it.id }
         }
     } else {
         Text("Your first medal is just one Solo puzzle away.", color = Muted)
+    }
+    earned.firstOrNull { it.id == selectedMedalId }?.let { medal ->
+        AlertDialog(onDismissRequest = { selectedMedalId = null },
+            title = { Text(medal.title, color = Forest, fontFamily = FontFamily.Serif) },
+            text = {
+                Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("Earned medal · ${medal.category}", color = Forest,
+                        style = MaterialTheme.typography.labelLarge)
+                    Text(medal.description, color = Ink)
+                    Text("This achievement is yours to keep.", color = Muted,
+                        style = MaterialTheme.typography.bodySmall)
+                    medal.rewardId?.let { reward ->
+                        Cosmetics.emblems.firstOrNull { it.id == reward }?.let {
+                            Text("Collection reward: ${it.name}", color = Forest)
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { selectedMedalId = null }, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text("Close")
+                }
+            })
     }
 }
 
@@ -438,7 +462,7 @@ internal enum class ProfileSection(val title: String) {
 }
 
 /** Earned achievements become a browsable medal shelf, not empty progress cards. */
-@Composable private fun EarnedMedalGallery(medals: List<AchievementProgress>) {
+@Composable private fun EarnedMedalGallery(medals: List<AchievementProgress>, open: (AchievementProgress) -> Unit) {
     BoxWithConstraints(Modifier.fillMaxWidth().testTag("earned_medal_gallery")) {
         val oneColumn = maxWidth < 300.dp || LocalDensity.current.fontScale > 1.3f
         val columns = if (oneColumn) 1 else 2
@@ -447,7 +471,8 @@ internal enum class ProfileSection(val title: String) {
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     group.forEach { medal ->
                         Surface(
-                            Modifier.weight(1f).testTag("achievement_${medal.id}"),
+                            onClick = { open(medal) },
+                            modifier = Modifier.weight(1f).testTag("achievement_${medal.id}"),
                             color = GoldTint.copy(alpha = .55f).compositeOver(Cream),
                             shape = RoundedCornerShape(16.dp),
                             border = BorderStroke(1.dp, Gold.copy(alpha = .45f))

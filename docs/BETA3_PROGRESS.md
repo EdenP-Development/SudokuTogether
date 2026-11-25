@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-05 — earned medal details
+
+Ownership filter gate 45583174396 passed. Static achievement audit found existing overall progress, closest three goals, compact expanded goals and categorized earned shelf. Earned cards omitted the original achievement description, so made them open a read-only detail dialog with title/category, original requirement, durable earned status and existing emblem reward if present. No fabricated earned date or recalculated ownership. Added UI fixture for Century Club detail and return. Fresh CI/device verification pending. No achievement IDs, thresholds, rewards or save changes. Next inspect progression integrity and move to B3-06.
+
+
 ## B3-05 — optional collection ownership filters
 
 Chapter progress gate 45582275221 passed. Added All items (default), Available and Locked filters across icons, boards, number colors/fonts, using the existing available/locked partition. Overall totals, chapter totals, next unlock spotlight and chapter order stay unfiltered. Explicit filtered count and empty-state copy; equipped items count available as before. Added Farm filter UI regression fixture. Fresh CI/device verification pending. No catalog, ownership, scoring, unlock or save changes.
