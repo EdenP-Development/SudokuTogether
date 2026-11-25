@@ -17,3 +17,6 @@ NEXT: optional itch Metadata > Promo images: evergreen social image (suggested 1
 
 Canonical shared hub: https://github.com/EdenP-Development/Eden-Development-Standards . Active branch remains feat/beta2-permanent-identity-staging until reviewed source promotion. Historical checkpoints below superseded where inconsistent.
 
+
+## Approved artwork recovery — 2026-11-24
+Exact previously attached PNGs accessible in working container and inspected for dimensions, mode and SHA256: full emblem 1254x1254 RGBA a45b829f0af0f791ad5665112ac1f0a0fc0987fc6b7b399e12bdd7d587509cf9; plain favicon 1254x1254 RGBA 6c2c8b999a357dd842545b92f1473314dddaea315ed947c8726d8c4078f6333d; leaf-accent launcher 1254x1254 RGBA ea3812eb46f6d3601fd5edf1d1f1f2d1c9c445a4140c7e1d2a86c08563d3367f. These are recovered conversation attachments, not necessarily original generation bytes. Binary upload to Git not yet achieved: connector accepts base64 string but no direct local file path. Preserve exact recovered assets; do not substitute. Launcher integration pending. 
