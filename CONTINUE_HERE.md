@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## AUD-02 — soundtrack production direction
+
+Six proposed production briefs recorded in docs/BETA3_SOUNDTRACK_DIRECTION.md. No production masters received yet. Next AUD-03 inventory and AUD-04 foreground playlist controller; keep native effects/haptics issue open. No runtime or public release changes.
+
+
 ## AUD-01 — audio research active checkpoint
 
 B3-07 code review closed: gate 45677167962 passed; physical multiplayer and instrumentation execution remain pending integrated review. B3-08 active, AUD-01 research recorded in docs/BETA3_AUDIO_RESEARCH.md; next AUD-02 soundtrack identity and track audition. No new runtime audio changes. Owner reports Suno Pro; positive single-track pilot, native effects/haptics failed owner perception. Preserve public Beta2 and saves.
