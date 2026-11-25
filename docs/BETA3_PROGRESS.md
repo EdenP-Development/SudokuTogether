@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## Gameplay Review 1 verification checkpoint
+
+Source e00e2b1954b69c027bbef73f8f572a4f6dc84633 passed ordinary Android gate 45555816433. Isolated preview run 45555816455 passed both artwork checks and adaptive icon generation; assembly/signature/artifact pending at observation. Build URL https://github.com/EdenP-Development/SudokuTogether/actions/runs/45555816455. Owner review: notes toggling/highlight, empty erase, undo, conflict marker, board resize, large-text/landscape layout, finish/earned rewards, resume and Daily records. Separate fresh-save debug package; not a public upgrade test. Instrumentation compiled, not executed. Freeze review source until feedback; next major milestone B3-04 Coach.
+
+
 ## B3-03 — completion presentation and integrated Gameplay Review 1
 
 Compact toolbar gate 45555324321 passed at 54d59364; instrumentation compiled, not executed. Completion card centers heading and summary text, makes Records a full-width 48dp action and allows expanding all earned rewards from the existing record-derived list rather than hiding extras permanently. No reward logic changes. Existing finish fixture now checks Records reachability. Isolated Gameplay1 preview configured with unique temporary debug package com.playereden.sudokutogether.qa.beta3gameplay1, exact approved startup and fox artwork, unchanged habitat assets. Fresh gates, APK receipt and physical review pending. Reward expansion needs device verification. No public release or save migration.
