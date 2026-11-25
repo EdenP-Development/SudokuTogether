@@ -15,3 +15,6 @@ Visual2 run 45546351053 and standard gate 45546362833 passed; Visual2 did not co
 
 ## Owner review checklist
 Cold launch both stages in order; logo scale/alpha edges/contrast portrait and landscape; timing and transition; tap and Back during either stage; reduced motion; warm resume and rotation; offline launch; accessibility focus and navigation; startup performance compared with prior build; normal puzzle and save behavior. Record actual feedback, limitations and final source/receipt here before proposing shared standards. No rollout until owner acceptance.
+
+## Visual4 review receipt
+Source 96747991e98f78c90e10d6eda447d1be085a3674. Android quality gate 45550962759 PASSED. Visual build 45550962814 observed both exact asset SHA-256 checks and fox generation PASSED; assembly pending at observation. Artifact not yet available. Owner to verify logo presentation, timing, skip during either stage, warm resume, reduced motion and offline launch; actual accessibility and startup performance remain unmeasured. Freeze timing until owner feedback. After acceptance, return exact source and evidence to shared branding chat; central standard and other projects must not be updated as accepted before that feedback. Build URL: https://github.com/EdenP-Development/SudokuTogether/actions/runs/45550962814.
