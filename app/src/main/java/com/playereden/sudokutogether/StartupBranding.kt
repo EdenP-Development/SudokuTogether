@@ -19,7 +19,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
-// Optional series stage; Sudoku is the sole approved two-stage pilot.
+// Shared GridMates timing trial; preserve the original artwork and skip behavior.
+internal const val STARTUP_FADE_MS = 300
+internal const val STARTUP_HOLD_MS = 1500
+
+// Optional series stage.
 internal fun startupBrandingStages(seriesDrawable: Int? = null): List<Int> =
     listOfNotNull(R.drawable.spudacus_v1_full_transparent, seriesDrawable)
 
@@ -45,9 +49,9 @@ internal fun StartupBranding(showInitially: Boolean, seriesDrawable: Int? = null
             return@LaunchedEffect
         }
         opacity.snapTo(0f)
-        opacity.animateTo(1f, tween(250))
-        delay(1000)
-        opacity.animateTo(0f, tween(250))
+        opacity.animateTo(1f, tween(STARTUP_FADE_MS, easing = androidx.compose.animation.core.LinearEasing))
+        delay(STARTUP_HOLD_MS.toLong())
+        opacity.animateTo(0f, tween(STARTUP_FADE_MS))
         stage++
     }
     if (visible) {
