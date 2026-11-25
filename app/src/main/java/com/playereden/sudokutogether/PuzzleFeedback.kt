@@ -11,11 +11,12 @@ internal enum class PuzzleCue { SELECT, NUMBER, NOTE, ERASE, UNDO, COMPLETE }
 internal fun puzzleCueSamples(cue: PuzzleCue): ShortArray {
     val rate = 22050
     if (cue == PuzzleCue.COMPLETE) return completionSamples(rate)
+    if (cue == PuzzleCue.ERASE) return eraseSamples(rate)
     val duration = when (cue) {
         PuzzleCue.SELECT -> 0.035
         PuzzleCue.NUMBER -> 0.085
         PuzzleCue.NOTE -> 0.028
-        PuzzleCue.ERASE -> 0.095
+        PuzzleCue.ERASE -> error("Handled above")
         PuzzleCue.UNDO -> 0.065
         PuzzleCue.COMPLETE -> error("Handled above")
     }
@@ -23,7 +24,7 @@ internal fun puzzleCueSamples(cue: PuzzleCue): ShortArray {
         PuzzleCue.SELECT -> 520.0
         PuzzleCue.NUMBER -> 410.0
         PuzzleCue.NOTE -> 1050.0
-        PuzzleCue.ERASE -> 290.0
+        PuzzleCue.ERASE -> error("Handled above")
         PuzzleCue.UNDO -> 440.0
         PuzzleCue.COMPLETE -> error("Handled above")
     }
@@ -31,18 +32,18 @@ internal fun puzzleCueSamples(cue: PuzzleCue): ShortArray {
     var filteredNoise = 0.0
     return ShortArray((duration * rate).toInt()) { i ->
         val t = i.toDouble() / rate
-        val attack = (t / (if (cue == PuzzleCue.NUMBER || cue == PuzzleCue.ERASE) .012 else .003)).coerceAtMost(1.0)
+        val attack = (t / (if (cue == PuzzleCue.NUMBER) .012 else .003)).coerceAtMost(1.0)
         val decay = (1.0 - t / duration).coerceAtLeast(0.0)
         val tone = kotlin.math.sin(2 * kotlin.math.PI * frequency * t)
         val overtone = kotlin.math.sin(2 * kotlin.math.PI * frequency * 1.73 * t)
         val noise = random.nextDouble(-1.0, 1.0)
         filteredNoise = .78 * filteredNoise + .22 * noise
         val blend = when (cue) {
-            PuzzleCue.ERASE -> filteredNoise * (.7 + .3 * kotlin.math.sin(2 * kotlin.math.PI * 24 * t))
+            PuzzleCue.ERASE -> error("Handled above")
             PuzzleCue.NUMBER -> .28 * tone + .72 * filteredNoise
             else -> .72 * tone + .18 * overtone + .10 * noise
         }
-        (blend * attack * decay * decay * (if (cue == PuzzleCue.ERASE) 16000 else 10000)).toInt().coerceIn(-10000, 10000).toShort()
+        (blend * attack * decay * decay * 10000).toInt().coerceIn(-10000, 10000).toShort()
     }
 }
 
@@ -127,3 +128,25 @@ internal class CompletionCueGuard {
 }
 
 internal fun readEffectsVolume(prefs: android.content.SharedPreferences): Float = normalizeMusicVolume(runCatching { prefs.getFloat("volume", .50f) }.getOrDefault(.50f))
+
+
+/** Two soft friction strokes, rather than a percussive onset or pitched note. */
+private fun eraseSamples(rate: Int): ShortArray {
+    val random = kotlin.random.Random(61)
+    var low = 0.0
+    var smooth = 0.0
+    return ShortArray((rate * .24).toInt()) { i ->
+        val t = i.toDouble() / rate
+        val noise = random.nextDouble(-1.0, 1.0)
+        low += .055 * (noise - low)
+        smooth += .36 * ((noise - low) - smooth)
+        fun stroke(start: Double, duration: Double): Double {
+            val x = (t - start) / duration
+            if (x !in 0.0..1.0) return 0.0
+            val shape = kotlin.math.sin(kotlin.math.PI * x)
+            return shape * shape
+        }
+        val envelope = .85 * stroke(0.0, .115) + .65 * stroke(.125, .115)
+        (smooth * envelope * 12000).toInt().coerceIn(-10000, 10000).toShort()
+    }
+}

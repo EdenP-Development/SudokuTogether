@@ -20,3 +20,6 @@ Owner reports all music works, haptics work, closing stops music. Screenshots sh
 
 ## Owner follow-up
 Owner enabled effects and confirmed audible. Previous label confusing. Requested defaults music volume 50%, puzzle sounds on; separate effects volume. Number cue too poppy, erase sounds like drum/pan. Revised number to lower, softer mixed noise with slow attack; erase to filtered non-tonal friction noise. Added independent persistent effects volume (proposed default 50%) and number/erase audition buttons; renamed Puzzle sounds. Preserve explicitly stored preferences. Existing haptics unchanged. New audio perception and CI pending.
+
+## Audio Review 3 handset follow-up
+Owner reports much better overall; Test number and Test erase sound the same perceptually. Reviewed settings callbacks: they request distinct enum cues; prior number and erase PCM were different but both short filtered-noise transients. Preserve approved number and all other cues; replace erase only with 240 ms two-stroke band-limited friction texture, no pitched component, with brief silent gap. Add waveform/duration regression; perceptual distinction still requires handset review. Do not infer automatic playback or Final Piece issue resolved from this feedback.

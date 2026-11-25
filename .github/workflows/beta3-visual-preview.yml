@@ -93,11 +93,11 @@ jobs:
                   assert hashlib.sha256(z.read(entry)).digest() == hashlib.sha256(p.read_bytes()).digest()
               assert len([n for n in z.namelist() if n.startswith('assets/soundtrack/') and n.endswith('.m4a')]) == 6
           PY
-          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-AudioReview3.apk
+          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-AudioReview4.apk
           (cd beta3-review && sha256sum *.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
         with:
-          name: GridMates-Sudoku-Beta3-AudioReview3
+          name: GridMates-Sudoku-Beta3-AudioReview4
           path: beta3-review/
           if-no-files-found: error
           retention-days: 14

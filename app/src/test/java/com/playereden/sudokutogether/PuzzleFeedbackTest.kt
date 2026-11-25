@@ -32,7 +32,7 @@ class PuzzleFeedbackTest {
     }
     @Test fun completionCueIsLongerThanInteractionCues() {
         assertEquals(15876, puzzleCueSamples(PuzzleCue.COMPLETE).size)
-        PuzzleCue.entries.filter { it != PuzzleCue.COMPLETE }.forEach {
+        PuzzleCue.entries.filter { it != PuzzleCue.COMPLETE && it != PuzzleCue.ERASE }.forEach {
             org.junit.Assert.assertTrue(puzzleCueSamples(it).size <= 2205)
         }
     }
@@ -66,5 +66,14 @@ class PuzzleFeedbackTest {
         assertEquals(1, restoredTrackIndex(listOf("main", "final", "evening"), "final"))
         assertEquals(0, restoredTrackIndex(listOf("main", "evening"), "missing"))
         assertEquals(0, restoredTrackIndex(emptyList(), null))
+    }
+    @Test fun eraseIsDistinctTwoStrokeCue() {
+        val erase = puzzleCueSamples(PuzzleCue.ERASE)
+        val number = puzzleCueSamples(PuzzleCue.NUMBER)
+        assertEquals(5292, erase.size)
+        org.junit.Assert.assertTrue(erase.size > number.size * 2)
+        org.junit.Assert.assertTrue(erase.sliceArray(2536..2755).all { it.toInt() == 0 })
+        org.junit.Assert.assertTrue(erase.sliceArray(400..1800).any { kotlin.math.abs(it.toInt()) > 500 })
+        org.junit.Assert.assertTrue(erase.sliceArray(3200..4600).any { kotlin.math.abs(it.toInt()) > 500 })
     }
 }
