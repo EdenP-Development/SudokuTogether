@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Latest — Coach Review 1
+
+Ten techniques and lessons integrated. Isolated Coach1 preview configured on top of shared startup timing trial (dd1ea099, 8db5c3a8). Inspect latest beta3-visual-preview workflow and ordinary gate; verify artifact package/signature before offering download. Physical review next: ten lessons, multi-step hint navigation, before/after, startup timing, gameplay. No production upgrade test.
+
+
 ## Latest — ten Coach techniques and lessons
 
 Discovery 45571340860 FOUND three independently validated original hidden quadruple fixtures; gate 45571340874 passed. Seed 183027 attempt 4751 is tenth practice lesson; other two retained in regression. Fresh CI pending. Next prepare isolated Coach Review 1 APK; no public release, signing or save changes.

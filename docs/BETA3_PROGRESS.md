@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — Coach Review 1 build configuration
+
+Ten lessons integrated at 8c3ee0e6. Branch subsequently received shared startup timing trial dd1ea099 and timing assertions 8db5c3a8; retained these concurrent changes rather than reverting. Configured isolated preview package com.playereden.sudokutogether.qa.beta3coach1 and GridMates-Sudoku-Beta3-Coach1 artifact using existing hash-verified branding build path. Fresh full gate and preview artifact verification pending. Separate installation with fresh local data, not a public upgrade rehearsal. Device tests compiled, not executed by this workflow. No public signing or save schema changes.
+
+
 ## B3-04 — hidden quadruple practice and three-lane research success
 
 Discovery 45571340860 found original unique fixtures in all three seed lanes. Android gate 45571340874 passed. Seed 183027 attempt 4751 selected for tenth practice lesson: 904800612250004839068209745480906153693581427005000968046000091500000384000000076. No setup required; sources 66/67/75/76, reserves 1/4/6/9, seven removals. Seeds 73193 attempt 4618 and 94051 attempt 6872 preserved as additional proof regressions. Nineteen total independently checked eliminations across three fixtures. Added exact evidence, solution oracle, grade and practice UI checks. Fresh CI and device review pending. Next Coach Review 1 isolated APK. No public release or save changes.
