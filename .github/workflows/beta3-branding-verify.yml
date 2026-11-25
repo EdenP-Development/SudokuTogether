@@ -38,16 +38,22 @@ jobs:
               pngs = [e for e in entries if e.filename.lower().endswith('.png')]
               assert len(pngs) == 6
               dimensions = []
+              invalid = []
               for e in pngs:
                   b = z.read(e)
-                  assert b[:8] == b'\x89PNG\r\n\x1a\n' and b[12:16] == b'IHDR'
+                  if not (b[:8] == b'\x89PNG\r\n\x1a\n' and b[12:16] == b'IHDR'):
+                      print('Non-PNG signature:', e.filename, b[:16].hex(), hashlib.sha256(b).hexdigest())
+                      invalid.append(e.filename)
+                      continue
                   w,h = struct.unpack('>II',b[16:24])
                   dimensions.append((w,h))
                   print(e.filename, w,h,hashlib.sha256(b).hexdigest())
-              assert sorted(dimensions) == sorted([(1254,1254)]*3+[(1536,658),(1536,807),(2172,724)])
+
               for e in entries:
                   if not e.is_dir() and 'manifest' in e.filename.lower():
                       print('Manifest:',e.filename)
                       print(z.read(e).decode('utf-8')[:20000])
+              assert not invalid, f'Mislabeled PNG files: {invalid}'
+              assert sorted(dimensions) == sorted([(1254,1254)]*3+[(1536,658),(1536,807),(2172,724)])
           print('Archive SHA-256, CRC, paths, six PNG headers and dimensions verified.')
           PY
