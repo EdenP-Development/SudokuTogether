@@ -1,5 +1,10 @@
 # GridMates: Sudoku — Beta 3: Polish and depth
 
+## B3-07 handoff — audio pilot verified; soundtrack rights hold (2026-11-25)
+
+Gate 45588866784 passed at 263bbba9: optional native sound feedback, fail-safe dispatch and JVM tests; portable restore instrumentation compiled, not executed. B3-06 REVIEW; custom music deferred and not a release dependency. Suno official terms and FAQs reviewed: four owner-reported free-tier M4A prototypes restricted to personal noncommercial experiments; later subscription does not automatically clear prior tracks; obtain explicit track-specific rights or regenerate/download while commercially licensed. No prototype binary in public repository or release. Shared provisional soundtrack families documented at https://github.com/EdenP-Development/Eden-Development-Standards/blob/8febbd923f663889d8ea00160f1c5f78af16d9d3/audio/gridmates/README.md (Sudoku/Word Search cozy, Grid Hunt/Crossroads proposed board-strategy). B3-07 ACTIVE: next inspect LAN presence/rejoin, status UI, rematch and regression coverage before targeted edits. Physical multiplayer, audio and upgrade checks remain open. No protocol, save, signing or publication changes.
+
+
 ## B3-06 — feedback reliability and soundtrack checkpoint (2026-11-25)
 
 Reward continuity gate 45585519590 and sound pilot gate 45586137570 passed. B3-05 REVIEW, B3-06 ACTIVE. Audited state initialization/home/reset/restore: soundEffects default false, reread after restore; backup allowlist only writes known portable preferences and leaves device-local soundEffects untouched. Added instrumentation fixture for both on/off restore preservation and exclusion from export; not executed yet. Native click dispatch now fails silently on device RuntimeException so gameplay continues; copy-room-code retains haptic only. Added JVM feedback regression fixtures. Fresh CI pending. Owner generated M4A tracks 01 Woodland Study, 02 Quiet Pages, 03 Good Puzzles, Good Company, 04 Sunday Morning; owner likes them, files not yet supplied, no audio audition or rights verification. Owner reached free Suno limit and deferred further generation. Do not block Beta3 on custom music or assume commercial rights (generation plan at creation matters). Next finish feedback verification and advance multiplayer refinement while soundtrack intake deferred. No public release, signing or save schema changes.
@@ -42,8 +47,8 @@ Statuses: NOT STARTED / ACTIVE / REVIEW / DONE / DEFERRED. Mark DONE only with e
 | B3-03 | Gameplay experience | ACTIVE |
 | B3-04 | Advanced Sudoku Coach | REVIEW |
 | B3-05 | Collection and progression | REVIEW |
-| B3-06 | Sound and haptics | ACTIVE |
-| B3-07 | Multiplayer refinement | NOT STARTED |
+| B3-06 | Sound and haptics | REVIEW |
+| B3-07 | Multiplayer refinement | ACTIVE |
 | B3-08 | Integrated polish | NOT STARTED |
 | B3-09 | Beta 3 release | NOT STARTED |
 
