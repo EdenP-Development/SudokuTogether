@@ -18,7 +18,8 @@ import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalView
-import android.view.SoundEffectConstants
+import android.view.HapticFeedbackConstants
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -43,9 +44,14 @@ import kotlinx.coroutines.delay
     val clipboard = LocalClipboardManager.current
     val haptics = LocalHapticFeedback.current
     val feedbackView = LocalView.current
-    fun tick() {
-        if (state.touchFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        if (state.soundEffects) playPuzzleClick { feedbackView.playSoundEffect(SoundEffectConstants.CLICK) }
+    val context = LocalContext.current
+    val sounds = remember(context, state.soundEffects) {
+        if (state.soundEffects) runCatching { PuzzleSoundBank(context) }.getOrNull() else null
+    }
+    DisposableEffect(sounds) { onDispose { sounds?.release() } }
+    fun tick(cue: PuzzleCue) {
+        if (state.touchFeedback) playPuzzleClick { feedbackView.performHapticFeedback(HapticFeedbackConstants.KEYBOARD_TAP) }
+        if (state.soundEffects) playPuzzleClick { sounds?.play(cue) }
     }
     fun copyCode() { clipboard.setText(AnnotatedString(state.roomCode)); copied = true
         if (state.touchFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
@@ -65,7 +71,7 @@ import kotlinx.coroutines.delay
                 if (snapshot == null) OpeningPuzzle(Modifier.fillMaxWidth().height(160.dp))
                 else {
                     PlayBoardPane(state, actions, new,
-                        Modifier.fillMaxWidth(), roomStatus = true, scrollable = false)
+                        Modifier.fillMaxWidth(), roomStatus = true, scrollable = false, feedback = ::tick)
                     if (!snapshot.completed) SudokuInputDock(snapshot, state, actions, ::tick)
                 }
             }
@@ -79,7 +85,7 @@ import kotlinx.coroutines.delay
                     val railWidth = (maxWidth * .46f).coerceIn(288.dp, 352.dp)
                     Row(Modifier.fillMaxSize().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         PlayBoardPane(state, actions, new,
-                            Modifier.weight(1f).fillMaxHeight(), roomStatus = false)
+                            Modifier.weight(1f).fillMaxHeight(), roomStatus = false, feedback = ::tick)
                         Column(Modifier.width(railWidth).fillMaxHeight().verticalScroll(rememberScrollState()),
                             verticalArrangement = Arrangement.spacedBy(10.dp)) {
                             if (state.role != SOLO) {
@@ -104,11 +110,11 @@ import kotlinx.coroutines.delay
                         Box(Modifier.weight(1f).fillMaxWidth(),
                             contentAlignment = Alignment.Center) {
                             PlayBoardPane(state, actions, new,
-                                Modifier.fillMaxWidth(), roomStatus = true, scrollable = false)
+                                Modifier.fillMaxWidth(), roomStatus = true, scrollable = false, feedback = ::tick)
                         }
                     } else {
                         PlayBoardPane(state, actions, new,
-                            Modifier.weight(1f).fillMaxWidth(), roomStatus = true)
+                            Modifier.weight(1f).fillMaxWidth(), roomStatus = true, feedback = ::tick)
                     }
                     if (!snapshot.completed) SudokuInputDock(snapshot, state, actions, ::tick)
                 }
@@ -199,7 +205,7 @@ import kotlinx.coroutines.delay
 }
 
 @Composable private fun PlayBoardPane(state: GameUiState, actions: GameActions, new: () -> Unit,
-    modifier: Modifier, roomStatus: Boolean, scrollable: Boolean = true) {
+    modifier: Modifier, roomStatus: Boolean, scrollable: Boolean = true, feedback: (PuzzleCue) -> Unit = {}) {
     val snapshot = state.snapshot ?: return
     BoxWithConstraints(modifier) {
         val viewportHeight = if (maxHeight.value.isFinite()) maxHeight else maxWidth + 160.dp
@@ -310,12 +316,8 @@ import kotlinx.coroutines.delay
             Surface(shape = RoundedCornerShape(16.dp), color = boardFillFor(boardTheme), shadowElevation = 3.dp,
                 border = BorderStroke(1.dp, Rule), modifier = Modifier.testTag("board_frame")) {
                 Box(Modifier.padding(8.dp)) {
-                    val haptics = LocalHapticFeedback.current
-                    val feedbackView = LocalView.current
                     SudokuBoard(snapshot, state.selected, if (state.role == SOLO || snapshot.mode == VERSUS) -1 else state.partnerCell,
-                        gridSize, { if (state.touchFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            if (state.soundEffects) playPuzzleClick { feedbackView.playSoundEffect(SoundEffectConstants.CLICK) }
-                            actions.select(it) },
+                        gridSize, { feedback(PuzzleCue.SELECT); actions.select(it) },
                         boardTheme, state.appearance, state.role == SOLO, state.uniformNumbers)
                 }
             }
@@ -495,7 +497,7 @@ import kotlinx.coroutines.delay
     if (chatOpen && state.role != SOLO) RoomChatSheet(state, actions, close)
 }
 
-@Composable private fun SudokuInputDock(snapshot: Snapshot, state: GameUiState, actions: GameActions, tick: () -> Unit) {
+@Composable private fun SudokuInputDock(snapshot: Snapshot, state: GameUiState, actions: GameActions, tick: (PuzzleCue) -> Unit) {
     val keypadHeight = maxOf(48.dp, (40 * LocalDensity.current.fontScale).dp)
     val editable = state.selected in 0..80 && snapshot.puzzle.clues[state.selected] == 0
     val selectedCell = snapshot.cells.getOrNull(state.selected)
@@ -521,11 +523,11 @@ import kotlinx.coroutines.delay
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         for (tool in rowTools) when (tool) {
                             "notes" -> DockTool(if (state.notes) "Notes on" else "Notes", GameSymbol.PENCIL,
-                                state.canEdit, state.notes, Modifier.weight(1f)) { tick(); actions.toggleNotes() }
+                                state.canEdit, state.notes, Modifier.weight(1f)) { tick(PuzzleCue.NOTE); actions.toggleNotes() }
                             "erase" -> DockTool("Erase", GameSymbol.ERASE, state.canEdit && editable && hasEraseTarget,
-                                modifier = Modifier.weight(1f)) { tick(); actions.erase() }
+                                modifier = Modifier.weight(1f)) { tick(PuzzleCue.ERASE); actions.erase() }
                             "undo" -> DockTool("Undo", GameSymbol.UNDO, state.canEdit && snapshot.undoTargets.containsKey(state.role),
-                                modifier = Modifier.weight(1f)) { tick(); actions.undo() }
+                                modifier = Modifier.weight(1f)) { tick(PuzzleCue.UNDO); actions.undo() }
                             "hint" -> DockTool("Hint", GameSymbol.HELP, state.canEdit, modifier = Modifier.weight(1f),
                                 description = "Request a solo Sudoku hint") { actions.hint() }
                         }
@@ -560,7 +562,7 @@ import kotlinx.coroutines.delay
                     val spokenAction = if (state.notes) {
                         if (notePresent) "Remove pencil mark $number" else "Add pencil mark $number"
                     } else "Number $number, $remaining remaining"
-                    OutlinedButton(onClick = { tick(); actions.number(number) },
+                    OutlinedButton(onClick = { tick(if (state.notes) PuzzleCue.NOTE else PuzzleCue.NUMBER); actions.number(number) },
                         enabled = state.canEdit && editable && noteTargetOpen,
                         modifier = Modifier.weight(1f).height(keypadHeight).testTag("number_$number")
                             .semantics {

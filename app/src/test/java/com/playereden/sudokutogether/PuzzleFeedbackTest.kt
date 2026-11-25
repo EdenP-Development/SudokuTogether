@@ -21,4 +21,13 @@ class PuzzleFeedbackTest {
         assertEquals(false, GameUiState().soundEffects)
         assertEquals(true, GameUiState().touchFeedback)
     }
+    @Test fun cuesAreShortBoundedAndDistinct() {
+        val cues = PuzzleCue.entries.map { puzzleCueSamples(it) }
+        cues.forEach { samples ->
+            org.junit.Assert.assertTrue(samples.size in 1..2205)
+            org.junit.Assert.assertTrue(samples.all { kotlin.math.abs(it.toInt()) <= 10000 })
+            assertEquals(0, samples.first().toInt())
+        }
+        assertEquals(cues.size, cues.map { it.contentHashCode() }.distinct().size)
+    }
 }
