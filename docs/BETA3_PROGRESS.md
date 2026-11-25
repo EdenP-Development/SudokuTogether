@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## AUD-04.02 — Music Corner review
+
+Provisional shared soundtrack UI in debug Settings: current track, previous/play-stop/next, volume, collapsible selectable playlist, import controls. Track names cached on selection; underscore-normalized main theme recognition. Existing activity-scoped pilot remains; no bundled music or permanent settings yet. Previous soundtrack CI was in progress at inspection. MusicCorner preview workflow triggered, same isolated package and temporary debug signing (install-over not guaranteed). Fresh CI and handset test pending. Next production asset transfer and controller, original effects and haptics. No public release changes.
+
+
 ## AUD-03 / AUD-04 soundtrack review
 
 Six masters verified; inventory and checksums in docs/BETA3_SOUNDTRACK_INVENTORY.md. Owner-approved main theme Warm Puzzle Time. Local AAC working copies prepared; no binaries in repo yet. Debug playlist review implemented with main theme first, cyclic non-repeating rotation of remaining shuffled tracks, next track and existing foreground music controls. Preview workflow renamed SoundtrackReview, package unchanged. Fresh CI and handset playback pending. Permanent bundled playback, settings, effects and haptics still open.

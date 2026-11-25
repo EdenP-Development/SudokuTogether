@@ -28,6 +28,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val player = remember(context) { PilotPlayer(context) }
     var tracks by remember { mutableStateOf(emptyList<Uri>()) }
+    var titles by remember { mutableStateOf(emptyMap<Uri, String>()) }
+    var expanded by remember { mutableStateOf(false) }
     var playing by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("Choose the soundtrack files.") }
     var volume by remember { mutableStateOf(.25f) }
@@ -36,7 +38,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     fun title(uri: Uri): String = runCatching {
         context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
             null, null, null)?.use { if (it.moveToFirst()) it.getString(0) else null }
-    }.getOrNull() ?: "Track"
+    }.getOrNull()?.substringBeforeLast('.') ?: "Track"
     fun playAt(position: Int) {
         if (order.isEmpty()) return
         index = position.mod(order.size)
@@ -44,14 +46,15 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
         playing = player.start(selected, volume, looping = order.size == 1,
             onFinished = { playAt(index + 1) },
             onStopped = { playing = false; message = "Music stopped. Tap Play to retry." })
-        message = if (playing) "Now playing: ${title(selected)}" else "Unable to play this track."
+        message = if (playing) "Playing" else "Unable to play this track."
     }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { selected ->
         if (selected.isNotEmpty()) {
             player.stop()
             playing = false
             tracks = selected.distinct()
-            val main = tracks.firstOrNull { title(it).contains("Warm Puzzle Time", ignoreCase = true) }
+            titles = tracks.associateWith { title(it) }
+            val main = tracks.firstOrNull { titles[it]?.replace('_', ' ')?.contains("Warm Puzzle Time", ignoreCase = true) == true }
             order = listOfNotNull(main) + tracks.filter { it != main }.shuffled()
             index = 0
             message = "${tracks.size} tracks ready."
@@ -70,25 +73,40 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     LaunchedEffect(enabled) { if (!enabled) { player.stop(); playing = false } }
     return {
         GamePanel(Modifier.fillMaxWidth()) {
-            SectionTitle("Test soundtrack")
-            Text("Choose the six soundtrack files. Music continues while you solve.",
-                color = Muted, style = MaterialTheme.typography.bodySmall)
+            SectionTitle("The Music Corner")
+            Text("Good puzzles. Good company.", color = Muted, style = MaterialTheme.typography.bodySmall)
+            if (order.isEmpty()) {
+                Text("Choose the soundtrack files to begin.", color = Muted, style = MaterialTheme.typography.bodySmall)
+            } else {
+                Text(titles[order[index]] ?: "Track", color = Forest, style = MaterialTheme.typography.titleMedium)
+                Text("Track ${index + 1} of ${order.size} · ${if (playing) "Playing" else "Stopped"}",
+                    color = Muted, style = MaterialTheme.typography.bodySmall)
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    TextButton(onClick = { if (playing) playAt(index - 1) else index = (index - 1).mod(order.size) },
+                        enabled = enabled && order.size > 1, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Previous") }
+                    Button(onClick = {
+                        if (playing) { player.stop(); playing = false; message = "Music stopped." }
+                        else playAt(index)
+                    }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text(if (playing) "Stop" else "Play") }
+                    TextButton(onClick = { if (playing) playAt(index + 1) else index = (index + 1).mod(order.size) },
+                        enabled = enabled && order.size > 1, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Next") }
+                }
+                Text("Music volume: ${(volume * 100).toInt()}%", color = Forest)
+                Slider(value = volume, onValueChange = { volume = it; player.volume(it) }, enabled = enabled)
+                TextButton(onClick = { expanded = !expanded }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                    Text(if (expanded) "Hide soundtrack" else "View soundtrack (${order.size})")
+                }
+                if (expanded) order.forEachIndexed { position, track ->
+                    OutlinedButton(onClick = { playAt(position) }, enabled = enabled,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                        Text("${if (position == index) "• " else ""}${titles[track] ?: "Track"}")
+                    }
+                }
+            }
+            Text(message, color = Muted, style = MaterialTheme.typography.bodySmall)
             OutlinedButton(onClick = { player.stop(); playing = false; picker.launch(arrayOf("audio/*")) },
                 enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                Text("Choose soundtrack")
-            }
-            Text(message, color = Ink, style = MaterialTheme.typography.bodySmall)
-            Text("Music volume: ${(volume * 100).toInt()}%", color = Forest)
-            Slider(value = volume, onValueChange = { volume = it; player.volume(it) }, enabled = enabled)
-            Button(onClick = {
-                if (playing) { player.stop(); playing = false; message = "Music stopped." }
-                else playAt(index)
-            }, enabled = enabled && order.isNotEmpty(), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                Text(if (playing) "Stop music" else "Play music")
-            }
-            if (order.size > 1) TextButton(onClick = { playAt(index + 1) },
-                enabled = enabled && playing, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-                Text("Next track")
+                Text(if (order.isEmpty()) "Choose soundtrack" else "Change test files")
             }
         }
     }
