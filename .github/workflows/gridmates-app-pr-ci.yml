@@ -36,6 +36,8 @@ jobs:
     timeout-minutes: 28
     steps:
       - uses: actions/checkout@v4
+      - name: Verify bundled Spudacus v1.0 artwork
+        run: echo '74773dbda822161f73a639f959e8bce5c6e0b333a94ebeb8ee27f620d4995d25  app/src/main/res/drawable-nodpi/spudacus_v1_full_transparent.png' | sha256sum -c -
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
