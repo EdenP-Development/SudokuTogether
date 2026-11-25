@@ -44,17 +44,25 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     var volume by remember { mutableStateOf(normalizeMusicVolume(
         runCatching { preferences.getFloat("volume", .25f) }.getOrDefault(.25f))) }
     var musicEnabled by remember { mutableStateOf(
-        runCatching { preferences.getBoolean("enabled", false) }.getOrDefault(false)) }
+        runCatching { preferences.getBoolean("enabled", true) }.getOrDefault(true)) }
     fun setMusicEnabled(value: Boolean) {
         musicEnabled = value
         preferences.edit().putBoolean("enabled", value).apply()
     }
     var foreground by remember { mutableStateOf(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) }
     var interrupted by remember { mutableStateOf(false) }
-    var index by remember { mutableIntStateOf(0) }
     var order by remember {
         val main = bundled.entries.firstOrNull { it.value == "Warm Puzzle Time" }?.key
         mutableStateOf(listOfNotNull(main) + bundled.keys.filter { it != main }.shuffled())
+    }
+    var index by remember {
+        val saved = runCatching { preferences.getString("last_track", null) }.getOrNull()
+        mutableIntStateOf(restoredTrackIndex(order.map { it.toString() }, saved))
+    }
+    fun selectTrack(position: Int) {
+        if (order.isEmpty()) return
+        index = position.mod(order.size)
+        if (order[index] in bundled) preferences.edit().putString("last_track", order[index].toString()).apply()
     }
     fun title(uri: Uri): String = runCatching {
         context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
@@ -62,7 +70,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     }.getOrNull()?.substringBeforeLast('.') ?: "Track"
     fun playAt(position: Int) {
         if (!enabled || !musicEnabled || order.isEmpty() || !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
-        index = position.mod(order.size)
+        selectTrack(position)
         val selected = order[index]
         playing = player.start(selected, volume, looping = order.size == 1,
             onFinished = { playAt(index + 1) },
@@ -110,8 +118,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 Switch(checked = musicEnabled, enabled = enabled, onCheckedChange = { value ->
                     interrupted = false
                     setMusicEnabled(value)
-                    if (value && order.isNotEmpty()) playAt(index)
-                    else { player.stop(); playing = false; message = "Music stopped." }
+                    if (value && order.isNotEmpty() && bundled.isEmpty()) playAt(index)
+                    else if (!value) { player.stop(); playing = false; message = "Music stopped." }
                 })
             }
             Text("Good puzzles. Good company.", color = Muted, style = MaterialTheme.typography.bodySmall)
@@ -122,13 +130,13 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 Text("Track ${index + 1} of ${order.size} · ${if (playing) "Playing" else if (interrupted) "Interrupted" else "Stopped"}",
                     color = Muted, style = MaterialTheme.typography.bodySmall)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    TextButton(onClick = { if (playing) playAt(index - 1) else index = (index - 1).mod(order.size) },
+                    TextButton(onClick = { if (playing) playAt(index - 1) else selectTrack(index - 1) },
                         enabled = enabled && order.size > 1, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Previous") }
                     Button(onClick = {
                         if (playing) { setMusicEnabled(false); player.stop(); playing = false; message = "Music stopped." }
                         else { interrupted = false; setMusicEnabled(true); playAt(index) }
                     }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text(if (playing) "Stop" else "Play") }
-                    TextButton(onClick = { if (playing) playAt(index + 1) else index = (index + 1).mod(order.size) },
+                    TextButton(onClick = { if (playing) playAt(index + 1) else selectTrack(index + 1) },
                         enabled = enabled && order.size > 1, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Next") }
                 }
                 Text("Music volume: ${(volume * 100).toInt()}%", color = Forest)
@@ -156,6 +164,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 private class PilotPlayer(private val context: Context) {
     private val manager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
     private var media: MediaPlayer? = null
+    private var activeUri: Uri? = null
     private var focus: AudioFocusRequest? = null
     private var callback: (() -> Unit)? = null
     private var level = .25f
@@ -171,6 +180,7 @@ private class PilotPlayer(private val context: Context) {
 
     @Suppress("DEPRECATION")
     fun start(uri: Uri, volume: Float, looping: Boolean, onFinished: () -> Unit, onStopped: () -> Unit): Boolean {
+        if (media != null && activeUri == uri) return true
         stop()
         level = volume
         callback = onStopped
@@ -184,6 +194,7 @@ private class PilotPlayer(private val context: Context) {
             if (granted != AudioManager.AUDIOFOCUS_REQUEST_GRANTED) { stop(); return false }
             val next = MediaPlayer()
             media = next
+            activeUri = uri
             next.setAudioAttributes(attributes)
             if (uri.scheme == "file" && uri.path?.startsWith("/android_asset/") == true) {
                 context.assets.openFd(uri.path!!.removePrefix("/android_asset/")).use {
@@ -191,7 +202,7 @@ private class PilotPlayer(private val context: Context) {
                 }
             } else next.setDataSource(context, uri)
             next.isLooping = looping
-            next.setOnCompletionListener { if (media === it) onFinished() }
+            next.setOnCompletionListener { if (media === it) { stop(); onFinished() } }
             next.setOnPreparedListener {
                 if (media === it) {
                     try { it.setVolume(level, level); it.start() }
@@ -220,6 +231,7 @@ private class PilotPlayer(private val context: Context) {
     fun stop() {
         val previous = media
         media = null
+        activeUri = null
         callback = null
         runCatching { previous?.release() }
         if (Build.VERSION.SDK_INT >= 26) {
@@ -230,3 +242,5 @@ private class PilotPlayer(private val context: Context) {
 }
 
 internal fun normalizeMusicVolume(value: Float): Float = if (value.isFinite()) value.coerceIn(0f, 1f) else .25f
+
+internal fun restoredTrackIndex(tracks: List<String>, saved: String?): Int = tracks.indexOf(saved).coerceAtLeast(0)

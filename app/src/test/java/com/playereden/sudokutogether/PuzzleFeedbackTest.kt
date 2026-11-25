@@ -61,4 +61,10 @@ class PuzzleFeedbackTest {
         assertEquals(1f, normalizeMusicVolume(2f), 0f)
         assertEquals(.42f, normalizeMusicVolume(.42f), 0f)
     }
+    @Test fun restoresTrackByIdentityNotShufflePosition() {
+        assertEquals(2, restoredTrackIndex(listOf("main", "evening", "final"), "final"))
+        assertEquals(1, restoredTrackIndex(listOf("main", "final", "evening"), "final"))
+        assertEquals(0, restoredTrackIndex(listOf("main", "evening"), "missing"))
+        assertEquals(0, restoredTrackIndex(emptyList(), null))
+    }
 }
