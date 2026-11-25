@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Active handoff — 2026-11-24: habitat artwork review
+
+Resume on feat/beta3-foundation. B3-001 and B3-003/004 implemented; unsigned quality gates 45519754181 and 45527791591 completed successfully (core/Android JVM tests, instrumentation compilation, lint, debug assembly; not emulator execution). B3-002 fox launcher artwork and B3-005 new environments generated, but image binaries not committed or integrated. Existing Woodland scene remains unchanged. Owner responded positively to the habitat set. Ocean has two generated candidates (reef/shipwreck and reef/shipwreck/treasure chest); choose final after comparing actual banner crop, do not silently assume a selection. Garden: sunlit cottage garden with rose arch, flowers and path. Farm: red barn, windmill, fence and golden fields. Small environmental creatures are decorative, not equipped companions; verify composition and readability with overlays. Preserve exact masters, no text baked in, left text space and right companion space. Next: resolve binary transfer/archive, create runtime exports, test crops, map resources with safe fallback, integrate approved launcher with adaptive mask checks, then produce isolated visual QA build. If binary transfer blocked, continue targeted gameplay layout work rather than regenerate approved artwork. No production APK change. Physical multiplayer evidence and outstanding release housekeeping remain in foundation audit. Older handoffs below are historical.
+
+
 ## Active Beta 3 checkpoint — 2026-11-24
 
 Resume on `feat/beta3-foundation`. B3-00 ACTIVE, initial static audit in docs/BETA3_FOUNDATION_AUDIT.md, roadmap and progress in docs/BETA3_ROADMAP.md and docs/BETA3_PROGRESS.md. No new runtime edits or tests. Finish focused audit and baseline QA; then B3-01 typed backup feedback and approved icon. Older branch instructions below are historical. Keep published Beta2 unchanged.
