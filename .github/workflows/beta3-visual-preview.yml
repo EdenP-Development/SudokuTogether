@@ -17,6 +17,8 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install Pillow==11.3.0
+      - name: Verify bundled Spudacus artwork
+        run: echo '74773dbda822161f73a639f959e8bce5c6e0b333a94ebeb8ee27f620d4995d25  app/src/main/res/drawable-nodpi/spudacus_v1_full_transparent.png' | sha256sum -c -
       - name: Generate adaptive icon from verified master
         run: |
           python - <<'PY'
@@ -36,9 +38,9 @@ jobs:
           res = pathlib.Path('build/beta3-visual-res')
           drawable = res / 'drawable-nodpi'
           drawable.mkdir(parents=True,exist_ok=True)
-          # 108dp adaptive canvas; 54dp art centered within the 66dp visible region.
+          # 108dp adaptive canvas; 58dp art centered within the 66dp visible region.
           canvas = Image.new('RGBA',(432,432))
-          canvas.alpha_composite(icon.resize((216,216),Image.Resampling.LANCZOS),(108,108))
+          canvas.alpha_composite(icon.resize((232,232),Image.Resampling.LANCZOS),(100,100))
           canvas.save(drawable/'beta3_fox_foreground.png')
           mip = res/'mipmap-anydpi-v26'
           mip.mkdir(parents=True,exist_ok=True)
@@ -66,21 +68,22 @@ jobs:
       - name: Test and assemble isolated visual review
         run: |
           chmod +x gradlew
-          ./gradlew :core:test :app:testDebugUnitTest :app:lintDebug :app:assembleDebug -PgridmatesBeta3VisualPreview=true --no-daemon --max-workers=2 --console=plain
+          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta3VisualPreview=true --no-daemon --max-workers=2 --console=plain
       - name: Verify preview identity and signature
         run: |
           set -euo pipefail
           APK=app/build/outputs/apk/debug/app-debug.apk
           TOOLS="$ANDROID_HOME/build-tools/35.0.0"
           "$TOOLS/aapt" dump badging "$APK" > beta3-review/apk-badging.txt
-          grep -F "package: name='com.playereden.sudokutogether.qa.beta3visual1'" beta3-review/apk-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta3visual2'" beta3-review/apk-badging.txt
           "$TOOLS/apksigner" verify --verbose --print-certs "$APK" > beta3-review/signature.txt
           unzip -l "$APK" | grep -F 'beta3_fox_foreground'
-          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-Visual1.apk
+          unzip -l "$APK" | grep -F 'spudacus_v1_full_transparent'
+          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-Visual2.apk
           (cd beta3-review && sha256sum *.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
         with:
-          name: GridMates-Sudoku-Beta3-Visual1
+          name: GridMates-Sudoku-Beta3-Visual2
           path: beta3-review/
           if-no-files-found: error
           retention-days: 14
