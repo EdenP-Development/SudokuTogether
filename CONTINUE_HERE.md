@@ -1,5 +1,9 @@
 # Continue GridMates: Sudoku
 
+## Owner clarification — Amazon publishing pilot
+
+Amazon is a limited rehearsal for Google Play, not a commitment to ongoing parity. Accept Amazon re-signing in principle, document channel limitations, preserve itch package/key and saves; package changes require approval. Google Play long-term signing is priority. All privacy, safety and store readiness gates remain binding. Resume audio pilot.
+
 ## B3-AMZ — Amazon readiness added (2026-11-25)
 
 Owner reports account/listing configured. Canonical roadmap now includes parallel Amazon milestone and docs/BETA3_AMAZON_READINESS.md, with ten release gates. Standard Amazon re-signing may prevent itch install-over; verify developer-signed eligibility and actual delivered signer before any submission. Existing package/key/save format unchanged. Continue audio review and B3-08. No LAT or publication authorized.
