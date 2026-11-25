@@ -84,11 +84,20 @@ jobs:
           unzip -l "$APK" | grep -F 'beta3_fox_foreground'
           unzip -l "$APK" | grep -F 'spudacus_v1_full_transparent'
           unzip -l "$APK" | grep -F 'gridmates_v1_runtime_transparent'
-          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-MusicCorner.apk
+          python - <<'PY'
+          import hashlib, pathlib, zipfile
+          with zipfile.ZipFile('app/build/outputs/apk/debug/app-debug.apk') as z:
+              for p in sorted(pathlib.Path('build/beta3-audio-assets/soundtrack').glob('track_*.m4a')):
+                  entry = z.getinfo('assets/soundtrack/' + p.name)
+                  assert entry.compress_type == zipfile.ZIP_STORED
+                  assert hashlib.sha256(z.read(entry)).digest() == hashlib.sha256(p.read_bytes()).digest()
+              assert len([n for n in z.namelist() if n.startswith('assets/soundtrack/') and n.endswith('.m4a')]) == 6
+          PY
+          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-BundledMusic.apk
           (cd beta3-review && sha256sum *.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
         with:
-          name: GridMates-Sudoku-Beta3-MusicCorner
+          name: GridMates-Sudoku-Beta3-BundledMusic
           path: beta3-review/
           if-no-files-found: error
           retention-days: 14

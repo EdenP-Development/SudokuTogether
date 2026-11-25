@@ -1,5 +1,9 @@
 # Continue GridMates: Sudoku
 
+## AUD-04.03B — bundled soundtrack preview
+
+Archive gate 45684820645 passed. Isolated preview now packages six verified uncompressed AAC assets, recognizes main theme, hides import controls when bundled assets available, retains manual Play and foreground stop. APK gate verifies all six asset hashes and storage method. Fresh CI and handset playback pending; no public release or permanent preferences yet. Portfolio pilot handoff remains open.
+
 ## AUD-04.02 — Music Corner review
 
 Provisional shared soundtrack UI in debug Settings: current track, previous/play-stop/next, volume, collapsible selectable playlist, import controls. Track names cached on selection; underscore-normalized main theme recognition. Existing activity-scoped pilot remains; no bundled music or permanent settings yet. Previous soundtrack CI was in progress at inspection. MusicCorner preview workflow triggered, same isolated package and temporary debug signing (install-over not guaranteed). Fresh CI and handset test pending. Next production asset transfer and controller, original effects and haptics. No public release changes.

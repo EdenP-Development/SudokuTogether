@@ -27,14 +27,25 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val player = remember(context) { PilotPlayer(context) }
-    var tracks by remember { mutableStateOf(emptyList<Uri>()) }
-    var titles by remember { mutableStateOf(emptyMap<Uri, String>()) }
+    val bundled = remember(context) {
+        listOf("The Final Piece", "Library Puzzle", "Warm Puzzle Time", "Sunny Sunday Puzzle",
+            "Thoughtful Discovery", "Evening Puzzle").mapIndexedNotNull { i, name ->
+            val path = "soundtrack/track_%02d.m4a".format(java.util.Locale.ROOT, i + 1)
+            if (runCatching { context.assets.openFd(path).use { } }.isSuccess)
+                Uri.parse("file:///android_asset/$path") to name else null
+        }.toMap()
+    }
+    var tracks by remember { mutableStateOf(bundled.keys.toList()) }
+    var titles by remember { mutableStateOf(bundled) }
     var expanded by remember { mutableStateOf(false) }
     var playing by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf("Choose the soundtrack files.") }
+    var message by remember { mutableStateOf(if (bundled.isEmpty()) "Choose the soundtrack files." else "Soundtrack ready.") }
     var volume by remember { mutableStateOf(.25f) }
     var index by remember { mutableIntStateOf(0) }
-    var order by remember { mutableStateOf(emptyList<Uri>()) }
+    var order by remember {
+        val main = bundled.entries.firstOrNull { it.value == "Warm Puzzle Time" }?.key
+        mutableStateOf(listOfNotNull(main) + bundled.keys.filter { it != main }.shuffled())
+    }
     fun title(uri: Uri): String = runCatching {
         context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
             null, null, null)?.use { if (it.moveToFirst()) it.getString(0) else null }
@@ -104,7 +115,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 }
             }
             Text(message, color = Muted, style = MaterialTheme.typography.bodySmall)
-            OutlinedButton(onClick = { player.stop(); playing = false; picker.launch(arrayOf("audio/*")) },
+            if (bundled.isEmpty()) OutlinedButton(onClick = { player.stop(); playing = false; picker.launch(arrayOf("audio/*")) },
                 enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                 Text(if (order.isEmpty()) "Choose soundtrack" else "Change test files")
             }
@@ -144,7 +155,11 @@ private class PilotPlayer(private val context: Context) {
             val next = MediaPlayer()
             media = next
             next.setAudioAttributes(attributes)
-            next.setDataSource(context, uri)
+            if (uri.scheme == "file" && uri.path?.startsWith("/android_asset/") == true) {
+                context.assets.openFd(uri.path!!.removePrefix("/android_asset/")).use {
+                    next.setDataSource(it.fileDescriptor, it.startOffset, it.length)
+                }
+            } else next.setDataSource(context, uri)
             next.isLooping = looping
             next.setOnCompletionListener { if (media === it) onFinished() }
             next.setOnPreparedListener {
