@@ -1,5 +1,9 @@
 # Continue GridMates: Sudoku
 
+## AUD-08 — integrated review ready
+
+Gate 45692435411 and preview 45692435615 passed at afee70a; artifact 15059657081. Owner checklist in docs/BETA3_AUDIO_REVIEW_CHECKLIST.md; updated handoff evidence. Next owner listening/device testing, fix findings, production promotion, signed upgrade and hub handoff. Public Beta2 unchanged.
+
 ## AUD-07.02 — foreground playback and integrated review
 
 Preference gate 45691354185 passed at 6144b9b. StartupBranding reports actual completion/skip, MainActivity enables music only afterward and outside backup lock. Previously enabled bundled soundtrack automatically starts on foreground, stops on pause/stop, restarts selected track on normal return; audio focus or playback failure latches interruption until explicit Play, switch or selection. No automatic import playback, no background service. AudioReview preview includes all six music files, effects, haptics and preferences; new CI and physical tests pending. Public Beta2 unchanged.
