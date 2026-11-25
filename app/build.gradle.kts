@@ -179,7 +179,7 @@ android {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
-                beta3VisualPreview -> ".qa.beta3visual1"
+                beta3VisualPreview -> ".qa.beta3visual2"
                 beta2BoardsPreview -> ".qa.beta2boards"
                 beta2IntegratedRc3Preview -> ".qa.beta2integratedrc3"
                 beta2VisualRc2Preview -> ".qa.beta2visualrc2"
@@ -199,7 +199,7 @@ android {
                 else -> ".qa"
             }
             versionNameSuffix = when {
-                beta3VisualPreview -> "-qa.beta3visual1"
+                beta3VisualPreview -> "-qa.beta3visual2"
                 beta2BoardsPreview -> "-qa.beta2boards"
                 beta2IntegratedRc3Preview -> "-qa.beta2integratedrc3"
                 beta2VisualRc2Preview -> "-qa.beta2visualrc2"
