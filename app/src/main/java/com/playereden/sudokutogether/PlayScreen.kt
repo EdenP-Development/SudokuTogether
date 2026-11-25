@@ -350,23 +350,15 @@ import kotlinx.coroutines.delay
     }
 }
 
-private fun roomStatusText(state: GameUiState): String {
-    val snapshot = state.snapshot ?: return "Opening room…"
-    val partner = if (state.role == HOST) snapshot.guestName else snapshot.hostName
-    return when {
-        snapshot.completed -> "Solved together. Nice work!"
-        state.role == GUEST && !state.connected -> "Connection paused. Rejoin to continue."
-        state.status.paused -> "Paused while your partner is away"
-        partner == null -> "Waiting for your partner to join"
-        else -> "Solving with $partner"
-    }
-}
-
 @Composable private fun RoomStatusCard(state: GameUiState, actions: GameActions) {
-    Surface(color = if (state.status.paused) GoldTint else GreenTint, shape = RoundedCornerShape(13.dp)) {
-        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp), verticalArrangement = Arrangement.spacedBy(3.dp)) {
-            Text(roomStatusText(state), color = Forest, fontSize = 12.sp, lineHeight = 17.sp)
-            if (state.role == GUEST && !state.connected) TextButton(onClick = { actions.showJoin(true) }) { Text("Reconnect") }
+    val presence = coopPresence(state)
+    Surface(color = if (presence.attention) GoldTint else GreenTint, shape = RoundedCornerShape(13.dp)) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 12.dp, vertical = 9.dp)
+            .testTag("coop_room_status"), verticalArrangement = Arrangement.spacedBy(3.dp)) {
+            Text(presence.label, color = Forest, fontSize = 12.sp, lineHeight = 17.sp,
+                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
+            if (presence.reconnect) TextButton(onClick = { actions.showJoin(true) }, enabled = !state.busy,
+                modifier = Modifier.heightIn(min = 48.dp).testTag("coop_reconnect")) { Text("Reconnect") }
         }
     }
 }

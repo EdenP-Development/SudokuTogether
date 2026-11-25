@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-07.01 — Co-op presence presentation
+
+Owner plans private single-track music proof before paying for new commercially licensed tracks; keep free prototype out of public repo/APK. Inspected existing Co-op/Versus presence, status and UI fixtures. Extracted Co-op presence presenter for explicit open seat, reserved partner away, host away, disconnected and completed states; accessible polite announcement, attention tint and busy-guarded 48dp reconnect control. Disconnected completed guest still sees reconnect status when room card is rendered. Added JVM fixtures; fresh CI pending. No networking, authoritative move eligibility, save or protocol change. Next verify gate, inspect actual room card placement for completed boards, audit Versus status and rejoin.
+
+
 ## B3-07 handoff — audio pilot verified; soundtrack rights hold (2026-11-25)
 
 Gate 45588866784 passed at 263bbba9: optional native sound feedback, fail-safe dispatch and JVM tests; portable restore instrumentation compiled, not executed. B3-06 REVIEW; custom music deferred and not a release dependency. Suno official terms and FAQs reviewed: four owner-reported free-tier M4A prototypes restricted to personal noncommercial experiments; later subscription does not automatically clear prior tracks; obtain explicit track-specific rights or regenerate/download while commercially licensed. No prototype binary in public repository or release. Shared provisional soundtrack families documented at https://github.com/EdenP-Development/Eden-Development-Standards/blob/8febbd923f663889d8ea00160f1c5f78af16d9d3/audio/gridmates/README.md (Sudoku/Word Search cozy, Grid Hunt/Crossroads proposed board-strategy). B3-07 ACTIVE: next inspect LAN presence/rejoin, status UI, rematch and regression coverage before targeted edits. Physical multiplayer, audio and upgrade checks remain open. No protocol, save, signing or publication changes.
