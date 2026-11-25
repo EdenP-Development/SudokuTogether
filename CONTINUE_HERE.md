@@ -1,5 +1,9 @@
 # Continue GridMates: Sudoku
 
+## AUD-05.03 — completion feedback
+
+Feedback repair gate 45689483591 passed at 54b0f95. Added original 720ms three-note completion cue, higher SoundPool priority, confirmation haptic on API30+ with keyboard fallback. Guard emits once on observed same-round incomplete-to-complete transition, no first-loaded completed board or changed-round celebration, suppress Versus loss cue. Does not stack separate reward sounds. New tests for round guard and cue duration. Fresh gate and handset listening pending; no public/save changes.
+
 ## AUD-05.02 — feedback compile repair
 
 Bundled soundtrack preview 45686336504 passed at 6c65acfb (all six APK hashes verified). Interaction cue gate 45686836413 failed unresolved feedback in PlayGridViewport. Pass callback through PlayBoardPane, suppress selection cue on completed boards, use descriptor-based SoundPool loading before temporary WAV deletion, detach listener on release. New gate pending; no handset verification. Completion/reward cues deferred until this gate passes. Codex review quota is not a build dependency. Public Beta2 unchanged.

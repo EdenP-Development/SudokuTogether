@@ -58,6 +58,19 @@ import kotlinx.coroutines.delay
     }
     LaunchedEffect(copied) { if (copied) { delay(1800); copied = false } }
     val snapshot = state.snapshot
+    val completionGuard = remember { CompletionCueGuard() }
+    val roundId = snapshot?.let { "${it.sessionId}:${it.epoch}" }
+    LaunchedEffect(roundId, snapshot?.completed) {
+        val newlyCompleted = completionGuard.observe(roundId, snapshot?.completed == true)
+        if (newlyCompleted && snapshot != null && (snapshot.mode != VERSUS || snapshot.winner == state.role)) {
+            if (state.soundEffects) playPuzzleClick { sounds?.play(PuzzleCue.COMPLETE) }
+            if (state.touchFeedback) playPuzzleClick {
+                feedbackView.performHapticFeedback(
+                    if (android.os.Build.VERSION.SDK_INT >= 30) HapticFeedbackConstants.CONFIRM
+                    else HapticFeedbackConstants.KEYBOARD_TAP)
+            }
+        }
+    }
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val scale = LocalDensity.current.fontScale.coerceIn(1f, 2f)
         // Narrow large-text layouts need room for the two-row toolbar; let the whole page scroll.

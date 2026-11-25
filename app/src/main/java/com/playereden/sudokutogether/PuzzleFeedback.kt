@@ -6,16 +6,18 @@ internal fun playPuzzleClick(play: () -> Unit) {
 }
 
 /** Original synthesized PCM cues, loaded once per gameplay screen, no per-tap synthesis. */
-internal enum class PuzzleCue { SELECT, NUMBER, NOTE, ERASE, UNDO }
+internal enum class PuzzleCue { SELECT, NUMBER, NOTE, ERASE, UNDO, COMPLETE }
 
 internal fun puzzleCueSamples(cue: PuzzleCue): ShortArray {
     val rate = 22050
+    if (cue == PuzzleCue.COMPLETE) return completionSamples(rate)
     val duration = when (cue) {
         PuzzleCue.SELECT -> 0.035
         PuzzleCue.NUMBER -> 0.055
         PuzzleCue.NOTE -> 0.028
         PuzzleCue.ERASE -> 0.075
         PuzzleCue.UNDO -> 0.065
+        PuzzleCue.COMPLETE -> error("Handled above")
     }
     val frequency = when (cue) {
         PuzzleCue.SELECT -> 520.0
@@ -23,6 +25,7 @@ internal fun puzzleCueSamples(cue: PuzzleCue): ShortArray {
         PuzzleCue.NOTE -> 1050.0
         PuzzleCue.ERASE -> 290.0
         PuzzleCue.UNDO -> 440.0
+        PuzzleCue.COMPLETE -> error("Handled above")
     }
     val random = kotlin.random.Random(17 + cue.ordinal)
     return ShortArray((duration * rate).toInt()) { i ->
@@ -69,7 +72,49 @@ internal class PuzzleSoundBank(context: android.content.Context) {
     }
     fun play(cue: PuzzleCue) {
         val id = ids[cue] ?: return
-        if (id in ready) pool.play(id, .45f, .45f, 1, 0, 1f)
+        if (id in ready) pool.play(id, .45f, .45f, if (cue == PuzzleCue.COMPLETE) 2 else 1, 0, 1f)
     }
     fun release() { pool.setOnLoadCompleteListener(null); pool.release(); ready.clear(); ids.clear() }
+}
+
+
+/** A short original C-major arpeggio; bounded amplitude and softly decaying notes. */
+private fun completionSamples(rate: Int): ShortArray {
+    val notes = doubleArrayOf(523.25, 659.25, 783.99)
+    return ShortArray((rate * .72).toInt()) { i ->
+        val t = i.toDouble() / rate
+        val mix = notes.mapIndexed { index, frequency ->
+            val age = t - index * .13
+            if (age < 0 || age >= .44) 0.0 else {
+                val envelope = (age / .012).coerceAtMost(1.0) *
+                    (1.0 - age / .44) * kotlin.math.exp(-5 * age)
+                envelope * (kotlin.math.sin(2 * kotlin.math.PI * frequency * age) +
+                    .16 * kotlin.math.sin(4 * kotlin.math.PI * frequency * age))
+            }
+        }.sum()
+        (mix * 4700).toInt().coerceIn(-10000, 10000).toShort()
+    }
+}
+
+/** Only a transition observed within the same active round can celebrate. */
+internal class CompletionCueGuard {
+    private var round: String? = null
+    private var previouslyIncomplete = false
+    private var celebrated = false
+
+    fun observe(roundId: String?, completed: Boolean): Boolean {
+        if (roundId == null || roundId != round) {
+            round = roundId
+            previouslyIncomplete = roundId != null && !completed
+            celebrated = completed
+            return false
+        }
+        if (!completed) {
+            previouslyIncomplete = true
+            return false
+        }
+        val emit = previouslyIncomplete && !celebrated
+        celebrated = true
+        return emit
+    }
 }

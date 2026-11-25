@@ -24,10 +24,34 @@ class PuzzleFeedbackTest {
     @Test fun cuesAreShortBoundedAndDistinct() {
         val cues = PuzzleCue.entries.map { puzzleCueSamples(it) }
         cues.forEach { samples ->
-            org.junit.Assert.assertTrue(samples.size in 1..2205)
+            org.junit.Assert.assertTrue(samples.size in 1..(22050 * .75).toInt())
             org.junit.Assert.assertTrue(samples.all { kotlin.math.abs(it.toInt()) <= 10000 })
             assertEquals(0, samples.first().toInt())
         }
         assertEquals(cues.size, cues.map { it.contentHashCode() }.distinct().size)
+    }
+    @Test fun completionCueIsLongerThanInteractionCues() {
+        assertEquals(15876, puzzleCueSamples(PuzzleCue.COMPLETE).size)
+        PuzzleCue.entries.filter { it != PuzzleCue.COMPLETE }.forEach {
+            org.junit.Assert.assertTrue(puzzleCueSamples(it).size <= 2205)
+        }
+    }
+    @Test fun completionEmitsOnceForObservedActiveRound() {
+        val guard = CompletionCueGuard()
+        assertEquals(false, guard.observe("a:1", false))
+        assertEquals(true, guard.observe("a:1", true))
+        assertEquals(false, guard.observe("a:1", true))
+        assertEquals(false, guard.observe("a:1", false))
+        assertEquals(false, guard.observe("a:1", true))
+        assertEquals(false, guard.observe("a:2", false))
+        assertEquals(true, guard.observe("a:2", true))
+    }
+    @Test fun completedSaveOrDifferentRoundDoesNotCelebrate() {
+        val guard = CompletionCueGuard()
+        assertEquals(false, guard.observe("a:1", true))
+        assertEquals(false, guard.observe("a:2", false))
+        assertEquals(false, guard.observe("b:1", true))
+        assertEquals(false, guard.observe(null, false))
+        assertEquals(false, guard.observe("b:1", true))
     }
 }
