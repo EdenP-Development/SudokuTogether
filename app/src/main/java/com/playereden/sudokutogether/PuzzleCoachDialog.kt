@@ -218,6 +218,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         Text(step.technique.label, color = Forest, style = MaterialTheme.typography.labelLarge)
         Text(step.explanation, color = Ink)
         if (step.placementExclusions.isNotEmpty()) HiddenSingleEvidence(step, snapshot.cells.map { it.value })
+        if (step.digitExclusions.isNotEmpty()) NakedSingleEvidence(step)
     } else {
         val cell = step.targetCells.singleOrNull()
         Text(if (cell == null) "Look at the outlined squares."
@@ -304,5 +305,39 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         }
         Text("${location(exclusion.cell)}: $reason.", color = Ink,
             style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("coach_exclusion_${exclusion.cell}"))
+    }
+}
+
+/** Explanatory candidate chart, not the player's keypad or pencil marks. */
+@Composable private fun NakedSingleEvidence(step: SudokuAssistance.CoachStep) {
+    val answer = step.digits.single()
+    Text("Why only $answer fits", color = Forest, style = MaterialTheme.typography.titleSmall)
+    Column(Modifier.fillMaxWidth().testTag("coach_naked_single_digits"),
+        verticalArrangement = Arrangement.spacedBy(3.dp)) {
+        for (line in (1..9).chunked(3)) Row(Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+            for (digit in line) {
+                val retained = digit == answer
+                Box(Modifier.weight(1f).heightIn(min = 36.dp)
+                    .background(if (retained) Color(0xFFF0E2B7) else Color(0xFFF1F2EC), RoundedCornerShape(3.dp))
+                    .border(1.dp, if (retained) Color(0xFFB38A3D) else Color(0xFFBEC8BB), RoundedCornerShape(3.dp)),
+                    contentAlignment = Alignment.Center) {
+                    Text(if (retained) "$digit ✓" else "$digit ×",
+                        color = if (retained) Forest else Muted,
+                        style = MaterialTheme.typography.bodyMedium)
+                }
+            }
+        }
+    }
+    for (exclusion in step.digitExclusions) {
+        val blocker = exclusion.blocker
+        val reason = when {
+            blocker != null -> "already appears at R${blocker / 9 + 1}C${blocker % 9 + 1}"
+            exclusion.earlierStep != null -> "removed by step ${exclusion.earlierStep}"
+            else -> "not a remaining candidate"
+        }
+        Text("${exclusion.digit}: $reason.", color = Ink,
+            style = MaterialTheme.typography.bodySmall,
+            modifier = Modifier.testTag("coach_digit_exclusion_${exclusion.digit}"))
     }
 }

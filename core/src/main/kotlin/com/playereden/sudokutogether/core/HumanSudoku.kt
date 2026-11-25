@@ -221,8 +221,18 @@ object HumanSudoku {
                             SudokuAssistance.ExclusionKind.EARLIER_DEDUCTION)
                     }
                 }
+                val digitExclusions = if (technique == Technique.NAKED_SINGLE) {
+                    (1..9).filter { it != digit }.map { excluded ->
+                        val blocker = peers[cell].firstOrNull { board[it] == excluded }
+                        val earlier = if (blocker == null) proof.indexOfFirst {
+                            excluded in it.eliminations[cell].orEmpty()
+                        }.takeIf { it >= 0 }?.plus(1) else null
+                        SudokuAssistance.DigitExclusion(excluded, blocker, earlier)
+                    }
+                } else emptyList()
                 proof.add(SudokuAssistance.CoachStep(technique, source, target, placedDigit,
-                    explanation, emptyMap(), mapOf(cell to digits(candidates[cell])), group, exclusions))
+                    explanation, emptyMap(), mapOf(cell to digits(candidates[cell])), group, exclusions,
+                    digitExclusions))
             }
             board[cell] = digit
             candidates[cell] = 0

@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — explicit naked-single digit exclusions
+
+Responsive footer gate 45578263801 was still running when checked. Added transient naked-single evidence for each of eight excluded digits, identifying actual matching peer or one-based prior elimination step. Read-only 3×3 candidate chart and reasons appear after Show why only. Tests verify visible blockers for the foundation practice puzzle and replay any naked singles in existing practice traces, including earlier elimination references when present. Fresh CI and device review pending; no grading, solving rule, scoring or save changes. Next practice library polish and Coach Review 2.
+
+
 ## B3-04 — responsive compact Coach footer
 
 Entry review gate 45577508784 passed. Replaced Material dialog's separate wrapping action slots with one responsive footer: side-by-side controls at sufficient width and normal text, compact vertical stack below 260dp or above 1.3 font scale, 48dp minimum targets, explicit outlined secondary action and plain Back. Existing selected-cell erase guard preserved. Added large-font callback/reachability UI fixture. Fresh CI/device verification pending. No solver/scoring/save changes. Next naked-single explanation and practice polish.

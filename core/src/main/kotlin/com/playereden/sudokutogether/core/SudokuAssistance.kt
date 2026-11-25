@@ -19,6 +19,9 @@ object SudokuAssistance {
     enum class ExclusionKind { OCCUPIED, PEER_DIGIT, EARLIER_DEDUCTION }
     data class PlacementExclusion(val cell: Int, val kind: ExclusionKind, val blocker: Int? = null)
 
+    /** A digit ruled out of a naked single by a visible peer or a prior proof step. */
+    data class DigitExclusion(val digit: Int, val blocker: Int?, val earlierStep: Int?)
+
     data class CoachStep(
         val technique: HumanSudoku.Technique,
         val sourceCells: List<Int>,
@@ -31,7 +34,8 @@ object SudokuAssistance {
         /** Actual candidates in proof squares immediately before this deduction. */
         val proofCandidates: Map<Int, List<Int>> = emptyMap(),
         val placementGroup: List<Int> = emptyList(),
-        val placementExclusions: List<PlacementExclusion> = emptyList()
+        val placementExclusions: List<PlacementExclusion> = emptyList(),
+        val digitExclusions: List<DigitExclusion> = emptyList()
     )
 
     enum class CheckKind { CONFLICT, INCORRECT_ENTRY, CORRECT_SO_FAR, NO_ENTRIES }
