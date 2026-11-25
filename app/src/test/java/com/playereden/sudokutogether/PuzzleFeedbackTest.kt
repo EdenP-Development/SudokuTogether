@@ -17,8 +17,8 @@ class PuzzleFeedbackTest {
         assertEquals(1, moves)
     }
 
-    @Test fun newGameStateDefaultsToSilentWithExistingTouchFeedback() {
-        assertEquals(false, GameUiState().soundEffects)
+    @Test fun newGameStateDefaultsToPuzzleSoundsAndTouchFeedback() {
+        assertEquals(true, GameUiState().soundEffects)
         assertEquals(true, GameUiState().touchFeedback)
     }
     @Test fun cuesAreShortBoundedAndDistinct() {
@@ -55,8 +55,8 @@ class PuzzleFeedbackTest {
         assertEquals(false, guard.observe("b:1", true))
     }
     @Test fun musicVolumeNormalization() {
-        assertEquals(.25f, normalizeMusicVolume(Float.NaN), 0f)
-        assertEquals(.25f, normalizeMusicVolume(Float.POSITIVE_INFINITY), 0f)
+        assertEquals(.50f, normalizeMusicVolume(Float.NaN), 0f)
+        assertEquals(.50f, normalizeMusicVolume(Float.POSITIVE_INFINITY), 0f)
         assertEquals(0f, normalizeMusicVolume(-1f), 0f)
         assertEquals(1f, normalizeMusicVolume(2f), 0f)
         assertEquals(.42f, normalizeMusicVolume(.42f), 0f)

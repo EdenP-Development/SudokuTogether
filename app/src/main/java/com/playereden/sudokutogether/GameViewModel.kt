@@ -41,7 +41,7 @@ data class GameUiState(
     val chatVisible: Boolean = false,
     val uniformNumbers: Boolean = false,
     val touchFeedback: Boolean = true,
-    val soundEffects: Boolean = false,
+    val soundEffects: Boolean = true,
     val selectedDifficulty: String = "EASY",
     val autoCleanNotes: Boolean = false,
     val hint: SudokuAssistance.CoachHint? = null,
@@ -85,7 +85,7 @@ class GameViewModel @JvmOverloads constructor(
         name = preferences.getString("name", "Player") ?: "Player",
         uniformNumbers = preferences.getBoolean("uniformNumbers", false),
         touchFeedback = preferences.getBoolean("touchFeedback", true),
-        soundEffects = preferences.getBoolean("soundEffects", false),
+        soundEffects = preferences.getBoolean("soundEffects", true),
         autoCleanNotes = preferences.getBoolean("autoCleanNotes", false),
         requireRoomCode = preferences.getBoolean("requireRoomCode", false),
         selectedDifficulty = preferences.getString("difficulty", "EASY")

@@ -13,35 +13,41 @@ internal fun puzzleCueSamples(cue: PuzzleCue): ShortArray {
     if (cue == PuzzleCue.COMPLETE) return completionSamples(rate)
     val duration = when (cue) {
         PuzzleCue.SELECT -> 0.035
-        PuzzleCue.NUMBER -> 0.055
+        PuzzleCue.NUMBER -> 0.085
         PuzzleCue.NOTE -> 0.028
-        PuzzleCue.ERASE -> 0.075
+        PuzzleCue.ERASE -> 0.095
         PuzzleCue.UNDO -> 0.065
         PuzzleCue.COMPLETE -> error("Handled above")
     }
     val frequency = when (cue) {
         PuzzleCue.SELECT -> 520.0
-        PuzzleCue.NUMBER -> 740.0
+        PuzzleCue.NUMBER -> 410.0
         PuzzleCue.NOTE -> 1050.0
         PuzzleCue.ERASE -> 290.0
         PuzzleCue.UNDO -> 440.0
         PuzzleCue.COMPLETE -> error("Handled above")
     }
     val random = kotlin.random.Random(17 + cue.ordinal)
+    var filteredNoise = 0.0
     return ShortArray((duration * rate).toInt()) { i ->
         val t = i.toDouble() / rate
-        val attack = (t / 0.003).coerceAtMost(1.0)
+        val attack = (t / (if (cue == PuzzleCue.NUMBER || cue == PuzzleCue.ERASE) .012 else .003)).coerceAtMost(1.0)
         val decay = (1.0 - t / duration).coerceAtLeast(0.0)
         val tone = kotlin.math.sin(2 * kotlin.math.PI * frequency * t)
         val overtone = kotlin.math.sin(2 * kotlin.math.PI * frequency * 1.73 * t)
         val noise = random.nextDouble(-1.0, 1.0)
-        val blend = if (cue == PuzzleCue.ERASE) .25 * tone + .75 * noise
-            else .72 * tone + .18 * overtone + .10 * noise
-        (blend * attack * decay * decay * 10000).toInt().toShort()
+        filteredNoise = .78 * filteredNoise + .22 * noise
+        val blend = when (cue) {
+            PuzzleCue.ERASE -> filteredNoise * (.7 + .3 * kotlin.math.sin(2 * kotlin.math.PI * 24 * t))
+            PuzzleCue.NUMBER -> .28 * tone + .72 * filteredNoise
+            else -> .72 * tone + .18 * overtone + .10 * noise
+        }
+        (blend * attack * decay * decay * (if (cue == PuzzleCue.ERASE) 16000 else 10000)).toInt().coerceIn(-10000, 10000).toShort()
     }
 }
 
 internal class PuzzleSoundBank(context: android.content.Context) {
+    private val preferences = context.getSharedPreferences("gridmates_audio_effects", 0)
     private val pool = android.media.SoundPool.Builder().setMaxStreams(2)
         .setAudioAttributes(android.media.AudioAttributes.Builder()
             .setUsage(android.media.AudioAttributes.USAGE_GAME)
@@ -72,7 +78,8 @@ internal class PuzzleSoundBank(context: android.content.Context) {
     }
     fun play(cue: PuzzleCue) {
         val id = ids[cue] ?: return
-        if (id in ready) pool.play(id, .45f, .45f, if (cue == PuzzleCue.COMPLETE) 2 else 1, 0, 1f)
+        val level = readEffectsVolume(preferences)
+        if (id in ready && level > 0f) pool.play(id, level, level, if (cue == PuzzleCue.COMPLETE) 2 else 1, 0, 1f)
     }
     fun release() { pool.setOnLoadCompleteListener(null); pool.release(); ready.clear(); ids.clear() }
 }
@@ -118,3 +125,5 @@ internal class CompletionCueGuard {
         return emit
     }
 }
+
+internal fun readEffectsVolume(prefs: android.content.SharedPreferences): Float = normalizeMusicVolume(runCatching { prefs.getFloat("volume", .50f) }.getOrDefault(.50f))

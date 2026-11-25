@@ -555,8 +555,9 @@ internal fun achievementCategoryIcon(category: String): GameSymbol = when (categ
         HorizontalDivider(color = Rule)
         SettingToggle("Touch feedback", "Board and keypad vibration.", state.touchFeedback, actions.touchFeedback, enabled)
         HorizontalDivider(color = Rule)
-        SettingToggle("Sound effects", "Quiet keypad and board clicks, when allowed by your device sound settings.",
+        SettingToggle("Puzzle sounds", "Hear sounds when selecting squares, entering numbers, erasing and finishing puzzles.",
             state.soundEffects, actions.soundEffects, enabled)
+        PuzzleSoundSettings(state.soundEffects && enabled)
     }
     GamePanel(Modifier.fillMaxWidth()) {
         SectionTitle("Solo assistance")
@@ -585,5 +586,27 @@ internal fun achievementCategoryIcon(category: String): GameSymbol = when (categ
             Text(detail, color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
         }
         Switch(checked, onCheckedChange = null, enabled = enabled)
+    }
+}
+
+
+@Composable private fun PuzzleSoundSettings(enabled: Boolean) {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val preferences = androidx.compose.runtime.remember(context) { context.getSharedPreferences("gridmates_audio_effects", 0) }
+    var volume by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(readEffectsVolume(preferences)) }
+    val bank = androidx.compose.runtime.remember(context, enabled) {
+        if (enabled) runCatching { PuzzleSoundBank(context) }.getOrNull() else null
+    }
+    androidx.compose.runtime.DisposableEffect(bank) { onDispose { bank?.release() } }
+    Text("Puzzle sound volume: ${(volume * 100).toInt()}%", color = Forest)
+    Slider(value = volume, onValueChange = {
+        volume = normalizeMusicVolume(it)
+        preferences.edit().putFloat("volume", volume).apply()
+    }, enabled = enabled)
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        OutlinedButton(onClick = { playPuzzleClick { bank?.play(PuzzleCue.NUMBER) } },
+            enabled = enabled && bank != null, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Test number") }
+        OutlinedButton(onClick = { playPuzzleClick { bank?.play(PuzzleCue.ERASE) } },
+            enabled = enabled && bank != null, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Test erase") }
     }
 }

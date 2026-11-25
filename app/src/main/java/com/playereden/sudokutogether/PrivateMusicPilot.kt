@@ -42,7 +42,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     var message by remember { mutableStateOf(if (bundled.isEmpty()) "Choose the soundtrack files." else "Soundtrack ready.") }
     val preferences = remember(context) { context.getSharedPreferences("gridmates_music", Context.MODE_PRIVATE) }
     var volume by remember { mutableStateOf(normalizeMusicVolume(
-        runCatching { preferences.getFloat("volume", .25f) }.getOrDefault(.25f))) }
+        runCatching { preferences.getFloat("volume", .50f) }.getOrDefault(.50f))) }
     var musicEnabled by remember { mutableStateOf(
         runCatching { preferences.getBoolean("enabled", true) }.getOrDefault(true)) }
     fun setMusicEnabled(value: Boolean) {
@@ -167,7 +167,7 @@ private class PilotPlayer(private val context: Context) {
     private var activeUri: Uri? = null
     private var focus: AudioFocusRequest? = null
     private var callback: (() -> Unit)? = null
-    private var level = .25f
+    private var level = .50f
     private val attributes = AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_GAME)
         .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build()
     private val listener = AudioManager.OnAudioFocusChangeListener { change ->
@@ -241,6 +241,6 @@ private class PilotPlayer(private val context: Context) {
     }
 }
 
-internal fun normalizeMusicVolume(value: Float): Float = if (value.isFinite()) value.coerceIn(0f, 1f) else .25f
+internal fun normalizeMusicVolume(value: Float): Float = if (value.isFinite()) value.coerceIn(0f, 1f) else .50f
 
 internal fun restoredTrackIndex(tracks: List<String>, saved: String?): Int = tracks.indexOf(saved).coerceAtLeast(0)
