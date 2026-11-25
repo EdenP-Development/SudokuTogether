@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-05 reward continuity and future audio direction (2026-11-25)
+
+Medal detail gate 45584899760 failed on missing FontFamily import; corrected. Existing core audits cover deduplicated records, stable ownership after pruning, eligibility and bulk progress. Added cross-ledger regression for all 85 cosmetic and 47 medal IDs/counts, valid emblem references, assisted solve exclusion from clean medals and retained ownership after record pruning. Fresh integrated CI pending; no threshold/save changes. B3-05 remains active until gate verified, then B3-06 optional restrained tactile/audio feedback. Owner wants future Suno experiments with assistant-written prompts for original instrumental background music and potentially useful sound material, owner generates and supplies files. Not a Beta3 release dependency. Verify commercial rights for specific generated assets and document provenance before integration; audition/trim/loop/normalize offline assets, no mandatory music or online dependency. No audio generated or added at this checkpoint.
+
+
 ## B3-05 — earned medal details
 
 Ownership filter gate 45583174396 passed. Static achievement audit found existing overall progress, closest three goals, compact expanded goals and categorized earned shelf. Earned cards omitted the original achievement description, so made them open a read-only detail dialog with title/category, original requirement, durable earned status and existing emblem reward if present. No fabricated earned date or recalculated ownership. Added UI fixture for Century Club detail and return. Fresh CI/device verification pending. No achievement IDs, thresholds, rewards or save changes. Next inspect progression integrity and move to B3-06.

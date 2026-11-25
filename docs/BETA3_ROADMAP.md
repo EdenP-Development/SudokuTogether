@@ -1,5 +1,10 @@
 # GridMates: Sudoku — Beta 3: Polish and depth
 
+## B3-05 reward continuity and future audio direction (2026-11-25)
+
+Medal detail gate 45584899760 failed on missing FontFamily import; corrected. Existing core audits cover deduplicated records, stable ownership after pruning, eligibility and bulk progress. Added cross-ledger regression for all 85 cosmetic and 47 medal IDs/counts, valid emblem references, assisted solve exclusion from clean medals and retained ownership after record pruning. Fresh integrated CI pending; no threshold/save changes. B3-05 remains active until gate verified, then B3-06 optional restrained tactile/audio feedback. Owner wants future Suno experiments with assistant-written prompts for original instrumental background music and potentially useful sound material, owner generates and supplies files. Not a Beta3 release dependency. Verify commercial rights for specific generated assets and document provenance before integration; audition/trim/loop/normalize offline assets, no mandatory music or online dependency. No audio generated or added at this checkpoint.
+
+
 ## Current owner decision — Coach scope freeze; B3-05 active (2026-11-25)
 
 Coach Review 2 gate 45580000685 and preview 45580000688 passed; artifact 15006471379. Owner defers new Coach techniques and substantial teaching expansion until Beta 4 following Beta 3 feedback. Ten techniques/lessons retained; correctness, performance, accessibility and release regression audits remain in scope. No requirement for immediate owner Coach2 playtest; device instrumentation not executed by these gates. B3-04 REVIEW / feature scope frozen, not full release acceptance. B3-05 ACTIVE: static collection review found existing chapter navigation, equipped previews, next unlock and responsive grids. Added per-chapter available/total counts and progress tracks to All icons view using existing progress calculation, no unlock/identity/save changes. Fresh CI pending. Next inspect collection regression and remaining progression UX; then sound/haptics and multiplayer. Preserve public Beta2 identity, 85 cosmetics and 47 achievements; no publication authorized.
