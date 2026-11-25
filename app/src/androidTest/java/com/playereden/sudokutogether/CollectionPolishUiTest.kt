@@ -80,6 +80,26 @@ class CollectionPolishUiTest {
         compose.onAllNodesWithTag("portrait_farm_cow").assertCountEquals(1)
     }
 
+    @Test fun ownershipFilterKeepsChapterTotalsAndDoesNotChangeUnlocks() {
+        compose.setContent {
+            SudokuTogetherTheme { SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {}) }
+        }
+        compose.onNodeWithTag("nav_collection").performClick()
+        compose.onNodeWithText("Farm").performScrollTo().performClick()
+        compose.onNodeWithText("1 of 6 available").assertExists()
+        compose.onNodeWithTag("collection_ownership_AVAILABLE").performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithTag("portrait_farm_cow").assertExists()
+        compose.onNodeWithTag("portrait_farm_chicken").assertDoesNotExist()
+        compose.onNodeWithTag("collection_filtered_count").assertTextEquals("Showing 1 of 6 items")
+        compose.onNodeWithTag("collection_ownership_LOCKED").performScrollTo().performClick().assertIsSelected()
+        compose.onNodeWithTag("portrait_farm_cow").assertDoesNotExist()
+        compose.onNodeWithTag("portrait_farm_chicken").assertExists()
+        compose.onNodeWithText("1 of 6 available").assertExists()
+        compose.onNodeWithTag("collection_ownership_ALL").performScrollTo().performClick()
+        compose.onNodeWithTag("portrait_farm_cow").assertExists()
+        compose.onNodeWithTag("portrait_farm_chicken").assertExists()
+    }
+
     @Test fun newFarmFamilyCanBeBrowsedWithCowStarterAndLockedChicken() {
         compose.setContent {
             SudokuTogetherTheme {

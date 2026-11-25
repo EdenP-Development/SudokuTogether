@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-05 — optional collection ownership filters
+
+Chapter progress gate 45582275221 passed. Added All items (default), Available and Locked filters across icons, boards, number colors/fonts, using the existing available/locked partition. Overall totals, chapter totals, next unlock spotlight and chapter order stay unfiltered. Explicit filtered count and empty-state copy; equipped items count available as before. Added Farm filter UI regression fixture. Fresh CI/device verification pending. No catalog, ownership, scoring, unlock or save changes.
+
+
 ## Current owner decision — Coach scope freeze; B3-05 active (2026-11-25)
 
 Coach Review 2 gate 45580000685 and preview 45580000688 passed; artifact 15006471379. Owner defers new Coach techniques and substantial teaching expansion until Beta 4 following Beta 3 feedback. Ten techniques/lessons retained; correctness, performance, accessibility and release regression audits remain in scope. No requirement for immediate owner Coach2 playtest; device instrumentation not executed by these gates. B3-04 REVIEW / feature scope frozen, not full release acceptance. B3-05 ACTIVE: static collection review found existing chapter navigation, equipped previews, next unlock and responsive grids. Added per-chapter available/total counts and progress tracks to All icons view using existing progress calculation, no unlock/identity/save changes. Fresh CI pending. Next inspect collection regression and remaining progression UX; then sound/haptics and multiplayer. Preserve public Beta2 identity, 85 cosmetics and 47 achievements; no publication authorized.

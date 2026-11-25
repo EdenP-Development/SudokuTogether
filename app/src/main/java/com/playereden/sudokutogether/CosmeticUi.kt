@@ -73,6 +73,7 @@ fun styleLabel(a: Appearance): String = listOf(
 
 private enum class CollectionCategory(val label: String) { ICONS("Player icons"), BOARDS("Boards"), NUMBERS("Numbers") }
 private enum class IconFamily(val label: String) { ALL("All"), BASIC("Basic"), WOODLAND("Woodland"), OCEAN("Ocean"), GARDEN("Garden"), FARM("Farm") }
+private enum class OwnershipFilter(val label: String) { ALL("All items"), AVAILABLE("Available"), LOCKED("Locked") }
 private enum class NumberCategory(val label: String) { COLORS("Number colors"), FONTS("Number fonts") }
 
 private enum class CosmeticGroup(val key: String, val label: String, val useLabel: String) {
@@ -112,6 +113,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     var category by rememberSaveable { mutableStateOf(CollectionCategory.ICONS) }
     var family by rememberSaveable { mutableStateOf(IconFamily.ALL) }
     var numbers by rememberSaveable { mutableStateOf(NumberCategory.COLORS) }
+    var ownership by rememberSaveable { mutableStateOf(OwnershipFilter.ALL) }
     var stylePreviewOpen by rememberSaveable { mutableStateOf(false) }
     var previewId by rememberSaveable { mutableStateOf<String?>(null) }
     val familyScroll = rememberScrollState()
@@ -235,17 +237,32 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
             }
         }
     }
-    // Always render every item inside its own chapter. A starter or equipped
-    // portrait must not disappear from its collection just because it is owned.
-    // Each item appears once in the album, with its lock/equipped state intact.
+    CollectionChoices(OwnershipFilter.entries, ownership, { it.label }, Role.RadioButton,
+        tagPrefix = "collection_ownership") { ownership = it }
+    val visibleItems = when (ownership) {
+        OwnershipFilter.ALL -> items
+        OwnershipFilter.AVAILABLE -> available
+        OwnershipFilter.LOCKED -> locked
+    }
+    if (ownership != OwnershipFilter.ALL) {
+        Text("Showing ${visibleItems.size} of ${items.size} items", color = Muted,
+            style = MaterialTheme.typography.bodySmall, modifier = Modifier.testTag("collection_filtered_count"))
+    }
+    if (visibleItems.isEmpty()) {
+        Text(if (ownership == OwnershipFilter.LOCKED) "Everything in this set is available."
+            else "No available items in this set yet.", color = Ink,
+            modifier = Modifier.testTag("collection_empty_filter"))
+    }
+    // Preserve chapter totals and ordering regardless of the ownership filter.
     if (category == CollectionCategory.ICONS && family == IconFamily.ALL) {
         items.groupBy { it.family }.entries.forEachIndexed { chapterIndex, (chapter, chapterItems) ->
             val owned = chapterItems.count { it.isEquipped(look) || progress.getValue(it.id).unlocked }
             CollectionChapterHeading(chapter?.label ?: "Basic", chapterIndex + 1, owned, chapterItems.size)
-            CosmeticGrid(chapterItems, progress, look, !state.busy, iconGallery = true, open = open)
+            val visibleChapter = chapterItems.filter { it in visibleItems }
+            if (visibleChapter.isNotEmpty()) CosmeticGrid(visibleChapter, progress, look, !state.busy, iconGallery = true, open = open)
         }
     } else {
-        CosmeticGrid(items, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
+        if (visibleItems.isNotEmpty()) CosmeticGrid(visibleItems, progress, look, !state.busy, category == CollectionCategory.ICONS, open)
     }
     if (stylePreviewOpen) {
         AlertDialog(
@@ -293,6 +310,7 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     label: (T) -> String,
     role: Role,
     horizontalScrollState: ScrollState? = null,
+    tagPrefix: String? = null,
     select: (T) -> Unit
 ) {
     val horizontalPadding = if (role == Role.RadioButton) 8.dp else 11.dp
@@ -306,7 +324,8 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
                 LaunchedEffect(value, horizontalScrollState) { selectedItem.bringIntoView() }
             }
             val shape = RoundedCornerShape(13.dp)
-            Box(Modifier.bringIntoViewRequester(selectedItem)
+            val choiceModifier = if (tagPrefix == null) Modifier else Modifier.testTag("${tagPrefix}_$value")
+            Box(choiceModifier.bringIntoViewRequester(selectedItem)
                 .clip(shape).background(if (selected) Forest else Paper).border(1.dp, if (selected) Forest else Rule, shape)
                 .selectable(selected, role = role, onClick = { select(value) })
                 .sizeIn(minWidth = 48.dp, minHeight = 48.dp).padding(horizontal = horizontalPadding, vertical = 7.dp),
