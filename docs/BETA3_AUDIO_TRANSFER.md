@@ -1,0 +1,3 @@
+# AUD-04.03A — soundtrack transfer
+
+20 ordered binary parts represent the AAC working-copy ZIP (15,369,442 bytes, SHA256 273f9d88e0a795cad51af8b58a82ee9181a3acf792e9c0dbe42e7f2648080aa2). Original master files are separate. The transfer verification script reconstructs the ZIP, checks archive and all six independent track hashes, validates the manifest and extracts deterministic filenames to build/beta3-audio-assets/soundtrack. Preview CI invokes verification before compilation. No runtime packaging changes in this checkpoint; after successful verification, wire generated assets into isolated preview and add bundled playback. Music Corner gate 45681687187 and APK build 45681687116 passed at cfcd2cda. No physical playback yet. Public Beta2 unchanged.

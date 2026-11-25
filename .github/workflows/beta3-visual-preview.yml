@@ -60,6 +60,8 @@ jobs:
               sample.putalpha(mask)
               sample.save(out/f'icon-{name}.png')
           PY
+      - name: Verify six-track soundtrack transfer
+        run: python scripts/prepare_beta3_soundtrack.py
       - uses: actions/setup-java@v4
         with:
           distribution: temurin
