@@ -57,6 +57,12 @@ object CoachPractice {
                 "When two digits can go only in the same two squares, cross off the other candidates in those squares.",
                 "000008005205090670000000400360000200092106040050070000000030800020500701006807090"
             ),
+            // Original generated mid-game fixture, discovery run 45565311197, attempt 8.
+            lesson(
+                "naked-triple", Technique.NAKED_TRIPLE,
+                "Three squares in one row, column or box can reserve three digits, even when their individual candidate lists differ.",
+                "004070900002000340198342567859001403400053000003004050001537004000009035005086100"
+            ),
             lesson(
                 "x-wing", Technique.X_WING,
                 "A digit confined to the same two columns in two rows can be crossed off elsewhere in those columns.",

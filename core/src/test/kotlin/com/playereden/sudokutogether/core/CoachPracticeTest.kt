@@ -4,6 +4,7 @@ import com.playereden.sudokutogether.core.HumanSudoku.Technique.HIDDEN_PAIR
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.HIDDEN_SINGLE
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.LOCKED_CANDIDATE
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.NAKED_PAIR
+import com.playereden.sudokutogether.core.HumanSudoku.Technique.NAKED_TRIPLE
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.NAKED_SINGLE
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.X_WING
 import org.junit.Assert.assertEquals
@@ -11,7 +12,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CoachPracticeTest {
-    @Test fun lessonsPresentSixRulesInOrderUsingCoachProofs() {
+    @Test fun lessonsPresentSevenRulesInOrderUsingCoachProofs() {
         val lessons = CoachPractice.lessons
         assertEquals(listOf(
             "only-digit" to NAKED_SINGLE,
@@ -19,6 +20,7 @@ class CoachPracticeTest {
             "locked-candidate" to LOCKED_CANDIDATE,
             "naked-pair" to NAKED_PAIR,
             "hidden-pair" to HIDDEN_PAIR,
+            "naked-triple" to NAKED_TRIPLE,
             "x-wing" to X_WING
         ), lessons.map { it.id to it.technique })
 
@@ -56,6 +58,7 @@ class CoachPracticeTest {
             "locked-candidate" to Example(62, listOf(4, 7, 8), listOf(7)),
             "naked-pair" to Example(26, listOf(1, 4, 9), listOf(9)),
             "hidden-pair" to Example(48, listOf(2, 3, 4, 9), listOf(4, 9)),
+            "naked-triple" to Example(43, listOf(1, 2, 7, 8, 9), listOf(2, 7, 8)),
             "x-wing" to Example(31, listOf(5, 8), listOf(5))
         )
         for ((id, expected) in examples) {
@@ -80,6 +83,23 @@ class CoachPracticeTest {
         assertEquals(listOf(2, 3, 4, 9), lesson.candidatesAt(48))
         assertEquals(listOf(2, 3, 4, 9), lesson.candidatesAt(50))
         assertTrue(lesson.candidatesAt(5).isEmpty())
+    }
+
+    @Test fun nakedTripleReplaysTheDiscoveredProofAndPreservesGrading() {
+        val lesson = CoachPractice.lessons.single { it.id == "naked-triple" }
+        assertEquals(List(3) { LOCKED_CANDIDATE }, lesson.setup.map { it.technique })
+        assertEquals(listOf(34, 42, 51), lesson.step.sourceCells)
+        assertEquals(listOf(2, 7, 8), lesson.step.digits)
+        assertEquals(mapOf(43 to listOf(2, 7, 8), 44 to listOf(2, 8), 53 to listOf(2, 8)),
+            lesson.step.eliminations)
+        assertEquals(listOf(2, 7), lesson.candidatesAt(34))
+        assertEquals(listOf(2, 7, 8), lesson.candidatesAt(42))
+        assertEquals(listOf(2, 7, 8), lesson.candidatesAt(51))
+        assertEquals(listOf(1, 9), lesson.candidatesAt(43).filterNot { it in lesson.correctDigits })
+        assertEquals(listOf(LOCKED_CANDIDATE, LOCKED_CANDIDATE, LOCKED_CANDIDATE,
+            NAKED_TRIPLE, LOCKED_CANDIDATE, HIDDEN_SINGLE),
+            SudokuAssistance.nextCoachHint(lesson.puzzle, lesson.puzzle.clues)!!.steps.map { it.technique })
+        assertEquals(HumanSudoku.Grade.BEYOND_CURRENT_LOGIC, HumanSudoku.assess(lesson.puzzle).grade)
     }
 
     private data class Example(val target: Int, val candidates: List<Int>, val answers: List<Int>)

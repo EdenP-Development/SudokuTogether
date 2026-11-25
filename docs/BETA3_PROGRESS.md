@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — original naked triple fixture and practice lesson
+
+Mid-game discovery 45565311197 and ordinary gate 45565311177 passed at 6bf86c2d. Actual FOUND marker: attempt 8, original position 004070900002000340198342567859001403400053000003004050001537004000009035005086100. Trace locked candidate ×3 → naked triple → locked candidate → hidden single. Sources 34/42/51; reserves 2/7/8; removals 43:[2,7,8],44:[2,8],53:[2,8] (zero-based cells). Discovery independently confirmed uniqueness and each triple elimination. Pinned original fixture in seventh Coach practice lesson before X-Wing; permanent JVM proof, candidate, grading and oracle checks plus Android practice replay fixture. New commit CI/device execution pending. No external reference puzzle shipped, no save/scoring changes. Next hidden triple research.
+
+
 ## B3-04 — mid-game fixture research
 
 Discovery 45564717185 passed but returned NOT_FOUND; ordinary gate 45564717142 passed. The first search only inspected initial positions. Expanded research to advance generated puzzles through logical placements and inspect each position; added attributed HoDoKu n302 reference probe (GFDL 1.3, research only, no player-facing lesson import). Preserve bounded search and independent elimination checks. Fresh results pending; pin original fixture before shipping lesson. No runtime changes.

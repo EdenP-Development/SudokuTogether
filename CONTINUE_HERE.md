@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Latest — Coach naked triple practice
+
+Discovery run 45565311197 FOUND original unique puzzle on attempt 8, with independently validated naked triple. Seventh practice lesson and pinned regression now implemented; verify fresh CI and device review. Next hidden triple engine, fixture and teaching support. Existing public Beta2/save identity untouched. See docs/BETA3_PROGRESS.md.
+
+
 ## Latest — B3-04 Coach proof fidelity
 
 Gameplay1 preview 45555816455 passed, artifact 14996246056; physical portrait evidence logged in acc2bd99. B3-04 active: exact pre-deduction proof candidates captured and used in live hint board, regression coverage added. Verify CI; next audit teaching copy, hint navigation and proof visualization, then consider additional techniques without changing generation grading. Outstanding gameplay device checks remain open. No public release.

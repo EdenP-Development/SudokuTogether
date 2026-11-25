@@ -57,6 +57,20 @@ class CoachPracticeUiTest {
         compose.onNodeWithText("Show why").performScrollTo().assertIsDisplayed()
     }
 
+    @Test fun nakedTripleOffersAllThreeValidRemovalsAndCanBeReplayed() {
+        val lesson = CoachPractice.lessons.single { it.id == "naked-triple" }
+        compose.setContent { SudokuTogetherTheme { CoachPracticeDialog(Appearance(), false) {} } }
+        compose.onNodeWithTag("practice_lesson_naked-triple").performScrollTo().performClick()
+        compose.onNodeWithText("Show setup steps").performScrollTo().performClick()
+        compose.onNodeWithText(lesson.setup.first().explanation).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Hide setup steps").performScrollTo().performClick()
+        for (digit in lesson.correctDigits) {
+            compose.onNodeWithTag("practice_choice_$digit").performScrollTo().performClick()
+            compose.onNodeWithText("Correct").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("Practice again").performScrollTo().performClick()
+        }
+    }
+
     @Test fun hiddenPairCanShowTheStepsThatPreparedItsCandidates() {
         val lesson = CoachPractice.lessons.single { it.id == "hidden-pair" }
         compose.setContent { SudokuTogetherTheme { CoachPracticeDialog(Appearance(), false) {} } }
