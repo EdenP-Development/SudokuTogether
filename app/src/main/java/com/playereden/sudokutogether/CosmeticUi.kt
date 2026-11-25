@@ -240,7 +240,8 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
     // Each item appears once in the album, with its lock/equipped state intact.
     if (category == CollectionCategory.ICONS && family == IconFamily.ALL) {
         items.groupBy { it.family }.entries.forEachIndexed { chapterIndex, (chapter, chapterItems) ->
-            CollectionChapterHeading(chapter?.label ?: "Basic", chapterIndex + 1)
+            val owned = chapterItems.count { it.isEquipped(look) || progress.getValue(it.id).unlocked }
+            CollectionChapterHeading(chapter?.label ?: "Basic", chapterIndex + 1, owned, chapterItems.size)
             CosmeticGrid(chapterItems, progress, look, !state.busy, iconGallery = true, open = open)
         }
     } else {
@@ -266,18 +267,22 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
 }
 
 /** Lightweight album section divider; never changes unlock order or identity. */
-@Composable private fun CollectionChapterHeading(name: String, index: Int) {
-    Row(Modifier.fillMaxWidth().padding(top = 4.dp, bottom = 2.dp)
-        .testTag("collection_chapter_$index"),
-        horizontalArrangement = Arrangement.spacedBy(9.dp),
-        verticalAlignment = Alignment.CenterVertically) {
-        Text("CHAPTER " + index.toString().padStart(2, '0'),
-            color = Gold, fontSize = 9.sp, fontWeight = FontWeight.Bold,
-            letterSpacing = .8.sp)
-        Text("$name collection", color = Forest, fontFamily = FontFamily.Serif,
-            fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
-        HorizontalDivider(Modifier.weight(1f), thickness = 1.dp,
-            color = Gold.copy(alpha = .28f))
+@Composable private fun CollectionChapterHeading(name: String, index: Int, available: Int, total: Int) {
+    Column(Modifier.fillMaxWidth().padding(top = 6.dp, bottom = 4.dp)
+        .testTag("collection_chapter_$index"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text("CHAPTER " + index.toString().padStart(2, '0'),
+                    color = Gold, fontSize = 9.sp, fontWeight = FontWeight.Bold, letterSpacing = .8.sp)
+                Text("$name collection", color = Forest, fontFamily = FontFamily.Serif,
+                    fontSize = 17.sp, fontWeight = FontWeight.SemiBold)
+            }
+            Text("$available / $total", color = Forest, style = MaterialTheme.typography.labelMedium,
+                modifier = Modifier.testTag("collection_chapter_count_$index")
+                    .semantics { contentDescription = "$available of $total available" })
+        }
+        MilestoneTrack(available, total)
     }
 }
 

@@ -1,5 +1,10 @@
 # GridMates: Sudoku — Beta 3: Polish and depth
 
+## Current owner decision — Coach scope freeze; B3-05 active (2026-11-25)
+
+Coach Review 2 gate 45580000685 and preview 45580000688 passed; artifact 15006471379. Owner defers new Coach techniques and substantial teaching expansion until Beta 4 following Beta 3 feedback. Ten techniques/lessons retained; correctness, performance, accessibility and release regression audits remain in scope. No requirement for immediate owner Coach2 playtest; device instrumentation not executed by these gates. B3-04 REVIEW / feature scope frozen, not full release acceptance. B3-05 ACTIVE: static collection review found existing chapter navigation, equipped previews, next unlock and responsive grids. Added per-chapter available/total counts and progress tracks to All icons view using existing progress calculation, no unlock/identity/save changes. Fresh CI pending. Next inspect collection regression and remaining progression UX; then sound/haptics and multiplayer. Preserve public Beta2 identity, 85 cosmetics and 47 achievements; no publication authorized.
+
+
 Living roadmap, revision 3 — 2026-11-24. Owner endorsed the direction in conversation. Individual implementation decisions remain subject to playtesting and revision. This is the canonical Beta 3 plan, not evidence that features are implemented. Historical docs/ROADMAP_V08_TO_LAUNCH.md remains historical.
 
 ## Current development checkpoint — 2026-11-24 local
@@ -25,8 +30,8 @@ Statuses: NOT STARTED / ACTIVE / REVIEW / DONE / DEFERRED. Mark DONE only with e
 | B3-01 | Branding and design system | REVIEW |
 | B3-02 | Personalized puzzle corner | REVIEW |
 | B3-03 | Gameplay experience | ACTIVE |
-| B3-04 | Advanced Sudoku Coach | ACTIVE |
-| B3-05 | Collection and progression | NOT STARTED |
+| B3-04 | Advanced Sudoku Coach | REVIEW |
+| B3-05 | Collection and progression | ACTIVE |
 | B3-06 | Sound and haptics | NOT STARTED |
 | B3-07 | Multiplayer refinement | NOT STARTED |
 | B3-08 | Integrated polish | NOT STARTED |

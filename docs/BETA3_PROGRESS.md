@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## Current owner decision — Coach scope freeze; B3-05 active (2026-11-25)
+
+Coach Review 2 gate 45580000685 and preview 45580000688 passed; artifact 15006471379. Owner defers new Coach techniques and substantial teaching expansion until Beta 4 following Beta 3 feedback. Ten techniques/lessons retained; correctness, performance, accessibility and release regression audits remain in scope. No requirement for immediate owner Coach2 playtest; device instrumentation not executed by these gates. B3-04 REVIEW / feature scope frozen, not full release acceptance. B3-05 ACTIVE: static collection review found existing chapter navigation, equipped previews, next unlock and responsive grids. Added per-chapter available/total counts and progress tracks to All icons view using existing progress calculation, no unlock/identity/save changes. Fresh CI pending. Next inspect collection regression and remaining progression UX; then sound/haptics and multiplayer. Preserve public Beta2 identity, 85 cosmetics and 47 achievements; no publication authorized.
+
+
 ## Owner direction — audit-led Coach development (2026-11-25)
 
 Owner prefers code verification and audits as the primary Coach development gates, with deeper real-world gameplay feedback after Beta 3 is published on itch.io. Do not block each technique or small UI increment on manual owner playtesting. Continue bounded deterministic pattern tests, independent solution oracles, generated-puzzle and regression audits, performance/invalid-input checks, UI automation where executable, and save/scoring isolation checks. Distinguish compiled instrumentation from executed tests. Consolidate physical checks at meaningful UI/release checkpoints; public feedback complements rather than replaces pre-release correctness and upgrade-safety checks. Coach Review 2 is optional for immediate owner review, not a prerequisite to further engine development. Next: audit existing ten-technique coverage and gaps, then expand advanced techniques with verified original fixtures. No publication authorized by this direction.
