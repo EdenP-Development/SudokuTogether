@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — Coach Review 2 integrated gate and package
+
+Integrated gate 45579221416 passed at 3e6eddd5, including responsive footer, naked-single evidence and grouped curriculum. Earlier cancelled gates superseded. Configured isolated Coach2 package com.playereden.sudokutogether.qa.beta3coach2 and artifact GridMates-Sudoku-Beta3-Coach2 using existing verified branding workflow. Coach1 and public Beta2 remain separate. Fresh preview artifact and device verification pending. Test observation→evidence→explanation, both single diagrams, incorrect-entry preview and explicit erase, responsive footer, ten lessons in four sections and library return. Instrumentation compiled, not executed by this workflow. No public signing, scoring or save schema changes.
+
+
 ## B3-04 — grouped practice curriculum
 
 At review, footer gate 45578263801 cancelled by newer gate 45578697014 (running). Organized all ten unchanged lessons into Foundations (3), Pairs (2), Triples and quadruples (4), Advanced patterns (1). No prerequisites, unlocks or saved learning state. Compact cards identify placement vs elimination; full explanations remain in exercises. Library scroll retained on lesson return. Added core exact membership/order and UI access/return regression fixtures. Fresh CI and device review pending. Next verify integrated gate and package Coach Review 2. No puzzle, scoring, save or public identity changes.
