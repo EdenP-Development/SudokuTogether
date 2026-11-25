@@ -132,6 +132,19 @@ class MultiplayerPolishUiTest {
         assertTrue("Dense pencil candidate overflow: " + overflows.joinToString(), overflows.isEmpty())
     }
 
+    @Test fun completedCoopGuestHasOneReconnectAction() {
+        val base = polishState()
+        val state = mutableStateOf(base.copy(role = GUEST, connected = false,
+            snapshot = requireNotNull(base.snapshot).copy(completed = true)))
+        compose.setContent { SudokuTogetherTheme { PlayScreen(state.value, polishActions(), {}, {}, {}, {}) } }
+        compose.onNodeWithText("Reconnect").assertExists().assertIsEnabled()
+        compose.onAllNodesWithText("Reconnect").assertCountEquals(1)
+        compose.runOnIdle { state.value = state.value.copy(busy = true) }
+        compose.onNodeWithText("Reconnect").assertIsNotEnabled()
+        compose.runOnIdle { state.value = base.copy(snapshot = requireNotNull(base.snapshot).copy(completed = true), busy = true) }
+        compose.onNodeWithTag("finish_next_puzzle").assertIsNotEnabled()
+    }
+
     @Test fun unreadCountDoesNotSplitTheRoomTitleAtNormalPhoneWidth() {
         compose.setContent { SudokuTogetherTheme { CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, 1.15f)) {
             Box(Modifier.width(360.dp).fillMaxHeight()) { PlayScreen(polishState(999), polishActions(), {}, {}, {}, {}) }

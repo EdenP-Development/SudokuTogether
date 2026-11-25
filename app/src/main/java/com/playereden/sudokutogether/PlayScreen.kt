@@ -59,8 +59,7 @@ import kotlinx.coroutines.delay
         if (shortStack) {
             // A short window must be able to scroll the header and dock too;
             // reserving their height would give the active grid no viewport.
-            val race = snapshot?.takeIf { it.mode == VERSUS }
-            val scroll = key(race?.epoch, race?.completed) { rememberScrollState() }
+            val scroll = key(snapshot?.sessionId, snapshot?.epoch, snapshot?.completed) { rememberScrollState() }
             Column(Modifier.fillMaxSize().verticalScroll(scroll)) {
                 PlayTopBar(state, leave, help, { details = true }) { chatOpen = true; actions.chatVisible(true) }
                 if (snapshot == null) OpeningPuzzle(Modifier.fillMaxWidth().height(160.dp))
@@ -206,7 +205,7 @@ import kotlinx.coroutines.delay
         val viewportHeight = if (maxHeight.value.isFinite()) maxHeight else maxWidth + 160.dp
         val race = snapshot.takeIf { it.mode == VERSUS }
         val contentModifier = if (scrollable) {
-            val scroll = key(race?.epoch, race?.completed) { rememberScrollState() }
+            val scroll = key(snapshot.sessionId, snapshot.epoch, snapshot.completed) { rememberScrollState() }
             Modifier.fillMaxSize().verticalScroll(scroll)
         } else Modifier.fillMaxWidth()
         // On tall portrait phones the grid reaches its width-based maximum
@@ -234,7 +233,7 @@ import kotlinx.coroutines.delay
                 }
             }
             state.message?.let { Notice(it) }
-            if (roomStatus && snapshot.mode != VERSUS && state.role == GUEST && !state.connected)
+            if (roomStatus && snapshot.mode != VERSUS && !snapshot.completed && state.role == GUEST && !state.connected)
                 GamePrimaryButton("Reconnect", { actions.showJoin(true) }, !state.busy)
 
         }
@@ -274,7 +273,8 @@ import kotlinx.coroutines.delay
                 if (state.role != SOLO && snapshot.mode == VERSUS) {
                     if (roomStatus && !snapshot.completed) VersusPresence(state, snapshot) { actions.showJoin(true) }
                 } else {
-                    if (roomStatus && state.role != SOLO) Text(coopPresence(state).label, color = Forest, fontSize = 11.sp, lineHeight = 16.sp)
+                    if (roomStatus && state.role != SOLO) Text(coopPresence(state).label, color = Forest, fontSize = 11.sp, lineHeight = 16.sp,
+                        minLines = 2, modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
                     if (sharedBoardName != null) Text("Shared board · $sharedBoardName", color = Forest, fontSize = 11.sp, lineHeight = 16.sp)
                     PuzzleMeta(state)
                 }
@@ -472,10 +472,15 @@ import kotlinx.coroutines.delay
                         Text("Back home")
                     }
                 } else if (state.role == HOST || state.role == SOLO) {
-                    Button(onClick = new, modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp)) {
-                        Text("New puzzle")
+                    Button(onClick = new, enabled = !state.busy,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 50.dp).testTag("finish_next_puzzle")) {
+                        Text(if (state.busy) "Opening puzzle…" else "New puzzle")
                     }
-                } else Text("Your host can start the next puzzle.", color = Muted, fontSize = 12.sp)
+                } else if (!state.connected) {
+                    Text("Reconnect to join the next puzzle.", color = Muted, fontSize = 12.sp)
+                    GamePrimaryButton("Reconnect", { actions.showJoin(true) }, !state.busy)
+                } else Text(if (state.status.hostActive) "Your host can start the next puzzle."
+                    else "Waiting for the host to return.", color = Muted, fontSize = 12.sp)
                 if (state.role == SOLO) TextButton(onClick = actions.profile,
                     modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                     Text("Records")

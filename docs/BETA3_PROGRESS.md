@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-07.05 — Final multiplayer presentation pass (2026-11-25)
+
+Co-op next-round guard gate 45676240771 passed at b621b1e. Completed Co-op guest now sees one reconnect action within finish card; host next-puzzle action disabled while busy, connected guest gets host-away guidance. Scroll resets per session/epoch/completion in both modes, portrait Co-op status reserves two text lines and announces changes. Added Compose regression fixture for finish controls (compile/run status pending). Owner reports Suno Pro subscription; start dedicated audio research next after integrated gate, with fresh licensed tracks and original SFX/haptic design. B3-07 code closure candidate, physical two-phone and responsive checks still required in integrated review. No public release or save/protocol changes.
+
+
 ## B3-07.04 — Co-op next-round guard and audio checkpoint
 
 Owner handset feedback positive for Gentle Rests gameplay music; Settings screenshots show Play/Stop and volume. Native touch effects and haptics reportedly not noticeable/working; exact device settings unknown. Music pilot gates 45671002042 and 45671002085 passed. Owner exploring Suno Pro and soundtrack creation independently. Defer finished audio integration to B3-08 audio design research: music placement, silence, transitions, loop/playlist strategy, volume/focus/lifecycle, short effect/haptic design, asset size and handset validation. No new soundtrack or effects in this checkpoint. Existing Versus rematch has epoch/foreground/returning-rival regression; Co-op previously lacked equivalent stale-epoch guard. Add guarded host nextCoopPuzzle and generation/visibility callback, plus JVM regression for cancellation, duplicate stale request, identity/style and board reset. Fresh CI pending. Next verify and refine completed Co-op next-puzzle controls/layout. Public Beta2 unchanged.

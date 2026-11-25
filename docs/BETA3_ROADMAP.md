@@ -1,5 +1,10 @@
 # GridMates: Sudoku — Beta 3: Polish and depth
 
+## B3-07.05 — Final multiplayer presentation pass (2026-11-25)
+
+Co-op next-round guard gate 45676240771 passed at b621b1e. Completed Co-op guest now sees one reconnect action within finish card; host next-puzzle action disabled while busy, connected guest gets host-away guidance. Scroll resets per session/epoch/completion in both modes, portrait Co-op status reserves two text lines and announces changes. Added Compose regression fixture for finish controls (compile/run status pending). Owner reports Suno Pro subscription; start dedicated audio research next after integrated gate, with fresh licensed tracks and original SFX/haptic design. B3-07 code closure candidate, physical two-phone and responsive checks still required in integrated review. No public release or save/protocol changes.
+
+
 ## Current checkpoint — B3-07.03 reconnect identity guard (2026-11-25)
 
 Integrated Co-op/Versus presence gate 45591133224 passed at 714ca811. Reconnect audit found the guest callback recorded multiplayer results before checking expected room identity. GuestClient now optionally validates expected session ID before emitting welcome, and ViewModel independently rejects mismatched snapshots before records or mirror writes; guards duplicate/busy/non-join activation. Added loopback JVM fixtures for rejected and accepted room identity. Wire messages unchanged; server admission can still occur before client rejects a wrong welcome, so not a new authentication guarantee. Fresh gate pending. Next audit rematch and completed Co-op reconnect control, then layout/integrated release review. Physical two-phone checks and signed upgrade remain pending. Audio prototypes private and unlicensed for distribution. Public Beta2 unchanged; no publication authorized.
