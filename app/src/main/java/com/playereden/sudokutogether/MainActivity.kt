@@ -36,8 +36,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val state by model.state.collectAsStateWithLifecycle()
             val progressBackup by model.progressBackup.collectAsStateWithLifecycle()
+            var startupFinished by remember { mutableStateOf(false) }
             val musicPanel: @Composable () -> Unit = if (BuildConfig.DEBUG) {
-                rememberPrivateMusicPilot(enabled = !progressBackup.working && !progressBackup.recoveryRequired)
+                rememberPrivateMusicPilot(enabled = startupFinished && !progressBackup.working && !progressBackup.recoveryRequired)
             } else { {} }
             var pendingExport by rememberSaveable { mutableStateOf<Uri?>(null) }
             var pendingRestore by rememberSaveable { mutableStateOf<Uri?>(null) }
@@ -98,7 +99,7 @@ class MainActivity : ComponentActivity() {
                     dismiss = model::dismissProgressBackupPreview,
                     restore = model::confirmProgressBackupRestore
                 )
-                StartupBranding(showInitially = savedInstanceState == null, seriesDrawable = R.drawable.gridmates_v1_runtime_transparent)
+                StartupBranding(showInitially = savedInstanceState == null, seriesDrawable = R.drawable.gridmates_v1_runtime_transparent, onFinished = { startupFinished = true })
                 }
             }
         }

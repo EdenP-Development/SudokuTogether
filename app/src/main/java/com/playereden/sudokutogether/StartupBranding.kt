@@ -28,11 +28,13 @@ internal fun startupBrandingStages(seriesDrawable: Int? = null): List<Int> =
     listOfNotNull(R.drawable.spudacus_v1_full_transparent, seriesDrawable)
 
 @Composable
-internal fun StartupBranding(showInitially: Boolean, seriesDrawable: Int? = null) {
+internal fun StartupBranding(showInitially: Boolean, seriesDrawable: Int? = null, onFinished: () -> Unit = {}) {
     val stages = remember(seriesDrawable) { startupBrandingStages(seriesDrawable) }
     var stage by remember { mutableIntStateOf(if (showInitially && ValueAnimator.areAnimatorsEnabled()) 0 else stages.size) }
     val opacity = remember { Animatable(0f) }
     val visible = stage < stages.size
+    val latestFinished by rememberUpdatedState(onFinished)
+    LaunchedEffect(visible) { if (!visible) latestFinished() }
     val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
     DisposableEffect(lifecycle) {
         val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->

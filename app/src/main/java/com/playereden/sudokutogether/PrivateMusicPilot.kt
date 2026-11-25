@@ -21,7 +21,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 
 /**
  * Debug-only soundtrack review. Device-local preferences, no progress-save changes.
- * Activity-level owner keeps music playing between screens. Playback starts on explicit action.
+ * Activity-level owner keeps music playing between screens. Bundled music resumes only in foreground.
  */
 @Composable internal fun rememberPrivateMusicPilot(enabled: Boolean): @Composable () -> Unit {
     val context = LocalContext.current
@@ -49,6 +49,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
         musicEnabled = value
         preferences.edit().putBoolean("enabled", value).apply()
     }
+    var foreground by remember { mutableStateOf(lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) }
+    var interrupted by remember { mutableStateOf(false) }
     var index by remember { mutableIntStateOf(0) }
     var order by remember {
         val main = bundled.entries.firstOrNull { it.value == "Warm Puzzle Time" }?.key
@@ -59,12 +61,13 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
             null, null, null)?.use { if (it.moveToFirst()) it.getString(0) else null }
     }.getOrNull()?.substringBeforeLast('.') ?: "Track"
     fun playAt(position: Int) {
-        if (!enabled || order.isEmpty() || !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
+        if (!enabled || !musicEnabled || order.isEmpty() || !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
         index = position.mod(order.size)
         val selected = order[index]
         playing = player.start(selected, volume, looping = order.size == 1,
             onFinished = { playAt(index + 1) },
-            onStopped = { playing = false; message = "Music stopped. Tap Play to retry." })
+            onStopped = { interrupted = true; playing = false; message = "Music interrupted. Tap Play to retry." })
+        if (!playing) interrupted = true
         message = if (playing) "Playing" else "Unable to play this track."
     }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { selected ->
@@ -81,7 +84,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     }
     DisposableEffect(lifecycle, player) {
         val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) foreground = true
             if (event == Lifecycle.Event.ON_PAUSE || event == Lifecycle.Event.ON_STOP) {
+                foreground = false
                 player.stop()
                 playing = false
             }
@@ -89,13 +94,21 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
         lifecycle.addObserver(observer)
         onDispose { lifecycle.removeObserver(observer); player.stop() }
     }
-    LaunchedEffect(enabled) { if (!enabled) { player.stop(); playing = false } }
+    LaunchedEffect(enabled, foreground, musicEnabled) {
+        if (!enabled || !foreground || !musicEnabled) {
+            player.stop()
+            playing = false
+        } else if (bundled.isNotEmpty() && !playing && !interrupted) {
+            playAt(index)
+        }
+    }
     return {
         GamePanel(Modifier.fillMaxWidth()) {
             SectionTitle("The Music Corner")
             Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text("Background music", modifier = Modifier.weight(1f), color = Forest)
                 Switch(checked = musicEnabled, enabled = enabled, onCheckedChange = { value ->
+                    interrupted = false
                     setMusicEnabled(value)
                     if (value && order.isNotEmpty()) playAt(index)
                     else { player.stop(); playing = false; message = "Music stopped." }
@@ -106,14 +119,14 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 Text("Choose the soundtrack files to begin.", color = Muted, style = MaterialTheme.typography.bodySmall)
             } else {
                 Text(titles[order[index]] ?: "Track", color = Forest, style = MaterialTheme.typography.titleMedium)
-                Text("Track ${index + 1} of ${order.size} · ${if (playing) "Playing" else "Stopped"}",
+                Text("Track ${index + 1} of ${order.size} · ${if (playing) "Playing" else if (interrupted) "Interrupted" else "Stopped"}",
                     color = Muted, style = MaterialTheme.typography.bodySmall)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     TextButton(onClick = { if (playing) playAt(index - 1) else index = (index - 1).mod(order.size) },
                         enabled = enabled && order.size > 1, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Previous") }
                     Button(onClick = {
                         if (playing) { setMusicEnabled(false); player.stop(); playing = false; message = "Music stopped." }
-                        else { setMusicEnabled(true); playAt(index) }
+                        else { interrupted = false; setMusicEnabled(true); playAt(index) }
                     }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text(if (playing) "Stop" else "Play") }
                     TextButton(onClick = { if (playing) playAt(index + 1) else index = (index + 1).mod(order.size) },
                         enabled = enabled && order.size > 1, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Next") }
@@ -125,7 +138,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                     Text(if (expanded) "Hide soundtrack" else "View soundtrack (${order.size})")
                 }
                 if (expanded) order.forEachIndexed { position, track ->
-                    OutlinedButton(onClick = { setMusicEnabled(true); playAt(position) }, enabled = enabled,
+                    OutlinedButton(onClick = { interrupted = false; setMusicEnabled(true); playAt(position) }, enabled = enabled,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                         Text("${if (position == index) "• " else ""}${titles[track] ?: "Track"}")
                     }

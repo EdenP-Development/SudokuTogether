@@ -1,5 +1,9 @@
 # Continue GridMates: Sudoku
 
+## AUD-07.02 — foreground playback and integrated review
+
+Preference gate 45691354185 passed at 6144b9b. StartupBranding reports actual completion/skip, MainActivity enables music only afterward and outside backup lock. Previously enabled bundled soundtrack automatically starts on foreground, stops on pause/stop, restarts selected track on normal return; audio focus or playback failure latches interruption until explicit Play, switch or selection. No automatic import playback, no background service. AudioReview preview includes all six music files, effects, haptics and preferences; new CI and physical tests pending. Public Beta2 unchanged.
+
 ## AUD-07.01 — local music preferences
 
 Completion gate 45690392399 passed at 444d577. Music Corner now stores enabled preference and slider volume in separate device-local SharedPreferences, independent from progress/backup schema. Explicit Play/switch/track action starts playback; restored enabled preference does not yet auto-start (silent splash and foreground resume policy pending). Volume sanitized; fresh gate and handset verification pending. No public release changes.

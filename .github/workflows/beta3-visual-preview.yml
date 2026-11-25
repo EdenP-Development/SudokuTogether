@@ -69,7 +69,7 @@ jobs:
           cache: gradle
       - uses: android-actions/setup-android@v4
       - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
-      - name: Test and assemble isolated Music Corner
+      - name: Test and assemble integrated audio review
         run: |
           chmod +x gradlew
           ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta3VisualPreview=true --no-daemon --max-workers=2 --console=plain
@@ -93,11 +93,11 @@ jobs:
                   assert hashlib.sha256(z.read(entry)).digest() == hashlib.sha256(p.read_bytes()).digest()
               assert len([n for n in z.namelist() if n.startswith('assets/soundtrack/') and n.endswith('.m4a')]) == 6
           PY
-          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-BundledMusic.apk
+          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-AudioReview.apk
           (cd beta3-review && sha256sum *.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
         with:
-          name: GridMates-Sudoku-Beta3-BundledMusic
+          name: GridMates-Sudoku-Beta3-AudioReview
           path: beta3-review/
           if-no-files-found: error
           retention-days: 14
