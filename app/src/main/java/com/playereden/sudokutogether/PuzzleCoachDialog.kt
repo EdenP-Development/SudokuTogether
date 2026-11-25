@@ -100,6 +100,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         Technique.HIDDEN_PAIR -> "Look for two digits that can only fit in the same two squares."
         Technique.X_WING -> "Look for one digit confined to the same two positions in two parallel lines."
         Technique.NAKED_TRIPLE -> "Look for three squares in one row, column or box whose candidates together use only three digits."
+        Technique.HIDDEN_TRIPLE -> "Look for three digits that can only appear within the same three squares of one group."
         SOLUTION_REVEAL -> ""
     }
     val targets = step.targetCells.toSet()

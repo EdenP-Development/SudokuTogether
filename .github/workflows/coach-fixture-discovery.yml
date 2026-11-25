@@ -17,9 +17,10 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: gradle
-      - name: Search reference and generated mid-game positions
+      - name: Search generated mid-game positions for hidden triples
         env:
           GRIDMATES_COACH_DISCOVERY: '1'
+          GRIDMATES_COACH_TECHNIQUE: HIDDEN_TRIPLE
         run: |
           set -o pipefail
           ./gradlew :core:test --tests '*CoachFixtureDiscoveryTest' --rerun-tasks --no-daemon --max-workers=2 --console=plain | tee coach-discovery.txt

@@ -17,6 +17,7 @@ object HumanSudoku {
         HIDDEN_PAIR("Hidden pair"),
         X_WING("X-Wing"),
         NAKED_TRIPLE("Naked triple"),
+        HIDDEN_TRIPLE("Hidden triple"),
         SOLUTION_REVEAL("One-number reveal")
     }
     enum class Grade { EASY, MEDIUM, HARD, BEYOND_CURRENT_LOGIC, INVALID }
@@ -75,6 +76,25 @@ object HumanSudoku {
                 if (masks.indices.any { it !in positions && masks[it] and mask != 0 })
                     return TriplePattern(positions, mask)
             }
+        return null
+    }
+
+    /** Three digits confined to three positions, with other candidates to remove. */
+    internal fun hiddenTriple(masks: List<Int>): TriplePattern? {
+        if (masks.size != 9 || masks.any { it and ALL.inv() != 0 }) return null
+        val positions = IntArray(10) { digit ->
+            masks.indices.fold(0) { union, index ->
+                if (masks[index] and (1 shl digit) != 0) union or (1 shl index) else union
+            }
+        }
+        for (a in 1..7) for (b in a+1..8) for (c in b+1..9) {
+            if (listOf(a,b,c).any { Integer.bitCount(positions[it]) !in 2..3 }) continue
+            val union = positions[a] or positions[b] or positions[c]
+            if (Integer.bitCount(union) != 3) continue
+            val cells = masks.indices.filter { union and (1 shl it) != 0 }
+            val keep = (1 shl a) or (1 shl b) or (1 shl c)
+            if (cells.any { masks[it] and keep.inv() != 0 }) return TriplePattern(cells, keep)
+        }
         return null
     }
 
@@ -172,12 +192,12 @@ object HumanSudoku {
             val affected = targets.filter { board[it] == 0 && candidates[it] and mask != 0 }
                 .distinct().sorted()
             if (affected.isEmpty()) return false
-            val removed = if (technique == Technique.HIDDEN_PAIR) {
+            val removed = if (technique == Technique.HIDDEN_PAIR || technique == Technique.HIDDEN_TRIPLE) {
                 digits(affected.fold(0) { result, cell -> result or (candidates[cell] and mask) })
             } else digits(mask)
             if (proof != null) {
                 val eliminations = affected.associateWith { digits(candidates[it] and mask) }
-                val support = if (technique == Technique.HIDDEN_PAIR) digits(ALL and mask.inv()) else removed
+                val support = if (technique == Technique.HIDDEN_PAIR || technique == Technique.HIDDEN_TRIPLE) digits(ALL and mask.inv()) else removed
                 val explanation = when (technique) {
                     Technique.NAKED_PAIR ->
                         "Two cells in ${unitName(sourceUnit)} share the candidates ${removed.joinToString(" and ")}. " +
@@ -185,6 +205,9 @@ object HumanSudoku {
                     Technique.HIDDEN_PAIR ->
                         "In ${unitName(sourceUnit)}, ${support.joinToString(" and ")} can only go in these two squares. " +
                             "Keep those two candidates and cross off any others in the two squares."
+                    Technique.HIDDEN_TRIPLE ->
+                        "In ${unitName(sourceUnit)}, ${support.joinToString(", ")} can only go in these three squares. " +
+                            "Keep those candidates where they occur and cross off other digits in the three squares."
                     Technique.LOCKED_CANDIDATE ->
                         "In ${unitName(sourceUnit)}, ${removed.single()} can only go in ${unitName(targetUnit)}. " +
                             "Remove it from candidates elsewhere in ${unitName(targetUnit)}."
@@ -358,6 +381,13 @@ object HumanSudoku {
                         "Three squares in ${unitName(unitIndex)} reserve ${digits(triple.mask).joinToString(", ")}. " +
                             "Each square uses only those digits; remove them from the other squares in that group.",
                         source, unitIndex)) { moved = true; break }
+            }
+            if (moved) continue
+            for ((unitIndex, unit) in units.withIndex()) {
+                val triple = hiddenTriple(unit.map { candidates[it] }) ?: continue
+                val source = triple.positions.map { unit[it] }
+                if (eliminate(source, ALL and triple.mask.inv(), Technique.HIDDEN_TRIPLE,
+                        "Three digits are confined to three squares", source, unitIndex)) { moved = true; break }
             }
             if (!moved) break
         }

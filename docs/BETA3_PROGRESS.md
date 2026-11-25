@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — hidden triple engine
+
+Seventh practice lesson gate 45565974801 passed. Added Coach-only hidden triple detection after naked triples, retained candidate evidence, teaching prompt and pattern tests. Parameterized original fixture discovery and selected HIDDEN_TRIPLE for dedicated research workflow; removed reference probes from active discovery (historical provenance retained). Fresh CI and full puzzle fixture pending. No generation grading, save or scoring changes.
+
+
 ## B3-04 — original naked triple fixture and practice lesson
 
 Mid-game discovery 45565311197 and ordinary gate 45565311177 passed at 6bf86c2d. Actual FOUND marker: attempt 8, original position 004070900002000340198342567859001403400053000003004050001537004000009035005086100. Trace locked candidate ×3 → naked triple → locked candidate → hidden single. Sources 34/42/51; reserves 2/7/8; removals 43:[2,7,8],44:[2,8],53:[2,8] (zero-based cells). Discovery independently confirmed uniqueness and each triple elimination. Pinned original fixture in seventh Coach practice lesson before X-Wing; permanent JVM proof, candidate, grading and oracle checks plus Android practice replay fixture. New commit CI/device execution pending. No external reference puzzle shipped, no save/scoring changes. Next hidden triple research.
