@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Latest — ten Coach techniques and lessons
+
+Discovery 45571340860 FOUND three independently validated original hidden quadruple fixtures; gate 45571340874 passed. Seed 183027 attempt 4751 is tenth practice lesson; other two retained in regression. Fresh CI pending. Next prepare isolated Coach Review 1 APK; no public release, signing or save changes.
+
+
 ## Latest — naked quadruple practice
 
 Discovery 45567877813 FOUND original unique fixture on attempt 613; ordinary gate 45567877886 passed. Ninth practice lesson and proof regression added. Verify fresh CI, then hidden quadruple engine and original fixture. Full logical solve not claimed; fixture ends in explicit reveal. Coach Review 1 planned after ten techniques/lessons. No release or save changes.

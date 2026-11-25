@@ -84,6 +84,18 @@ class CoachPracticeUiTest {
         compose.onNodeWithText("Correct").assertDoesNotExist()
     }
 
+    @Test fun hiddenQuadruplePracticeCanBeExplainedAndReplayed() {
+        val lesson = CoachPractice.lessons.single { it.id == "hidden-quadruple" }
+        compose.setContent { SudokuTogetherTheme { CoachPracticeDialog(Appearance(), false) {} } }
+        compose.onNodeWithTag("practice_lesson_hidden-quadruple").performScrollTo().performClick()
+        compose.onNodeWithText("Show why").performScrollTo().performClick()
+        compose.onNodeWithText(lesson.step.explanation).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("practice_choice_${lesson.correctDigits.single()}").performScrollTo().performClick()
+        compose.onNodeWithText("Correct").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Practice again").performScrollTo().performClick()
+        compose.onNodeWithText(lesson.step.explanation).assertDoesNotExist()
+    }
+
     @Test fun hiddenTripleAcceptsEveryVerifiedRemoval() {
         val lesson = CoachPractice.lessons.single { it.id == "hidden-triple" }
         compose.setContent { SudokuTogetherTheme { CoachPracticeDialog(Appearance(), false) {} } }

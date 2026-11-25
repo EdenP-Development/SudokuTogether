@@ -1,5 +1,6 @@
 package com.playereden.sudokutogether.core
 
+import com.playereden.sudokutogether.core.HumanSudoku.Technique.HIDDEN_QUADRUPLE
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.HIDDEN_TRIPLE
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.HIDDEN_PAIR
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.HIDDEN_SINGLE
@@ -14,7 +15,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CoachPracticeTest {
-    @Test fun lessonsPresentNineRulesInOrderUsingCoachProofs() {
+    @Test fun lessonsPresentTenRulesInOrderUsingCoachProofs() {
         val lessons = CoachPractice.lessons
         assertEquals(listOf(
             "only-digit" to NAKED_SINGLE,
@@ -25,6 +26,7 @@ class CoachPracticeTest {
             "naked-triple" to NAKED_TRIPLE,
             "hidden-triple" to HIDDEN_TRIPLE,
             "naked-quadruple" to NAKED_QUADRUPLE,
+            "hidden-quadruple" to HIDDEN_QUADRUPLE,
             "x-wing" to X_WING
         ), lessons.map { it.id to it.technique })
 
@@ -65,6 +67,7 @@ class CoachPracticeTest {
             "naked-triple" to Example(43, listOf(1, 2, 7, 8, 9), listOf(2, 7, 8)),
             "hidden-triple" to Example(12, listOf(1, 3, 5, 6, 9), listOf(3, 5, 6)),
             "naked-quadruple" to Example(28, listOf(1,4,5), listOf(4)),
+            "hidden-quadruple" to Example(66, listOf(1,6,7), listOf(7)),
             "x-wing" to Example(31, listOf(5, 8), listOf(5))
         )
         for ((id, expected) in examples) {
@@ -133,6 +136,36 @@ class CoachPracticeTest {
             33 to listOf(4,8), 35 to listOf(3,6)), lesson.step.proofCandidates)
         assertEquals(listOf(1,5), lesson.candidatesAt(28).filterNot { it in lesson.correctDigits })
         assertEquals(HumanSudoku.Grade.BEYOND_CURRENT_LOGIC, HumanSudoku.assess(lesson.puzzle).grade)
+    }
+
+    @Test fun hiddenQuadrupleReplaysDiscoveredEvidence() {
+        val lesson = CoachPractice.lessons.single { it.id == "hidden-quadruple" }
+        assertTrue(lesson.setup.isEmpty())
+        assertEquals(listOf(66,67,75,76), lesson.step.sourceCells)
+        assertEquals(listOf(1,4,6,9), lesson.step.digits)
+        assertEquals(mapOf(66 to listOf(7), 67 to listOf(2,7), 75 to listOf(3), 76 to listOf(2,3,5)), lesson.step.eliminations)
+        assertEquals(mapOf(66 to listOf(1,6,7), 67 to listOf(1,2,6,7,9),
+            75 to listOf(1,3,4), 76 to listOf(1,2,3,4,5,9)), lesson.step.proofCandidates)
+        assertEquals(HumanSudoku.Grade.BEYOND_CURRENT_LOGIC, HumanSudoku.assess(lesson.puzzle).grade)
+    }
+
+    @Test fun additionalHiddenQuadrupleFixturesRetainValidProofs() {
+        val fixtures = listOf(
+            "457090138963100527812357900720010093001000700649873251000000000094030070000000319" to
+                mapOf(54 to listOf(2,5), 55 to listOf(8), 57 to listOf(2,5,6), 59 to listOf(2,5,6,8)),
+            "000000000026938010000002690251000940060100030304200180002496001907020060600000029" to
+                mapOf(1 to listOf(7), 2 to listOf(5))
+        )
+        for ((encoded, expected) in fixtures) {
+            val grid = encoded.map(Char::digitToInt)
+            assertEquals(1, Sudoku.solutionCount(grid))
+            val proof = SudokuAssistance.nextCoachHint(Puzzle("hidden-quad-regression", grid), grid)!!
+            val step = proof.steps.first { it.technique == HIDDEN_QUADRUPLE }
+            assertEquals(expected, step.eliminations)
+            for ((cell, digits) in expected) for (digit in digits) {
+                assertEquals(0, Sudoku.solutionCount(grid.toMutableList().apply { this[cell] = digit }))
+            }
+        }
     }
 
     private data class Example(val target: Int, val candidates: List<Int>, val answers: List<Int>)

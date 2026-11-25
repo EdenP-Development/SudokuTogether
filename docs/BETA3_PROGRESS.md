@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — hidden quadruple practice and three-lane research success
+
+Discovery 45571340860 found original unique fixtures in all three seed lanes. Android gate 45571340874 passed. Seed 183027 attempt 4751 selected for tenth practice lesson: 904800612250004839068209745480906153693581427005000968046000091500000384000000076. No setup required; sources 66/67/75/76, reserves 1/4/6/9, seven removals. Seeds 73193 attempt 4618 and 94051 attempt 6872 preserved as additional proof regressions. Nineteen total independently checked eliminations across three fixtures. Added exact evidence, solution oracle, grade and practice UI checks. Fresh CI and device review pending. Next Coach Review 1 isolated APK. No public release or save changes.
+
+
 ## B3-04 — hidden quadruple diverse fixture search
 
 Gate 45570695860 passed. Discovery 45570695927 completed NOT_FOUND with original bounded search. Hidden quadruples can be preempted by smaller complementary naked subsets. Expanded research-only generator to diverse random completed grids, optional near-empty-house bias, three deterministic seed lanes (73193/183027/94051), 12,000 attempts and 150-second nominal budget per lane. Retains actual production Coach ordering, uniqueness/oracle checks and old single-seed search behavior when diverse mode disabled. New results pending; no runtime changes or tenth lesson claimed.

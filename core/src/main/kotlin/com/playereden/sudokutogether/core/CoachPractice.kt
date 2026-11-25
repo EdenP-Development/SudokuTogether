@@ -75,6 +75,12 @@ object CoachPractice {
                 "Four squares in one group reserve four digits. Remove those digits from the other squares in that group.",
                 "534678912672195348198000567000000020026050791700020050961500204287419635000000109"
             ),
+            // Original generated fixture, discovery run 45571340860, seed 183027, attempt 4751.
+            lesson(
+                "hidden-quadruple", Technique.HIDDEN_QUADRUPLE,
+                "Four digits can only appear within the same four squares. Remove unrelated candidates from those squares.",
+                "904800612250004839068209745480906153693581427005000968046000091500000384000000076"
+            ),
             lesson(
                 "x-wing", Technique.X_WING,
                 "A digit confined to the same two columns in two rows can be crossed off elsewhere in those columns.",
