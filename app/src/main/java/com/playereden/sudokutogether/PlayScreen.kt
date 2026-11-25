@@ -278,6 +278,7 @@ import kotlinx.coroutines.delay
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(caption, color = if (selectedConflict) Brick else Muted,
                     fontSize = 11.sp, lineHeight = 16.sp,
+                    minLines = if (snapshot.completed) 1 else if (LocalDensity.current.fontScale > 1.3f) 3 else 2,
                     textAlign = if (canNewSolo) TextAlign.Start else TextAlign.Center,
                     modifier = Modifier.weight(1f).testTag("board_context"))
                 if (canNewSolo) {
@@ -501,12 +502,19 @@ private fun roomStatusText(state: GameUiState): String {
             if (state.role == SOLO) DockTool("Hint", GameSymbol.HELP, state.canEdit, modifier = Modifier.weight(1f),
                 description = "Request a solo Sudoku hint") { actions.hint() }
         }
-        if (!state.notes && editable) {
-            Text("Small numbers show how many of each digit are left",
-                color = Muted, fontSize = 10.sp, lineHeight = 14.sp,
-                modifier = Modifier.testTag("keypad_remaining_explanation"),
-                textAlign = TextAlign.Center)
+        // Keep the guidance row present across selection and input-mode changes.
+        // Removing it used to change dock height and therefore the board viewport.
+        val guidance = when {
+            !editable -> "Choose an empty or editable square"
+            state.notes && !noteTargetOpen -> "Erase the entry to add pencil marks"
+            state.notes -> "Tap a number to add or remove a pencil mark"
+            else -> "Small numbers show how many of each digit are left"
         }
+        Text(guidance, color = Muted, fontSize = 10.sp, lineHeight = 14.sp,
+            minLines = 2,
+            modifier = Modifier.widthIn(max = 440.dp).fillMaxWidth()
+                .testTag(if (state.notes || !editable) "keypad_mode_guidance" else "keypad_remaining_explanation"),
+            textAlign = TextAlign.Center)
         for (numbers in listOf((1..5).toList(), (6..9).toList())) {
             Row(Modifier.widthIn(max = 440.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 // Center the four-key second row rather than leaving a dead slot on its right.

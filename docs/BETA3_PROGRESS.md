@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-03 — layout stability, slice 2
+
+Audit identified conditional keypad guidance and variable board context height feeding viewport sizing. Keep a two-line guidance reservation across selection/notes states; show contextual number/notes/filled-square guidance. Reserve two board caption lines normally and three at larger text sizes while allowing further wrapping. Add instrumentation assertions for board width and dock height across note mode changes; compile/run and physical review pending. No game rule, scoring, save or branding changes. Extreme text/width combinations may still reflow; do not claim universal fixed board size.
+
+
 ## B3-03 — gameplay input feedback, slice 1
 
 Notes keypad now highlights existing pencil marks in the selected editable blank square, with stronger outline, tint, check indicator and selected accessibility semantics. Erase disabled on empty unmarked squares; remains available for notes or entries. No change to entry rules, count computation, scoring or persistence. Existing keypad accessibility test expanded to cover selected notes and erase availability. CI and physical review pending. Approved startup unchanged.
