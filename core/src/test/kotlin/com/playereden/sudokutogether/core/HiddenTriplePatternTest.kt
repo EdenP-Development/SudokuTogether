@@ -7,7 +7,7 @@ class HiddenTriplePatternTest {
     private fun mask(vararg digits: Int) = digits.fold(0) { m, d -> m or (1 shl d) }
 
     @Test fun differentPositionPairsReserveThreeDigits() {
-        val masks = listOf(mask(1,2,5,9), mask(2,7,8), mask(5,7,9), mask(1,3,4,6,8,9), 0,0,0,0,0)
+        val masks = listOf(mask(1,2,5,9), mask(2,7,8), mask(5,7,9), mask(1,3,4,6,8,9), mask(1,3,4,6,8,9), mask(1,3,4,6,8,9),0,0,0)
         val triple = requireNotNull(HumanSudoku.hiddenTriple(masks))
         assertEquals(listOf(0,1,2), triple.positions)
         assertEquals(mask(2,5,7), triple.mask)

@@ -71,6 +71,17 @@ class CoachPracticeUiTest {
         }
     }
 
+    @Test fun hiddenTripleAcceptsEveryVerifiedRemoval() {
+        val lesson = CoachPractice.lessons.single { it.id == "hidden-triple" }
+        compose.setContent { SudokuTogetherTheme { CoachPracticeDialog(Appearance(), false) {} } }
+        compose.onNodeWithTag("practice_lesson_hidden-triple").performScrollTo().performClick()
+        for (digit in lesson.correctDigits) {
+            compose.onNodeWithTag("practice_choice_$digit").performScrollTo().performClick()
+            compose.onNodeWithText("Correct").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithText("Practice again").performScrollTo().performClick()
+        }
+    }
+
     @Test fun hiddenPairCanShowTheStepsThatPreparedItsCandidates() {
         val lesson = CoachPractice.lessons.single { it.id == "hidden-pair" }
         compose.setContent { SudokuTogetherTheme { CoachPracticeDialog(Appearance(), false) {} } }

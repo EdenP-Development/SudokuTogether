@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — hidden triple fixture and regression correction
+
+Discovery 45566580197 FOUND original unique position on attempt 72: 500078912000000040198040067009060020400800091010000050901037284287419030000080179. Sources/targets 12,30,48; digits 1,7,9; removals 12:[3,5,6],30:[3,5],48:[3]. All six eliminations independently verified. Trace locked candidate ×2 → hidden triple → locked candidate → explicit solution reveal; no claim of complete logical solve. Ordinary gate 45566580191 failed synthetic pattern expectation: earlier valid alternate triple selected. Adjusted synthetic masks to eliminate alternate pattern, no solver change. Pinned eighth practice lesson and exact proof/grade/oracle regression plus Android practice test. Fresh CI and device review pending.
+
+
 ## B3-04 — hidden triple engine
 
 Seventh practice lesson gate 45565974801 passed. Added Coach-only hidden triple detection after naked triples, retained candidate evidence, teaching prompt and pattern tests. Parameterized original fixture discovery and selected HIDDEN_TRIPLE for dedicated research workflow; removed reference probes from active discovery (historical provenance retained). Fresh CI and full puzzle fixture pending. No generation grading, save or scoring changes.

@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Latest — hidden triple practice
+
+Discovery 45566580197 found original unique fixture on attempt 72; ordinary gate 45566580191 failed one ambiguous synthetic pattern test. Corrected test input and added eighth practice lesson with permanent proof assertions. Verify fresh CI before advancing to quadruples. Full logical solve not claimed; fixture ends in explicit reveal. No release or save changes.
+
+
 ## Latest — Coach naked triple practice
 
 Discovery run 45565311197 FOUND original unique puzzle on attempt 8, with independently validated naked triple. Seventh practice lesson and pinned regression now implemented; verify fresh CI and device review. Next hidden triple engine, fixture and teaching support. Existing public Beta2/save identity untouched. See docs/BETA3_PROGRESS.md.

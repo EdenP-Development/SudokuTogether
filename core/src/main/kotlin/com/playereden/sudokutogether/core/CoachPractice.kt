@@ -63,6 +63,12 @@ object CoachPractice {
                 "Three squares in one row, column or box can reserve three digits, even when their individual candidate lists differ.",
                 "004070900002000340198342567859001403400053000003004050001537004000009035005086100"
             ),
+            // Original generated mid-game fixture, discovery run 45566580197, attempt 72.
+            lesson(
+                "hidden-triple", Technique.HIDDEN_TRIPLE,
+                "Find three digits that can only appear in the same three squares. Remove unrelated candidates from those squares.",
+                "500078912000000040198040067009060020400800091010000050901037284287419030000080179"
+            ),
             lesson(
                 "x-wing", Technique.X_WING,
                 "A digit confined to the same two columns in two rows can be crossed off elsewhere in those columns.",

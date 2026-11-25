@@ -1,5 +1,6 @@
 package com.playereden.sudokutogether.core
 
+import com.playereden.sudokutogether.core.HumanSudoku.Technique.HIDDEN_TRIPLE
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.HIDDEN_PAIR
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.HIDDEN_SINGLE
 import com.playereden.sudokutogether.core.HumanSudoku.Technique.LOCKED_CANDIDATE
@@ -12,7 +13,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class CoachPracticeTest {
-    @Test fun lessonsPresentSevenRulesInOrderUsingCoachProofs() {
+    @Test fun lessonsPresentEightRulesInOrderUsingCoachProofs() {
         val lessons = CoachPractice.lessons
         assertEquals(listOf(
             "only-digit" to NAKED_SINGLE,
@@ -21,6 +22,7 @@ class CoachPracticeTest {
             "naked-pair" to NAKED_PAIR,
             "hidden-pair" to HIDDEN_PAIR,
             "naked-triple" to NAKED_TRIPLE,
+            "hidden-triple" to HIDDEN_TRIPLE,
             "x-wing" to X_WING
         ), lessons.map { it.id to it.technique })
 
@@ -59,6 +61,7 @@ class CoachPracticeTest {
             "naked-pair" to Example(26, listOf(1, 4, 9), listOf(9)),
             "hidden-pair" to Example(48, listOf(2, 3, 4, 9), listOf(4, 9)),
             "naked-triple" to Example(43, listOf(1, 2, 7, 8, 9), listOf(2, 7, 8)),
+            "hidden-triple" to Example(12, listOf(1, 3, 5, 6, 9), listOf(3, 5, 6)),
             "x-wing" to Example(31, listOf(5, 8), listOf(5))
         )
         for ((id, expected) in examples) {
@@ -98,6 +101,20 @@ class CoachPracticeTest {
         assertEquals(listOf(1, 9), lesson.candidatesAt(43).filterNot { it in lesson.correctDigits })
         assertEquals(listOf(LOCKED_CANDIDATE, LOCKED_CANDIDATE, LOCKED_CANDIDATE,
             NAKED_TRIPLE, LOCKED_CANDIDATE, HIDDEN_SINGLE),
+            SudokuAssistance.nextCoachHint(lesson.puzzle, lesson.puzzle.clues)!!.steps.map { it.technique })
+        assertEquals(HumanSudoku.Grade.BEYOND_CURRENT_LOGIC, HumanSudoku.assess(lesson.puzzle).grade)
+    }
+
+    @Test fun hiddenTripleReplaysExactEvidenceAndKeepsRevealExplicit() {
+        val lesson = CoachPractice.lessons.single { it.id == "hidden-triple" }
+        assertEquals(List(2) { LOCKED_CANDIDATE }, lesson.setup.map { it.technique })
+        assertEquals(listOf(12, 30, 48), lesson.step.sourceCells)
+        assertEquals(listOf(1, 7, 9), lesson.step.digits)
+        assertEquals(mapOf(12 to listOf(3,5,6), 30 to listOf(3,5), 48 to listOf(3)), lesson.step.eliminations)
+        assertEquals(mapOf(12 to listOf(1,3,5,6,9), 30 to listOf(1,3,5,7), 48 to listOf(3,7,9)), lesson.step.proofCandidates)
+        assertEquals(listOf(1,9), lesson.candidatesAt(12).filterNot { it in lesson.correctDigits })
+        assertEquals(listOf(LOCKED_CANDIDATE, LOCKED_CANDIDATE, HIDDEN_TRIPLE,
+            LOCKED_CANDIDATE, HumanSudoku.Technique.SOLUTION_REVEAL),
             SudokuAssistance.nextCoachHint(lesson.puzzle, lesson.puzzle.clues)!!.steps.map { it.technique })
         assertEquals(HumanSudoku.Grade.BEYOND_CURRENT_LOGIC, HumanSudoku.assess(lesson.puzzle).grade)
     }
