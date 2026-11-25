@@ -1,5 +1,7 @@
 # Beta 3 progress — active checkpoint
 
+2026-11-24 — Physical Co-op playtest evidence added; owner reports rejoin works decently overall. B3-07 now has partial physical evidence for both modes, all three Co-op difficulties, with board layout and connection UX follow-ups. See foundation audit. B3-001 CI status: success.
+
 2026-11-24 — B3-001 first implementation: explicit successful backup/restore status drives green/check Notice on Settings and Home; default warnings unchanged, recovery state suppresses success. Extended existing Android instrumentation test. Baseline CI 45513523860 passed; new branch CI pending. No production release or save format changes. B3-00 remaining archival and measured/physical checks still open.
 
 2026-11-24 — Owner supplied physical Beta 2 Versus playtest screenshots; partial real-device evidence and B3-07 follow-ups recorded in BETA3_FOUNDATION_AUDIT.md. Reconnect result unknown. Baseline CI run 45513523860 status at check: completed / success.

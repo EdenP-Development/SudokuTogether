@@ -55,7 +55,7 @@ Optional gentle pencil/tap/erase, unlock and completion cues, restrained animati
 Acceptance: silent mode usable, preferences persist, no stuck audio or intrusive effects, licensing documented and device-tested.
 
 ### B3-07 — Multiplayer refinement
-Retain simple same-Wi-Fi host/join, optional room code and compatible protocol behavior. Audit presence, ready/waiting states, co-op partner activity, versus progress, results, reconnect, rematch and cleanup. Test two real devices when available; distinguish simulated/emulator evidence from physical. Trusted LAN scope; no remote matchmaking or online infrastructure in this cycle. Protocol changes require explicit compatibility policy.
+Retain simple same-Wi-Fi host/join, optional room code and compatible protocol behavior. Audit presence, ready/waiting states, co-op partner activity, versus progress, results, reconnect, rematch and cleanup. Owner Beta 2 physical evidence now covers Versus and Co-op (Easy/Medium/Hard Co-op); rejoin works decently overall per owner. See foundation audit for limitations. Prioritize stable board layout, compact partner legend and connection UX; preserve distinct player styles. Test two real devices when available; distinguish simulated/emulator evidence from physical. Trusted LAN scope; no remote matchmaking or online infrastructure in this cycle. Protocol changes require explicit compatibility policy.
 Acceptance: targeted automated tests plus real-device evidence or explicit owner deferral for noncritical cases; critical data-loss/security defects not deferred.
 
 ### B3-08 — Integrated polish
