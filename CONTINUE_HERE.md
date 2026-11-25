@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Latest — naked quadruple practice
+
+Discovery 45567877813 FOUND original unique fixture on attempt 613; ordinary gate 45567877886 passed. Ninth practice lesson and proof regression added. Verify fresh CI, then hidden quadruple engine and original fixture. Full logical solve not claimed; fixture ends in explicit reveal. Coach Review 1 planned after ten techniques/lessons. No release or save changes.
+
+
 ## Latest — hidden triple practice
 
 Discovery 45566580197 found original unique fixture on attempt 72; ordinary gate 45566580191 failed one ambiguous synthetic pattern test. Corrected test input and added eighth practice lesson with permanent proof assertions. Verify fresh CI before advancing to quadruples. Full logical solve not claimed; fixture ends in explicit reveal. No release or save changes.

@@ -69,6 +69,12 @@ object CoachPractice {
                 "Find three digits that can only appear in the same three squares. Remove unrelated candidates from those squares.",
                 "500078912000000040198040067009060020400800091010000050901037284287419030000080179"
             ),
+            // Original generated mid-game fixture, discovery run 45567877813, attempt 613.
+            lesson(
+                "naked-quadruple", Technique.NAKED_QUADRUPLE,
+                "Four squares in one group reserve four digits. Remove those digits from the other squares in that group.",
+                "534678912672195348198000567000000020026050791700020050961500204287419635000000109"
+            ),
             lesson(
                 "x-wing", Technique.X_WING,
                 "A digit confined to the same two columns in two rows can be crossed off elsewhere in those columns.",

@@ -71,6 +71,19 @@ class CoachPracticeUiTest {
         }
     }
 
+    @Test fun nakedQuadruplePracticeDistinguishesValidAndInvalidRemovals() {
+        val lesson = CoachPractice.lessons.single { it.id == "naked-quadruple" }
+        compose.setContent { SudokuTogetherTheme { CoachPracticeDialog(Appearance(), false) {} } }
+        compose.onNodeWithTag("practice_lesson_naked-quadruple").performScrollTo().performClick()
+        val wrong = lesson.options.first { it !in lesson.correctDigits }
+        compose.onNodeWithTag("practice_choice_$wrong").performScrollTo().performClick()
+        compose.onNodeWithText("Try another number.").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("practice_choice_${lesson.correctDigits.single()}").performScrollTo().performClick()
+        compose.onNodeWithText("Correct").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Practice again").performScrollTo().performClick()
+        compose.onNodeWithText("Correct").assertDoesNotExist()
+    }
+
     @Test fun hiddenTripleAcceptsEveryVerifiedRemoval() {
         val lesson = CoachPractice.lessons.single { it.id == "hidden-triple" }
         compose.setContent { SudokuTogetherTheme { CoachPracticeDialog(Appearance(), false) {} } }
