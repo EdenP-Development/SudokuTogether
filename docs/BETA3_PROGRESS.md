@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — naked quadruple engine
+
+Hidden triple gate 45567337291 quality-check step passed, workflow finishing cleanup at observation. Added Coach-only naked quadruple search after existing eight techniques; exact evidence and observation prompt; generalized internal SubsetPattern name. Tests cover four distinct pairs, exhaustive assignment enumeration, five-digit union rejection, no-op and malformed masks. Hidden triple regression retains exact evidence and trace prefix, allowing later supported techniques to replace old fallback. Research workflow targets NAKED_QUADRUPLE. Fresh CI and complete puzzle fixture pending. No scoring, generation grading or save changes.
+
+
 ## B3-04 — hidden triple fixture and regression correction
 
 Discovery 45566580197 FOUND original unique position on attempt 72: 500078912000000040198040067009060020400800091010000050901037284287419030000080179. Sources/targets 12,30,48; digits 1,7,9; removals 12:[3,5,6],30:[3,5],48:[3]. All six eliminations independently verified. Trace locked candidate ×2 → hidden triple → locked candidate → explicit solution reveal; no claim of complete logical solve. Ordinary gate 45566580191 failed synthetic pattern expectation: earlier valid alternate triple selected. Adjusted synthetic masks to eliminate alternate pattern, no solver change. Pinned eighth practice lesson and exact proof/grade/oracle regression plus Android practice test. Fresh CI and device review pending.

@@ -18,6 +18,7 @@ object HumanSudoku {
         X_WING("X-Wing"),
         NAKED_TRIPLE("Naked triple"),
         HIDDEN_TRIPLE("Hidden triple"),
+        NAKED_QUADRUPLE("Naked quadruple"),
         SOLUTION_REVEAL("One-number reveal")
     }
     enum class Grade { EASY, MEDIUM, HARD, BEYOND_CURRENT_LOGIC, INVALID }
@@ -62,10 +63,10 @@ object HumanSudoku {
     private fun digits(mask: Int) = (1..9).filter { mask and (1 shl it) != 0 }
     private fun single(mask: Int) = mask != 0 && mask and (mask - 1) == 0
 
-    internal data class TriplePattern(val positions: List<Int>, val mask: Int)
+    internal data class SubsetPattern(val positions: List<Int>, val mask: Int)
 
     /** Input: one house's nine candidate masks; zero means an occupied square. */
-    internal fun nakedTriple(masks: List<Int>): TriplePattern? {
+    internal fun nakedTriple(masks: List<Int>): SubsetPattern? {
         if (masks.size != 9 || masks.any { it and ALL.inv() != 0 }) return null
         val eligible = masks.indices.filter { Integer.bitCount(masks[it]) in 2..3 }
         for (a in eligible.indices) for (b in a + 1 until eligible.size)
@@ -74,13 +75,13 @@ object HumanSudoku {
                 val mask = positions.fold(0) { union, index -> union or masks[index] }
                 if (Integer.bitCount(mask) != 3) continue
                 if (masks.indices.any { it !in positions && masks[it] and mask != 0 })
-                    return TriplePattern(positions, mask)
+                    return SubsetPattern(positions, mask)
             }
         return null
     }
 
     /** Three digits confined to three positions, with other candidates to remove. */
-    internal fun hiddenTriple(masks: List<Int>): TriplePattern? {
+    internal fun hiddenTriple(masks: List<Int>): SubsetPattern? {
         if (masks.size != 9 || masks.any { it and ALL.inv() != 0 }) return null
         val positions = IntArray(10) { digit ->
             masks.indices.fold(0) { union, index ->
@@ -93,8 +94,23 @@ object HumanSudoku {
             if (Integer.bitCount(union) != 3) continue
             val cells = masks.indices.filter { union and (1 shl it) != 0 }
             val keep = (1 shl a) or (1 shl b) or (1 shl c)
-            if (cells.any { masks[it] and keep.inv() != 0 }) return TriplePattern(cells, keep)
+            if (cells.any { masks[it] and keep.inv() != 0 }) return SubsetPattern(cells, keep)
         }
+        return null
+    }
+
+    /** Four cells reserve exactly four candidates in a single house. */
+    internal fun nakedQuadruple(masks: List<Int>): SubsetPattern? {
+        if (masks.size != 9 || masks.any { it and ALL.inv() != 0 }) return null
+        val eligible = masks.indices.filter { Integer.bitCount(masks[it]) in 2..4 }
+        for (a in eligible.indices) for (b in a+1 until eligible.size)
+            for (c in b+1 until eligible.size) for (d in c+1 until eligible.size) {
+                val positions = listOf(eligible[a], eligible[b], eligible[c], eligible[d])
+                val mask = positions.fold(0) { union, index -> union or masks[index] }
+                if (Integer.bitCount(mask) != 4) continue
+                if (masks.indices.any { it !in positions && masks[it] and mask != 0 })
+                    return SubsetPattern(positions, mask)
+            }
         return null
     }
 
@@ -388,6 +404,16 @@ object HumanSudoku {
                 val source = triple.positions.map { unit[it] }
                 if (eliminate(source, ALL and triple.mask.inv(), Technique.HIDDEN_TRIPLE,
                         "Three digits are confined to three squares", source, unitIndex)) { moved = true; break }
+            }
+            if (moved) continue
+            for ((unitIndex, unit) in units.withIndex()) {
+                val quad = nakedQuadruple(unit.map { candidates[it] }) ?: continue
+                val source = quad.positions.map { unit[it] }
+                if (eliminate(unit.asIterable().filter { it !in source }, quad.mask,
+                        Technique.NAKED_QUADRUPLE,
+                        "Four squares in ${unitName(unitIndex)} reserve ${digits(quad.mask).joinToString(", ")}. " +
+                            "Each square uses only those digits; remove them from other squares in that group.",
+                        source, unitIndex)) { moved = true; break }
             }
             if (!moved) break
         }

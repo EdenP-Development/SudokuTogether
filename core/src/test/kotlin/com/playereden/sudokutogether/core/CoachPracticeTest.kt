@@ -105,7 +105,7 @@ class CoachPracticeTest {
         assertEquals(HumanSudoku.Grade.BEYOND_CURRENT_LOGIC, HumanSudoku.assess(lesson.puzzle).grade)
     }
 
-    @Test fun hiddenTripleReplaysExactEvidenceAndKeepsRevealExplicit() {
+    @Test fun hiddenTripleReplaysExactEvidence() {
         val lesson = CoachPractice.lessons.single { it.id == "hidden-triple" }
         assertEquals(List(2) { LOCKED_CANDIDATE }, lesson.setup.map { it.technique })
         assertEquals(listOf(12, 30, 48), lesson.step.sourceCells)
@@ -113,9 +113,8 @@ class CoachPracticeTest {
         assertEquals(mapOf(12 to listOf(3,5,6), 30 to listOf(3,5), 48 to listOf(3)), lesson.step.eliminations)
         assertEquals(mapOf(12 to listOf(1,3,5,6,9), 30 to listOf(1,3,5,7), 48 to listOf(3,7,9)), lesson.step.proofCandidates)
         assertEquals(listOf(1,9), lesson.candidatesAt(12).filterNot { it in lesson.correctDigits })
-        assertEquals(listOf(LOCKED_CANDIDATE, LOCKED_CANDIDATE, HIDDEN_TRIPLE,
-            LOCKED_CANDIDATE, HumanSudoku.Technique.SOLUTION_REVEAL),
-            SudokuAssistance.nextCoachHint(lesson.puzzle, lesson.puzzle.clues)!!.steps.map { it.technique })
+        assertEquals(listOf(LOCKED_CANDIDATE, LOCKED_CANDIDATE, HIDDEN_TRIPLE, LOCKED_CANDIDATE),
+            SudokuAssistance.nextCoachHint(lesson.puzzle, lesson.puzzle.clues)!!.steps.take(4).map { it.technique })
         assertEquals(HumanSudoku.Grade.BEYOND_CURRENT_LOGIC, HumanSudoku.assess(lesson.puzzle).grade)
     }
 
