@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — responsive compact Coach footer
+
+Entry review gate 45577508784 passed. Replaced Material dialog's separate wrapping action slots with one responsive footer: side-by-side controls at sufficient width and normal text, compact vertical stack below 260dp or above 1.3 font scale, 48dp minimum targets, explicit outlined secondary action and plain Back. Existing selected-cell erase guard preserved. Added large-font callback/reachability UI fixture. Fresh CI/device verification pending. No solver/scoring/save changes. Next naked-single explanation and practice polish.
+
+
 ## B3-04 — read-only entry review preview
 
 Hidden-single reasoning gate 45576014100 passed. Added read-only board preview to explicit incorrect-entry and repeated-number review. Target is outlined, known conflict peers shaded, actual entries preserved; no correct solution digit injected. Erase requires editable state and selected cell matching reviewed cell. Added screenshot-based UI fixture checking preview, no implicit erase on back, and explicit erase callback. Fresh CI and device execution pending. No scoring/save changes. Next compact dialog controls and naked-single explanations.

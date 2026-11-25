@@ -104,6 +104,28 @@ class CoachProofUiTest {
                 listOf("Row 6 column 4, empty, notes 2 3 9, cross off 9")))
     }
 
+    @Test fun largeTextFooterKeepsBothActionsReachable() {
+        val grid = "001000080000001400600983020020000000005804210300009000006000050070000098008050300".map(Char::digitToInt)
+        val snapshot = Snapshot("footer", "round", Puzzle("footer", grid), grid.map { Cell(it) })
+        var checked = 0
+        var returned = 0
+        compose.setContent {
+            SudokuTogetherTheme {
+                CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, 2f)) {
+                    PuzzleCoachDialog(GameUiState(page = Page.PLAY, role = SOLO, snapshot = snapshot,
+                        hintUnavailable = true), polishActions().copy(checkWork = { checked++ }, dismissHint = { returned++ }))
+                }
+            }
+        }
+        compose.onNodeWithTag("coach_footer").assertExists()
+        compose.onNodeWithTag("coach_secondary").assertIsDisplayed().assertIsEnabled().performClick()
+        compose.onNodeWithTag("coach_back").assertIsDisplayed().performClick()
+        compose.runOnIdle {
+            assertEquals(1, checked)
+            assertEquals(1, returned)
+        }
+    }
+
     @Test fun entryReviewShowsWrongEntryWithoutReplacingIt() {
         val clues = "001000080000001400600983020020000000005804210300009000006000050070000098008050300".map(Char::digitToInt)
         val values = clues.toMutableList().apply { this[57] = 2 }

@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.playereden.sudokutogether.core.HumanSudoku.Technique
@@ -87,15 +88,52 @@ import com.playereden.sudokutogether.core.SudokuAssistance
             }
         },
         confirmButton = {
-            TextButton(onClick=actions.dismissHint,modifier=Modifier.heightIn(min=48.dp)) { Text("Back to puzzle") }
-        },
-        dismissButton = {
-            when {
-                check?.kind == SudokuAssistance.CheckKind.INCORRECT_ENTRY ->
-                    TextButton(onClick={ actions.dismissHint();actions.erase() },enabled=state.canEdit && state.selected == check.cell,
-                        modifier=Modifier.heightIn(min=48.dp)) { Text("Erase entry") }
-                check == null -> TextButton(onClick=actions.checkWork,enabled=state.canEdit,
-                    modifier=Modifier.heightIn(min=48.dp)) { Text("Check my work") }
+            val secondaryLabel = when {
+                check?.kind == SudokuAssistance.CheckKind.INCORRECT_ENTRY -> "Erase entry"
+                check == null -> "Check my work"
+                else -> null
+            }
+            val secondaryEnabled = state.canEdit &&
+                (check?.kind != SudokuAssistance.CheckKind.INCORRECT_ENTRY || state.selected == check.cell)
+            val secondaryAction: () -> Unit = {
+                if (check?.kind == SudokuAssistance.CheckKind.INCORRECT_ENTRY) {
+                    actions.dismissHint()
+                    actions.erase()
+                } else actions.checkWork()
+            }
+            BoxWithConstraints(Modifier.fillMaxWidth().testTag("coach_footer")) {
+                val stacked = maxWidth < 260.dp || LocalDensity.current.fontScale > 1.3f
+                if (secondaryLabel == null) {
+                    TextButton(onClick = actions.dismissHint,
+                        modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("coach_back")) {
+                        Text("Back to puzzle")
+                    }
+                } else if (stacked) {
+                    Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        OutlinedButton(onClick = secondaryAction, enabled = secondaryEnabled,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("coach_secondary")) {
+                            Text(secondaryLabel)
+                        }
+                        TextButton(onClick = actions.dismissHint,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("coach_back")) {
+                            Text("Back to puzzle")
+                        }
+                    }
+                } else {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically) {
+                        OutlinedButton(onClick = secondaryAction, enabled = secondaryEnabled,
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("coach_secondary"),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)) {
+                            Text(secondaryLabel, textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        }
+                        TextButton(onClick = actions.dismissHint,
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("coach_back"),
+                            contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp)) {
+                            Text("Back to puzzle", textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        }
+                    }
+                }
             }
         }
     )
