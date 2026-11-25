@@ -1,5 +1,7 @@
 # Beta 3 progress — active checkpoint
 
+2026-11-24 — B3-003/004 first implementation: presentation-only CompanionHabitat mapping for Woodland/Ocean/Garden/Farm/default, corrected Farm caption, catalog and missing-art JVM tests. Existing Woodland scene and non-Woodland neutral gradients preserved until illustrated masters approved. B3-002 exact six evergreen assets packaged in conversation ZIP with SHA-256 manifest, Git binary transfer/launcher mask integration pending. B3-001 prior gate green. New CI pending. No changes to saves, networking, package or signing.
+
 2026-11-24 — Physical Easy Co-op completion evidence recorded, contribution statistics already exist. Prioritize completed-state disconnect copy and board layout in B3-07. B3-002 approved three icon assets recovered and hashed locally; binary transfer/integration still pending. B3-001 quality gate passed; instrumentation execution pending.
 
 2026-11-24 — Physical Co-op playtest evidence added; owner reports rejoin works decently overall. B3-07 now has partial physical evidence for both modes, all three Co-op difficulties, with board layout and connection UX follow-ups. See foundation audit. B3-001 CI status: success.

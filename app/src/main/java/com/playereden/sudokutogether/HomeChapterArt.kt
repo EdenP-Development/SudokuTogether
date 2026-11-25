@@ -31,13 +31,9 @@ import com.playereden.sudokutogether.core.Appearance
     val largeText = LocalDensity.current.fontScale > 1.3f
     val portraitId = appearance.portrait
     val portraitDrawable = refinedAnimalDrawable(portraitId, portraitRefinementEnabled())
-    val woodland = portraitDrawable == null || portraitId.startsWith("woodland_")
-    val companion = when {
-        portraitDrawable == null -> "A quiet moment, one grid at a time"
-        portraitId.startsWith("ocean_") -> "With your ocean companion"
-        portraitId.startsWith("garden_") -> "With your garden companion"
-        else -> "With your woodland companion"
-    }
+    val habitat = companionHabitat(portraitId, portraitDrawable != null)
+    val woodland = habitat == CompanionHabitat.DEFAULT || habitat == CompanionHabitat.WOODLAND
+    val companion = habitat.caption
 
     Box(modifier.clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
         .testTag("home_chapter_art")) {
