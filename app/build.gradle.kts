@@ -232,6 +232,7 @@ android {
             if (privateSigning.isNotEmpty()) signingConfig = signingConfigs.getByName("privateKey")
         }
     }
+    if (beta3VisualPreview) sourceSets.getByName("debug").res.srcDir(rootProject.file("build/beta3-visual-res"))
     buildFeatures { compose = true; buildConfig = true }
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
