@@ -666,6 +666,7 @@ class GameViewModel @JvmOverloads constructor(
         }
     }
     fun join(endpoint: Endpoint, code: String) {
+        if (_state.value.busy || _state.value.page != Page.JOIN) return
         val resume = _state.value.resumingGuest
         val identity = if (resume) guestResume?.guest else null
         val expectedSession = if (resume) guestResume?.snapshot?.sessionId else null
@@ -677,14 +678,14 @@ class GameViewModel @JvmOverloads constructor(
                 if (generation.get() == current) {
                     if (event.token != null) savedToken = event.token
                     val snapshot = event.snapshot
+                    if (snapshot != null && expectedSession != null && snapshot.sessionId != expectedSession) {
+                        guest?.close()
+                        _state.update { it.copy(busy = false, connected = false, message = "This is a different puzzle room. Rejoin your original room or start a new join.") }
+                        return@GuestClient
+                    }
                     if (snapshot != null) recordMultiplayer(snapshot, GUEST)
                     var saveMessage: String? = null
                     if (snapshot != null && savedToken != null) {
-                        if (expectedSession != null && snapshot.sessionId != expectedSession) {
-                            guest?.close()
-                            _state.update { it.copy(busy = false, connected = false, message = "This is a different puzzle room. Join it again with its room code.") }
-                            return@GuestClient
-                        }
                         val mirror = SavedSession(snapshot = snapshot, guest = GuestIdentity(snapshot.guestName ?: name, savedToken!!))
                         try { guestStore.save(mirror); guestResume = mirror } catch (_: Exception) { saveMessage = "This phone couldn't save its rejoin information. Your host still has the shared puzzle." }
                     }
@@ -706,7 +707,7 @@ class GameViewModel @JvmOverloads constructor(
             }
             try {
                 guest = client
-                client.connect(endpoint.host, endpoint.port, code, name, identity?.token, _state.value.appearance)
+                client.connect(endpoint.host, endpoint.port, code, name, identity?.token, _state.value.appearance, expectedSessionId = expectedSession)
                 if (generation.get() != current) { client.close(); return@launch }
                 publishRoomPresence()
                 val formatted = if (endpoint.host.contains(':')) "[${endpoint.host}]:${endpoint.port}" else "${endpoint.host}:${endpoint.port}"

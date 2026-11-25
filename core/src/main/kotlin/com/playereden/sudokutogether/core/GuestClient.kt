@@ -9,7 +9,7 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
     private val reader = Executors.newSingleThreadExecutor(threads("sudoku-input"))
     @Volatile private var link: Link? = null
     private fun emit(event: ClientEvent) { runCatching { listener(event) } }
-    fun connect(host: String, port: Int, code: String, name: String, resumeToken: String? = null, appearance: Appearance = Appearance()) {
+    fun connect(host: String, port: Int, code: String, name: String, resumeToken: String? = null, appearance: Appearance = Appearance(), expectedSessionId: String? = null) {
         require(Cosmetics.valid(appearance))
         if (host.isBlank() || port !in 1..65535) throw IOException("Enter a valid host address and port.")
         check(link == null) { "Already connected" }
@@ -24,6 +24,8 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
             if (welcome.type == "error") throw IOException(welcome.text.take(300))
             if (welcome.type != "welcome" || welcome.version != WIRE_PROTOCOL_VERSION || welcome.snapshot == null || welcome.status == null || welcome.token == null) throw IOException("The host is running an incompatible app version.")
             validateSnapshot(welcome.snapshot)
+            if (expectedSessionId != null && welcome.snapshot.sessionId != expectedSessionId)
+                throw IOException("This is a different puzzle room. Rejoin your original room or start a new join.")
             if (welcome.token.length !in 32..128) throw IOException("Invalid rejoin credential")
             socket.soTimeout = 10_000
             val current = Link(socket) { drop(it, "Connection paused. Reconnect to the host to continue.") }; link = current

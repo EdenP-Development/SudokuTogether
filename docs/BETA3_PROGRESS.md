@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## Current checkpoint — B3-07.03 reconnect identity guard (2026-11-25)
+
+Integrated Co-op/Versus presence gate 45591133224 passed at 714ca811. Reconnect audit found the guest callback recorded multiplayer results before checking expected room identity. GuestClient now optionally validates expected session ID before emitting welcome, and ViewModel independently rejects mismatched snapshots before records or mirror writes; guards duplicate/busy/non-join activation. Added loopback JVM fixtures for rejected and accepted room identity. Wire messages unchanged; server admission can still occur before client rejects a wrong welcome, so not a new authentication guarantee. Fresh gate pending. Next audit rematch and completed Co-op reconnect control, then layout/integrated release review. Physical two-phone checks and signed upgrade remain pending. Audio prototypes private and unlicensed for distribution. Public Beta2 unchanged; no publication authorized.
+
+
 ## B3-07.02 — Versus pause details and Co-op compile repair
 
 Gate 45590467586 failed because one completed-board call still referenced removed roomStatusText; switched to coopPresence(state).label. Versus presence retains existing phases and scores while adding explicit host-away/rival-away/disconnected guidance, stable reconnect test tag and regression assertions. No protocol or gameplay changes. Fresh integrated gate pending; physical review pending. Next verify CI and inspect reconnect token/session continuity and completed Co-op reconnect affordance.

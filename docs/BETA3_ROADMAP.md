@@ -1,5 +1,10 @@
 # GridMates: Sudoku — Beta 3: Polish and depth
 
+## Current checkpoint — B3-07.03 reconnect identity guard (2026-11-25)
+
+Integrated Co-op/Versus presence gate 45591133224 passed at 714ca811. Reconnect audit found the guest callback recorded multiplayer results before checking expected room identity. GuestClient now optionally validates expected session ID before emitting welcome, and ViewModel independently rejects mismatched snapshots before records or mirror writes; guards duplicate/busy/non-join activation. Added loopback JVM fixtures for rejected and accepted room identity. Wire messages unchanged; server admission can still occur before client rejects a wrong welcome, so not a new authentication guarantee. Fresh gate pending. Next audit rematch and completed Co-op reconnect control, then layout/integrated release review. Physical two-phone checks and signed upgrade remain pending. Audio prototypes private and unlicensed for distribution. Public Beta2 unchanged; no publication authorized.
+
+
 ## B3-07 handoff — audio pilot verified; soundtrack rights hold (2026-11-25)
 
 Gate 45588866784 passed at 263bbba9: optional native sound feedback, fail-safe dispatch and JVM tests; portable restore instrumentation compiled, not executed. B3-06 REVIEW; custom music deferred and not a release dependency. Suno official terms and FAQs reviewed: four owner-reported free-tier M4A prototypes restricted to personal noncommercial experiments; later subscription does not automatically clear prior tracks; obtain explicit track-specific rights or regenerate/download while commercially licensed. No prototype binary in public repository or release. Shared provisional soundtrack families documented at https://github.com/EdenP-Development/Eden-Development-Standards/blob/8febbd923f663889d8ea00160f1c5f78af16d9d3/audio/gridmates/README.md (Sudoku/Word Search cozy, Grid Hunt/Crossroads proposed board-strategy). B3-07 ACTIVE: next inspect LAN presence/rejoin, status UI, rematch and regression coverage before targeted edits. Physical multiplayer, audio and upgrade checks remain open. No protocol, save, signing or publication changes.
