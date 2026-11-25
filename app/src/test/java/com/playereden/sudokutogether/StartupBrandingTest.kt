@@ -9,6 +9,6 @@ class StartupBrandingTest {
     }
 
     @Test fun approvedSeriesStageFollowsDeveloperStage() {
-        assertEquals(listOf(R.drawable.spudacus_v1_full_transparent, 123), startupBrandingStages(123))
+        assertEquals(listOf(R.drawable.spudacus_v1_full_transparent, R.drawable.gridmates_v1_runtime_transparent), startupBrandingStages(R.drawable.gridmates_v1_runtime_transparent))
     }
 }

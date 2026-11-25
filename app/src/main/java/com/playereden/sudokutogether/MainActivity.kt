@@ -94,7 +94,7 @@ class MainActivity : ComponentActivity() {
                     dismiss = model::dismissProgressBackupPreview,
                     restore = model::confirmProgressBackupRestore
                 )
-                StartupBranding(showInitially = savedInstanceState == null)
+                StartupBranding(showInitially = savedInstanceState == null, seriesDrawable = R.drawable.gridmates_v1_runtime_transparent)
                 }
             }
         }

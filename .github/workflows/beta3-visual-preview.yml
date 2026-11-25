@@ -19,6 +19,8 @@ jobs:
       - run: python -m pip install Pillow==11.3.0
       - name: Verify bundled Spudacus artwork
         run: echo '74773dbda822161f73a639f959e8bce5c6e0b333a94ebeb8ee27f620d4995d25  app/src/main/res/drawable-nodpi/spudacus_v1_full_transparent.png' | sha256sum -c -
+      - name: Verify bundled GridMates artwork
+        run: echo 'eef6d631cac0b9523f7e0dbebac229f9a2458d36fe2e73e111d251704d9ff292  app/src/main/res/drawable-nodpi/gridmates_v1_runtime_transparent.png' | sha256sum -c -
       - name: Generate adaptive icon from verified master
         run: |
           python - <<'PY'
@@ -75,15 +77,16 @@ jobs:
           APK=app/build/outputs/apk/debug/app-debug.apk
           TOOLS="$ANDROID_HOME/build-tools/35.0.0"
           "$TOOLS/aapt" dump badging "$APK" > beta3-review/apk-badging.txt
-          grep -F "package: name='com.playereden.sudokutogether.qa.beta3visual2'" beta3-review/apk-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta3visual3'" beta3-review/apk-badging.txt
           "$TOOLS/apksigner" verify --verbose --print-certs "$APK" > beta3-review/signature.txt
           unzip -l "$APK" | grep -F 'beta3_fox_foreground'
           unzip -l "$APK" | grep -F 'spudacus_v1_full_transparent'
-          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-Visual2.apk
+          unzip -l "$APK" | grep -F 'gridmates_v1_runtime_transparent'
+          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-Visual3.apk
           (cd beta3-review && sha256sum *.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
         with:
-          name: GridMates-Sudoku-Beta3-Visual2
+          name: GridMates-Sudoku-Beta3-Visual3
           path: beta3-review/
           if-no-files-found: error
           retention-days: 14

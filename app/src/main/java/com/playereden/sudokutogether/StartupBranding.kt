@@ -19,7 +19,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 
-// No placeholder series artwork: enable only after a pinned approved resource is bundled.
+// Optional series stage; Sudoku is the sole approved two-stage pilot.
 internal fun startupBrandingStages(seriesDrawable: Int? = null): List<Int> =
     listOfNotNull(R.drawable.spudacus_v1_full_transparent, seriesDrawable)
 
@@ -45,12 +45,13 @@ internal fun StartupBranding(showInitially: Boolean, seriesDrawable: Int? = null
             return@LaunchedEffect
         }
         opacity.snapTo(0f)
-        opacity.animateTo(1f, tween(180))
-        delay(420)
-        opacity.animateTo(0f, tween(180))
+        opacity.animateTo(1f, tween(160))
+        delay(280)
+        opacity.animateTo(0f, tween(160))
         stage++
     }
     if (visible) {
+        // Keep the cream surface continuous between both stages.
         Box(
             Modifier.fillMaxSize().background(Color(0xFFFAE7CD))
                 .clickable(onClickLabel = "Skip startup") { stage = stages.size }
