@@ -34,6 +34,7 @@ class FinishAndDailyPresentationUiTest {
         compose.onNodeWithText("Achievement · First Grid").assertExists()
         compose.onNodeWithText("Collection unlock · Rabbit").assertExists()
         compose.onNodeWithText("New puzzle").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithText("Records").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun finishedDailyShowsActualCompletedDaysAndBackHome() {

@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-03 — completion presentation and integrated Gameplay Review 1
+
+Compact toolbar gate 45555324321 passed at 54d59364; instrumentation compiled, not executed. Completion card centers heading and summary text, makes Records a full-width 48dp action and allows expanding all earned rewards from the existing record-derived list rather than hiding extras permanently. No reward logic changes. Existing finish fixture now checks Records reachability. Isolated Gameplay1 preview configured with unique temporary debug package com.playereden.sudokutogether.qa.beta3gameplay1, exact approved startup and fox artwork, unchanged habitat assets. Fresh gates, APK receipt and physical review pending. Reward expansion needs device verification. No public release or save migration.
+
+
 ## B3-03 — compact controls, slice 4
 
 Board clarity gate 45554437011 passed at e7905516 (instrumentation compiled, not executed). Narrow toolbars below 340dp at font scale above 1.3 use two controls per row; narrow large-text page below 364dp switches to whole-page scroll to preserve board/control reachability. Normal text layouts unchanged. Added narrow portrait reachability instrumentation fixture. Fresh CI and device execution pending. Next review completion card and prepare integrated Gameplay Review 1. No changes to approved branding, game rules, saves or signing.

@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Latest — Gameplay Review 1
+
+B3-03 slices 1–4 passed ordinary CI through 45555324321. Completion presentation and isolated Gameplay1 review workflow now configured; verify latest CI and artifact before owner testing. See docs/BETA3_PROGRESS.md for details. Do not mark instrumentation executed or production upgrade verified. After physical gameplay review continue Coach milestone; preserve approved startup, public Beta2 and save/signing continuity.
+
+
 ## Current development checkpoint — 2026-11-24 local
 
 Active branch: feat/beta3-foundation. Visual4 source 96747991e98f78c90e10d6eda447d1be085a3674 passed visual CI 45550962814 and Android gate 45550962759; artifact 14993249624. Owner physically approved both startup screens and revised nominal 3-second timing. See BETA3_STARTUP_PILOT.md for exact asset hashes, implementation and remaining technical validation. Fox launcher rendered physically at 58dp; all four habitats rendered in earlier owner screenshots. Native launcher promotion, habitat persistence/contrast acceptance, original archive durability and startup accessibility/lifecycle/performance verification remain open. No public release or cross-project rollout here.

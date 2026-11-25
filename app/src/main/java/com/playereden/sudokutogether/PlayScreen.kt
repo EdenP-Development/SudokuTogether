@@ -406,7 +406,7 @@ private fun roomStatusText(state: GameUiState): String {
                     state.role == SOLO -> "Puzzle completed"
                     else -> "Solved together!"
                 }, color = Forest, fontSize = 20.sp, fontFamily = FontFamily.Serif,
-                    fontWeight = FontWeight.SemiBold)
+                    fontWeight = FontWeight.SemiBold, textAlign = TextAlign.Center)
                 if (state.role == SOLO) {
                     val finished = state.finishedSolo?.takeIf { it.id == snapshot.sessionId }
                         ?: if (state.dailyDate == null) state.profile.activeSolo
@@ -415,10 +415,11 @@ private fun roomStatusText(state: GameUiState): String {
                         val assisted = finished.assisted
                         Text("Time  " + formatElapsed(finished.elapsedMs) + "   ·   " +
                             difficultyName(finished.puzzle.difficulty),
-                            color = Forest, fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                            color = Forest, fontWeight = FontWeight.SemiBold, fontSize = 14.sp,
+                            textAlign = TextAlign.Center)
                         Text("${finished.moves} " + (if (finished.moves == 1) "move" else "moves") + "   ·   " +
                             (if (assisted) "Assisted" else "Unassisted"),
-                            color = Ink, fontSize = 12.sp)
+                            color = Ink, fontSize = 12.sp, textAlign = TextAlign.Center)
                         if (finished.hintsUsed > 0)
                             Text("${finished.hintsUsed} Coach hint" +
                                 (if (finished.hintsUsed == 1) "" else "s") + " used",
@@ -435,19 +436,23 @@ private fun roomStatusText(state: GameUiState): String {
                     CompletionRewards.forRecord(state.profile.records, snapshot.sessionId)
                 }
                 if (earned.hasNewRewards) {
+                    var showAllRewards by rememberSaveable(snapshot.sessionId) { mutableStateOf(false) }
                     Surface(Modifier.fillMaxWidth().testTag("finish_new_rewards"),
                         color = Paper, shape = RoundedCornerShape(13.dp), border = BorderStroke(1.dp, Rule)) {
                         Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
                             Eyebrow("EARNED WITH THIS PUZZLE")
-                            earned.achievements.take(2).forEach { title ->
+                            (if (showAllRewards) earned.achievements else earned.achievements.take(2)).forEach { title ->
                                 Text("Achievement · ${title}", style = MaterialTheme.typography.bodySmall, color = Forest)
                             }
-                            earned.cosmetics.take(2).forEach { title ->
+                            (if (showAllRewards) earned.cosmetics else earned.cosmetics.take(2)).forEach { title ->
                                 Text("Collection unlock · ${title}", style = MaterialTheme.typography.bodySmall, color = Forest)
                             }
                             val more = (earned.achievements.size - 2).coerceAtLeast(0) +
                                 (earned.cosmetics.size - 2).coerceAtLeast(0)
-                            if (more > 0) Text("+${more} more earned", style = MaterialTheme.typography.bodySmall, color = Muted)
+                            if (more > 0) TextButton(onClick = { showAllRewards = !showAllRewards },
+                                modifier = Modifier.heightIn(min = 48.dp).testTag("finish_rewards_expand")) {
+                                Text(if (showAllRewards) "Show fewer rewards" else "Show all rewards (+$more)")
+                            }
                         }
                     }
                 }
@@ -468,7 +473,8 @@ private fun roomStatusText(state: GameUiState): String {
                         Text("New puzzle")
                     }
                 } else Text("Your host can start the next puzzle.", color = Muted, fontSize = 12.sp)
-                if (state.role == SOLO) TextButton(onClick = actions.profile) {
+                if (state.role == SOLO) TextButton(onClick = actions.profile,
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                     Text("Records")
                 }
             }
