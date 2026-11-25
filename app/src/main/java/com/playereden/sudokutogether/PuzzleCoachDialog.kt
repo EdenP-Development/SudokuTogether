@@ -30,7 +30,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         SudokuAssistance.CheckKind.CORRECT_SO_FAR -> "No errors found"
         SudokuAssistance.CheckKind.NO_ENTRIES -> "No entries to check"
         null -> when {
-            hint == null -> "No logical step"
+            hint == null -> "Something may be blocking your puzzle"
             hint.steps.first().technique == SOLUTION_REVEAL -> SOLUTION_REVEAL.label
             else -> "Your next deduction"
         }
@@ -58,7 +58,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
                         }
                     }
                     else -> {
-                        Text("Check my work can find an earlier entry that’s blocking the puzzle.", color = Ink)
+                        Text("An earlier entry may be preventing the Coach from finding a safe deduction. Check my work can help you review it.", color = Ink)
                         Text("Solution checks mark this puzzle Assisted.", color = Muted)
                     }
                 }
@@ -87,6 +87,8 @@ import com.playereden.sudokutogether.core.SudokuAssistance
     var index by rememberSaveable(hint) { mutableIntStateOf(0) }
     var explainedSteps by rememberSaveable(hint) { mutableStateOf(intArrayOf()) }
     val explained = index in explainedSteps
+    var evidenceSteps by rememberSaveable(hint) { mutableStateOf(intArrayOf()) }
+    val evidence = index in evidenceSteps || explained
     var revealed by rememberSaveable(hint) { mutableStateOf(false) }
     LaunchedEffect(index) { scroll.scrollTo(0) }
     val step = hint.steps[index.coerceIn(hint.steps.indices)]
@@ -106,7 +108,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         SOLUTION_REVEAL -> ""
     }
     val targets = step.targetCells.toSet()
-    val sources = if (explained) step.sourceCells.toSet() else emptySet()
+    val sources = if (evidence) step.sourceCells.toSet() else emptySet()
     if (hint.steps.size > 1) {
         Text("Step ${index + 1} of ${hint.steps.size}", color = Forest)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -117,6 +119,28 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         }
         if (index > 0 && !reveal) Text("Earlier deductions are already taken into account in this step.",
             color = Muted, style = MaterialTheme.typography.bodySmall)
+    }
+    // Keep the board above changing teaching copy so each stage has the same anchor.
+    val resultVisible = explained && !reveal && step.eliminations.isNotEmpty() && showResult
+    val preview = remember(snapshot, step, evidence, explained, resultVisible) {
+        snapshot.copy(cells = snapshot.cells.mapIndexed { cellIndex, cell ->
+            val removed = if (explained) step.eliminations[cellIndex].orEmpty() else emptyList()
+            val supporting = if (step.eliminations.isNotEmpty() && cellIndex in sources)
+                step.proofCandidates[cellIndex].orEmpty().filter { it in step.digits } else emptyList()
+            val shown = when {
+                resultVisible && cellIndex in targets -> step.proofCandidates[cellIndex].orEmpty().filterNot { it in removed }
+                explained -> removed + supporting
+                evidence && step.eliminations.isNotEmpty() && cellIndex in (targets + sources) -> step.proofCandidates[cellIndex].orEmpty()
+                else -> emptyList()
+            }
+            cell.copy(notes = shown.fold(0) { notes, digit -> notes or (1 shl (digit - 1)) })
+        })
+    }
+    BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+        SudokuBoard(preview, selected = -1, partner = -1, size = maxWidth.coerceAtMost(280.dp), select = null,
+            boardTheme = state.appearance.board, localStyle = state.appearance, solo = true,
+            uniformNumbers = state.uniformNumbers, proofTargets = targets, proofSources = sources,
+            proofEliminations = if (explained && !resultVisible) step.eliminations else emptyMap())
     }
     if (reveal) {
         val cell = step.targetCells.single()
@@ -138,9 +162,15 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         Text(if (cell == null) "Look at the outlined squares."
             else "Look at row ${cell / 9 + 1}, column ${cell % 9 + 1}.", color = Ink)
         Text(observation, color = Ink, style = MaterialTheme.typography.bodyMedium)
-        Text("Try spotting the pattern before opening the explanation.", color = Muted,
+        Text(if (evidence) "Study the shaded evidence and candidate marks. Can you work out the deduction?"
+            else "Try spotting the pattern before opening the explanation.", color = Muted,
             style = MaterialTheme.typography.bodySmall)
-        OutlinedButton(onClick = { explainedSteps = (explainedSteps + index).distinct().toIntArray() }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Show why") }
+        OutlinedButton(onClick = {
+            if (evidence) explainedSteps = (explainedSteps + index).distinct().toIntArray()
+            else evidenceSteps = (evidenceSteps + index).distinct().toIntArray()
+        }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+            Text(if (evidence) "Show why" else "Show evidence")
+        }
     }
     val placementShown = if (reveal) revealed else explained
     if (placementShown && step.eliminations.isEmpty()) {
@@ -149,26 +179,8 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         }
     }
 
-    val resultVisible = explained && !reveal && step.eliminations.isNotEmpty() && showResult
-    val preview = remember(snapshot, step, explained, resultVisible) {
-        snapshot.copy(cells = snapshot.cells.mapIndexed { cellIndex, cell ->
-            val removed = if (explained) step.eliminations[cellIndex].orEmpty() else emptyList()
-            val supporting = if (step.eliminations.isNotEmpty() && cellIndex in sources)
-                step.proofCandidates[cellIndex].orEmpty().filter { it in step.digits } else emptyList()
-            val shown = if (resultVisible && cellIndex in targets)
-                step.proofCandidates[cellIndex].orEmpty().filterNot { it in removed }
-            else removed + supporting
-            cell.copy(notes = shown.fold(0) { notes, digit -> notes or (1 shl (digit - 1)) })
-        })
-    }
-    BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-        SudokuBoard(preview, selected = -1, partner = -1, size = maxWidth.coerceAtMost(280.dp), select = null,
-            boardTheme = state.appearance.board, localStyle = state.appearance, solo = true,
-            uniformNumbers = state.uniformNumbers, proofTargets = targets, proofSources = sources,
-            proofEliminations = if (explained && !resultVisible) step.eliminations else emptyMap())
-    }
     if (explained && !reveal) {
-        Text(if (step.eliminations.isEmpty()) "Use the highlighted evidence to work out the number, then return to your puzzle."
+        Text(if (step.eliminations.isEmpty()) "Return to your puzzle and enter the number yourself."
             else "Crossed-off pencil marks are no longer possible. These changes are shown in the example only.", color = Ink,
             style = MaterialTheme.typography.bodySmall)
         Text("Outlined squares are the focus. Shaded squares support the deduction.", color = Muted,

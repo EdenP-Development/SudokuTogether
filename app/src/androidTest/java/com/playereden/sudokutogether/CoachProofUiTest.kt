@@ -41,6 +41,10 @@ class CoachProofUiTest {
         compose.onNodeWithText("Look for a digit whose possible squares are confined to one line or box.").assertExists()
         compose.onNodeWithText(hint.steps.first().explanation).assertDoesNotExist()
         compose.onNodeWithText("Next step").assertIsNotEnabled()
+        compose.onNodeWithText("Show evidence").performScrollTo().performClick()
+        compose.onNodeWithText(hint.steps.first().explanation).assertDoesNotExist()
+        compose.onNodeWithText("Next step").assertIsNotEnabled()
+        compose.onNodeWithTag("coach_cell_78").assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Proof square"))
         compose.onNodeWithText("Show why").performScrollTo().performClick()
         compose.onNodeWithText("Step 1 of 2").assertExists()
         compose.onNodeWithText("Crossed-off pencil marks are no longer possible. These changes are shown in the example only.").assertExists()
@@ -63,6 +67,7 @@ class CoachProofUiTest {
         compose.onNodeWithText("Previous step").performScrollTo().performClick()
         compose.onNodeWithText(hint.steps[0].explanation).assertExists()
         compose.onNodeWithText("Next step").performScrollTo().performClick()
+        compose.onNodeWithText("Show evidence").performScrollTo().performClick()
         compose.onNodeWithText("Show why").performScrollTo().performClick()
         compose.onNodeWithText(hint.steps[1].explanation).assertIsDisplayed()
         compose.onNodeWithTag("coach_cell_26")
@@ -85,10 +90,12 @@ class CoachProofUiTest {
             }
         }
 
+        compose.onNodeWithText("Show evidence").performScrollTo().performClick()
         compose.onNodeWithText("Show why").performScrollTo().performClick()
         repeat(3) {
             compose.onNodeWithText("Next step").performScrollTo().performClick()
-            compose.onNodeWithText("Show why").performScrollTo().performClick()
+            compose.onNodeWithText("Show evidence").performScrollTo().performClick()
+        compose.onNodeWithText("Show why").performScrollTo().performClick()
         }
         compose.onNodeWithText("Hidden pair").assertIsDisplayed()
         compose.onNodeWithTag("coach_cell_48")

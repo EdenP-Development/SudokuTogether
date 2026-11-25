@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — Coach Review 1 physical feedback and evidence stage
+
+Coach1 artifact 15002054797, run 45572700126 and ordinary gate 45572700108 passed at 053fee97. Owner screenshots show observation, hidden-single explanation (R7C6=8), no-logical-step state, incorrect entry review R7C4 and explicit erase returning to selected empty square with filled count 6→5. Multi-step/advanced lessons, startup timing, large text and persistence not physically confirmed. Added per-step Show evidence stage before Show why; source shading and exact candidates for elimination steps without crossed-off marks, placement candidate answers withheld. Board moved above variable explanation copy (visual stability requires device confirmation); softened unavailable copy. Updated UI test fixtures, no solver/scoring/save changes. Fresh CI pending. Next refine hidden-single ruled-out visual and error-review preview.
+
+
 ## B3-04 — Coach Review 1 build configuration
 
 Ten lessons integrated at 8c3ee0e6. Branch subsequently received shared startup timing trial dd1ea099 and timing assertions 8db5c3a8; retained these concurrent changes rather than reverting. Configured isolated preview package com.playereden.sudokutogether.qa.beta3coach1 and GridMates-Sudoku-Beta3-Coach1 artifact using existing hash-verified branding build path. Fresh full gate and preview artifact verification pending. Separate installation with fresh local data, not a public upgrade rehearsal. Device tests compiled, not executed by this workflow. No public signing or save schema changes.
