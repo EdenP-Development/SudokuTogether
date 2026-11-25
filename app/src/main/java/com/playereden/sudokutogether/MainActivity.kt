@@ -73,6 +73,7 @@ class MainActivity : ComponentActivity() {
                 onDispose { window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON) }
             }
             SudokuTogetherTheme {
+                androidx.compose.foundation.layout.Box {
                 SudokuApp(
                     state,
                     actions,
@@ -93,6 +94,8 @@ class MainActivity : ComponentActivity() {
                     dismiss = model::dismissProgressBackupPreview,
                     restore = model::confirmProgressBackupRestore
                 )
+                StartupBranding(showInitially = savedInstanceState == null)
+                }
             }
         }
     }
