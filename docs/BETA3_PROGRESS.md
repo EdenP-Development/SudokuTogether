@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — hidden quadruple diverse fixture search
+
+Gate 45570695860 passed. Discovery 45570695927 completed NOT_FOUND with original bounded search. Hidden quadruples can be preempted by smaller complementary naked subsets. Expanded research-only generator to diverse random completed grids, optional near-empty-house bias, three deterministic seed lanes (73193/183027/94051), 12,000 attempts and 150-second nominal budget per lane. Retains actual production Coach ordering, uniqueness/oracle checks and old single-seed search behavior when diverse mode disabled. New results pending; no runtime changes or tenth lesson claimed.
+
+
 ## B3-04 — hidden quadruple engine
 
 Ninth lesson gate 45568742101 passed. Added Coach-only hidden quadruple search after existing nine techniques, exact evidence and observation/explanation text. Tests cover four confined digit position pairs, exhaustive reserved assignments, fifth position rejection, no-op and malformed masks. Research workflow targets HIDDEN_QUADRUPLE. Fresh CI and complete-puzzle fixture pending. No grading, scoring or save changes.

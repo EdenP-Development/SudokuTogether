@@ -10,6 +10,10 @@ jobs:
   discovery:
     runs-on: ubuntu-latest
     timeout-minutes: 12
+    strategy:
+      fail-fast: false
+      matrix:
+        seed: [73193, 183027, 94051]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -21,12 +25,14 @@ jobs:
         env:
           GRIDMATES_COACH_DISCOVERY: '1'
           GRIDMATES_COACH_TECHNIQUE: HIDDEN_QUADRUPLE
+          GRIDMATES_COACH_DIVERSE: '1'
+          GRIDMATES_COACH_SEED: ${{ matrix.seed }}
         run: |
           set -o pipefail
           ./gradlew :core:test --tests '*CoachFixtureDiscoveryTest' --rerun-tasks --no-daemon --max-workers=2 --console=plain | tee coach-discovery.txt
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: coach-fixture-discovery
+          name: coach-fixture-discovery-${{ matrix.seed }}
           path: coach-discovery.txt
           retention-days: 14
