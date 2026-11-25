@@ -1,5 +1,9 @@
 # Continue GridMates: Sudoku
 
+## Latest checkpoint — Visual4 timing review
+
+Visual3 CI 45547418369 and Android gate 45547547064 passed. Owner physically confirmed both splashes appeared but too fast to screenshot, and agreed to longer timing with tap skip. Timing commit 914ef9af7fbf62c0be47d548b679bb462fb1d8c9: 250ms fade in + 1000ms hold + 250ms fade out per logo; 3 seconds nominal combined. Visual4 isolated debug package; no public changes. See docs/BETA3_STARTUP_PILOT.md. Next verify Visual4 artifact and owner review; then continue B3-03 gameplay audit. No other-project rollout.
+
 ## Latest checkpoint — GridMates v1.0 two-stage startup pilot
 
 Visual2 CI 45546351053 and standard gate 45546362833 passed. Owner approved exact GridMates series logo and Sudoku-only pilot. Implementation commit fb9e4afd91d6aa58fac642d932e9f5620c7c60af bundles exact GridMates asset, enables second stage, configures both checksum gates and Visual3 isolated debug build, and updates B3-01 roadmap. See docs/BETA3_STARTUP_PILOT.md for source hashes, timings, scaling, skip behavior and limitations. Fresh CI and physical feedback pending. No rollout to other games or public release; existing production package/signing/saves unchanged. Next verify Visual3, obtain owner feedback and refine before documenting reusable central implementation. Continue existing Beta3 gameplay roadmap.

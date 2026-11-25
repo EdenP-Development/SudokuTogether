@@ -77,16 +77,16 @@ jobs:
           APK=app/build/outputs/apk/debug/app-debug.apk
           TOOLS="$ANDROID_HOME/build-tools/35.0.0"
           "$TOOLS/aapt" dump badging "$APK" > beta3-review/apk-badging.txt
-          grep -F "package: name='com.playereden.sudokutogether.qa.beta3visual3'" beta3-review/apk-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta3visual4'" beta3-review/apk-badging.txt
           "$TOOLS/apksigner" verify --verbose --print-certs "$APK" > beta3-review/signature.txt
           unzip -l "$APK" | grep -F 'beta3_fox_foreground'
           unzip -l "$APK" | grep -F 'spudacus_v1_full_transparent'
           unzip -l "$APK" | grep -F 'gridmates_v1_runtime_transparent'
-          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-Visual3.apk
+          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-Visual4.apk
           (cd beta3-review && sha256sum *.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
         with:
-          name: GridMates-Sudoku-Beta3-Visual3
+          name: GridMates-Sudoku-Beta3-Visual4
           path: beta3-review/
           if-no-files-found: error
           retention-days: 14

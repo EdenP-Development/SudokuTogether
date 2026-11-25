@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## Visual4 — owner timing feedback
+
+Visual3 build and separate Android gate passed (45547418369, 45547547064). Owner physically saw both logos but could not capture screenshots due to short timing; agreed tap-to-skip allows longer holds. Timing revised to 250/1000/250ms per logo, nominal 3s combined. Preserve exact assets, fox size, habitat art and existing skip/reduced-motion handling. Visual4 isolated review CI pending; no final approval or other-project rollout.
+
+
 ## Latest checkpoint — GridMates v1.0 two-stage startup pilot
 
 Visual2 CI 45546351053 and standard gate 45546362833 passed. Owner approved exact GridMates series logo and Sudoku-only pilot. Implementation commit fb9e4afd91d6aa58fac642d932e9f5620c7c60af bundles exact GridMates asset, enables second stage, configures both checksum gates and Visual3 isolated debug build, and updates B3-01 roadmap. See docs/BETA3_STARTUP_PILOT.md for source hashes, timings, scaling, skip behavior and limitations. Fresh CI and physical feedback pending. No rollout to other games or public release; existing production package/signing/saves unchanged. Next verify Visual3, obtain owner feedback and refine before documenting reusable central implementation. Continue existing Beta3 gameplay roadmap.
