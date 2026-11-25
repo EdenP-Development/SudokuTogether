@@ -51,7 +51,10 @@ import com.playereden.sudokutogether.core.SoloProgress
         Column(Modifier.widthIn(max = 480.dp).fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(10.dp)) {
             HomeHeader(state, help, profile, markStyle)
-            (state.message ?: state.saveIssue)?.let { Notice(it) }
+            (state.message ?: state.saveIssue)?.let {
+                Notice(it, success = state.saveIssue == null && !state.localSaveBlocked &&
+                    state.message != null && state.message == state.backupSuccessMessage)
+            }
             if (nearbyMode == null) {
                 BookSoloStage(state, actions, savedSolo, active?.completed == true, freshSolo)
                 DailyGameRibbon(state, actions, hasToday, dayDone,

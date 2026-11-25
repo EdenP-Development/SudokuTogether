@@ -34,6 +34,9 @@ class ProgressBackupSettingsUiTest {
         try {
             compose.runOnUiThread { model.exportProgressBackup(Uri.fromFile(saved)) }
             awaitMessage(model, "Progress backup saved.")
+            assertEquals(true, model.progressBackup.value.succeeded)
+            compose.onNodeWithText("Progress backup saved.").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithTag("notice_success").assertIsDisplayed()
             incoming.writeBytes(
                 ProgressBackup.encode(
                     before.profile.copy(playerId = "another-installation"),
@@ -52,6 +55,9 @@ class ProgressBackupSettingsUiTest {
             awaitPreview(model)
             compose.onNodeWithText("Restore").assertIsDisplayed().performClick()
             awaitMessage(model, "Progress restored.")
+            assertEquals(true, model.progressBackup.value.succeeded)
+            compose.onNodeWithText("Progress restored.").performScrollTo().assertIsDisplayed()
+            compose.onNodeWithTag("notice_success").assertIsDisplayed()
             assertEquals(before.profile, model.state.value.profile)
             assertEquals("Transferred player", model.state.value.name)
             assertEquals("HARD", model.state.value.selectedDifficulty)

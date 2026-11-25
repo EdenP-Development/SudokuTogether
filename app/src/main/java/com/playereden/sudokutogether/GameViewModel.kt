@@ -51,7 +51,8 @@ data class GameUiState(
     val todayDate: String = DailyChallenge.today(),
     val hintUnavailable: Boolean = false,
     val entryCheck: SudokuAssistance.EntryCheck? = null,
-    val requireRoomCode: Boolean = false
+    val requireRoomCode: Boolean = false,
+    val backupSuccessMessage: String? = null
 ) {
     val canEdit: Boolean get() = snapshot != null && !snapshot.completed && !busy && pendingId == null && ((role == SOLO && !localSaveBlocked) || (role != SOLO && !status.paused && (snapshot.mode != VERSUS || status.guestActive) && (role == HOST || connected)))
     internal val canRematch: Boolean get() = role == HOST && !busy && status.hostActive && status.guestActive &&
@@ -137,7 +138,7 @@ class GameViewModel @JvmOverloads constructor(
         val output = getApplication<Application>().contentResolver.openOutputStream(uri, "wt")
             ?: throw IOException("Progress destination is unavailable.")
         output.use { it.write(bytes) }
-        ProgressBackupUiState(message = "Progress backup saved.")
+        ProgressBackupUiState(message = "Progress backup saved.", succeeded = true)
     }
 
     internal fun previewProgressBackup(uri: Uri) = runBackupOperation {
@@ -163,7 +164,7 @@ class GameViewModel @JvmOverloads constructor(
                     appearance = savedAppearance()
                 )
             }
-            ProgressBackupUiState(message = "Progress restored.")
+            ProgressBackupUiState(message = "Progress restored.", succeeded = true)
         }
     }
 
@@ -175,13 +176,14 @@ class GameViewModel @JvmOverloads constructor(
             return
         }
         _progressBackup.value = ProgressBackupUiState(working = true)
-        _state.update { it.copy(busy = true) }
+        _state.update { it.copy(busy = true, backupSuccessMessage = null) }
         viewModelScope.launch(workDispatcher) {
             try {
                 val result = operation()
                 _progressBackup.value = result
                 if (result.message != null) _state.update {
-                    if (it.page == Page.HOME) it.copy(message = result.message) else it
+                    if (it.page == Page.HOME) it.copy(message = result.message,
+                        backupSuccessMessage = result.message.takeIf { _ -> result.succeeded }) else it
                 }
             } catch (error: CancellationException) {
                 throw error
@@ -207,6 +209,7 @@ class GameViewModel @JvmOverloads constructor(
         _state.update {
             it.copy(
                 message = if (it.page == Page.HOME) message else it.message,
+                backupSuccessMessage = null,
                 localSaveBlocked = recoveryRequired || it.localSaveBlocked,
                 saveIssue = if (recoveryRequired) message else it.saveIssue
             )

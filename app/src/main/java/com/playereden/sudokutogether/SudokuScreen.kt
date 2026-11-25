@@ -10,6 +10,9 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -171,11 +174,17 @@ internal fun difficultyName(level: String?): String = when (level) {
     else -> "Legacy"
 }
 
-@Composable internal fun Notice(message: String) {
-    Surface(color = Color(0xFFF8E8E0), shape = RoundedCornerShape(13.dp), modifier = Modifier.fillMaxWidth()) {
+@Composable internal fun Notice(message: String, success: Boolean = false) {
+    val tone = if (success) Forest else Brick
+    Surface(color = if (success) GreenTint else Color(0xFFF8E8E0),
+        shape = RoundedCornerShape(13.dp), modifier = Modifier.fillMaxWidth()
+            .testTag(if (success) "notice_success" else "notice_default")) {
         Row(Modifier.padding(12.dp), horizontalArrangement = Arrangement.spacedBy(9.dp)) {
-            GameIcon(GameSymbol.HELP, Brick, Modifier.size(19.dp))
-            Text(message, fontSize = 12.sp, lineHeight = 18.sp, color = Brick, modifier = Modifier.weight(1f))
+            GameIcon(if (success) GameSymbol.CHECK else GameSymbol.HELP, tone,
+                Modifier.size(19.dp).then(if (success) Modifier.semantics {
+                    contentDescription = "Success"
+                } else Modifier))
+            Text(message, fontSize = 12.sp, lineHeight = 18.sp, color = tone, modifier = Modifier.weight(1f))
         }
     }
 }

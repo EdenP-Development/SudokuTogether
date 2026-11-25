@@ -22,7 +22,8 @@ internal data class ProgressBackupUiState(
     val working: Boolean = false,
     val preview: BackupPreview? = null,
     val message: String? = null,
-    val recoveryRequired: Boolean = false
+    val recoveryRequired: Boolean = false,
+    val succeeded: Boolean = false
 )
 
 @Composable internal fun ProgressBackupSettings(
@@ -45,7 +46,7 @@ internal data class ProgressBackupUiState(
             Text("Restore backup")
         }
         if (backup.working) Text("Working with your progress file…", color = Muted)
-        backup.message?.let { Notice(it) }
+        backup.message?.let { Notice(it, success = backup.succeeded && !backup.recoveryRequired) }
     }
 
 }
