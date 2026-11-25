@@ -1,5 +1,9 @@
 # Continue GridMates: Sudoku
 
+## AUD-05.02 — feedback compile repair
+
+Bundled soundtrack preview 45686336504 passed at 6c65acfb (all six APK hashes verified). Interaction cue gate 45686836413 failed unresolved feedback in PlayGridViewport. Pass callback through PlayBoardPane, suppress selection cue on completed boards, use descriptor-based SoundPool loading before temporary WAV deletion, detach listener on release. New gate pending; no handset verification. Completion/reward cues deferred until this gate passes. Codex review quota is not a build dependency. Public Beta2 unchanged.
+
 ## AUD-04.03B — bundled soundtrack preview
 
 Archive gate 45684820645 passed. Isolated preview now packages six verified uncompressed AAC assets, recognizes main theme, hides import controls when bundled assets available, retains manual Play and foreground stop. APK gate verifies all six asset hashes and storage method. Fresh CI and handset playback pending; no public release or permanent preferences yet. Portfolio pilot handoff remains open.

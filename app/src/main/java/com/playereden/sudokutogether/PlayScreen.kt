@@ -229,7 +229,7 @@ import kotlinx.coroutines.delay
                 if (race != null) VersusResults(state, race, { actions.rematch(race.epoch) }) { actions.showJoin(true) }
                 else PuzzleFinishCard(state, actions, new)
             }
-            PlayGridViewport(state, actions, new, roomStatus, viewportHeight - 8.dp)
+            PlayGridViewport(state, actions, new, roomStatus, viewportHeight - 8.dp, feedback)
             if (state.role != SOLO && snapshot.mode != VERSUS) PartnerStrip(state)
             if (snapshot.mode == COOP && snapshot.completed && snapshot.guestName != null) {
                 GamePanel(Modifier.widthIn(max = 460.dp).fillMaxWidth()) {
@@ -247,7 +247,7 @@ import kotlinx.coroutines.delay
 }
 
 /** Measure related content in the same layout pass; no layout-to-state feedback. */
-@Composable private fun PlayGridViewport(state: GameUiState, actions: GameActions, new: () -> Unit, roomStatus: Boolean, viewportHeight: Dp) {
+@Composable private fun PlayGridViewport(state: GameUiState, actions: GameActions, new: () -> Unit, roomStatus: Boolean, viewportHeight: Dp, feedback: (PuzzleCue) -> Unit) {
     val snapshot = state.snapshot ?: return
     val coOp = state.role != SOLO && snapshot.mode == COOP
     val boardTheme = if (coOp) {
@@ -317,7 +317,7 @@ import kotlinx.coroutines.delay
                 border = BorderStroke(1.dp, Rule), modifier = Modifier.testTag("board_frame")) {
                 Box(Modifier.padding(8.dp)) {
                     SudokuBoard(snapshot, state.selected, if (state.role == SOLO || snapshot.mode == VERSUS) -1 else state.partnerCell,
-                        gridSize, { feedback(PuzzleCue.SELECT); actions.select(it) },
+                        gridSize, { if (!snapshot.completed) feedback(PuzzleCue.SELECT); actions.select(it) },
                         boardTheme, state.appearance, state.role == SOLO, state.uniformNumbers)
                 }
             }

@@ -60,7 +60,9 @@ internal class PuzzleSoundBank(context: android.content.Context) {
                     bytes.put("data".toByteArray()).putInt(samples.size * 2)
                     samples.forEach { bytes.putShort(it) }
                     file.writeBytes(bytes.array())
-                    ids[cue] = pool.load(file.absolutePath, 1)
+                    java.io.FileInputStream(file).use { input ->
+                        ids[cue] = pool.load(input.fd, 0L, file.length(), 1)
+                    }
                 } finally { file.delete() }
             }
         }
@@ -69,5 +71,5 @@ internal class PuzzleSoundBank(context: android.content.Context) {
         val id = ids[cue] ?: return
         if (id in ready) pool.play(id, .45f, .45f, 1, 0, 1f)
     }
-    fun release() { pool.release() }
+    fun release() { pool.setOnLoadCompleteListener(null); pool.release(); ready.clear(); ids.clear() }
 }
