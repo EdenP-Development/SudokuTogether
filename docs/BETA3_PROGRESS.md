@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-03 — board clarity, slice 3
+
+Prior repaired Android gate 45554050396 passed at 7ba1edda (instrumentation compiled, not executed). Add non-color underline to conflicting entered values, retaining fixed clue styling and Coach proof distinctions; add accessible matching-number and related-square states. New instrumentation fixture checks conflict/related/matching announcements and correction. No solution validation, scoring, rule, save or artwork change. Fresh CI and physical review pending.
+
+
 ## Current development checkpoint — 2026-11-24 local
 
 Active branch: feat/beta3-foundation. Visual4 source 96747991e98f78c90e10d6eda447d1be085a3674 passed visual CI 45550962814 and Android gate 45550962759; artifact 14993249624. Owner physically approved both startup screens and revised nominal 3-second timing. See BETA3_STARTUP_PILOT.md for exact asset hashes, implementation and remaining technical validation. Fox launcher rendered physically at 58dp; all four habitats rendered in earlier owner screenshots. Native launcher promotion, habitat persistence/contrast acceptance, original archive durability and startup accessibility/lifecycle/performance verification remain open. No public release or cross-project rollout here.

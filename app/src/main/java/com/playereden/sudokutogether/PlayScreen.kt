@@ -637,6 +637,9 @@ private fun roomStatusText(state: GameUiState): String {
                     i == partner || i == selected -> Modifier.border(2.dp, boardEdge)
                     else -> Modifier
                 }
+                // A short underline flags a repeated entered value without relying on hue.
+                // Keep fixed clues and Coach proof annotations distinct.
+                val conflictMarker = i in conflicts && !given && cell.value != 0 && !proofTarget && !proofSource
                 val click = if (select == null) Modifier else Modifier.clickable(role = Role.Button) { select(i) }
                 val tag = if (select == null) "coach_cell_$i" else "cell_$i"
                 val semantics = if (select == null && !announceAllCells && !proofTarget && !proofSource) Modifier.clearAndSetSemantics {}
@@ -654,6 +657,8 @@ private fun roomStatusText(state: GameUiState): String {
                                 else "Conflicting entered value"
                             i == selected -> "Selected square"
                             i == partner -> "Partner's selected square"
+                            selectedValue != 0 && selectedValue == cell.value -> "Matching number"
+                            sameHouse -> "Related square"
                             else -> "Puzzle square"
                         }
                     }
@@ -663,7 +668,8 @@ private fun roomStatusText(state: GameUiState): String {
                         style = digitStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
                         maxLines = 1, softWrap = false, fontWeight = if (given) FontWeight.Bold else FontWeight.Normal,
                         color = if (i in conflicts && !given) conflictDigitInk(background, palette) else if (given) neutralInk
-                        else legibleBoardDigitInk(authoredInk, background, palette))
+                        else legibleBoardDigitInk(authoredInk, background, palette),
+                        textDecoration = if (conflictMarker) TextDecoration.Underline else null)
                     else if (cell.notes != 0) Column(Modifier.fillMaxSize().padding(1.dp)) {
                         // Keep the equipped color. If a dark-board highlight makes
                         // small pencil marks too faint, lift their contrast locally.
