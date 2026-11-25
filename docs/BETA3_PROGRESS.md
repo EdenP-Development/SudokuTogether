@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — candidate result demonstration, slice 3
+
+Live Coach elimination steps now offer an explicit Show remaining candidates / Show deduction toggle after explanation. Target squares display exact surviving candidates from pre-step proof evidence; text lists before → after per affected square. Toggle resets with step navigation; no live puzzle mutation or score changes. Added UI fixture assertions for candidate result and return to deduction. Fresh CI and device verification pending. Research backlog remains separate from implemented support.
+
+
 ## Coach research backlog
 
 Owner requested research through extreme Sudoku techniques. Added docs/BETA3_COACH_RESEARCH.md with reference links, proposed curriculum, correctness gates and scope controls. No external code/content imported, no new runtime capability or grading change. Next proof demonstration, then verified technique expansion.

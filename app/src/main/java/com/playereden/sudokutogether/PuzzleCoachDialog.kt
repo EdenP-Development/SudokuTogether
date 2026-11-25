@@ -9,6 +9,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.unit.dp
 import com.playereden.sudokutogether.core.HumanSudoku.Technique
@@ -89,6 +90,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
     LaunchedEffect(index) { scroll.scrollTo(0) }
     val step = hint.steps[index.coerceIn(hint.steps.indices)]
     val reveal = step.technique == SOLUTION_REVEAL
+    var showResult by rememberSaveable(hint, index) { mutableStateOf(false) }
     val observation = when (step.technique) {
         Technique.NAKED_SINGLE -> "Which digits are already used in the highlighted square’s row, column and box?"
         Technique.HIDDEN_SINGLE -> "Which digit has only one possible home in a row, column or box?"
@@ -140,19 +142,23 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         }
     }
 
-    val preview = remember(snapshot, step, explained) {
+    val resultVisible = explained && !reveal && step.eliminations.isNotEmpty() && showResult
+    val preview = remember(snapshot, step, explained, resultVisible) {
         snapshot.copy(cells = snapshot.cells.mapIndexed { cellIndex, cell ->
             val removed = if (explained) step.eliminations[cellIndex].orEmpty() else emptyList()
             val supporting = if (step.eliminations.isNotEmpty() && cellIndex in sources)
                 step.proofCandidates[cellIndex].orEmpty().filter { it in step.digits } else emptyList()
-            cell.copy(notes = (removed + supporting).fold(0) { notes, digit -> notes or (1 shl (digit - 1)) })
+            val shown = if (resultVisible && cellIndex in targets)
+                step.proofCandidates[cellIndex].orEmpty().filterNot { it in removed }
+            else removed + supporting
+            cell.copy(notes = shown.fold(0) { notes, digit -> notes or (1 shl (digit - 1)) })
         })
     }
     BoxWithConstraints(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         SudokuBoard(preview, selected = -1, partner = -1, size = maxWidth.coerceAtMost(280.dp), select = null,
             boardTheme = state.appearance.board, localStyle = state.appearance, solo = true,
             uniformNumbers = state.uniformNumbers, proofTargets = targets, proofSources = sources,
-            proofEliminations = if (explained) step.eliminations else emptyMap())
+            proofEliminations = if (explained && !resultVisible) step.eliminations else emptyMap())
     }
     if (explained && !reveal) {
         Text(if (step.eliminations.isEmpty()) "Use the highlighted evidence to work out the number, then return to your puzzle."
@@ -160,9 +166,23 @@ import com.playereden.sudokutogether.core.SudokuAssistance
             style = MaterialTheme.typography.bodySmall)
         Text("Outlined squares are the focus. Shaded squares support the deduction.", color = Muted,
             style = MaterialTheme.typography.bodySmall)
+        if (step.eliminations.isNotEmpty()) {
+            OutlinedButton(onClick = { showResult = !showResult },
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("coach_show_result")) {
+                Text(if (resultVisible) "Show deduction" else "Show remaining candidates")
+            }
+            if (resultVisible) Text("After this deduction", color = Forest,
+                style = MaterialTheme.typography.titleSmall)
+        }
         for ((cell, digits) in step.eliminations) {
-            Text("Cross off ${digits.joinToString(" and ")} at row ${cell / 9 + 1}, column ${cell % 9 + 1}.",
+            val location = "row ${cell / 9 + 1}, column ${cell % 9 + 1}"
+            val before = step.proofCandidates[cell].orEmpty()
+            val after = before.filterNot { it in digits }
+            Text("Cross off ${digits.joinToString(" and ")} at $location.",
                 color = Ink, style = MaterialTheme.typography.bodySmall)
+            if (resultVisible) Text("${before.joinToString(", ")} → ${after.joinToString(", ")}",
+                color = Forest, style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.testTag("coach_result_$cell"))
         }
     }
 }

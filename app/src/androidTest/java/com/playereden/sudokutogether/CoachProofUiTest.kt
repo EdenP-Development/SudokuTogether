@@ -48,6 +48,14 @@ class CoachProofUiTest {
         compose.onNodeWithTag("coach_cell_62")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Hint target"))
         compose.onNodeWithText("Cross off 7 at row 7, column 9.").assertExists()
+        compose.onNodeWithTag("coach_show_result").performScrollTo().performClick()
+        val before = hint.steps[0].proofCandidates.getValue(62)
+        val after = before.filterNot { it == 7 }
+        compose.onNodeWithTag("coach_result_62").performScrollTo().assertTextEquals("${before.joinToString(", ")} → ${after.joinToString(", ")}")
+        compose.onNodeWithTag("coach_cell_62").assert(SemanticsMatcher.expectValue(SemanticsProperties.ContentDescription,
+            listOf("Row 7 column 9, empty, notes ${after.joinToString(" ")}")))
+        compose.onNodeWithTag("coach_show_result").performScrollTo().performClick()
+        compose.onNodeWithTag("coach_result_62").assertDoesNotExist()
         compose.onNodeWithText("Next step").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText("Step 2 of 2").assertIsDisplayed()
         compose.onNodeWithText(hint.steps[1].explanation).assertIsDisplayed()
