@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.SubcomposeLayout
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import android.view.SoundEffectConstants
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
@@ -40,7 +42,11 @@ import kotlinx.coroutines.delay
     var copied by remember { mutableStateOf(false) }
     val clipboard = LocalClipboardManager.current
     val haptics = LocalHapticFeedback.current
-    fun tick() { if (state.touchFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove) }
+    val feedbackView = LocalView.current
+    fun tick() {
+        if (state.touchFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+        if (state.soundEffects) feedbackView.playSoundEffect(SoundEffectConstants.CLICK)
+    }
     fun copyCode() { clipboard.setText(AnnotatedString(state.roomCode)); copied = true; tick() }
     LaunchedEffect(copied) { if (copied) { delay(1800); copied = false } }
     val snapshot = state.snapshot
@@ -303,8 +309,11 @@ import kotlinx.coroutines.delay
                 border = BorderStroke(1.dp, Rule), modifier = Modifier.testTag("board_frame")) {
                 Box(Modifier.padding(8.dp)) {
                     val haptics = LocalHapticFeedback.current
+                    val feedbackView = LocalView.current
                     SudokuBoard(snapshot, state.selected, if (state.role == SOLO || snapshot.mode == VERSUS) -1 else state.partnerCell,
-                        gridSize, { if (state.touchFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove); actions.select(it) },
+                        gridSize, { if (state.touchFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+                            if (state.soundEffects) feedbackView.playSoundEffect(SoundEffectConstants.CLICK)
+                            actions.select(it) },
                         boardTheme, state.appearance, state.role == SOLO, state.uniformNumbers)
                 }
             }

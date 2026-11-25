@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-06 — optional device-native feedback pilot
+
+Reward gate 45585519590 still running at inspection. Added default-off local Sound effects preference, independent of existing touch feedback. Uses Android View.playSoundEffect(CLICK) on explicit board/keypad feedback paths; respects platform sound-effect settings, no custom audio, no playback lifecycle or background stream, no added permissions. Preference deliberately device-local, not added to portable backup format; retained across normal state reset, inspect restore behavior in follow-up. No claim of custom quiet pencil sound or music yet. Owner experimenting with Suno separately. Fresh CI and device audibility/settings verification pending. Next check backup compatibility, state transitions, feedback dispatch and audio asset intake plan.
+
+
 ## B3-05 reward continuity and future audio direction (2026-11-25)
 
 Medal detail gate 45584899760 failed on missing FontFamily import; corrected. Existing core audits cover deduplicated records, stable ownership after pruning, eligibility and bulk progress. Added cross-ledger regression for all 85 cosmetic and 47 medal IDs/counts, valid emblem references, assisted solve exclusion from clean medals and retained ownership after record pruning. Fresh integrated CI pending; no threshold/save changes. B3-05 remains active until gate verified, then B3-06 optional restrained tactile/audio feedback. Owner wants future Suno experiments with assistant-written prompts for original instrumental background music and potentially useful sound material, owner generates and supplies files. Not a Beta3 release dependency. Verify commercial rights for specific generated assets and document provenance before integration; audition/trim/loop/normalize offline assets, no mandatory music or online dependency. No audio generated or added at this checkpoint.

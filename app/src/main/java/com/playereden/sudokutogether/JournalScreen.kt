@@ -554,6 +554,9 @@ internal fun achievementCategoryIcon(category: String): GameSymbol = when (categ
             state.uniformNumbers, actions.uniformNumbers, enabled)
         HorizontalDivider(color = Rule)
         SettingToggle("Touch feedback", "Board and keypad vibration.", state.touchFeedback, actions.touchFeedback, enabled)
+        HorizontalDivider(color = Rule)
+        SettingToggle("Sound effects", "Quiet keypad and board clicks, when allowed by your device sound settings.",
+            state.soundEffects, actions.soundEffects, enabled)
     }
     GamePanel(Modifier.fillMaxWidth()) {
         SectionTitle("Solo assistance")

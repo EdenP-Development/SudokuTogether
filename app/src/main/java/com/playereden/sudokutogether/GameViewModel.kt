@@ -41,6 +41,7 @@ data class GameUiState(
     val chatVisible: Boolean = false,
     val uniformNumbers: Boolean = false,
     val touchFeedback: Boolean = true,
+    val soundEffects: Boolean = false,
     val selectedDifficulty: String = "EASY",
     val autoCleanNotes: Boolean = false,
     val hint: SudokuAssistance.CoachHint? = null,
@@ -84,6 +85,7 @@ class GameViewModel @JvmOverloads constructor(
         name = preferences.getString("name", "Player") ?: "Player",
         uniformNumbers = preferences.getBoolean("uniformNumbers", false),
         touchFeedback = preferences.getBoolean("touchFeedback", true),
+        soundEffects = preferences.getBoolean("soundEffects", false),
         autoCleanNotes = preferences.getBoolean("autoCleanNotes", false),
         requireRoomCode = preferences.getBoolean("requireRoomCode", false),
         selectedDifficulty = preferences.getString("difficulty", "EASY")
@@ -387,6 +389,11 @@ class GameViewModel @JvmOverloads constructor(
             }
         }
     }
+    fun setSoundEffects(enabled: Boolean) {
+        if (settingsLocked) return
+        preferences.edit().putBoolean("soundEffects", enabled).apply()
+        _state.update { it.copy(soundEffects = enabled) }
+    }
     fun setTouchFeedback(enabled: Boolean) {
         if (settingsLocked) return
         preferences.edit().putBoolean("touchFeedback", enabled).apply()
@@ -568,7 +575,7 @@ class GameViewModel @JvmOverloads constructor(
         _state.update { GameUiState(name = it.name, resumeHost = it.resumeHost,
             resumeGuest = guestResume != null, saveIssue = localPlayer.recoveryWarning ?: it.saveIssue, profile = saved, localSaveBlocked = !localPlayer.canSave,
             resumeSolo = saved.activeSolo != null, resumeRace = it.resumeRace, appearance = it.appearance,
-            uniformNumbers = it.uniformNumbers, touchFeedback = it.touchFeedback,
+            uniformNumbers = it.uniformNumbers, touchFeedback = it.touchFeedback, soundEffects = it.soundEffects,
             autoCleanNotes = it.autoCleanNotes, selectedDifficulty = it.selectedDifficulty, requireRoomCode = it.requireRoomCode,
             todayDate = DailyChallenge.today()) }
     }
