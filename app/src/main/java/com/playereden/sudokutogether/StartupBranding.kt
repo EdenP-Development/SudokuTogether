@@ -45,9 +45,9 @@ internal fun StartupBranding(showInitially: Boolean, seriesDrawable: Int? = null
             return@LaunchedEffect
         }
         opacity.snapTo(0f)
-        opacity.animateTo(1f, tween(160))
-        delay(280)
-        opacity.animateTo(0f, tween(160))
+        opacity.animateTo(1f, tween(250))
+        delay(1000)
+        opacity.animateTo(0f, tween(250))
         stage++
     }
     if (visible) {
