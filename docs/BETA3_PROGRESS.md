@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## Coach research backlog
+
+Owner requested research through extreme Sudoku techniques. Added docs/BETA3_COACH_RESEARCH.md with reference links, proposed curriculum, correctness gates and scope controls. No external code/content imported, no new runtime capability or grading change. Next proof demonstration, then verified technique expansion.
+
+
 ## B3-04 — teaching architecture direction
 
 Guided observation gate 45559098905 passed at 9108642d. Owner emphasized genuine coaching and suggested The Last Taters as inspiration. Read README and TATER_BRAIN_LAB at pinned source 0c768b7f; proposed explainable local teaching architecture in docs/BETA3_COACH_TEACHING_ARCHITECTURE.md. No code reuse or adaptive tracking implemented; next before/after proof presentation. Instrumentation still compiled only.
