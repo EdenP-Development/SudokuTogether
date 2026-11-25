@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-03 — gameplay input feedback, slice 1
+
+Notes keypad now highlights existing pencil marks in the selected editable blank square, with stronger outline, tint, check indicator and selected accessibility semantics. Erase disabled on empty unmarked squares; remains available for notes or entries. No change to entry rules, count computation, scoring or persistence. Existing keypad accessibility test expanded to cover selected notes and erase availability. CI and physical review pending. Approved startup unchanged.
+
+
 ## Owner visual acceptance — Visual4
 Owner supplied two physical portrait screenshots of the actual Spudacus and GridMates startup screens and stated “I think that was pretty much perfect.” Accept the visual presentation and nominal timing as the owner-approved pilot design. Visual4 source 96747991e98f78c90e10d6eda447d1be085a3674; visual CI 45550962814 PASSED, artifact 14993249624; standard gate 45550962759 PASSED. Both exact asset checks, compile/JVM regression/lint/assembly/package/signature checks passed; startup instrumentation compiled, not executed. Screenshots show centered aspect-fit logos, cream background and no additional wording. Do not infer that tap/Back skip, reduced motion, warm resume, rotation, offline behavior, accessibility or performance were individually physically tested; these remain verification items. Three-second nominal sequence is a skippable overlay, not readiness-based; actual wall time not measured. Owner intends to return this accepted visual design to shared branding chat for central standard and subsequent adoption. No other-project changes or public release performed here. Continue B3-03 gameplay milestone after handoff.
 

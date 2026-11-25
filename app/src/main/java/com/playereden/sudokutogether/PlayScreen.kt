@@ -487,6 +487,7 @@ private fun roomStatusText(state: GameUiState): String {
     // the keypad first rather than surfacing a misleading failed-save message.
     val noteTargetOpen = !state.notes || selectedCell?.value == 0
     val chosenValue = selectedCell?.value
+    val hasEraseTarget = selectedCell?.let { it.value != 0 || it.notes != 0 } == true
     Column(Modifier.fillMaxWidth().background(Paper, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
         .border(1.dp, Rule, RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp))
         .testTag("input_dock")
@@ -495,7 +496,7 @@ private fun roomStatusText(state: GameUiState): String {
         verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Row(Modifier.widthIn(max = 440.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             DockTool(if (state.notes) "Notes on" else "Notes", GameSymbol.PENCIL, state.canEdit, state.notes, Modifier.weight(1f)) { tick(); actions.toggleNotes() }
-            DockTool("Erase", GameSymbol.ERASE, state.canEdit && editable, modifier = Modifier.weight(1f)) { tick(); actions.erase() }
+            DockTool("Erase", GameSymbol.ERASE, state.canEdit && editable && hasEraseTarget, modifier = Modifier.weight(1f)) { tick(); actions.erase() }
             DockTool("Undo", GameSymbol.UNDO, state.canEdit && snapshot.undoTargets.containsKey(state.role), modifier = Modifier.weight(1f)) { tick(); actions.undo() }
             if (state.role == SOLO) DockTool("Hint", GameSymbol.HELP, state.canEdit, modifier = Modifier.weight(1f),
                 description = "Request a solo Sudoku hint") { actions.hint() }
@@ -512,17 +513,21 @@ private fun roomStatusText(state: GameUiState): String {
                 if (numbers.size == 4) Spacer(Modifier.weight(.5f))
                 for (number in numbers) {
                     val remaining = (9 - snapshot.cells.count { it.value == number }).coerceAtLeast(0)
-                    val highlighted = number == chosenValue
+                    
                     // Tell the player what a note tap will do in the selected square.
                     // Remaining counts describe placed values, not pencil marks.
                     val notePresent = ((selectedCell?.notes ?: 0) and (1 shl (number - 1))) != 0
+                    val highlighted = if (state.notes) editable && noteTargetOpen && notePresent else number == chosenValue
                     val spokenAction = if (state.notes) {
                         if (notePresent) "Remove pencil mark $number" else "Add pencil mark $number"
                     } else "Number $number, $remaining remaining"
                     OutlinedButton(onClick = { tick(); actions.number(number) },
                         enabled = state.canEdit && editable && noteTargetOpen,
                         modifier = Modifier.weight(1f).height(keypadHeight).testTag("number_$number")
-                            .semantics { contentDescription = spokenAction },
+                            .semantics {
+                                contentDescription = spokenAction
+                                if (state.notes) selected = highlighted
+                            },
                         shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(0.dp),
                         border = BorderStroke(if (highlighted) 2.dp else 1.dp, if (highlighted) Forest else Rule),
                         colors = ButtonDefaults.outlinedButtonColors(
@@ -537,7 +542,10 @@ private fun roomStatusText(state: GameUiState): String {
                             if (!state.notes) {
                                 Text(remaining.toString(), modifier = Modifier.testTag("number_remaining_$number"),
                                     fontSize = 10.sp, lineHeight = 11.sp, color = Muted)
-                            } else Spacer(Modifier.height(11.dp))
+                            } else Text(if (highlighted) "✓" else " ",
+                                modifier = Modifier.clearAndSetSemantics {},
+                                fontSize = 10.sp, lineHeight = 11.sp, color = Forest,
+                                fontWeight = FontWeight.Bold)
                         }
                     }
                 }

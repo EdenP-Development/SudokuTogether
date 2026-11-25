@@ -41,7 +41,8 @@ class SudokuKeypadAccessibilityTest {
         compose.runOnIdle { assertEquals(1, lastPressed) }
 
         compose.runOnIdle { state.value = state.value.copy(notes = true) }
-        one.assertIsEnabled().assertContentDescriptionEquals("Add pencil mark 1")
+        one.assertIsEnabled().assertContentDescriptionEquals("Add pencil mark 1").assertIsNotSelected()
+        compose.onNodeWithText("Erase").assertIsNotEnabled()
         compose.onNodeWithText("Notes on").assertExists()
         compose.onNodeWithTag("number_remaining_1", useUnmergedTree = true).assertDoesNotExist()
         one.performClick()
@@ -55,7 +56,9 @@ class SudokuKeypadAccessibilityTest {
                 if (index == 0) cell.copy(notes = 1) else cell
             }))
         }
-        one.assertContentDescriptionEquals("Remove pencil mark 1")
+        one.assertContentDescriptionEquals("Remove pencil mark 1").assertIsSelected()
+        compose.onNodeWithTag("number_2").assertIsNotSelected()
+        compose.onNodeWithText("Erase").assertIsEnabled()
         one.performClick()
         compose.runOnIdle { assertEquals(1, lastPressed) }
 
@@ -71,7 +74,8 @@ class SudokuKeypadAccessibilityTest {
                 if (index == 0) cell.copy(value = 1, notes = 0) else cell
             }))
         }
-        one.assertIsNotEnabled()
+        one.assertIsNotEnabled().assertIsNotSelected()
+        compose.onNodeWithText("Erase").assertIsEnabled()
         compose.onNodeWithText("R1 · C1 · Erase entry before adding pencil marks").assertIsDisplayed()
         compose.runOnIdle { state.value = state.value.copy(notes = false) }
         one.assertIsEnabled()

@@ -18,7 +18,7 @@ Statuses: NOT STARTED / ACTIVE / REVIEW / DONE / DEFERRED. Mark DONE only with e
 | B3-00 | Foundation audit | ACTIVE |
 | B3-01 | Branding and design system | ACTIVE |
 | B3-02 | Personalized puzzle corner | ACTIVE |
-| B3-03 | Gameplay experience | NOT STARTED |
+| B3-03 | Gameplay experience | ACTIVE |
 | B3-04 | Advanced Sudoku Coach | NOT STARTED |
 | B3-05 | Collection and progression | NOT STARTED |
 | B3-06 | Sound and haptics | NOT STARTED |
