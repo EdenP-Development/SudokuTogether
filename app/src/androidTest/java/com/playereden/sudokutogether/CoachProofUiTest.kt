@@ -40,6 +40,7 @@ class CoachProofUiTest {
         compose.onNodeWithText("Look at the outlined squares.").assertExists()
         compose.onNodeWithText("Look for a digit whose possible squares are confined to one line or box.").assertExists()
         compose.onNodeWithText(hint.steps.first().explanation).assertDoesNotExist()
+        compose.onNodeWithText("Next step").assertIsNotEnabled()
         compose.onNodeWithText("Show why").performScrollTo().performClick()
         compose.onNodeWithText("Step 1 of 2").assertExists()
         compose.onNodeWithText("Crossed-off pencil marks are no longer possible. These changes are shown in the example only.").assertExists()
@@ -58,6 +59,11 @@ class CoachProofUiTest {
         compose.onNodeWithTag("coach_result_62").assertDoesNotExist()
         compose.onNodeWithText("Next step").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText("Step 2 of 2").assertIsDisplayed()
+        compose.onNodeWithText(hint.steps[1].explanation).assertDoesNotExist()
+        compose.onNodeWithText("Previous step").performScrollTo().performClick()
+        compose.onNodeWithText(hint.steps[0].explanation).assertExists()
+        compose.onNodeWithText("Next step").performScrollTo().performClick()
+        compose.onNodeWithText("Show why").performScrollTo().performClick()
         compose.onNodeWithText(hint.steps[1].explanation).assertIsDisplayed()
         compose.onNodeWithTag("coach_cell_26")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Hint target"))
@@ -80,7 +86,10 @@ class CoachProofUiTest {
         }
 
         compose.onNodeWithText("Show why").performScrollTo().performClick()
-        repeat(3) { compose.onNodeWithText("Next step").performScrollTo().performClick() }
+        repeat(3) {
+            compose.onNodeWithText("Next step").performScrollTo().performClick()
+            compose.onNodeWithText("Show why").performScrollTo().performClick()
+        }
         compose.onNodeWithText("Hidden pair").assertIsDisplayed()
         compose.onNodeWithTag("coach_cell_48")
             .assert(SemanticsMatcher.expectValue(SemanticsProperties.StateDescription, "Hint target and proof square"))

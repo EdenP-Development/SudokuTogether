@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — graduated multi-step navigation, slice 4
+
+Candidate demonstration gate 45561577010 passed at 81c98927 (instrumentation compiled, not executed). Coach now tracks explanation visibility separately per deduction using saveable primitive index array; navigation is visible from start, Next requires current logical explanation, revisiting explained steps preserves their visibility, new steps start with observation instead of automatically exposing answers. Earlier deduction context label added; explicit reveal remains separate. Updated multi-step UI fixtures. No score, solver, generation, live board or save schema changes. Fresh CI and physical review pending. Next mathematical expansion with verified triple fixtures.
+
+
 ## B3-04 — candidate result demonstration, slice 3
 
 Live Coach elimination steps now offer an explicit Show remaining candidates / Show deduction toggle after explanation. Target squares display exact surviving candidates from pre-step proof evidence; text lists before → after per affected square. Toggle resets with step navigation; no live puzzle mutation or score changes. Added UI fixture assertions for candidate result and return to deduction. Fresh CI and device verification pending. Research backlog remains separate from implemented support.

@@ -85,7 +85,8 @@ import com.playereden.sudokutogether.core.SudokuAssistance
 ) {
     val snapshot = state.snapshot ?: return
     var index by rememberSaveable(hint) { mutableIntStateOf(0) }
-    var explained by rememberSaveable(hint) { mutableStateOf(false) }
+    var explainedSteps by rememberSaveable(hint) { mutableStateOf(intArrayOf()) }
+    val explained = index in explainedSteps
     var revealed by rememberSaveable(hint) { mutableStateOf(false) }
     LaunchedEffect(index) { scroll.scrollTo(0) }
     val step = hint.steps[index.coerceIn(hint.steps.indices)]
@@ -102,14 +103,16 @@ import com.playereden.sudokutogether.core.SudokuAssistance
     }
     val targets = step.targetCells.toSet()
     val sources = if (explained) step.sourceCells.toSet() else emptySet()
-    if (explained && hint.steps.size > 1) {
+    if (hint.steps.size > 1) {
         Text("Step ${index + 1} of ${hint.steps.size}", color = Forest)
         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             TextButton(onClick = { index-- }, enabled = index > 0,
                 modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Previous step") }
-            TextButton(onClick = { index++ }, enabled = index < hint.steps.lastIndex,
+            TextButton(onClick = { index++ }, enabled = explained && index < hint.steps.lastIndex,
                 modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Next step") }
         }
+        if (index > 0 && !reveal) Text("Earlier deductions are already taken into account in this step.",
+            color = Muted, style = MaterialTheme.typography.bodySmall)
     }
     if (reveal) {
         val cell = step.targetCells.single()
@@ -133,7 +136,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
         Text(observation, color = Ink, style = MaterialTheme.typography.bodyMedium)
         Text("Try spotting the pattern before opening the explanation.", color = Muted,
             style = MaterialTheme.typography.bodySmall)
-        OutlinedButton(onClick = { explained = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Show why") }
+        OutlinedButton(onClick = { explainedSteps = (explainedSteps + index).distinct().toIntArray() }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Show why") }
     }
     val placementShown = if (reveal) revealed else explained
     if (placementShown && step.eliminations.isEmpty()) {
