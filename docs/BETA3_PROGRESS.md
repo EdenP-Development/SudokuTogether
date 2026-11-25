@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — teaching architecture direction
+
+Guided observation gate 45559098905 passed at 9108642d. Owner emphasized genuine coaching and suggested The Last Taters as inspiration. Read README and TATER_BRAIN_LAB at pinned source 0c768b7f; proposed explainable local teaching architecture in docs/BETA3_COACH_TEACHING_ARCHITECTURE.md. No code reuse or adaptive tracking implemented; next before/after proof presentation. Instrumentation still compiled only.
+
+
 ## B3-04 — guided observation, slice 2
 
 Proof fidelity gate 45558322123 passed at 007120ad (including JVM trace tests; instrumentation compiled only). Added technique-specific observation prompts before Show why, without exposing specific answer digits, and clear explanation that crossed-off marks are demonstration-only. Existing full explanation and reveal gates retained, no scoring or solver changes. Expanded CoachProofUiTest for prompt visibility, hidden explanation and example-only guidance. Fresh CI and physical review pending.
