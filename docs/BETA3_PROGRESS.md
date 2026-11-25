@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-04 — naked triple engine, slice 5
+
+Multi-step navigation gate 45562106365 passed at 88949996. Added Coach-only naked triple search after existing six techniques, exact pre-step candidate evidence and observation prompt. Unit-mask tests cover three nonidentical pairs, independently enumerate distinct assignments, reject four-digit unions, no-op and malformed input. Full uniquely-solvable puzzle integration fixture and practice lesson still required; no claims of device validation. Existing grading branch exits before additional Coach techniques. Fresh CI pending; next hidden triples after integration audit.
+
+
 ## B3-04 — graduated multi-step navigation, slice 4
 
 Candidate demonstration gate 45561577010 passed at 81c98927 (instrumentation compiled, not executed). Coach now tracks explanation visibility separately per deduction using saveable primitive index array; navigation is visible from start, Next requires current logical explanation, revisiting explained steps preserves their visibility, new steps start with observation instead of automatically exposing answers. Earlier deduction context label added; explicit reveal remains separate. Updated multi-step UI fixtures. No score, solver, generation, live board or save schema changes. Fresh CI and physical review pending. Next mathematical expansion with verified triple fixtures.

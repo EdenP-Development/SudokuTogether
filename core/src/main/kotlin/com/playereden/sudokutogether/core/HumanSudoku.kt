@@ -16,6 +16,7 @@ object HumanSudoku {
         NAKED_PAIR("Naked pair"),
         HIDDEN_PAIR("Hidden pair"),
         X_WING("X-Wing"),
+        NAKED_TRIPLE("Naked triple"),
         SOLUTION_REVEAL("One-number reveal")
     }
     enum class Grade { EASY, MEDIUM, HARD, BEYOND_CURRENT_LOGIC, INVALID }
@@ -59,6 +60,23 @@ object HumanSudoku {
     private fun box(cell: Int) = cell / 27 * 3 + cell % 9 / 3
     private fun digits(mask: Int) = (1..9).filter { mask and (1 shl it) != 0 }
     private fun single(mask: Int) = mask != 0 && mask and (mask - 1) == 0
+
+    internal data class TriplePattern(val positions: List<Int>, val mask: Int)
+
+    /** Input: one house's nine candidate masks; zero means an occupied square. */
+    internal fun nakedTriple(masks: List<Int>): TriplePattern? {
+        if (masks.size != 9 || masks.any { it and ALL.inv() != 0 }) return null
+        val eligible = masks.indices.filter { Integer.bitCount(masks[it]) in 2..3 }
+        for (a in eligible.indices) for (b in a + 1 until eligible.size)
+            for (c in b + 1 until eligible.size) {
+                val positions = listOf(eligible[a], eligible[b], eligible[c])
+                val mask = positions.fold(0) { union, index -> union or masks[index] }
+                if (Integer.bitCount(mask) != 3) continue
+                if (masks.indices.any { it !in positions && masks[it] and mask != 0 })
+                    return TriplePattern(positions, mask)
+            }
+        return null
+    }
 
     private fun candidatePositions(unit: IntArray, candidates: IntArray, digitBit: Int): Int =
         unit.indices.fold(0) { positions, index ->
@@ -328,6 +346,18 @@ object HumanSudoku {
                         }
                     }
                 }
+            }
+            if (moved) continue
+
+            // Coach-only subset search; keep existing six-technique priority and grading.
+            for ((unitIndex, unit) in units.withIndex()) {
+                val triple = nakedTriple(unit.map { candidates[it] }) ?: continue
+                val source = triple.positions.map { unit[it] }
+                if (eliminate(unit.asIterable().filter { it !in source }, triple.mask,
+                        Technique.NAKED_TRIPLE,
+                        "Three squares in ${unitName(unitIndex)} reserve ${digits(triple.mask).joinToString(", ")}. " +
+                            "Each square uses only those digits; remove them from the other squares in that group.",
+                        source, unitIndex)) { moved = true; break }
             }
             if (!moved) break
         }
