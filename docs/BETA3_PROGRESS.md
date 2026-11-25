@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## Gameplay Review 1 — physical portrait evidence
+
+Owner supplied five physical screenshots of Solo Easy gameplay, showing stable board/dock positioning across selection, value entry, notes and conflict states; disabled Erase/Undo on initial empty square; enabled controls after entry; remaining counts updated for entered digits; four active pencil marks 2/4/6/8 reflected in keypad check indicators; repeated entered digits red and underlined even after moving selection; two-line conflict caption fits without board movement. No explicit owner acceptance statement yet. Screenshots establish visible behavior, not executed undo/erase, note removal, completion/reward expansion, persistence, Daily, landscape, large text, multiplayer or TalkBack validation. Note candidates are manually entered, not automatically validated. Review source e00e2b1954b69c027bbef73f8f572a4f6dc84633; ordinary gate 45555816433 passed; preview run 45555816455 completed/success; artifact 14996246056. Keep current visual layout pending owner feedback; next milestone B3-04 Coach can proceed independently with outstanding review items tracked. No production release or upgrade test.
+
+
 ## Gameplay Review 1 verification checkpoint
 
 Source e00e2b1954b69c027bbef73f8f572a4f6dc84633 passed ordinary Android gate 45555816433. Isolated preview run 45555816455 passed both artwork checks and adaptive icon generation; assembly/signature/artifact pending at observation. Build URL https://github.com/EdenP-Development/SudokuTogether/actions/runs/45555816455. Owner review: notes toggling/highlight, empty erase, undo, conflict marker, board resize, large-text/landscape layout, finish/earned rewards, resume and Daily records. Separate fresh-save debug package; not a public upgrade test. Instrumentation compiled, not executed. Freeze review source until feedback; next major milestone B3-04 Coach.
