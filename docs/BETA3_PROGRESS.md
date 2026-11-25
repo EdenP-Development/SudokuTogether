@@ -1,5 +1,7 @@
 # Beta 3 progress — active checkpoint
 
+2026-11-24 — Owner supplied physical Beta 2 Versus playtest screenshots; partial real-device evidence and B3-07 follow-ups recorded in BETA3_FOUNDATION_AUDIT.md. Reconnect result unknown. Baseline CI run 45513523860 status at check: completed / success.
+
 2026-11-24 — Second B3-00 static audit slice: persistence, LAN protocol, accessibility and asset references. Existing unsigned Android quality gate enabled on this branch to establish fresh baseline; run result pending. No runtime changes. Next verify actual CI outcome, then typed backup notice fix; archive and source promotion remain open.
 
 2026-11-24: B3-00 ACTIVE. Initial static source/tree and branch audit recorded in [BETA3_FOUNDATION_AUDIT.md](BETA3_FOUNDATION_AUDIT.md). Active branch `feat/beta3-foundation` created from f0e0ec350344dffc0dfc670681ce233d4665644c. Next: finish focused audit and establish fresh regression baseline, then typed backup feedback and icon. No runtime changes or fresh tests yet. Existing signed Beta2 unchanged.
