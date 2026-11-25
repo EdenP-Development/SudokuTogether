@@ -27,16 +27,34 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val player = remember(context) { PilotPlayer(context) }
-    var uri by remember { mutableStateOf<Uri?>(null) }
+    var tracks by remember { mutableStateOf(emptyList<Uri>()) }
     var playing by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf("Choose a local audio file to audition.") }
+    var message by remember { mutableStateOf("Choose the soundtrack files.") }
     var volume by remember { mutableStateOf(.25f) }
-    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenDocument()) { selected ->
-        if (selected != null) {
+    var index by remember { mutableIntStateOf(0) }
+    var order by remember { mutableStateOf(emptyList<Uri>()) }
+    fun title(uri: Uri): String = runCatching {
+        context.contentResolver.query(uri, arrayOf(android.provider.OpenableColumns.DISPLAY_NAME),
+            null, null, null)?.use { if (it.moveToFirst()) it.getString(0) else null }
+    }.getOrNull() ?: "Track"
+    fun playAt(position: Int) {
+        if (order.isEmpty()) return
+        index = position.mod(order.size)
+        val selected = order[index]
+        playing = player.start(selected, volume, looping = order.size == 1,
+            onFinished = { playAt(index + 1) },
+            onStopped = { playing = false; message = "Music stopped. Tap Play to retry." })
+        message = if (playing) "Now playing: ${title(selected)}" else "Unable to play this track."
+    }
+    val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { selected ->
+        if (selected.isNotEmpty()) {
             player.stop()
             playing = false
-            uri = selected
-            message = "Track selected. Tap Play to audition."
+            tracks = selected.distinct()
+            val main = tracks.firstOrNull { title(it).contains("Warm Puzzle Time", ignoreCase = true) }
+            order = listOfNotNull(main) + tracks.filter { it != main }.shuffled()
+            index = 0
+            message = "${tracks.size} tracks ready."
         }
     }
     DisposableEffect(lifecycle, player) {
@@ -51,28 +69,28 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     }
     LaunchedEffect(enabled) { if (!enabled) { player.stop(); playing = false } }
     return {
-    GamePanel(Modifier.fillMaxWidth()) {
-        SectionTitle("Test music")
-        Text("Choose a track, start playback, then return home and open a puzzle.", color = Muted,
-            style = MaterialTheme.typography.bodySmall)
-        OutlinedButton(onClick = { player.stop(); playing = false; picker.launch(arrayOf("audio/*")) },
-            enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Choose audio file") }
-        Text(message, color = Ink, style = MaterialTheme.typography.bodySmall)
-        Text("Music volume: ${(volume * 100).toInt()}%", color = Forest)
-        Slider(value = volume, onValueChange = { volume = it; player.volume(it) }, enabled = enabled)
-        Button(onClick = {
-            if (playing) { player.stop(); playing = false; message = "Playback stopped." }
-            else uri?.let { selected ->
-                playing = player.start(selected, volume) {
-                    playing = false
-                    message = "Playback stopped or audio unavailable. Tap Play to retry."
-                }
-                message = if (playing) "Music on — return to your puzzle." else "Unable to open audio or obtain audio focus."
+        GamePanel(Modifier.fillMaxWidth()) {
+            SectionTitle("Test soundtrack")
+            Text("Choose the six soundtrack files. Music continues while you solve.",
+                color = Muted, style = MaterialTheme.typography.bodySmall)
+            OutlinedButton(onClick = { player.stop(); playing = false; picker.launch(arrayOf("audio/*")) },
+                enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                Text("Choose soundtrack")
             }
-        }, enabled = enabled && uri != null, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-            Text(if (playing) "Stop music" else "Play music")
+            Text(message, color = Ink, style = MaterialTheme.typography.bodySmall)
+            Text("Music volume: ${(volume * 100).toInt()}%", color = Forest)
+            Slider(value = volume, onValueChange = { volume = it; player.volume(it) }, enabled = enabled)
+            Button(onClick = {
+                if (playing) { player.stop(); playing = false; message = "Music stopped." }
+                else playAt(index)
+            }, enabled = enabled && order.isNotEmpty(), modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                Text(if (playing) "Stop music" else "Play music")
+            }
+            if (order.size > 1) TextButton(onClick = { playAt(index + 1) },
+                enabled = enabled && playing, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
+                Text("Next track")
+            }
         }
-    }
     }
 }
 
@@ -93,7 +111,7 @@ private class PilotPlayer(private val context: Context) {
     }
 
     @Suppress("DEPRECATION")
-    fun start(uri: Uri, volume: Float, onStopped: () -> Unit): Boolean {
+    fun start(uri: Uri, volume: Float, looping: Boolean, onFinished: () -> Unit, onStopped: () -> Unit): Boolean {
         stop()
         level = volume
         callback = onStopped
@@ -109,7 +127,8 @@ private class PilotPlayer(private val context: Context) {
             media = next
             next.setAudioAttributes(attributes)
             next.setDataSource(context, uri)
-            next.isLooping = true
+            next.isLooping = looping
+            next.setOnCompletionListener { if (media === it) onFinished() }
             next.setOnPreparedListener {
                 if (media === it) {
                     try { it.setVolume(level, level); it.start() }

@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## AUD-03 / AUD-04 soundtrack review
+
+Six masters verified; inventory and checksums in docs/BETA3_SOUNDTRACK_INVENTORY.md. Owner-approved main theme Warm Puzzle Time. Local AAC working copies prepared; no binaries in repo yet. Debug playlist review implemented with main theme first, cyclic non-repeating rotation of remaining shuffled tracks, next track and existing foreground music controls. Preview workflow renamed SoundtrackReview, package unchanged. Fresh CI and handset playback pending. Permanent bundled playback, settings, effects and haptics still open.
+
+
 ## AUD-02 — soundtrack production direction
 
 Six proposed production briefs recorded in docs/BETA3_SOUNDTRACK_DIRECTION.md. No production masters received yet. Next AUD-03 inventory and AUD-04 foreground playlist controller; keep native effects/haptics issue open. No runtime or public release changes.

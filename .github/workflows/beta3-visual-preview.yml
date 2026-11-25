@@ -67,7 +67,7 @@ jobs:
           cache: gradle
       - uses: android-actions/setup-android@v4
       - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
-      - name: Test and assemble isolated Music Pilot
+      - name: Test and assemble isolated Soundtrack Review
         run: |
           chmod +x gradlew
           ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta3VisualPreview=true --no-daemon --max-workers=2 --console=plain
@@ -82,11 +82,11 @@ jobs:
           unzip -l "$APK" | grep -F 'beta3_fox_foreground'
           unzip -l "$APK" | grep -F 'spudacus_v1_full_transparent'
           unzip -l "$APK" | grep -F 'gridmates_v1_runtime_transparent'
-          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-MusicPilot.apk
+          cp "$APK" beta3-review/GridMates-Sudoku-Beta3-SoundtrackReview.apk
           (cd beta3-review && sha256sum *.apk > SHA256SUMS.txt)
       - uses: actions/upload-artifact@v4
         with:
-          name: GridMates-Sudoku-Beta3-MusicPilot
+          name: GridMates-Sudoku-Beta3-SoundtrackReview
           path: beta3-review/
           if-no-files-found: error
           retention-days: 14
