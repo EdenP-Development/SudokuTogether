@@ -52,8 +52,8 @@ import com.playereden.sudokutogether.core.Appearance
             modifier = Modifier.fillMaxSize().testTag(backdropTag)
         )
         Box(Modifier.fillMaxSize().background(Brush.horizontalGradient(
-            listOf(NightForest.copy(alpha = if (woodland) .68f else .82f),
-                NightForest.copy(alpha = .13f), Color.Transparent)
+            if (woodland) listOf(NightForest.copy(alpha = .68f), NightForest.copy(alpha = .13f), Color.Transparent)
+            else listOf(NightForest.copy(alpha = .88f), NightForest.copy(alpha = .53f), Color.Transparent)
         )))
         Row(
             Modifier.fillMaxSize().padding(start = 15.dp, end = 6.dp,
