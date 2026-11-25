@@ -1,5 +1,12 @@
 # Beta 3 progress — active checkpoint
 
+## Current development checkpoint — 2026-11-24 local
+
+Active branch: feat/beta3-foundation. Visual4 source 96747991e98f78c90e10d6eda447d1be085a3674 passed visual CI 45550962814 and Android gate 45550962759; artifact 14993249624. Owner physically approved both startup screens and revised nominal 3-second timing. See BETA3_STARTUP_PILOT.md for exact asset hashes, implementation and remaining technical validation. Fox launcher rendered physically at 58dp; all four habitats rendered in earlier owner screenshots. Native launcher promotion, habitat persistence/contrast acceptance, original archive durability and startup accessibility/lifecycle/performance verification remain open. No public release or cross-project rollout here.
+
+B3-03 ACTIVE: e1ab642465b8e4cf3f750e7372e002e06b282b71 added highlighted pencil candidates and context-aware erase; e0adae262e6738669dcf75e2ed2c6b3025ccadf3 added reserved guidance/caption space. CI 45552906603 failed Android instrumentation compilation because DpRect width/height accessors were unavailable; corrected by subtracting edges, fresh CI pending. Next: verify fixes, audit board clarity, compact/large-font controls and completion UX; group improvements into Gameplay Review 1 rather than frequent micro-builds. Coach, collection/progression, sound/haptics, multiplayer and integrated release milestones remain as scoped in roadmap. Preserve puzzle logic, 85 cosmetics, 47 achievements, save compatibility and signing. Public Beta2 version 31 remains untouched. No percentage estimate is an engineering measurement.
+
+
 ## B3-03 — layout stability, slice 2
 
 Audit identified conditional keypad guidance and variable board context height feeding viewport sizing. Keep a two-line guidance reservation across selection/notes states; show contextual number/notes/filled-square guidance. Reserve two board caption lines normally and three at larger text sizes while allowing further wrapping. Add instrumentation assertions for board width and dock height across note mode changes; compile/run and physical review pending. No game rule, scoring, save or branding changes. Extreme text/width combinations may still reflow; do not claim universal fixed board size.

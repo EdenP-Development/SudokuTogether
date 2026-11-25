@@ -44,8 +44,10 @@ class SudokuKeypadAccessibilityTest {
         val dockBefore = compose.onNodeWithTag("input_dock").getUnclippedBoundsInRoot()
         compose.runOnIdle { state.value = state.value.copy(notes = true) }
         compose.onNodeWithTag("keypad_mode_guidance").assertExists()
-        assertEquals(boardBefore.width, compose.onNodeWithTag("board_frame").getUnclippedBoundsInRoot().width)
-        assertEquals(dockBefore.height, compose.onNodeWithTag("input_dock").getUnclippedBoundsInRoot().height)
+        val boardAfter = compose.onNodeWithTag("board_frame").getUnclippedBoundsInRoot()
+        val dockAfter = compose.onNodeWithTag("input_dock").getUnclippedBoundsInRoot()
+        assertEquals(boardBefore.right - boardBefore.left, boardAfter.right - boardAfter.left)
+        assertEquals(dockBefore.bottom - dockBefore.top, dockAfter.bottom - dockAfter.top)
         one.assertIsEnabled().assertContentDescriptionEquals("Add pencil mark 1").assertIsNotSelected()
         compose.onNodeWithText("Erase").assertIsNotEnabled()
         compose.onNodeWithText("Notes on").assertExists()
