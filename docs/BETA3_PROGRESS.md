@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-03 — compact controls, slice 4
+
+Board clarity gate 45554437011 passed at e7905516 (instrumentation compiled, not executed). Narrow toolbars below 340dp at font scale above 1.3 use two controls per row; narrow large-text page below 364dp switches to whole-page scroll to preserve board/control reachability. Normal text layouts unchanged. Added narrow portrait reachability instrumentation fixture. Fresh CI and device execution pending. Next review completion card and prepare integrated Gameplay Review 1. No changes to approved branding, game rules, saves or signing.
+
+
 ## B3-03 — board clarity, slice 3
 
 Prior repaired Android gate 45554050396 passed at 7ba1edda (instrumentation compiled, not executed). Add non-color underline to conflicting entered values, retaining fixed clue styling and Coach proof distinctions; add accessible matching-number and related-square states. New instrumentation fixture checks conflict/related/matching announcements and correction. No solution validation, scoring, rule, save or artwork change. Fresh CI and physical review pending.

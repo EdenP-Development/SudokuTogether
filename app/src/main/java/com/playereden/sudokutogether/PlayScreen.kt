@@ -46,7 +46,8 @@ import kotlinx.coroutines.delay
     val snapshot = state.snapshot
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val scale = LocalDensity.current.fontScale.coerceIn(1f, 2f)
-        val shortStack = maxHeight < 160.dp || (maxWidth < 520.dp && maxHeight < (380f + (scale - 1f) * 160f).dp)
+        // Narrow large-text layouts need room for the two-row toolbar; let the whole page scroll.
+        val shortStack = (maxWidth < 364.dp && scale > 1.3f) || maxHeight < 160.dp || (maxWidth < 520.dp && maxHeight < (380f + (scale - 1f) * 160f).dp)
         if (shortStack) {
             // A short window must be able to scroll the header and dock too;
             // reserving their height would give the active grid no viewport.
@@ -495,12 +496,28 @@ private fun roomStatusText(state: GameUiState): String {
         .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Row(Modifier.widthIn(max = 440.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            DockTool(if (state.notes) "Notes on" else "Notes", GameSymbol.PENCIL, state.canEdit, state.notes, Modifier.weight(1f)) { tick(); actions.toggleNotes() }
-            DockTool("Erase", GameSymbol.ERASE, state.canEdit && editable && hasEraseTarget, modifier = Modifier.weight(1f)) { tick(); actions.erase() }
-            DockTool("Undo", GameSymbol.UNDO, state.canEdit && snapshot.undoTargets.containsKey(state.role), modifier = Modifier.weight(1f)) { tick(); actions.undo() }
-            if (state.role == SOLO) DockTool("Hint", GameSymbol.HELP, state.canEdit, modifier = Modifier.weight(1f),
-                description = "Request a solo Sudoku hint") { actions.hint() }
+        BoxWithConstraints(Modifier.widthIn(max = 440.dp).fillMaxWidth()) {
+            val splitTools = maxWidth < 340.dp && LocalDensity.current.fontScale > 1.3f
+            val tools = if (state.role == SOLO) listOf("notes", "erase", "undo", "hint")
+                else listOf("notes", "erase", "undo")
+            val rows = if (splitTools) tools.chunked(2) else listOf(tools)
+            Column(verticalArrangement = Arrangement.spacedBy(6.dp),
+                modifier = Modifier.testTag("solving_toolbar")) {
+                for (rowTools in rows) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                        for (tool in rowTools) when (tool) {
+                            "notes" -> DockTool(if (state.notes) "Notes on" else "Notes", GameSymbol.PENCIL,
+                                state.canEdit, state.notes, Modifier.weight(1f)) { tick(); actions.toggleNotes() }
+                            "erase" -> DockTool("Erase", GameSymbol.ERASE, state.canEdit && editable && hasEraseTarget,
+                                modifier = Modifier.weight(1f)) { tick(); actions.erase() }
+                            "undo" -> DockTool("Undo", GameSymbol.UNDO, state.canEdit && snapshot.undoTargets.containsKey(state.role),
+                                modifier = Modifier.weight(1f)) { tick(); actions.undo() }
+                            "hint" -> DockTool("Hint", GameSymbol.HELP, state.canEdit, modifier = Modifier.weight(1f),
+                                description = "Request a solo Sudoku hint") { actions.hint() }
+                        }
+                    }
+                }
+            }
         }
         // Keep the guidance row present across selection and input-mode changes.
         // Removing it used to change dock height and therefore the board viewport.

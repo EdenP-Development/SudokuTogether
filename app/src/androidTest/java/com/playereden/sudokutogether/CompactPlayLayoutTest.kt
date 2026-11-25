@@ -117,4 +117,12 @@ class CompactPlayLayoutTest {
             }
         }
     }
+    @Test fun narrowLargeTextPortraitKeepsEveryToolAndDigitReachable() {
+        launch(false)
+        scenario!!.onActivity { it.setContent { SudokuTogetherTheme { SudokuApp(fixture(SOLO), actions, {}) } } }
+        compose.onNodeWithTag("solving_toolbar").assertExists()
+        for (tool in listOf("Notes", "Erase", "Undo", "Hint")) compose.onNodeWithText(tool).performScrollTo().assertIsDisplayed()
+        for (number in 1..9) compose.onNodeWithTag("number_$number").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("cell_0").performScrollTo().assertIsDisplayed()
+    }
 }
