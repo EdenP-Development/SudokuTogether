@@ -1,5 +1,18 @@
 # Beta 3 progress — active checkpoint
 
+## Current authoritative checkpoint — 2026-11-25 (supersedes older handoffs)
+
+Active branch: feat/beta3-foundation. Runtime checkpoint c9ae4e6f8614eddd02f3f2d30af88e86c985eed2. Audio Review 3 source 35045b3: quality gate 45695566392 and preview 45695566381 PASS, artifact 15061545957 (58,119,127 bytes archive, expires 2026-12-09T20:33:40Z). Audio Review 4 gate 45704796002 and preview 45704795724 were in progress at this checkpoint; do not mark passed without fresh read. JVM/lint/build and compiled instrumentation are not executed handset tests.
+
+Owner verified bundled music, Music Corner, closing app stops music, haptics, and audible puzzle sounds after enabling the switch. Review 3 feedback: much better overall, number and erase perceptually similar. Review 4 preserves 85ms number and revises erase to 240ms two-stroke friction; pending listening. Owner requested music and puzzle sounds default on, music volume 50%, independent effects volume (chosen 50% default), clear Puzzle sounds label and test buttons. Explicit saved preferences preserved. Automatic music after silent startup and last bundled track identity persistence implemented, still require owner retest; The Final Piece introduction restart/skip not independently diagnosed or accepted. No exact playback timestamp resume. See BETA3_AUDIO_REVIEW_CHECKLIST.md.
+
+Six AAC working copies archived in 20-part verified transfer at 90705a9; extraction script and APK checksum gates. Original source masters and canonical shared hub archive remain pending; source-track rights/provenance must be reviewed before distribution. Music packaging and Music Corner are isolated debug preview only, not production promotion. Next: verify Review 4, resolve CI/physical audio issues, audit and promote production audio, signed higher-version upgrade and portfolio handoff. Sudoku is owner-designated audio pilot; final hub prompt after acceptance, not yet a finalized shared audio standard. Codex review quota does not block regular CI.
+
+Amazon: owner reports Spudacus account review and Sudoku storefront metadata configured. B3-AMZ is a limited storefront publishing rehearsal for Google Play, not an ongoing parity commitment. Amazon re-signing accepted in principle; document cross-store limitations, preserve existing itch package/key, no destructive migration. Fire/tablet, privacy, audience/chat, permanent privacy URL, icons/screenshots and LAT gates remain open. See BETA3_AMAZON_READINESS.md. Google Play is long-term priority, separate future signing strategy and approval. No LAT, store submission or publication authorized.
+
+Public itch Beta2 remains versionCode 31 / 1.0.0-beta.2, package com.playereden.gridmates.sudoku.beta, certificate SHA-256 9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d. Preserve existing signing material, saves, 85 cosmetics/47 achievements, and stable identifiers. Actual signed higher-version upgrade, physical multiplayer and broader responsive/accessibility review remain open. No production release changes in this checkpoint.
+
+
 ## AUD-04.02 — Music Corner review
 
 Provisional shared soundtrack UI in debug Settings: current track, previous/play-stop/next, volume, collapsible selectable playlist, import controls. Track names cached on selection; underscore-normalized main theme recognition. Existing activity-scoped pilot remains; no bundled music or permanent settings yet. Previous soundtrack CI was in progress at inspection. MusicCorner preview workflow triggered, same isolated package and temporary debug signing (install-over not guaranteed). Fresh CI and handset test pending. Next production asset transfer and controller, original effects and haptics. No public release changes.

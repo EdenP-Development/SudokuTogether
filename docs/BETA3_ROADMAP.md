@@ -1,5 +1,18 @@
 # GridMates: Sudoku — Beta 3: Polish and depth
 
+## Current authoritative checkpoint — 2026-11-25 (supersedes older handoffs)
+
+Active branch: feat/beta3-foundation. Runtime checkpoint c9ae4e6f8614eddd02f3f2d30af88e86c985eed2. Audio Review 3 source 35045b3: quality gate 45695566392 and preview 45695566381 PASS, artifact 15061545957 (58,119,127 bytes archive, expires 2026-12-09T20:33:40Z). Audio Review 4 gate 45704796002 and preview 45704795724 were in progress at this checkpoint; do not mark passed without fresh read. JVM/lint/build and compiled instrumentation are not executed handset tests.
+
+Owner verified bundled music, Music Corner, closing app stops music, haptics, and audible puzzle sounds after enabling the switch. Review 3 feedback: much better overall, number and erase perceptually similar. Review 4 preserves 85ms number and revises erase to 240ms two-stroke friction; pending listening. Owner requested music and puzzle sounds default on, music volume 50%, independent effects volume (chosen 50% default), clear Puzzle sounds label and test buttons. Explicit saved preferences preserved. Automatic music after silent startup and last bundled track identity persistence implemented, still require owner retest; The Final Piece introduction restart/skip not independently diagnosed or accepted. No exact playback timestamp resume. See BETA3_AUDIO_REVIEW_CHECKLIST.md.
+
+Six AAC working copies archived in 20-part verified transfer at 90705a9; extraction script and APK checksum gates. Original source masters and canonical shared hub archive remain pending; source-track rights/provenance must be reviewed before distribution. Music packaging and Music Corner are isolated debug preview only, not production promotion. Next: verify Review 4, resolve CI/physical audio issues, audit and promote production audio, signed higher-version upgrade and portfolio handoff. Sudoku is owner-designated audio pilot; final hub prompt after acceptance, not yet a finalized shared audio standard. Codex review quota does not block regular CI.
+
+Amazon: owner reports Spudacus account review and Sudoku storefront metadata configured. B3-AMZ is a limited storefront publishing rehearsal for Google Play, not an ongoing parity commitment. Amazon re-signing accepted in principle; document cross-store limitations, preserve existing itch package/key, no destructive migration. Fire/tablet, privacy, audience/chat, permanent privacy URL, icons/screenshots and LAT gates remain open. See BETA3_AMAZON_READINESS.md. Google Play is long-term priority, separate future signing strategy and approval. No LAT, store submission or publication authorized.
+
+Public itch Beta2 remains versionCode 31 / 1.0.0-beta.2, package com.playereden.gridmates.sudoku.beta, certificate SHA-256 9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d. Preserve existing signing material, saves, 85 cosmetics/47 achievements, and stable identifiers. Actual signed higher-version upgrade, physical multiplayer and broader responsive/accessibility review remain open. No production release changes in this checkpoint.
+
+
 ## AUD-01 — audio research active checkpoint
 
 B3-07 code review closed: gate 45677167962 passed; physical multiplayer and instrumentation execution remain pending integrated review. B3-08 active, AUD-01 research recorded in docs/BETA3_AUDIO_RESEARCH.md; next AUD-02 soundtrack identity and track audition. No new runtime audio changes. Owner reports Suno Pro; positive single-track pilot, native effects/haptics failed owner perception. Preserve public Beta2 and saves.
@@ -62,11 +75,11 @@ Statuses: NOT STARTED / ACTIVE / REVIEW / DONE / DEFERRED. Mark DONE only with e
 | B3-03 | Gameplay experience | ACTIVE |
 | B3-04 | Advanced Sudoku Coach | REVIEW |
 | B3-05 | Collection and progression | REVIEW |
-| B3-06 | Sound and haptics | REVIEW |
+| B3-06 | Sound and haptics (audio pilot) | ACTIVE |
 | B3-07 | Multiplayer refinement | REVIEW |
 | B3-08 | Integrated polish | ACTIVE |
 | B3-09 | Beta 3 release (itch continuity) | NOT STARTED |
-| B3-AMZ | Amazon Appstore readiness (parallel, separate approval) | NOT STARTED |
+| B3-AMZ | Amazon publishing rehearsal (parallel, separate approval) | NOT STARTED |
 
 ### B3-00 — Foundation audit
 Inspect exact current branch, main/PR differences, build configuration, release receipts, tests and workflows. Inventory screens, components, assets, asset reuse and licensing/provenance; assess accessibility, performance, persistence, networking and Coach. Create findings with severity, evidence, reproduction and recommended disposition; avoid assuming a clean build means bug-free. Address release archival/source promotion through normal reviewed workflow, recover exact approved icon and art binaries (no regenerated substitutes without approval). Record public verification status and technical debt. Establish a Beta 3 development branch from reviewed baseline; do not disrupt other projects or publish.
