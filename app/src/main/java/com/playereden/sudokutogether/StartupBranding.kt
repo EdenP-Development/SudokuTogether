@@ -9,7 +9,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -27,9 +26,17 @@ internal fun startupBrandingStages(seriesDrawable: Int? = null): List<Int> =
 @Composable
 internal fun StartupBranding(showInitially: Boolean, seriesDrawable: Int? = null) {
     val stages = remember(seriesDrawable) { startupBrandingStages(seriesDrawable) }
-    var stage by rememberSaveable { mutableIntStateOf(if (showInitially && ValueAnimator.areAnimatorsEnabled()) 0 else stages.size) }
+    var stage by remember { mutableIntStateOf(if (showInitially && ValueAnimator.areAnimatorsEnabled()) 0 else stages.size) }
     val opacity = remember { Animatable(0f) }
     val visible = stage < stages.size
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+    DisposableEffect(lifecycle) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_STOP) stage = stages.size
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
     BackHandler(visible) { stage = stages.size }
     LaunchedEffect(stage) {
         if (stage >= stages.size) return@LaunchedEffect
