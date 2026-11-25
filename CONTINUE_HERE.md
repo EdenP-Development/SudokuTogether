@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## B3-07.04 — Co-op next-round guard and audio checkpoint
+
+Owner handset feedback positive for Gentle Rests gameplay music; Settings screenshots show Play/Stop and volume. Native touch effects and haptics reportedly not noticeable/working; exact device settings unknown. Music pilot gates 45671002042 and 45671002085 passed. Owner exploring Suno Pro and soundtrack creation independently. Defer finished audio integration to B3-08 audio design research: music placement, silence, transitions, loop/playlist strategy, volume/focus/lifecycle, short effect/haptic design, asset size and handset validation. No new soundtrack or effects in this checkpoint. Existing Versus rematch has epoch/foreground/returning-rival regression; Co-op previously lacked equivalent stale-epoch guard. Add guarded host nextCoopPuzzle and generation/visibility callback, plus JVM regression for cancellation, duplicate stale request, identity/style and board reset. Fresh CI pending. Next verify and refine completed Co-op next-puzzle controls/layout. Public Beta2 unchanged.
+
+
 ## Music gameplay pilot
 
 Previous audition gate 45669505340 passed. Moved existing playback owner to activity composition so music continues across Settings, Home and gameplay. One local file, Play/Stop and volume; foreground only, stops on focus loss or background, no automatic restart. No bundled track. Preview workflow triggered with MusicPilot artifact name, retains existing isolated coach2 package for upgrade continuity. Fresh CI and handset test pending. Owner selects Gentle Rests once using Settings, starts music and opens puzzle. Resume multiplayer afterward.

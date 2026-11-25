@@ -152,6 +152,15 @@ class HostServer(val session: GameSession, private val listener: (HostEvent) -> 
     fun newPuzzle(seed: Long) = newPuzzle(Sudoku.generate(seed))
     fun newPuzzle(puzzle: Puzzle) = synchronized(lock) { startPuzzle(puzzle) }
 
+    /** Reject a stale Co-op next-puzzle request without replacing the current board. */
+    fun nextCoopPuzzle(epoch: String, puzzle: Puzzle, canStart: () -> Boolean = { true }): Boolean = synchronized(lock) {
+        val current = session.snapshot()
+        if (closed || current.mode != COOP || current.epoch != epoch || !canStart())
+            return@synchronized false
+        startPuzzle(puzzle)
+        true
+    }
+
     fun nextRace(epoch: String, puzzle: Puzzle, afterFinish: Boolean, canStart: () -> Boolean = { true }): Boolean = synchronized(lock) {
         val current = session.snapshot()
         if (closed || current.mode != VERSUS || current.epoch != epoch || current.completed != afterFinish)

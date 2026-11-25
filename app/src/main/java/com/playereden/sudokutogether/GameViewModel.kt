@@ -822,7 +822,7 @@ class GameViewModel @JvmOverloads constructor(
                 val puzzle = nextPuzzle(difficulty, token)
                 if (generation.get() != token) return@launch
                 if (snapshot.mode != VERSUS) {
-                    host.newPuzzle(puzzle)
+                    host.nextCoopPuzzle(snapshot.epoch, puzzle) { generation.get() == token && visible }
                     return@launch
                 }
                 val started = host.nextRace(snapshot.epoch, puzzle, afterFinish = snapshot.completed) {
