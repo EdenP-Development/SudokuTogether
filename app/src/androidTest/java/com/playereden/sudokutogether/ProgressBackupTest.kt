@@ -90,6 +90,19 @@ class ProgressBackupTest {
         rooms.forEach { assertEquals("saved room ${it.name}", it.readText()) }
     }
 
+    @Test fun soundPreferenceIsDeviceLocalAndSurvivesPortableRestore() {
+        val player = LocalPlayerStore(profileFile)
+        check(preferences.edit().putBoolean("soundEffects", true).commit())
+        val store = ProgressBackupStore(profileFile, preferences)
+        val exported = store.export(player, "1.0.0-beta.3")
+        assertFalse(exported.toString(Charsets.UTF_8).contains("soundEffects"))
+        store.restore(player, incomingPreview())
+        assertTrue(preferences.getBoolean("soundEffects", false))
+        check(preferences.edit().putBoolean("soundEffects", false).commit())
+        store.restore(player, incomingPreview())
+        assertFalse(preferences.getBoolean("soundEffects", true))
+    }
+
     @Test fun exportUsesCurrentDefaultsForRetiredStyleAndDifficultyPreferences() {
         val player = LocalPlayerStore(profileFile)
         check(preferences.edit().putString("cosmeticBoard", "old-tile-style")

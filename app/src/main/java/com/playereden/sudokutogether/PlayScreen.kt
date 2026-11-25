@@ -45,9 +45,11 @@ import kotlinx.coroutines.delay
     val feedbackView = LocalView.current
     fun tick() {
         if (state.touchFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-        if (state.soundEffects) feedbackView.playSoundEffect(SoundEffectConstants.CLICK)
+        if (state.soundEffects) playPuzzleClick { feedbackView.playSoundEffect(SoundEffectConstants.CLICK) }
     }
-    fun copyCode() { clipboard.setText(AnnotatedString(state.roomCode)); copied = true; tick() }
+    fun copyCode() { clipboard.setText(AnnotatedString(state.roomCode)); copied = true
+        if (state.touchFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
+    }
     LaunchedEffect(copied) { if (copied) { delay(1800); copied = false } }
     val snapshot = state.snapshot
     BoxWithConstraints(Modifier.fillMaxSize()) {
@@ -312,7 +314,7 @@ import kotlinx.coroutines.delay
                     val feedbackView = LocalView.current
                     SudokuBoard(snapshot, state.selected, if (state.role == SOLO || snapshot.mode == VERSUS) -1 else state.partnerCell,
                         gridSize, { if (state.touchFeedback) haptics.performHapticFeedback(HapticFeedbackType.TextHandleMove)
-                            if (state.soundEffects) feedbackView.playSoundEffect(SoundEffectConstants.CLICK)
+                            if (state.soundEffects) playPuzzleClick { feedbackView.playSoundEffect(SoundEffectConstants.CLICK) }
                             actions.select(it) },
                         boardTheme, state.appearance, state.role == SOLO, state.uniformNumbers)
                 }

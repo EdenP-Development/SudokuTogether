@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## B3-06 — feedback reliability and soundtrack checkpoint (2026-11-25)
+
+Reward continuity gate 45585519590 and sound pilot gate 45586137570 passed. B3-05 REVIEW, B3-06 ACTIVE. Audited state initialization/home/reset/restore: soundEffects default false, reread after restore; backup allowlist only writes known portable preferences and leaves device-local soundEffects untouched. Added instrumentation fixture for both on/off restore preservation and exclusion from export; not executed yet. Native click dispatch now fails silently on device RuntimeException so gameplay continues; copy-room-code retains haptic only. Added JVM feedback regression fixtures. Fresh CI pending. Owner generated M4A tracks 01 Woodland Study, 02 Quiet Pages, 03 Good Puzzles, Good Company, 04 Sunday Morning; owner likes them, files not yet supplied, no audio audition or rights verification. Owner reached free Suno limit and deferred further generation. Do not block Beta3 on custom music or assume commercial rights (generation plan at creation matters). Next finish feedback verification and advance multiplayer refinement while soundtrack intake deferred. No public release, signing or save schema changes.
+
+
 ## B3-06 — optional device-native feedback pilot
 
 Reward gate 45585519590 still running at inspection. Added default-off local Sound effects preference, independent of existing touch feedback. Uses Android View.playSoundEffect(CLICK) on explicit board/keypad feedback paths; respects platform sound-effect settings, no custom audio, no playback lifecycle or background stream, no added permissions. Preference deliberately device-local, not added to portable backup format; retained across normal state reset, inspect restore behavior in follow-up. No claim of custom quiet pencil sound or music yet. Owner experimenting with Suno separately. Fresh CI and device audibility/settings verification pending. Next check backup compatibility, state transitions, feedback dispatch and audio asset intake plan.

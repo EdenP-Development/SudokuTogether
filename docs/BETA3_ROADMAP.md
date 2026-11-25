@@ -1,5 +1,10 @@
 # GridMates: Sudoku — Beta 3: Polish and depth
 
+## B3-06 — feedback reliability and soundtrack checkpoint (2026-11-25)
+
+Reward continuity gate 45585519590 and sound pilot gate 45586137570 passed. B3-05 REVIEW, B3-06 ACTIVE. Audited state initialization/home/reset/restore: soundEffects default false, reread after restore; backup allowlist only writes known portable preferences and leaves device-local soundEffects untouched. Added instrumentation fixture for both on/off restore preservation and exclusion from export; not executed yet. Native click dispatch now fails silently on device RuntimeException so gameplay continues; copy-room-code retains haptic only. Added JVM feedback regression fixtures. Fresh CI pending. Owner generated M4A tracks 01 Woodland Study, 02 Quiet Pages, 03 Good Puzzles, Good Company, 04 Sunday Morning; owner likes them, files not yet supplied, no audio audition or rights verification. Owner reached free Suno limit and deferred further generation. Do not block Beta3 on custom music or assume commercial rights (generation plan at creation matters). Next finish feedback verification and advance multiplayer refinement while soundtrack intake deferred. No public release, signing or save schema changes.
+
+
 ## B3-05 reward continuity and future audio direction (2026-11-25)
 
 Medal detail gate 45584899760 failed on missing FontFamily import; corrected. Existing core audits cover deduplicated records, stable ownership after pruning, eligibility and bulk progress. Added cross-ledger regression for all 85 cosmetic and 47 medal IDs/counts, valid emblem references, assisted solve exclusion from clean medals and retained ownership after record pruning. Fresh integrated CI pending; no threshold/save changes. B3-05 remains active until gate verified, then B3-06 optional restrained tactile/audio feedback. Owner wants future Suno experiments with assistant-written prompts for original instrumental background music and potentially useful sound material, owner generates and supplies files. Not a Beta3 release dependency. Verify commercial rights for specific generated assets and document provenance before integration; audition/trim/loop/normalize offline assets, no mandatory music or online dependency. No audio generated or added at this checkpoint.
@@ -36,8 +41,8 @@ Statuses: NOT STARTED / ACTIVE / REVIEW / DONE / DEFERRED. Mark DONE only with e
 | B3-02 | Personalized puzzle corner | REVIEW |
 | B3-03 | Gameplay experience | ACTIVE |
 | B3-04 | Advanced Sudoku Coach | REVIEW |
-| B3-05 | Collection and progression | ACTIVE |
-| B3-06 | Sound and haptics | NOT STARTED |
+| B3-05 | Collection and progression | REVIEW |
+| B3-06 | Sound and haptics | ACTIVE |
 | B3-07 | Multiplayer refinement | NOT STARTED |
 | B3-08 | Integrated polish | NOT STARTED |
 | B3-09 | Beta 3 release | NOT STARTED |
