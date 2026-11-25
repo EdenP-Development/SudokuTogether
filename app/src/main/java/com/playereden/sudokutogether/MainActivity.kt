@@ -80,6 +80,7 @@ class MainActivity : ComponentActivity() {
                     shareStandaloneApk,
                     settingsLocked = progressBackup.working || progressBackup.recoveryRequired,
                     settingsExtra = {
+                        if (BuildConfig.DEBUG) PrivateMusicPilot(enabled = !state.busy && !progressBackup.working && !progressBackup.recoveryRequired)
                         ProgressBackupSettings(
                             progressBackup,
                             enabled = !state.busy && !state.localSaveBlocked,

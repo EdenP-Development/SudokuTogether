@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## Private music audition checkpoint (2026-11-25)
+
+Owner supplied Gentle Rests.m4a, inspected locally: Opus stereo 48kHz, 177.96s, 3,171,094 bytes. Sole private prototype, no audio bytes committed. Debug-only settings panel uses Android document picker, async MediaPlayer loop, volume and audio focus; stops on lifecycle pause/stop or panel exit, no persistent URI or background playback. This is an audition, not in-game music yet. Release UI excluded by DEBUG check. Fresh CI/device tests pending. Reconnect identity gate 45591876027 passed. Resume B3-07 rematch work after audition, public Beta2 unchanged.
+
+
 ## Current checkpoint — B3-07.03 reconnect identity guard (2026-11-25)
 
 Integrated Co-op/Versus presence gate 45591133224 passed at 714ca811. Reconnect audit found the guest callback recorded multiplayer results before checking expected room identity. GuestClient now optionally validates expected session ID before emitting welcome, and ViewModel independently rejects mismatched snapshots before records or mirror writes; guards duplicate/busy/non-join activation. Added loopback JVM fixtures for rejected and accepted room identity. Wire messages unchanged; server admission can still occur before client rejects a wrong welcome, so not a new authentication guarantee. Fresh gate pending. Next audit rematch and completed Co-op reconnect control, then layout/integrated release review. Physical two-phone checks and signed upgrade remain pending. Audio prototypes private and unlicensed for distribution. Public Beta2 unchanged; no publication authorized.
