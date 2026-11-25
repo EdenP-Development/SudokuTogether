@@ -1,7 +1,6 @@
 package com.playereden.sudokutogether
 
 import android.content.Context
-import android.content.Intent
 import android.media.AudioAttributes
 import android.media.AudioFocusRequest
 import android.media.AudioManager
@@ -22,10 +21,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 
 /**
  * Debug-only, user-selected audio audition. No bundled assets, internet,
- * progress-save changes or automatic playback. Stops when leaving this panel.
+ * progress-save changes or automatic playback. Activity-level owner keeps music playing between screens.
  */
-@Composable internal fun PrivateMusicPilot(enabled: Boolean) {
-    if (!BuildConfig.DEBUG) return
+@Composable internal fun rememberPrivateMusicPilot(enabled: Boolean): @Composable () -> Unit {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val player = remember(context) { PilotPlayer(context) }
@@ -52,9 +50,10 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
         onDispose { lifecycle.removeObserver(observer); player.stop() }
     }
     LaunchedEffect(enabled) { if (!enabled) { player.stop(); playing = false } }
+    return {
     GamePanel(Modifier.fillMaxWidth()) {
-        SectionTitle("Private music audition")
-        Text("Development builds only. Audio stays on your device.", color = Muted,
+        SectionTitle("Test music")
+        Text("Choose a track, start playback, then return home and open a puzzle.", color = Muted,
             style = MaterialTheme.typography.bodySmall)
         OutlinedButton(onClick = { player.stop(); playing = false; picker.launch(arrayOf("audio/*")) },
             enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) { Text("Choose audio file") }
@@ -68,11 +67,12 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                     playing = false
                     message = "Playback stopped or audio unavailable. Tap Play to retry."
                 }
-                message = if (playing) "Loading loop preview…" else "Unable to open audio or obtain audio focus."
+                message = if (playing) "Music on — return to your puzzle." else "Unable to open audio or obtain audio focus."
             }
         }, enabled = enabled && uri != null, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
-            Text(if (playing) "Stop" else "Play loop")
+            Text(if (playing) "Stop music" else "Play music")
         }
+    }
     }
 }
 

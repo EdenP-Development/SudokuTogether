@@ -36,6 +36,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             val state by model.state.collectAsStateWithLifecycle()
             val progressBackup by model.progressBackup.collectAsStateWithLifecycle()
+            val musicPanel: @Composable () -> Unit = if (BuildConfig.DEBUG) {
+                rememberPrivateMusicPilot(enabled = !progressBackup.working && !progressBackup.recoveryRequired)
+            } else { {} }
             var pendingExport by rememberSaveable { mutableStateOf<Uri?>(null) }
             var pendingRestore by rememberSaveable { mutableStateOf<Uri?>(null) }
             val saveProgress = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("application/json")) { uri ->
@@ -80,7 +83,7 @@ class MainActivity : ComponentActivity() {
                     shareStandaloneApk,
                     settingsLocked = progressBackup.working || progressBackup.recoveryRequired,
                     settingsExtra = {
-                        if (BuildConfig.DEBUG) PrivateMusicPilot(enabled = !state.busy && !progressBackup.working && !progressBackup.recoveryRequired)
+                        musicPanel()
                         ProgressBackupSettings(
                             progressBackup,
                             enabled = !state.busy && !state.localSaveBlocked,

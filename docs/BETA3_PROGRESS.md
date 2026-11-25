@@ -1,5 +1,10 @@
 # Beta 3 progress — active checkpoint
 
+## Music gameplay pilot
+
+Previous audition gate 45669505340 passed. Moved existing playback owner to activity composition so music continues across Settings, Home and gameplay. One local file, Play/Stop and volume; foreground only, stops on focus loss or background, no automatic restart. No bundled track. Preview workflow triggered with MusicPilot artifact name, retains existing isolated coach2 package for upgrade continuity. Fresh CI and handset test pending. Owner selects Gentle Rests once using Settings, starts music and opens puzzle. Resume multiplayer afterward.
+
+
 ## Private music audition checkpoint (2026-11-25)
 
 Owner supplied Gentle Rests.m4a, inspected locally: Opus stereo 48kHz, 177.96s, 3,171,094 bytes. Sole private prototype, no audio bytes committed. Debug-only settings panel uses Android document picker, async MediaPlayer loop, volume and audio focus; stops on lifecycle pause/stop or panel exit, no persistent URI or background playback. This is an audition, not in-game music yet. Release UI excluded by DEBUG check. Fresh CI/device tests pending. Reconnect identity gate 45591876027 passed. Resume B3-07 rematch work after audition, public Beta2 unchanged.
