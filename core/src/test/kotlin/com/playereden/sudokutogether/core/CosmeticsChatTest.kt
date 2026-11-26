@@ -83,6 +83,33 @@ class CosmeticsChatTest {
         }
     }
 
+    @Test fun replacingPartnerClearsChatButReconnectingPreservesIt() {
+        val hostEvents = LinkedBlockingQueue<HostEvent>()
+        HostServer(GameSession.create(fixture()), hostEvents::offer).use { host ->
+            val port = host.start(java.net.InetAddress.getByName("127.0.0.1"))
+            val first = LinkedBlockingQueue<ClientEvent>()
+            val token = GuestClient(listener = first::offer).use { guest ->
+                guest.connect("127.0.0.1", port, host.code, "First")
+                val credential = await(first) { it.token != null }.token!!
+                assertTrue(host.chat("Previous conversation"))
+                await(first) { it.chat?.text == "Previous conversation" }
+                credential
+            }
+            await(hostEvents) { !it.status.guestActive && it.snapshot.guestName != null }
+            val returning = LinkedBlockingQueue<ClientEvent>()
+            GuestClient(listener = returning::offer).use { guest ->
+                guest.connect("127.0.0.1", port, host.code, "First", resumeToken = token)
+                assertTrue(await(returning) { it.token != null }.history.orEmpty().any { it.text == "Previous conversation" })
+                host.replaceGuest()
+            }
+            val replacement = LinkedBlockingQueue<ClientEvent>()
+            GuestClient(listener = replacement::offer).use { guest ->
+                guest.connect("127.0.0.1", port, host.code, "Second")
+                assertEquals(emptyList<ChatLine>(), await(replacement) { it.token != null }.history)
+            }
+        }
+    }
+
     private fun <T> await(queue: LinkedBlockingQueue<T>, match: (T) -> Boolean): T {
         val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(8)
         while (System.nanoTime() < deadline) {
