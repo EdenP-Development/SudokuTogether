@@ -1,4 +1,6 @@
 import java.util.Properties
+import java.security.MessageDigest
+import java.util.Locale
 
 plugins { id("com.android.application"); kotlin("android"); kotlin("plugin.compose"); kotlin("plugin.serialization") }
 // Explicit separate-package transition; legacy and existing QA remain the default.
@@ -33,9 +35,9 @@ if (beta3AudioCandidate) {
         "1e439245b42cc0796c594e87491623c5be2e3e186dd809fa5a0f27aee68010d6"
     )
     expected.forEachIndexed { index, hash ->
-        val track = rootProject.file("build/beta3-audio-assets/soundtrack/track_%02d.m4a".format(java.util.Locale.ROOT, index + 1))
+        val track = rootProject.file("build/beta3-audio-assets/soundtrack/track_%02d.m4a".format(Locale.ROOT, index + 1))
         require(track.isFile) { "Missing candidate soundtrack: ${track.name}" }
-        val actual = java.security.MessageDigest.getInstance("SHA-256").digest(track.readBytes()).joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        val actual = MessageDigest.getInstance("SHA-256").digest(track.readBytes()).joinToString("") { "%02x".format(it.toInt() and 0xff) }
         require(actual == hash) { "Candidate soundtrack checksum mismatch: ${track.name}" }
     }
 }
