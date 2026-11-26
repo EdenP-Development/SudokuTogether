@@ -1,4 +1,9 @@
 # B3-AMZ — Amazon Appstore readiness
+
+## AMZ-05.06 — multiplayer safety checkpoint (2026-11-25)
+
+Packaged dependency/permission audit passed 45741172498. Wi-Fi address binding and dedicated loopback regression passed candidate 45744155146; chat cleanup implementation passed 45744179648. Same-partner reconnect/replacement isolation fixture 26bf368 pending CI at inspection. Room-code default enabled when unset (77cb241), backup export default aligned (c2c264e); explicit saved settings and existing room configuration preserved, no schema or protocol changes. Existing users with no saved setting also receive new default. Fresh CI, default/restore regression, physical LAN and Fire tests remain open. Chat stays in host memory during live room and is cleared on partner replacement/closure; no durable chat field identified in saved session review, verify UI and actual retention on device. Next AMZ-07 current Amazon audience/UGC review, then privacy hosting and tablet QA. No upload, publication or signing changes authorized.
+
 2026-11-25 | ACTIVE, parallel to B3-08, release gate for Amazon only. Owner reports Spudacus account approved and Sudoku listing created; descriptions, keywords, icons, promotional screenshots and pricing configured. Console state not independently verified. Scope Fire tablets (Fire OS APK), not Fire TV or Vega. No submission or publication authorized.
 
 ## AMZ-01.01 — active readiness checkpoint (2026-11-25)
