@@ -96,13 +96,17 @@ class CosmeticsChatTest {
                 val credential = await(first) { it.token != null }.token!!
                 assertTrue(host.chat("Thank you!"))
                 await(first) { it.chat?.text == "Thank you!" }
+                guest.sendChat(GridMatesEmote.CELEBRATION.wireValue)
+                await(first) { it.chat?.text == GridMatesEmote.CELEBRATION.wireValue }
                 credential
             }
             await(hostEvents) { !it.status.guestActive && it.snapshot.guestName != null }
             val returning = LinkedBlockingQueue<ClientEvent>()
             GuestClient(listener = returning::offer).use { guest ->
                 guest.connect("127.0.0.1", port, host.code, "First", resumeToken = token)
-                assertTrue(await(returning) { it.token != null }.history.orEmpty().any { it.text == "Thank you!" })
+                val history = await(returning) { it.token != null }.history.orEmpty()
+                assertTrue(history.any { it.text == "Thank you!" })
+                assertTrue(history.any { it.text == GridMatesEmote.CELEBRATION.wireValue && it.player == GUEST })
                 host.replaceGuest()
             }
             val replacement = LinkedBlockingQueue<ClientEvent>()
@@ -127,6 +131,26 @@ class CosmeticsChatTest {
             GuestClient(listener = events::offer).use { guest ->
                 guest.connect("127.0.0.1", port, host.code, "Current")
                 assertNotNull(await(events) { it.token != null }.token)
+            }
+        }
+    }
+
+    @Test fun emotesTravelBothDirectionsAndShareChatRateLimit() {
+        val hostEvents = LinkedBlockingQueue<HostEvent>()
+        val guestEvents = LinkedBlockingQueue<ClientEvent>()
+        HostServer(GameSession.create(fixture()), hostEvents::offer).use { host ->
+            val port = host.start()
+            GuestClient(listener = guestEvents::offer).use { guest ->
+                guest.connect("127.0.0.1", port, host.code, "Partner")
+                await(guestEvents) { it.token != null }
+                assertFalse(host.chat("emote:unknown"))
+                assertThrows(IllegalArgumentException::class.java) { guest.sendChat("emote:unknown") }
+                assertTrue(host.chat(GridMatesEmote.APPROVE.wireValue))
+                assertFalse(host.chat("Yes"))
+                assertEquals(HOST, await(guestEvents) { it.chat?.text == GridMatesEmote.APPROVE.wireValue }.chat!!.player)
+                guest.sendChat(GridMatesEmote.HAPPY.wireValue)
+                assertEquals(GUEST, await(hostEvents) { it.chat?.text == GridMatesEmote.HAPPY.wireValue }.chat!!.player)
+                assertEquals(GUEST, await(guestEvents) { it.chat?.text == GridMatesEmote.HAPPY.wireValue }.chat!!.player)
             }
         }
     }
