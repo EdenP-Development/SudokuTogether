@@ -574,8 +574,9 @@ private val TealColor = Color(0xFFDCECE4)
 @Composable fun RoomChatSheet(state: GameUiState, actions: GameActions, close: () -> Unit) {
     var group by remember { mutableStateOf<QuickChatGroup?>(QuickChatGroup.RESPONSE) }
     val scroll = rememberLazyListState()
+    val visibleChat = if (state.communicationMuted) state.chat.filter { it.player == state.role } else state.chat
     val enabled = state.role == HOST || state.connected
-    LaunchedEffect(state.chat.lastOrNull()?.id) { if (state.chat.isNotEmpty()) scroll.animateScrollToItem(state.chat.lastIndex) }
+    LaunchedEffect(visibleChat.lastOrNull()?.id, state.communicationMuted) { if (visibleChat.isNotEmpty()) scroll.animateScrollToItem(visibleChat.lastIndex) }
     ModalBottomSheet(onDismissRequest = close, containerColor = Cream,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
         Column(Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState())
@@ -583,9 +584,14 @@ private val TealColor = Color(0xFFDCECE4)
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text("Quick Chat & Emotes", fontFamily = FontFamily.Serif, color = Forest, fontSize = 23.sp)
             Text("Choose a message for your partner. Messages aren't saved.", color = Muted, fontSize = 12.sp)
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                Text(if (state.communicationMuted) "Incoming communication hidden" else "Show incoming communication", modifier = Modifier.weight(1f), fontSize = 13.sp, color = Forest)
+                Switch(checked = !state.communicationMuted, onCheckedChange = { actions.muteCommunication(!it) }, modifier = Modifier.testTag("communication_visibility").semantics { contentDescription = "Show incoming messages, emotes and markers" })
+            }
+            if (state.communicationMuted) Text("Your partner can still play and receive your messages. Unmute to see recent messages again.", color = Muted, fontSize = 12.sp)
             LazyColumn(Modifier.fillMaxWidth().height(128.dp).testTag("quick_chat_history"), state = scroll,
                 verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(state.chat, key = { it.id }) { msg ->
+                items(visibleChat, key = { it.id }) { msg ->
                     val mine = msg.player == state.role
                     val author = if (msg.player == HOST) state.snapshot?.hostName ?: "Host" else state.snapshot?.guestName ?: "Partner"
                     val look = if (msg.player == HOST) state.snapshot?.hostAppearance ?: Appearance() else state.snapshot?.guestAppearance ?: Appearance()
