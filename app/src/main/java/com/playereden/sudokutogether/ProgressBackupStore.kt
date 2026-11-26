@@ -233,7 +233,7 @@ internal class ProgressBackupStore(
     private companion object {
         const val JOURNAL_SCHEMA = 1
         const val JOURNAL_MAX_BYTES = LOCAL_PROFILE_MAX_BYTES.toInt() + 1024 * 1024
-        val defaultPreferences = BackupSettings().preferenceValues()
+        val defaultPreferences = BackupSettings(requireRoomCode = true).preferenceValues()
 
         fun BackupSettings.preferenceValues() = mapOf(
             "name" to JsonPrimitive(name),
