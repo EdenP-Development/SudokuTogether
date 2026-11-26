@@ -406,9 +406,10 @@ class GameViewModel @JvmOverloads constructor(
     }
     fun chatVisible(open: Boolean) { _state.update { it.copy(chatVisible = open, unreadChat = if (open) 0 else it.unreadChat) } }
     fun sendChat(raw: String) {
-        val content = ChatRules.clean(raw)
+        if (!QuickChat.isPreset(raw)) return
+        val content = raw
         val s = _state.value
-        if (content.isBlank() || s.role == SOLO || s.page != Page.PLAY || s.snapshot == null) return
+        if (s.role == SOLO || s.page != Page.PLAY || s.snapshot == null) return
         val current = generation.get()
         viewModelScope.launch(workDispatcher) {
             try {
