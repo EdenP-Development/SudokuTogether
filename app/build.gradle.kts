@@ -1,3 +1,5 @@
+import java.io.ByteArrayOutputStream
+import java.util.zip.ZipInputStream
 import java.util.Properties
 import java.security.MessageDigest
 import java.util.Locale
@@ -181,14 +183,14 @@ val prepareFoxEmotes = tasks.register("prepareFoxEmotes") {
     outputs.dir(foxResources)
     doLast {
         val parts = (1..13).map { foxTransfer.resolve("part_%02d.bin".format(Locale.ROOT, it).replace('_', '-')) }
-        val bytes = java.io.ByteArrayOutputStream().also { out -> parts.forEach { out.write(it.readBytes()) } }.toByteArray()
+        val bytes = ByteArrayOutputStream().also { out -> parts.forEach { out.write(it.readBytes()) } }.toByteArray()
         val digest = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it.toInt() and 0xff) }
         require(bytes.size == 3754384 && digest == "c10b3fcae7e09d09a4c500d74a479c1842a19c54de6f9a7b1907714aa38bdf5b") { "Fox V1 artwork archive checksum mismatch" }
         val expected = foxIds.map { "runtime/gm_emote_fox_$it.webp" }.toSet()
         val found = mutableSetOf<String>()
         val destination = foxResources.get().asFile.resolve("drawable-nodpi")
         destination.mkdirs()
-        java.util.zip.ZipInputStream(bytes.inputStream()).use { zip ->
+        ZipInputStream(bytes.inputStream()).use { zip ->
             while (true) {
                 val entry = zip.nextEntry ?: break
                 if (entry.name in expected) {
