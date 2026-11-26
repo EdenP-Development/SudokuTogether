@@ -170,7 +170,8 @@ class MultiplayerPolishUiTest {
         compose.setContent { SudokuTogetherTheme { RoomChatSheet(state, polishActions(send = sent::add), {}) } }
         compose.onNodeWithText("You").assertIsDisplayed()
         compose.onNodeWithText("Taylor").assertIsDisplayed()
-        compose.onNodeWithText("😊 Happy").assertExists()
+        compose.onNodeWithTag("chat_emote_happy").assertExists()
+        compose.onNodeWithContentDescription(GridMatesEmote.HAPPY.label).assertExists()
         compose.onNodeWithTag("chat_input").assertDoesNotExist()
         for ((category, group) in listOf("Responses" to QuickChatGroup.RESPONSE, "Teamwork" to QuickChatGroup.TEAMWORK, "Friendly" to QuickChatGroup.FRIENDLY)) {
             compose.onNodeWithText(category).performScrollTo().performClick()
@@ -178,8 +179,9 @@ class MultiplayerPolishUiTest {
                 compose.onNodeWithTag("quick_chat_" + reply.id).performScrollTo().assertIsDisplayed().performClick()
         }
         compose.onNodeWithTag("quick_chat_emotes").performScrollTo().performClick()
-        for (emote in GridMatesEmote.entries)
+        for (emote in GridMatesEmote.entries) {
             compose.onNodeWithTag("emote_" + emote.id).performScrollTo().assertIsDisplayed().performClick()
+        }
         compose.runOnIdle { assertEquals(QuickChat.phrases + GridMatesEmote.entries.map { it.wireValue }, sent) }
     }
 
@@ -237,12 +239,12 @@ class MultiplayerPolishUiTest {
         compose.setContent { SudokuTogetherTheme { RoomChatSheet(state.value, actions, {}) } }
         compose.onNodeWithTag("communication_visibility").assertIsOn().performClick()
         compose.onNodeWithTag("communication_visibility").assertIsOff()
-        compose.onNodeWithText("😊 Happy").assertDoesNotExist()
+        compose.onNodeWithTag("chat_emote_happy").assertDoesNotExist()
         compose.onNodeWithText("Thank you!").assertExists()
         compose.onNodeWithTag("quick_chat_yes").performScrollTo().assertIsEnabled().performClick()
         compose.runOnIdle { assertEquals(listOf("Yes"), sent); assertEquals(history, state.value.chat); assertTrue(state.value.connected) }
         compose.onNodeWithTag("communication_visibility").performScrollTo().performClick()
-        compose.onNodeWithText("😊 Happy").assertExists()
+        compose.onNodeWithTag("chat_emote_happy").assertExists()
         compose.onNodeWithTag("communication_visibility").assertIsOn()
     }
 }
