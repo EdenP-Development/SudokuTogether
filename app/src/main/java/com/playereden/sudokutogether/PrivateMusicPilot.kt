@@ -79,7 +79,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
         message = "Preparing music…"
         val accepted = player.start(selected, volume, looping = order.size == 1,
             onStarted = { preparing = false; playing = true; message = "Playing" },
-            onFinished = { preparing = false; playing = false; playAt(index + 1) },
+            onFinished = { preparing = false; playing = false; message = "Music stopped."; playAt(index + 1) },
             onStopped = { interrupted = true; preparing = false; playing = false; message = "Music interrupted. Tap Play to retry." })
         if (!accepted) {
             preparing = false
@@ -108,6 +108,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 player.stop()
                 preparing = false
                 playing = false
+                if (!interrupted && order.isNotEmpty()) message = "Music stopped."
             }
         }
         lifecycle.addObserver(observer)
@@ -118,6 +119,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
             player.stop()
             preparing = false
             playing = false
+            if (!interrupted && order.isNotEmpty()) message = "Music stopped."
         } else if (bundled.isNotEmpty() && !playing && !preparing && !interrupted) {
             playAt(index)
         }
