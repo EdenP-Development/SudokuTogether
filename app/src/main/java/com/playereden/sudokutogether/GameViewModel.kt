@@ -561,7 +561,7 @@ class GameViewModel @JvmOverloads constructor(
     private fun closeRoom(): Long {
         val current = synchronized(localStartLock) {
             generation.incrementAndGet().also {
-                _state.update { ui -> ui.copy(hint = null, hintUnavailable = false, entryCheck = null) }
+                _state.update { ui -> ui.copy(hint = null, hintUnavailable = false, entryCheck = null, chat = emptyList(), unreadChat = 0, chatVisible = false) }
             }
         }
         guest?.close(); guest = null; server?.close(); server = null; discovery.stop()
@@ -795,7 +795,7 @@ class GameViewModel @JvmOverloads constructor(
         guest?.setForeground(active)
     }
     fun replacePartner() { viewModelScope.launch(workDispatcher) {
-        try { server?.replaceGuest() } catch (_: Exception) { _state.update { it.copy(message = "Couldn't save the partner change. Try again.") } }
+        try { server?.replaceGuest(); _state.update { it.copy(chat = emptyList(), unreadChat = 0, chatVisible = false) } } catch (_: Exception) { _state.update { it.copy(message = "Couldn't save the partner change. Try again.") } }
     } }
     fun newPuzzle() {
         val before = _state.value
