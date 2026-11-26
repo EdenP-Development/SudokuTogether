@@ -46,8 +46,12 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
                                 val snapshot = message.snapshot ?: throw IOException("Missing puzzle")
                                 val status = message.status ?: throw IOException("Missing room state")
                                 validateNetworkIdentity(snapshot)
-                                message.outcome?.snapshot?.let(::validateNetworkIdentity)
                                 validateSnapshot(snapshot)
+                                // The host publishes the same guest-facing state in both fields.
+                                // Equality avoids a second expensive puzzle validation and rejects
+                                // any hidden or inconsistent board/name data in the outcome.
+                                if (message.outcome?.let { it.snapshot != snapshot } == true)
+                                    throw IOException("Inconsistent move result")
                                 if (snapshot.sessionId != latest.sessionId || (snapshot.epoch == latest.epoch && snapshot.revision < latest.revision)) throw IOException("Out-of-order puzzle state")
                                 latest = snapshot; latestSnapshot = snapshot; latestStatus = status; emit(ClientEvent(snapshot, status, outcome = message.outcome))
                             }
@@ -112,7 +116,7 @@ private fun validateNetworkIdentity(snapshot: Snapshot) {
         throw IOException("Invalid player name in room state.")
 }
 
-private fun approvedRoomError(text: String): String = if (text in setOf(
+internal fun approvedRoomError(text: String): String = if (text in setOf(
     "This room has closed.", "Install the same app version on both phones.",
     "This room already has two players.", "Too many incorrect codes. Try again in a minute.",
     "That room code is incorrect.", "Choose an approved player name.",
