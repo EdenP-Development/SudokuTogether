@@ -1,0 +1,61 @@
+name: Beta 3 unsigned audio candidate
+on:
+  push:
+    branches: [feat/beta3-foundation]
+    paths:
+      - '.github/workflows/beta3-audio-candidate.yml'
+      - 'app/build.gradle.kts'
+      - 'app/src/**'
+      - 'core/src/**'
+      - 'scripts/prepare_beta3_soundtrack.py'
+      - 'design/audio/transfer/**'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  candidate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify and extract soundtrack
+        run: python scripts/prepare_beta3_soundtrack.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Build and test unsigned candidate
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:test :app:testReleaseUnitTest :app:lintRelease :app:assembleRelease -PgridmatesPermanentIdentityStaging=true -PgridmatesBeta3AudioCandidate=true --no-daemon --max-workers=2 --console=plain
+      - name: Verify unsigned candidate identity and audio contents
+        run: |
+          set -euo pipefail
+          APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          TOOLS="$ANDROID_HOME/build-tools/35.0.0"
+          test -f "$APK"
+          "$TOOLS/aapt" dump badging "$APK" > candidate-badging.txt
+          grep -F "package: name='com.playereden.gridmates.sudoku.beta' versionCode='31'" candidate-badging.txt
+          if "$TOOLS/apksigner" verify "$APK"; then
+            echo "Unexpected signed candidate"
+            exit 1
+          fi
+          python - <<'PY'
+          import hashlib, pathlib, zipfile
+          paths = sorted(pathlib.Path('build/beta3-audio-assets/soundtrack').glob('track_*.m4a'))
+          assert [p.name for p in paths] == [f'track_{i:02}.m4a' for i in range(1,7)]
+          with zipfile.ZipFile('app/build/outputs/apk/release/app-release-unsigned.apk') as z:
+              assert sorted(n for n in z.namelist() if n.startswith('assets/soundtrack/') and not n.endswith('/')) == ['assets/soundtrack/' + p.name for p in paths]
+              for p in paths:
+                  entry = z.getinfo('assets/soundtrack/' + p.name)
+                  assert entry.compress_type == zipfile.ZIP_STORED
+                  assert hashlib.sha256(z.read(entry)).digest() == hashlib.sha256(p.read_bytes()).digest()
+          print('Six verified uncompressed tracks in unsigned candidate.')
+          PY
+      # Deliberately do not upload or distribute the APK.
