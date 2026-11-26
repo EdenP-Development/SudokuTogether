@@ -124,8 +124,9 @@ internal object ProgressBackup {
         require(backup.exportedAtMs >= 0 && appVersionPattern.matches(backup.appVersion))
         validateLocalPlayerData(backup.progress.forInstallation("portable"))
         val settings = backup.settings
-        require(settings.name.length <= 24 && settings.name.none { it.isISOControl() } &&
-            Charsets.UTF_8.newEncoder().canEncode(settings.name))
+        // Keep accepting legacy backup names while allowing longer canonical names.
+        require((settings.name.length <= 24 || NameCollection.parseCanonical(settings.name) != null) &&
+            settings.name.none { it.isISOControl() } && Charsets.UTF_8.newEncoder().canEncode(settings.name))
         require(Cosmetics.valid(settings.appearance) && isDifficulty(settings.difficulty))
         require(settings.recentPuzzleIds.size <= PuzzleSupply.RECENT_LIMIT &&
             settings.recentPuzzleIds.toSet().size == settings.recentPuzzleIds.size &&
