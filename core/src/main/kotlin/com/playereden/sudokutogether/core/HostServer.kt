@@ -28,8 +28,8 @@ class HostServer(val session: GameSession, private val listener: (HostEvent) -> 
     private val lastChatMs = mutableMapOf<String, Long>()
     private fun addChat(player: String, raw: String): Boolean {
         if (closed || (player == GUEST && peer == null)) return false
-        val clean = ChatRules.clean(raw)
-        if (clean.isBlank()) return false
+        if (!QuickChat.isPreset(raw)) return false
+        val clean = raw
         val now = System.currentTimeMillis()
         if (now - (lastChatMs[player] ?: 0) < ChatRules.MIN_INTERVAL_MS) return false
         lastChatMs[player] = now
