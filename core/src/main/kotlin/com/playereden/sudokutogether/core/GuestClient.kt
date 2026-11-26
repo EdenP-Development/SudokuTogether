@@ -74,8 +74,8 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
     }
     fun select(cell: Int) { if (cell in -1..80) link?.send(Message("select", cell = cell)) }
     fun sendChat(text: String) {
-        val content = ChatRules.clean(text)
-        if (content.isNotEmpty()) (link ?: throw IOException("Reconnect to chat.")).send(Message("chat", text = content))
+        require(QuickChat.isPreset(text)) { "Choose an approved Quick Chat message." }
+        (link ?: throw IOException("Reconnect to chat.")).send(Message("chat", text = text))
     }
     fun changeAppearance(appearance: Appearance) {
         require(Cosmetics.valid(appearance))
