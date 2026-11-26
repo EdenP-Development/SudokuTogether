@@ -40,10 +40,10 @@ class NearbyRoomModelTest {
         app = FixtureApplication(instrumentation.targetContext, root)
     }
     @After fun clean() { main { models.forEach { it.home() } };root.deleteRecursively() }
-    @Test fun newRoomsDefaultOpenAndAnExplicitChoiceIsRemembered() {
-        val (first, _) = model();assertFalse(first.state.value.requireRoomCode)
-        main { first.setRequireRoomCode(true) };assertTrue(first.state.value.requireRoomCode)
-        val (restored, _) = model();assertTrue(restored.state.value.requireRoomCode)
+    @Test fun newRoomsDefaultProtectedAndAnExplicitChoiceIsRemembered() {
+        val (first, _) = model();assertTrue(first.state.value.requireRoomCode)
+        main { first.setRequireRoomCode(false) };assertFalse(first.state.value.requireRoomCode)
+        val (restored, _) = model();assertFalse(restored.state.value.requireRoomCode)
     }
     @Test fun theChosenCodePolicySurvivesHomeAndTheNextFreshRoom() {
         val (value, queue) = model()
