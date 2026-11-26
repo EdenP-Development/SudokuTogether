@@ -89,4 +89,11 @@ class NearbyRoomModelTest {
         main { restored.chooseCosmetic("portrait","woodland_cat") }
         assertEquals("",restored.state.value.appearance.portrait)
     }
+
+    @Test fun nearbyRoomLabelsUseOnlyTheRoomIdentifier() {
+        assertEquals("GridMates puzzle A7F291", nearbyRoomLabel("12345678-abcd-4321-9876-123456a7f291"))
+        assertEquals("GridMates puzzle LOCAL", nearbyRoomLabel(""))
+        assertNotEquals(nearbyRoomLabel("123456"), nearbyRoomLabel("654321"))
+        assertTrue(nearbyRoomLabel(UUID.randomUUID().toString()).matches(Regex("GridMates puzzle [0-9A-F]{6}")))
+    }
 }
