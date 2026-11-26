@@ -8,6 +8,8 @@ import java.util.concurrent.Executors
 class GuestClient(private val socketFactory: () -> Socket = { Socket() }, private val listener: (ClientEvent) -> Unit = {}) : AutoCloseable {
     private val reader = Executors.newSingleThreadExecutor(threads("sudoku-input"))
     @Volatile private var link: Link? = null
+    @Volatile private var latestSnapshot: Snapshot? = null
+    @Volatile private var latestStatus: RoomStatus? = null
     private fun emit(event: ClientEvent) { runCatching { listener(event) } }
     fun connect(host: String, port: Int, code: String, name: String, resumeToken: String? = null, appearance: Appearance = Appearance(), expectedSessionId: String? = null) {
         require(Cosmetics.valid(appearance))
@@ -29,6 +31,7 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
             if (welcome.token.length !in 32..128) throw IOException("Invalid rejoin credential")
             socket.soTimeout = 10_000
             val current = Link(socket) { drop(it, "Connection paused. Reconnect to the host to continue.") }; link = current
+            latestSnapshot = welcome.snapshot; latestStatus = welcome.status
             emit(ClientEvent(welcome.snapshot, welcome.status, welcome.token, history = welcome.lines))
             reader.execute {
                 var latest: Snapshot = welcome.snapshot
@@ -42,7 +45,7 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
                                 val status = message.status ?: throw IOException("Missing room state")
                                 validateSnapshot(snapshot)
                                 if (snapshot.sessionId != latest.sessionId || (snapshot.epoch == latest.epoch && snapshot.revision < latest.revision)) throw IOException("Out-of-order puzzle state")
-                                latest = snapshot; emit(ClientEvent(snapshot, status, outcome = message.outcome))
+                                latest = snapshot; latestSnapshot = snapshot; latestStatus = status; emit(ClientEvent(snapshot, status, outcome = message.outcome))
                             }
                             "select" -> {
                                 if (message.cell !in -1..80) throw IOException("Invalid selection")
@@ -52,6 +55,11 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
                                 val line = message.line ?: throw IOException("Invalid chat message")
                                 if (line.player !in listOf(HOST, GUEST) || line.text.isBlank()) throw IOException("Invalid chat sender")
                                 emit(ClientEvent(chat = line))
+                            }
+                            "partner_ping" -> {
+                                val marker = message.partnerPing ?: throw IOException("Missing partner marker")
+                                if (marker.matches(latest) && latestStatus?.let { it.hostActive && it.guestActive } == true)
+                                    emit(ClientEvent(partnerPing = marker))
                             }
                             "ping" -> current.send(Message("pong"))
                             "error" -> throw IOException(message.text.take(300))
@@ -65,7 +73,7 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
     private fun drop(current: Link, reason: String) {
         synchronized(this) {
             if (link !== current) return
-            link = null; current.close(); emit(ClientEvent(disconnected = true, message = reason))
+            link = null; latestSnapshot = null; latestStatus = null; current.close(); emit(ClientEvent(disconnected = true, message = reason))
         }
     }
     fun submit(operation: Operation) {
@@ -73,6 +81,13 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
         current.send(Message("move", operation = operation))
     }
     fun select(cell: Int) { if (cell in -1..80) link?.send(Message("select", cell = cell)) }
+    fun partnerPing(marker: PartnerPing): Boolean {
+        val current = link ?: return false
+        val snapshot = latestSnapshot ?: return false
+        if (!marker.matches(snapshot) || latestStatus?.let { it.hostActive && it.guestActive } != true) return false
+        current.send(Message("partner_ping", partnerPing = marker))
+        return true
+    }
     fun sendChat(text: String) {
         require(QuickChat.isPreset(text)) { "Choose an approved Quick Chat message." }
         (link ?: throw IOException("Reconnect to chat.")).send(Message("chat", text = text))
@@ -83,6 +98,6 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
     }
     fun setForeground(active: Boolean) { link?.send(Message("presence", active = active)) }
     override fun close() {
-        synchronized(this) { val current = link; link = null; current?.close(); reader.shutdownNow() }
+        synchronized(this) { val current = link; link = null; latestSnapshot = null; latestStatus = null; current?.close(); reader.shutdownNow() }
     }
 }
