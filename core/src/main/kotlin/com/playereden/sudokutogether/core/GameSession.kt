@@ -4,9 +4,8 @@ import java.security.MessageDigest
 import java.util.UUID
 
 fun cleanName(name: String, fallback: String): String =
-    // Player names are limited to 24 UTF-16 units in saved rooms and on the
-    // wire. Don't truncate midway through an emoji's surrogate pair.
-    name.filterNot { it.isISOControl() }.trim().take(24)
+    // Preserve canonical names verbatim; keep legacy cleanup for old local callers.
+    if (NameCollection.parseCanonical(name) != null) name else name.filterNot { it.isISOControl() }.trim().take(24)
         .dropLastWhile { Character.isHighSurrogate(it) }
         .ifBlank { fallback }
 
