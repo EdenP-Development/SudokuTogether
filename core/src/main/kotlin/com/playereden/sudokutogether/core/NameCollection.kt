@@ -108,6 +108,15 @@ object NameCollection {
             byId[id]?.let { it.achievementId == null || it.achievementId in earnedIds } == true
         }
 
+    /** Stable starter fallback for legacy or no-longer-eligible profile names.
+     *  The installation identity is not changed or included in the display name.
+     */
+    fun normalizedProfileName(name: String, profile: LocalPlayerData): String {
+        val selection = parseCanonical(name)
+        if (selection != null && canEquip(selection, earnedIds(profile))) return name
+        return requireNotNull(display(randomName(emptySet(), true, Random(profile.playerId.hashCode()))))
+    }
+
     fun randomName(earnedIds: Set<String>, includeMiddle: Boolean, random: Random = Random.Default): PlayerNameSelection {
         val first = available(NameSlot.FIRST, earnedIds)
         val middle = available(NameSlot.MIDDLE, earnedIds)
