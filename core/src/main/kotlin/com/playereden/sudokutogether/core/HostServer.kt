@@ -153,6 +153,7 @@ class HostServer(val session: GameSession, private val listener: (HostEvent) -> 
     }
     fun replaceGuest() = synchronized(lock) {
         session.replaceGuest()
+        chatHistory.clear(); lastChatMs.clear()
         val previous = peer; peer = null; guestActive = false; partnerCell = -1
         previous?.close(); publish()
     }
