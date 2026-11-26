@@ -572,7 +572,7 @@ private val TealColor = Color(0xFFDCECE4)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun RoomChatSheet(state: GameUiState, actions: GameActions, close: () -> Unit) {
-    var group by remember { mutableStateOf(QuickChatGroup.RESPONSE) }
+    var group by remember { mutableStateOf<QuickChatGroup?>(QuickChatGroup.RESPONSE) }
     val scroll = rememberLazyListState()
     val enabled = state.role == HOST || state.connected
     LaunchedEffect(state.chat.lastOrNull()?.id) { if (state.chat.isNotEmpty()) scroll.animateScrollToItem(state.chat.lastIndex) }
@@ -581,7 +581,7 @@ private val TealColor = Color(0xFFDCECE4)
         Column(Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState())
             .padding(horizontal = 16.dp).padding(bottom = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Quick Chat", fontFamily = FontFamily.Serif, color = Forest, fontSize = 23.sp)
+            Text("Quick Chat & Emotes", fontFamily = FontFamily.Serif, color = Forest, fontSize = 23.sp)
             Text("Choose a message for your partner. Messages aren't saved.", color = Muted, fontSize = 12.sp)
             LazyColumn(Modifier.fillMaxWidth().height(128.dp).testTag("quick_chat_history"), state = scroll,
                 verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -594,7 +594,8 @@ private val TealColor = Color(0xFFDCECE4)
                             AnimalPortrait(look, Modifier.size(24.dp))
                             Text(if (mine) "You" else author, fontSize = 12.sp, color = Muted)
                         }
-                        Text(msg.text, modifier = Modifier.background(if (mine) TealColor else Paper,
+                        val reaction = GridMatesEmote.fromWire(msg.text)
+                        Text(if (reaction == null) msg.text else "${reaction.glyph} ${reaction.label}", modifier = Modifier.background(if (mine) TealColor else Paper,
                             RoundedCornerShape(12.dp)).padding(12.dp), fontFamily = fontFor(look.font),
                             color = inkFor(look.ink, false), fontSize = 14.sp)
                     }
@@ -610,8 +611,24 @@ private val TealColor = Color(0xFFDCECE4)
                     FilterChip(selected = group == category, onClick = { group = category },
                         label = { Text(label) }, modifier = Modifier.heightIn(min = 48.dp))
                 }
+                FilterChip(selected = group == null, onClick = { group = null },
+                    label = { Text("Emotes") }, modifier = Modifier.heightIn(min = 48.dp).testTag("quick_chat_emotes"))
             }
-            QuickChatPhrase.entries.filter { it.group == group }.chunked(2).forEach { pair ->
+            if (group == null) GridMatesEmote.entries.chunked(3).forEach { trio ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    trio.forEach { emote ->
+                        OutlinedButton(onClick = { actions.sendChat(emote.wireValue) },
+                            modifier = Modifier.weight(1f).heightIn(min = 64.dp).testTag("emote_" + emote.id),
+                            contentPadding = PaddingValues(4.dp), enabled = enabled) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                Text(emote.glyph, fontSize = 24.sp, modifier = Modifier.clearAndSetSemantics { })
+                                Text(emote.label, fontSize = 12.sp, textAlign = TextAlign.Center)
+                            }
+                        }
+                    }
+                    repeat(3 - trio.size) { Spacer(Modifier.weight(1f)) }
+                }
+            } else QuickChatPhrase.entries.filter { it.group == group }.chunked(2).forEach { pair ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     pair.forEach { phrase ->
                         OutlinedButton(onClick = { actions.sendChat(phrase.label) },
