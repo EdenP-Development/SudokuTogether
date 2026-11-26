@@ -1,5 +1,21 @@
 # Continue GridMates: Sudoku
 
+## AMZ-07.01 — audience and communication policy review (2026-11-25)
+
+Verified latest runtime c2c264e: Android gate 45744682356 and unsigned candidate 45744682377 both passed; same-partner reconnect/replacement regression candidate 45744251473 passed. Room-code and backup defaults compiled/tested in overall gates; dedicated absent/explicit preference and actual restore checks still open. Device LAN/Fire checks remain open.
+
+Official Amazon content policy requires objectionable UGC filtering, age verification, reporting/removal; restricted content policy also requires accepted content rules and proportionate moderation. No explicit private LAN exemption found. Current arbitrary chat and customizable nicknames are potential UGC; cleaning/rate limiting, room codes and local retention do not establish compliance. Content questionnaire explicitly includes UGC or user-to-user communication. Target audience separate from maturity rating: Amazon specifies 0–12 or 13–15 in some regions for child-directed requirements, and 16+ only if genuinely intended for that audience. Recommend ordinary general puzzle audience, do not select artificial ages or claim child-directed exemption. FTC COPPA totality of circumstances and actual knowledge review needed; no legal conclusion. Review regional age-verification obligations and current console before submission.
+
+Recommended low-scope rehearsal option: owner review of preset-only friendly communication or chat-off fallback for Amazon, retaining Co-op/Versus; consider shared quick-chat implementation only if it benefits other stores. Presets alone do not guarantee exemption; user-controlled names, wire receive enforcement, cross-channel peer compatibility and honest user-to-user disclosure still require review. Do not disable or change chat or age settings until design approved. Seek Amazon policy clarification about private LAN interaction and preset-only communication if uncertain. No new SDK, account, collection of DOB or cloud moderation proposed. Privacy questionnaire required; review name/nickname, local IP/identifiers, gameplay and chat, user-initiated transfer exception only when applicable and adequately disclosed; no blanket no-data answer. Verify exact delivered build and actual console questions. Sources checked 2026-11-25:
+- https://www.developer.amazon.com/docs/policy-center/understanding-content-policy
+- https://developer.amazon.com/docs/policy-center/restricted-content
+- https://developer.amazon.com/docs/app-submission/add-pricing-and-availability-details
+- https://developer.amazon.com/docs/app-submission/add-policy-and-compliance-details
+- https://developer.amazon.com/docs/app-submission/appstore-privacy-labels
+- https://www.ftc.gov/business-guidance/resources/complying-coppa-frequently-asked-questions
+
+Next: resolve communication design and policy interpretation, verify room-code preference/restore regression, privacy policy hosting and tablet QA. No publication, upload or runtime changes in this checkpoint.
+
 ## AMZ-05.06 — multiplayer safety checkpoint (2026-11-25)
 
 Packaged dependency/permission audit passed 45741172498. Wi-Fi address binding and dedicated loopback regression passed candidate 45744155146; chat cleanup implementation passed 45744179648. Same-partner reconnect/replacement isolation fixture 26bf368 pending CI at inspection. Room-code default enabled when unset (77cb241), backup export default aligned (c2c264e); explicit saved settings and existing room configuration preserved, no schema or protocol changes. Existing users with no saved setting also receive new default. Fresh CI, default/restore regression, physical LAN and Fire tests remain open. Chat stays in host memory during live room and is cleared on partner replacement/closure; no durable chat field identified in saved session review, verify UI and actual retention on device. Next AMZ-07 current Amazon audience/UGC review, then privacy hosting and tablet QA. No upload, publication or signing changes authorized.
