@@ -21,6 +21,8 @@ class ProtocolTest {
         assertEquals(correct, read(Message("chat", line = correct)).line)
         for (invalid in listOf(
             correct.copy(player = "intruder"),
+            correct.copy(text = "Arbitrary text"),
+            correct.copy(text = " Good game! "),
             correct.copy(text = "untrusted" + 0.toChar() + "text"),
             correct.copy(text = "x".repeat(ChatRules.MAX_LENGTH + 1)),
             correct.copy(atMs = -1L),
@@ -31,6 +33,18 @@ class ProtocolTest {
         }
         assertThrows(IOException::class.java) {
             read(Message("welcome", lines = List(ChatRules.HISTORY_LIMIT + 1) { correct.copy(id = "m$" + it) }))
+        }
+    }
+
+    @Test fun acceptsOnlyExactApprovedChatRequests() {
+        fun read(text: String): Message {
+            val encoded = ByteArrayOutputStream()
+            Protocol.write(encoded, Message("chat", text = text))
+            return Protocol.read(ByteArrayInputStream(encoded.toByteArray()))
+        }
+        for (phrase in QuickChat.phrases) assertEquals(phrase, read(phrase).text)
+        for (invalid in listOf("Hello there", " Yes", "yes", "", "Yes\n")) {
+            assertThrows(IOException::class.java) { read(invalid) }
         }
     }
 
