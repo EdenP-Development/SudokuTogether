@@ -16,6 +16,29 @@ val signedBeta = providers.gradleProperty("gridmatesSignedBeta").orNull?.let {
 } ?: false
 require(!(signedBeta && permanentIdentityStaging))
 if (signedBeta) require(System.getenv("SUDOKU_SIGNING_FILE").isNullOrBlank()) { "Legacy signing is forbidden for the new beta" }
+// Private unsigned production-shape audio candidate; never a signed distribution build.
+val beta3AudioCandidate = providers.gradleProperty("gridmatesBeta3AudioCandidate").orNull?.let {
+    require(it == "true") { "gridmatesBeta3AudioCandidate only accepts true" }
+    true
+} ?: false
+if (beta3AudioCandidate) {
+    require(permanentIdentityStaging && !signedBeta) { "Audio candidate requires unsigned permanent identity staging" }
+    require(System.getenv("GRIDMATES_BETA_SIGNING_FILE").isNullOrBlank()) { "Candidate must not use beta signing material" }
+    val expected = listOf(
+        "cdcb72a7d7c8da92ed6b1133e98c18721a4a3172f604763ec4d87c9caf73976d",
+        "214c6a8457b0feafac97ef13a1806207bd7e39ebe7899fd0097d55f06bf3e250",
+        "49a3e6d6ff2273c1d7d4cff4a158f377d52c18f59fc5bc9a1e5980f3652bed2f",
+        "84bfc70376be6bb22d6e26f07799ced8074eb9e6eb89ed8d575ef098fe06112a",
+        "5a0a7c3bb125b8472a5127b26d61c8506ce674ed8e9f5cb2e34c9d42dfaed6b6",
+        "1e439245b42cc0796c594e87491623c5be2e3e186dd809fa5a0f27aee68010d6"
+    )
+    expected.forEachIndexed { index, hash ->
+        val track = rootProject.file("build/beta3-audio-assets/soundtrack/track_%02d.m4a".format(java.util.Locale.ROOT, index + 1))
+        require(track.isFile) { "Missing candidate soundtrack: ${track.name}" }
+        val actual = java.security.MessageDigest.getInstance("SHA-256").digest(track.readBytes()).joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        require(actual == hash) { "Candidate soundtrack checksum mismatch: ${track.name}" }
+    }
+}
 val signingFile = System.getenv(if (signedBeta) "GRIDMATES_BETA_SIGNING_FILE" else "SUDOKU_SIGNING_FILE")?.let { file(it) }
 if (signedBeta) require(signingFile?.isFile == true) { "Dedicated beta signing file required" }
 val privateSigning = Properties().apply { if (signingFile?.isFile == true) signingFile.inputStream().use(::load) }
@@ -154,6 +177,7 @@ android {
         applicationId = if (permanentIdentityStaging || signedBeta) "com.playereden.gridmates.sudoku.beta" else "com.playereden.sudokutogether"
         minSdk = 26; targetSdk = 36; versionCode = qaVersion ?: 31; versionName = "1.0.0-beta.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        buildConfigField("boolean", "BETA3_AUDIO_CANDIDATE", beta3AudioCandidate.toString())
         resValue("bool", "gridmates_insignia_preview_enabled",
             (beta2VisualRc2Preview || beta2IntegratedRc3Preview).toString())
         resValue("bool", "gridmates_insignia_art_enabled",
@@ -235,6 +259,9 @@ android {
     if (beta3VisualPreview) {
         sourceSets.getByName("debug").res.srcDir(rootProject.file("build/beta3-visual-res"))
         sourceSets.getByName("debug").assets.srcDir(rootProject.file("build/beta3-audio-assets"))
+    }
+    if (beta3AudioCandidate) {
+        sourceSets.getByName("release").assets.srcDir(rootProject.file("build/beta3-audio-assets"))
     }
     androidResources { noCompress += "m4a" }
     buildFeatures { compose = true; buildConfig = true }
