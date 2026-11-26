@@ -325,10 +325,31 @@ enum class QuickChatPhrase(val id: String, val label: String, val group: QuickCh
     READY("ready", "I'm ready!", QuickChatGroup.FRIENDLY),
     SORRY("sorry", "Sorry!", QuickChatGroup.FRIENDLY)
 }
+/** Stable reaction IDs independent of temporary glyphs and future artwork. */
+enum class GridMatesEmote(val id: String, val label: String, val glyph: String) {
+    HAPPY("happy", "Happy", "😊"),
+    APPROVE("approve", "Approval", "👍"),
+    DISAPPROVE("disapprove", "Disapproval", "👎"),
+    APPRECIATION("appreciation", "Appreciation", "❤️"),
+    THINKING("thinking", "Thinking", "🤔"),
+    CELEBRATION("celebration", "Celebration", "🎉"),
+    OOPS("oops", "Oops", "😅"),
+    GREETING("greeting", "Greeting", "👋"),
+    CONFUSED("confused", "Confused", "❓"),
+    APPLAUSE("applause", "Applause", "👏"),
+    BREAK("break", "Taking a break", "☕"),
+    READY("ready", "Ready", "✔️");
+
+    val wireValue: String get() = "emote:" + id
+    companion object {
+        fun fromWire(value: String): GridMatesEmote? = entries.firstOrNull { it.wireValue == value }
+    }
+}
+
 object QuickChat {
     val phrases: List<String> = QuickChatPhrase.entries.map { it.label }
     fun byId(id: String): QuickChatPhrase? = QuickChatPhrase.entries.firstOrNull { it.id == id }
-    fun isPreset(text: String): Boolean = QuickChatPhrase.entries.any { it.label == text }
+    fun isPreset(text: String): Boolean = QuickChatPhrase.entries.any { it.label == text } || GridMatesEmote.fromWire(text) != null
 }
 
 object ChatRules {
