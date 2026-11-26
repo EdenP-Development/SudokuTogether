@@ -64,6 +64,25 @@ class CosmeticsChatTest {
         assertEquals("", ChatRules.clean("\u0000  "))
     }
 
+    @Test fun explicitHostBindingAcceptsOnlyTheSelectedLoopbackAddress() {
+        val address = java.net.InetAddress.getByName("127.0.0.1")
+        HostServer(GameSession.create(fixture())).use { host ->
+            val port = host.start(address)
+            assertEquals(port, host.start(address))
+            assertThrows(IllegalStateException::class.java) {
+                host.start(java.net.InetAddress.getByName("127.0.0.2"))
+            }
+            val events = LinkedBlockingQueue<ClientEvent>()
+            GuestClient(listener = events::offer).use { guest ->
+                guest.connect("127.0.0.1", port, host.code, "Rival")
+                assertNotNull(await(events) { it.token != null }.token)
+            }
+            assertThrows(java.io.IOException::class.java) {
+                java.net.Socket().use { it.connect(java.net.InetSocketAddress("127.0.0.2", port), 1000) }
+            }
+        }
+    }
+
     private fun <T> await(queue: LinkedBlockingQueue<T>, match: (T) -> Boolean): T {
         val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(8)
         while (System.nanoTime() < deadline) {
