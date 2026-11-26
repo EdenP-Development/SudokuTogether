@@ -619,6 +619,7 @@ class GameViewModel @JvmOverloads constructor(
         _state.update { it.copy(page = Page.PLAY, role = HOST, snapshot = null, busy = true, pendingId = null, selected = -1, notes = false, partnerCell = -1, message = null) }
         viewModelScope.launch(workDispatcher) {
             try {
+                val bindAddress = discovery.hostWifiAddress()
                 val session = if (resume) {
                     val saved = when (val loaded = store.load()) { is LoadResult.Loaded -> loaded.data; is LoadResult.Recovered -> loaded.data; else -> error("The saved puzzle is unavailable. It has not been replaced.") }
                     GameSession(saved, store::save).also { it.setAppearance(HOST, selectedStyle) }
@@ -645,9 +646,11 @@ class GameViewModel @JvmOverloads constructor(
                             unreadChat = if (previous.chatVisible) 0 else previous.unreadChat + if (event.chat?.player == GUEST) 1 else 0)
                     }
                 } }
-                server = hosted; val port = hosted.start(); publishRoomPresence()
+                server = hosted
+                val port = try { hosted.start(bindAddress) } catch (e: Exception) { hosted.close(); throw e }
+                publishRoomPresence()
                 if (generation.get() != current) { hosted.close(); return@launch }
-                val address = discovery.localAddresses().firstOrNull()?.let { "$it:$port" } ?: "Connect this phone to home Wi-Fi"
+                val address = "${bindAddress.hostAddress}:$port"
                 _state.update { it.copy(busy = false, roomCode = if (session.requiresCode) hosted.code else "", address = address, resumeHost = if (versus) it.resumeHost else true, resumeRace = if (versus) true else it.resumeRace, saveIssue = null) }
                 discovery.startHosting(session.snapshot().hostName, port, session.snapshot().sessionId, session.requiresCode)
             } catch (e: Exception) { if (generation.get() == current) _state.update { it.copy(page = Page.HOME, busy = false, message = if (resume) "Couldn't open the saved game. Try again." else "Couldn't start a nearby game. Check Wi-Fi and available storage, then try again.") } }
