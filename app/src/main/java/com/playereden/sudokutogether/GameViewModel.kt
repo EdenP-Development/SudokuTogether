@@ -221,7 +221,9 @@ class GameViewModel @JvmOverloads constructor(
 
     fun setName(name: String) {
         if (settingsLocked) return
-        val value = cleanPlayerName(name)
+        val selection = NameCollection.parseCanonical(name) ?: return
+        if (!NameCollection.canEquip(selection, NameCollection.earnedIds(_state.value.profile))) return
+        val value = NameCollection.display(selection) ?: return
         _state.update { it.copy(name = value) }; preferences.edit().putString("name", value).apply()
     }
     fun setRequireRoomCode(enabled: Boolean) {
