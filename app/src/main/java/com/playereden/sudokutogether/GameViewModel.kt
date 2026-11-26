@@ -671,7 +671,7 @@ class GameViewModel @JvmOverloads constructor(
                 if (generation.get() != current) { hosted.close(); return@launch }
                 val address = "${bindAddress.hostAddress}:$port"
                 _state.update { it.copy(busy = false, roomCode = if (session.requiresCode) hosted.code else "", address = address, resumeHost = if (versus) it.resumeHost else true, resumeRace = if (versus) true else it.resumeRace, saveIssue = null) }
-                discovery.startHosting(session.snapshot().hostName, port, session.snapshot().sessionId, session.requiresCode)
+                discovery.startHosting(port, session.snapshot().sessionId, session.requiresCode)
             } catch (e: Exception) { if (generation.get() == current) _state.update { it.copy(page = Page.HOME, busy = false, message = if (resume) "Couldn't open the saved game. Try again." else "Couldn't start a nearby game. Check Wi-Fi and available storage, then try again.") } }
         }
     }
