@@ -20,10 +20,10 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 
 /**
- * Debug-only soundtrack review. Device-local preferences, no progress-save changes.
+ * Soundtrack controller with private import restricted to developer review. Device-local preferences, no progress-save changes.
  * Activity-level owner keeps music playing between screens. Bundled music resumes only in foreground.
  */
-@Composable internal fun rememberPrivateMusicPilot(enabled: Boolean): @Composable () -> Unit {
+@Composable internal fun rememberPrivateMusicPilot(enabled: Boolean, allowPrivateImport: Boolean = BuildConfig.DEBUG): @Composable () -> Unit {
     val context = LocalContext.current
     val lifecycle = LocalLifecycleOwner.current.lifecycle
     val player = remember(context) { PilotPlayer(context) }
@@ -39,7 +39,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     var titles by remember { mutableStateOf(bundled) }
     var expanded by remember { mutableStateOf(false) }
     var playing by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf(if (bundled.isEmpty()) "Choose the soundtrack files." else "Soundtrack ready.") }
+    var message by remember { mutableStateOf(if (bundled.isEmpty()) { if (allowPrivateImport) "Choose the soundtrack files." else "Soundtrack unavailable." } else "Soundtrack ready.") }
     val preferences = remember(context) { context.getSharedPreferences("gridmates_music", Context.MODE_PRIVATE) }
     var volume by remember { mutableStateOf(normalizeMusicVolume(
         runCatching { preferences.getFloat("volume", .50f) }.getOrDefault(.50f))) }
@@ -79,7 +79,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
         message = if (playing) "Playing" else "Unable to play this track."
     }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { selected ->
-        if (selected.isNotEmpty()) {
+        if (allowPrivateImport && selected.isNotEmpty()) {
             player.stop()
             playing = false
             tracks = selected.distinct()
@@ -124,7 +124,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
             }
             Text("Good puzzles. Good company.", color = Muted, style = MaterialTheme.typography.bodySmall)
             if (order.isEmpty()) {
-                Text("Choose the soundtrack files to begin.", color = Muted, style = MaterialTheme.typography.bodySmall)
+                Text(if (allowPrivateImport) "Choose the soundtrack files to begin." else "Soundtrack unavailable.", color = Muted, style = MaterialTheme.typography.bodySmall)
             } else {
                 Text(titles[order[index]] ?: "Track", color = Forest, style = MaterialTheme.typography.titleMedium)
                 Text("Track ${index + 1} of ${order.size} · ${if (playing) "Playing" else if (interrupted) "Interrupted" else "Stopped"}",
@@ -153,7 +153,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 }
             }
             Text(message, color = Muted, style = MaterialTheme.typography.bodySmall)
-            if (bundled.isEmpty()) OutlinedButton(onClick = { player.stop(); playing = false; picker.launch(arrayOf("audio/*")) },
+            if (allowPrivateImport && bundled.isEmpty()) OutlinedButton(onClick = { player.stop(); playing = false; picker.launch(arrayOf("audio/*")) },
                 enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                 Text(if (order.isEmpty()) "Choose soundtrack" else "Change test files")
             }
