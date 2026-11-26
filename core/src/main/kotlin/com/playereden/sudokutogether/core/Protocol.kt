@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadFactory
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
-const val WIRE_PROTOCOL_VERSION = 8
+const val WIRE_PROTOCOL_VERSION = 9
 
 @Serializable data class RoomStatus(val hostActive: Boolean = true, val guestActive: Boolean = false, val reserved: Boolean = false) {
     val paused: Boolean get() = !hostActive || (reserved && !guestActive)
@@ -40,9 +40,10 @@ object Protocol {
                     line.id.length in 1..128 && line.player in listOf(HOST, GUEST) &&
                         line.atMs > 0 && line.text.isNotBlank() &&
                         line.text.length <= ChatRules.MAX_LENGTH &&
-                        line.text == ChatRules.clean(line.text)
+                        QuickChat.isPreset(line.text)
                 if (it.type.length !in 1..24 || it.name.length > 100 || it.code.length > 32 ||
                     (it.token?.length ?: 0) > 128 || it.text.length > 1024 ||
+                    (it.type == "chat" && it.line == null && !QuickChat.isPreset(it.text)) ||
                     it.lines.size > ChatRules.HISTORY_LIMIT || !Cosmetics.valid(it.appearance) ||
                     (it.line != null && !validLine(it.line)) || it.lines.any { line -> !validLine(line) }
                 ) throw IOException("Invalid message")
