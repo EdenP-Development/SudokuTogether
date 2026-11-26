@@ -99,4 +99,28 @@ class NearbyAdmissionTest {
             }
         }
     }
+
+    @Test fun currentProtocolRejectsArbitraryNamesAndOldVersionBeforeAdmission() {
+        val game = GameSession.create(fixture(), hostName = "Happy Bear", requireCode = false)
+        HostServer(game).use { host ->
+            val port = host.start()
+            for (hello in listOf(
+                Message("hello", name = "Arbitrary nickname"),
+                Message("hello", name = "Happy  Fox"),
+                Message("hello", version = 10, name = "Happy Fox")
+            )) {
+                Socket("127.0.0.1", port).use { socket ->
+                    socket.soTimeout = 3000
+                    Protocol.write(socket.getOutputStream(), hello)
+                    assertEquals("error", Protocol.read(socket.getInputStream()).type)
+                    assertNull(game.saved().guest)
+                }
+            }
+            val events = mutableListOf<ClientEvent>()
+            GuestClient(listener = { events.add(it) }).use { guest ->
+                guest.connect("127.0.0.1", port, "", "Everlasting Constellation Hummingbird")
+                assertEquals("Everlasting Constellation Hummingbird", events.first().snapshot?.guestName)
+            }
+        }
+    }
 }
