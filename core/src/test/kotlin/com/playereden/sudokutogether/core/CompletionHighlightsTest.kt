@@ -39,4 +39,63 @@ class CompletionHighlightsTest {
         assertFalse("Rabbit" in earned.cosmetics)
         assertTrue("Linen" in earned.cosmetics)
     }
+
+    private fun saved(profile: LocalPlayerData) =
+        Achievements.preserveEarned(Cosmetics.preserveEarned(profile))
+
+    @Test fun firstSavedTransitionAwardsExactlyTheNewAchievementWordBundles() {
+        val before = LocalPlayerData()
+        val record = solved("first").copy(elapsedMs = 650_000L)
+        val after = saved(before.copy(records = listOf(record)))
+        val rewards = CompletionRewards.forSavedTransition(before, after, record.id)
+        assertEquals(listOf("First Grid"), rewards.achievements)
+        assertEquals(setOf("First", "Acorn", "Solver"), rewards.nameWords.map { it.label }.toSet())
+        assertEquals(3, rewards.nameWords.size)
+        assertTrue(rewards.nameWords.all { it.achievementId == "first-grid" })
+        assertTrue("Rabbit" in rewards.cosmetics)
+    }
+
+    @Test fun veteranLedgerPreventsReannouncingPrunedAchievementAndCosmeticRewards() {
+        val before = LocalPlayerData(earnedAchievementIds = listOf("first-grid", "quick-thinker"),
+            ownedCosmeticIds = Cosmetics.knownIds.toList())
+        val record = solved("after-pruning")
+        val after = saved(before.copy(records = listOf(record)))
+        val rewards = CompletionRewards.forSavedTransition(before, after, record.id)
+        assertFalse(rewards.hasNewRewards)
+        assertTrue(NameCollection.earnedIds(after).containsAll(before.earnedAchievementIds))
+        assertTrue(after.ownedCosmeticIds.containsAll(before.ownedCosmeticIds))
+    }
+
+    @Test fun duplicateMissingUnfinishedAndDifferentIdentityTransitionsAreSilent() {
+        val before = LocalPlayerData()
+        val record = solved("first")
+        val after = saved(before.copy(records = listOf(record)))
+        assertFalse(CompletionRewards.forSavedTransition(after, after, record.id).hasNewRewards)
+        assertFalse(CompletionRewards.forSavedTransition(before, before, record.id).hasNewRewards)
+        assertFalse(CompletionRewards.forSavedTransition(before, after, "missing").hasNewRewards)
+        assertFalse(CompletionRewards.forSavedTransition(before, after.copy(playerId = "different"), record.id).hasNewRewards)
+        assertFalse(CompletionRewards.forSavedTransition(before,
+            before.copy(records = listOf(record.copy(result = "IN_PROGRESS"))), record.id).hasNewRewards)
+    }
+
+    @Test fun versusLossCanEarnParticipationWordsWithoutVictoryWords() {
+        val before = LocalPlayerData()
+        val record = solved("race", VERSUS).copy(result = "LOSS")
+        val after = saved(before.copy(records = listOf(record)))
+        val rewards = CompletionRewards.forSavedTransition(before, after, record.id)
+        val expectedIds = NameCollection.earnedIds(after) - NameCollection.earnedIds(before)
+        assertEquals(NameCollection.words.filter { it.achievementId in expectedIds }, rewards.nameWords)
+        assertFalse(rewards.nameWords.any { it.achievementId == "challenger" })
+        assertFalse("Challenger" in rewards.achievements)
+    }
+
+    @Test fun previouslyEarnedWordsStayAvailableWhileNextMilestoneIsAnnounced() {
+        val before = saved(LocalPlayerData(records = (1..4).map { solved("solo-$it").copy(elapsedMs = 650_000L) }))
+        val record = solved("solo-5").copy(elapsedMs = 650_000L)
+        val after = saved(before.copy(records = before.records + record))
+        val rewards = CompletionRewards.forSavedTransition(before, after, record.id)
+        assertTrue(rewards.nameWords.any { it.achievementId == "steady-hand" })
+        assertFalse(rewards.nameWords.any { it.achievementId == "first-grid" })
+        assertTrue(NameCollection.earnedIds(after).containsAll(NameCollection.earnedIds(before)))
+    }
 }
