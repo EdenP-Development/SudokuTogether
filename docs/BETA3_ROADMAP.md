@@ -1,5 +1,9 @@
 # GridMates: Sudoku — Beta 3: Polish and depth
 
+## Latest — B3-AMZ active (2026-11-25)
+
+Owner authorized starting Amazon readiness alongside B3-08. See BETA3_AMAZON_READINESS.md AMZ-01.01. Unsigned audio candidate passed at 325c03e; AUD-11 handoff ready at 46d725d. Fire OS 7/8 candidate targets; older API22/25 excluded. Privacy, tablet QA, signed upgrade, rights and submission approvals remain open. No publication authorized.
+
 ## AUD-08 owner acceptance — 2026-11-25
 
 Audio Review 4 runtime c9ae4e6f8614eddd02f3f2d30af88e86c985eed2: quality gate 45704796002 and preview 45704795724 PASS; artifact 15065366071 (58,119,487 bytes archive, expires 2026-12-09T21:32:27Z). Owner reports “Everything checks out. Closing, opening, persistent, automatic start up”. Accept general handset audio review and explicitly reported closure/relaunch, persistence and automatic startup. Earlier owner reports verified audible music/effects and haptics. No separately itemized confirmation of revised erase vs number, Final Piece intro, completion cue, interruptions, or full device matrix; do not claim independently diagnosed source issue or exhaustive QA. Retain those as targeted regression checks, not a reason to expand feature scope absent reproducible defects. Freeze audio feature scope for Beta 3; advance production promotion audit, preserve original assets, existing package/signing/save identity, and verify actual signed higher-version upgrade. Music remains preview-only until production integration. Canonical hub library and final audio handoff remain pending. No public release authorized.
@@ -84,7 +88,7 @@ Statuses: NOT STARTED / ACTIVE / REVIEW / DONE / DEFERRED. Mark DONE only with e
 | B3-07 | Multiplayer refinement | REVIEW |
 | B3-08 | Integrated polish | ACTIVE |
 | B3-09 | Beta 3 release (itch continuity) | NOT STARTED |
-| B3-AMZ | Amazon publishing rehearsal (parallel, separate approval) | NOT STARTED |
+| B3-AMZ | Amazon publishing rehearsal (parallel, separate approval) | ACTIVE |
 
 ### B3-00 — Foundation audit
 Inspect exact current branch, main/PR differences, build configuration, release receipts, tests and workflows. Inventory screens, components, assets, asset reuse and licensing/provenance; assess accessibility, performance, persistence, networking and Coach. Create findings with severity, evidence, reproduction and recommended disposition; avoid assuming a clean build means bug-free. Address release archival/source promotion through normal reviewed workflow, recover exact approved icon and art binaries (no regenerated substitutes without approval). Record public verification status and technical debt. Establish a Beta 3 development branch from reviewed baseline; do not disrupt other projects or publish.
