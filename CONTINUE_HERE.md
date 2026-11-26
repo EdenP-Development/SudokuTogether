@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## AUD-08 owner acceptance — 2026-11-25
+
+Audio Review 4 runtime c9ae4e6f8614eddd02f3f2d30af88e86c985eed2: quality gate 45704796002 and preview 45704795724 PASS; artifact 15065366071 (58,119,487 bytes archive, expires 2026-12-09T21:32:27Z). Owner reports “Everything checks out. Closing, opening, persistent, automatic start up”. Accept general handset audio review and explicitly reported closure/relaunch, persistence and automatic startup. Earlier owner reports verified audible music/effects and haptics. No separately itemized confirmation of revised erase vs number, Final Piece intro, completion cue, interruptions, or full device matrix; do not claim independently diagnosed source issue or exhaustive QA. Retain those as targeted regression checks, not a reason to expand feature scope absent reproducible defects. Freeze audio feature scope for Beta 3; advance production promotion audit, preserve original assets, existing package/signing/save identity, and verify actual signed higher-version upgrade. Music remains preview-only until production integration. Canonical hub library and final audio handoff remain pending. No public release authorized.
+
+
 ## Current authoritative checkpoint — 2026-11-25 (supersedes older handoffs)
 
 Active branch: feat/beta3-foundation. Runtime checkpoint c9ae4e6f8614eddd02f3f2d30af88e86c985eed2. Audio Review 3 source 35045b3: quality gate 45695566392 and preview 45695566381 PASS, artifact 15061545957 (58,119,127 bytes archive, expires 2026-12-09T20:33:40Z). Audio Review 4 gate 45704796002 and preview 45704795724 were in progress at this checkpoint; do not mark passed without fresh read. JVM/lint/build and compiled instrumentation are not executed handset tests.
