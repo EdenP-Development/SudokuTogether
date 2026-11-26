@@ -594,7 +594,8 @@ class GameViewModel @JvmOverloads constructor(
     private fun closeRoom(): Long {
         val current = synchronized(localStartLock) {
             generation.incrementAndGet().also {
-                _state.update { ui -> ui.copy(hint = null, hintUnavailable = false, entryCheck = null, chat = emptyList(), unreadChat = 0, chatVisible = false, partnerPing = null, partnerPingUntil = 0L) }
+                _state.update { ui -> ui.copy(hint = null, hintUnavailable = false, entryCheck = null, chat = emptyList(), unreadChat = 0, chatVisible = false, partnerPing = null, partnerPingUntil = 0L,
+                    completionRewardRecordId = null, completionRewards = CompletionHighlights()) }
             }
         }
         guest?.close(); guest = null; server?.close(); server = null; discovery.stop()
