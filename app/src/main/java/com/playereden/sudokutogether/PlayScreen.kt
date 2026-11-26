@@ -263,6 +263,14 @@ import kotlinx.coroutines.delay
 @Composable private fun PlayGridViewport(state: GameUiState, actions: GameActions, new: () -> Unit, roomStatus: Boolean, viewportHeight: Dp, feedback: (PuzzleCue) -> Unit) {
     val snapshot = state.snapshot ?: return
     val coOp = state.role != SOLO && snapshot.mode == COOP
+    var pingVisible by remember(state.partnerPing, state.partnerPingUntil) { mutableStateOf(state.partnerPing != null && state.partnerPingUntil > android.os.SystemClock.elapsedRealtime()) }
+    LaunchedEffect(state.partnerPing, state.partnerPingUntil) {
+        if (pingVisible) {
+            delay((state.partnerPingUntil - android.os.SystemClock.elapsedRealtime()).coerceAtLeast(0L))
+            pingVisible = false
+        }
+    }
+    val pingCell = if (coOp && pingVisible && state.partnerPing?.matches(snapshot) == true) state.partnerPing.cell else -1
     val boardTheme = if (coOp) {
         Cosmetics.sharedCoopBoard(snapshot.hostAppearance.board, snapshot.guestAppearance.board.takeIf { snapshot.guestName != null })
     } else state.appearance.board
@@ -304,11 +312,17 @@ import kotlinx.coroutines.delay
             Row(Modifier.fillMaxWidth().heightIn(min = if (canNewSolo) 48.dp else 24.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text(caption, color = if (selectedConflict) Brick else Muted,
+                Text(if (pingCell >= 0) "Partner: Look here! R${pingCell / 9 + 1} C${pingCell % 9 + 1}" else caption, color = if (selectedConflict) Brick else Muted,
                     fontSize = 11.sp, lineHeight = 16.sp,
                     minLines = if (snapshot.completed) 1 else if (LocalDensity.current.fontScale > 1.3f) 3 else 2,
                     textAlign = if (canNewSolo) TextAlign.Start else TextAlign.Center,
-                    modifier = Modifier.weight(1f).testTag("board_context"))
+                    modifier = Modifier.weight(1f).testTag("board_context").semantics { if (pingCell >= 0) liveRegion = LiveRegionMode.Polite })
+                if (coOp && !snapshot.completed) {
+                    TextButton(onClick = actions.partnerPing, enabled = state.selected in 0..80 && state.connected && state.status.hostActive && state.status.guestActive,
+                        modifier = Modifier.heightIn(min = 48.dp).testTag("partner_ping_send"), contentPadding = PaddingValues(horizontal = 6.dp)) {
+                        Text("Look here", fontSize = 12.sp)
+                    }
+                }
                 if (canNewSolo) {
                     TextButton(onClick = new, modifier = Modifier.heightIn(min = 48.dp),
                         contentPadding = PaddingValues(horizontal = 10.dp)) {
@@ -331,7 +345,7 @@ import kotlinx.coroutines.delay
                 Box(Modifier.padding(8.dp)) {
                     SudokuBoard(snapshot, state.selected, if (state.role == SOLO || snapshot.mode == VERSUS) -1 else state.partnerCell,
                         gridSize, { if (!snapshot.completed) feedback(PuzzleCue.SELECT); actions.select(it) },
-                        boardTheme, state.appearance, state.role == SOLO, state.uniformNumbers)
+                        boardTheme, state.appearance, state.role == SOLO, state.uniformNumbers, pingCell = pingCell)
                 }
             }
         }.single().measure(Constraints.fixed(gridPixels + frame, gridPixels + frame))
@@ -612,7 +626,7 @@ import kotlinx.coroutines.delay
 @Composable internal fun SudokuBoard(snapshot: Snapshot, selected: Int, partner: Int, size: Dp, select: ((Int) -> Unit)?,
     boardTheme: String, localStyle: Appearance, solo: Boolean, uniformNumbers: Boolean,
     proofTargets: Set<Int> = emptySet(), proofSources: Set<Int> = emptySet(),
-    proofEliminations: Map<Int, List<Int>> = emptyMap(), announceAllCells: Boolean = false) {
+    proofEliminations: Map<Int, List<Int>> = emptyMap(), announceAllCells: Boolean = false, pingCell: Int = -1) {
     val systemScale = LocalDensity.current.fontScale.coerceAtLeast(.5f)
     // A nine-cell row has fixed space. Let surrounding controls scale freely,
     // while fitting grid glyphs and their line heights inside each square.
@@ -679,6 +693,7 @@ import kotlinx.coroutines.delay
                     else -> boardPaper
                 }
                 val outline = when {
+                    i == pingCell -> Modifier.border(3.dp, palette.proofOutline)
                     proofTarget -> Modifier.border(2.dp, palette.proofOutline)
                     i == partner || i == selected -> Modifier.border(2.dp, boardEdge)
                     else -> Modifier
@@ -690,7 +705,7 @@ import kotlinx.coroutines.delay
                 val tag = if (select == null) "coach_cell_$i" else "cell_$i"
                 val semantics = if (select == null && !announceAllCells && !proofTarget && !proofSource) Modifier.clearAndSetSemantics {}
                     else Modifier.testTag(tag).semantics(mergeDescendants = true) {
-                        contentDescription = if (crossedOff.isEmpty()) content else
+                        contentDescription = if (i == pingCell) "$content, partner attention marker" else if (crossedOff.isEmpty()) content else
                             "$content, cross off ${crossedOff.joinToString(" and ")}"
                         this.selected = i == selected
                         stateDescription = when {
