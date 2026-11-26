@@ -39,6 +39,7 @@ data class GameUiState(
     val resumeRace: Boolean = false, val appearance: Appearance = Appearance(),
     val chat: List<ChatLine> = emptyList(), val unreadChat: Int = 0,
     val chatVisible: Boolean = false,
+    val communicationMuted: Boolean = false,
     val uniformNumbers: Boolean = false,
     val touchFeedback: Boolean = true,
     val soundEffects: Boolean = true,
@@ -412,10 +413,13 @@ class GameViewModel @JvmOverloads constructor(
         if (s.role == HOST) server?.partnerPing(marker) else if (s.role == GUEST) guest?.partnerPing(marker)
     }
     private fun GameUiState.withPartnerPing(marker: PartnerPing?, next: Snapshot?, status: RoomStatus, clear: Boolean): GameUiState {
-        if (clear || next == null || !status.hostActive || !status.guestActive || next.completed || next.mode != COOP)
+        if (communicationMuted || clear || next == null || !status.hostActive || !status.guestActive || next.completed || next.mode != COOP)
             return copy(partnerPing = null, partnerPingUntil = 0L)
         if (marker != null && marker.matches(next)) return copy(partnerPing = marker, partnerPingUntil = SystemClock.elapsedRealtime() + PartnerPing.DISPLAY_MS)
         return this
+    }
+    fun setCommunicationMuted(muted: Boolean) {
+        _state.update { it.copy(communicationMuted = muted, unreadChat = 0, partnerPing = null, partnerPingUntil = 0L) }
     }
     fun chatVisible(open: Boolean) { _state.update { it.copy(chatVisible = open, unreadChat = if (open) 0 else it.unreadChat) } }
     fun sendChat(raw: String) {
@@ -657,7 +661,7 @@ class GameViewModel @JvmOverloads constructor(
                             message = if (event.outcome != null) event.outcome?.let { if (it.accepted) null else explain(it.code) } else if (changed) null else previous.message,
                             resumeRace = if (versus) true else previous.resumeRace,
                             chat = if (event.chat != null) (previous.chat + listOfNotNull(event.chat)).takeLast(ChatRules.HISTORY_LIMIT) else previous.chat,
-                            unreadChat = if (previous.chatVisible) 0 else previous.unreadChat + if (event.chat?.player == GUEST) 1 else 0)
+                            unreadChat = if (previous.communicationMuted || previous.chatVisible) 0 else previous.unreadChat + if (event.chat?.player == GUEST) 1 else 0)
                             .withPartnerPing(event.partnerPing, event.snapshot, event.status, changed)
                     }
                 } }
@@ -719,7 +723,7 @@ class GameViewModel @JvmOverloads constructor(
                             pendingId = if (changed || event.disconnected || event.outcome?.operationId == previous.pendingId) null else previous.pendingId,
                             message = when { saveMessage != null -> saveMessage; event.message != null -> event.message; event.outcome != null -> event.outcome?.let { if (it.accepted) null else explain(it.code) }; changed -> null; else -> previous.message },
                             chat = event.history ?: if (event.chat != null) (previous.chat + listOfNotNull(event.chat)).takeLast(ChatRules.HISTORY_LIMIT) else previous.chat,
-                            unreadChat = if (event.history != null || previous.chatVisible) 0 else previous.unreadChat + if (event.chat?.player == HOST) 1 else 0)
+                            unreadChat = if (previous.communicationMuted || event.history != null || previous.chatVisible) 0 else previous.unreadChat + if (event.chat?.player == HOST) 1 else 0)
                             .withPartnerPing(event.partnerPing, snapshot ?: previous.snapshot, event.status ?: previous.status, changed || event.disconnected || event.history != null)
                     }
                 }
