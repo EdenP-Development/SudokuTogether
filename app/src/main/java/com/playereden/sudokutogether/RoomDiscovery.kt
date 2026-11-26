@@ -17,6 +17,10 @@ import java.util.ArrayDeque
 
 data class NearbyRoom(val name: String, val host: String, val port: Int, val sessionId: String = "", val requiresCode: Boolean = true)
 
+/** Advertise a room label, never the player-selected profile name. */
+internal fun nearbyRoomLabel(sessionId: String): String =
+    "GridMates puzzle " + sessionId.filter { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }.takeLast(6).uppercase().ifEmpty { "LOCAL" }
+
 internal fun decodeNearbyRoom(name: String, host: String?, port: Int, attributes: Map<String, ByteArray>): NearbyRoom? {
     if (host.isNullOrBlank() || port !in 1..65535 ||
         attributes["v"]?.toString(Charsets.UTF_8) != WIRE_PROTOCOL_VERSION.toString()) return null
@@ -50,7 +54,7 @@ class RoomDiscovery(context: Context, private val onError: (String) -> Unit) {
             }
             registration = listener
             manager.registerService(NsdServiceInfo().apply {
-                serviceName = "${name.take(20)}'s puzzle"; serviceType = type; setPort(port)
+                serviceName = nearbyRoomLabel(sessionId); serviceType = type; setPort(port)
                 setAttribute("v", WIRE_PROTOCOL_VERSION.toString()); setAttribute("session", sessionId)
                 setAttribute("locked", if (requiresCode) "1" else "0")
             }, NsdManager.PROTOCOL_DNS_SD, listener)
