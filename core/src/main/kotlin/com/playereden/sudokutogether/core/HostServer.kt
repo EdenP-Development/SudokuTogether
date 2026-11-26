@@ -40,6 +40,18 @@ class HostServer(val session: GameSession, private val listener: (HostEvent) -> 
         runCatching { listener(HostEvent(session.snapshot(), status(), partnerCell, chat = line)) }
         return true
     }
+    private val lastPartnerPing = mutableMapOf<String, Long>()
+    private fun forwardPartnerPing(player: String, marker: PartnerPing): Boolean {
+        if (closed || peer == null || !hostActive || !guestActive || !marker.matches(session.snapshot())) return false
+        val now = System.nanoTime()
+        val previous = lastPartnerPing[player]
+        if (previous != null && now - previous < TimeUnit.MILLISECONDS.toNanos(PartnerPing.MIN_INTERVAL_MS)) return false
+        lastPartnerPing[player] = now
+        if (player == HOST) peer?.send(Message("partner_ping", partnerPing = marker))
+        else runCatching { listener(HostEvent(session.snapshot(), status(), partnerCell, partnerPing = marker)) }
+        return true
+    }
+    fun partnerPing(marker: PartnerPing): Boolean = synchronized(lock) { forwardPartnerPing(HOST, marker) }
     fun chat(text: String): Boolean = synchronized(lock) { addChat(HOST, text) }
     fun setHostAppearance(appearance: Appearance) = synchronized(lock) {
         session.setAppearance(HOST, appearance); publish()
@@ -123,6 +135,7 @@ class HostServer(val session: GameSession, private val listener: (HostEvent) -> 
                         }
                         "presence" -> { guestActive = message.active; if (!guestActive) partnerCell = -1; publish() }
                         "chat" -> addChat(GUEST, message.text)
+                        "partner_ping" -> forwardPartnerPing(GUEST, message.partnerPing ?: throw IOException("Missing partner marker"))
                         "style" -> {
                             session.setAppearance(GUEST, message.appearance)
                             publish()
@@ -153,7 +166,7 @@ class HostServer(val session: GameSession, private val listener: (HostEvent) -> 
     }
     fun replaceGuest() = synchronized(lock) {
         session.replaceGuest()
-        chatHistory.clear(); lastChatMs.clear()
+        chatHistory.clear(); lastChatMs.clear(); lastPartnerPing.clear()
         val previous = peer; peer = null; guestActive = false; partnerCell = -1
         previous?.close(); publish()
     }
@@ -182,6 +195,7 @@ class HostServer(val session: GameSession, private val listener: (HostEvent) -> 
 
     private fun startPuzzle(puzzle: Puzzle) {
         session.newPuzzle(puzzle)
+        lastPartnerPing.clear()
         partnerCell = -1
         peer?.send(Message("select", cell = -1))
         publish()
