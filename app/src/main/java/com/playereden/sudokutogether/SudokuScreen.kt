@@ -39,7 +39,8 @@ data class GameActions(
     val checkWork: () -> Unit = {},
     val requireRoomCode: (Boolean) -> Unit = {},
     val rematch: (String) -> Unit = {},
-    val soundEffects: (Boolean) -> Unit = {}
+    val soundEffects: (Boolean) -> Unit = {},
+    val partnerPing: () -> Unit = {}
 )
 
 @Composable fun SudokuApp(
