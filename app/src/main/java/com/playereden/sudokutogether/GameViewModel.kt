@@ -54,7 +54,9 @@ data class GameUiState(
     val hintUnavailable: Boolean = false,
     val entryCheck: SudokuAssistance.EntryCheck? = null,
     val requireRoomCode: Boolean = true,
-    val backupSuccessMessage: String? = null
+    val backupSuccessMessage: String? = null,
+    val completionRewardRecordId: String? = null,
+    val completionRewards: CompletionHighlights = CompletionHighlights()
 ) {
     val canEdit: Boolean get() = snapshot != null && !snapshot.completed && !busy && pendingId == null && ((role == SOLO && !localSaveBlocked) || (role != SOLO && !status.paused && (snapshot.mode != VERSUS || status.guestActive) && (role == HOST || connected)))
     internal val canRematch: Boolean get() = role == HOST && !busy && status.hostActive && status.guestActive &&
@@ -171,6 +173,8 @@ class GameViewModel @JvmOverloads constructor(
             _state.update {
                 it.withStoredPlayerSettings().copy(
                     name = approvedName,
+                    completionRewardRecordId = null,
+                    completionRewards = CompletionHighlights(),
                     profile = restored,
                     resumeSolo = restored.activeSolo != null,
                     appearance = savedAppearance()
@@ -620,7 +624,9 @@ class GameViewModel @JvmOverloads constructor(
         // should not rewrite the same durable record for every such event.
         if (localPlayer.current().records.any { it.id == id }) return
         try {
+            var before: LocalPlayerData? = null
             val saved = localPlayer.update { data ->
+                before = data
                 if (data.records.any { it.id == id }) data
                 else {
                     val now = System.currentTimeMillis()
@@ -632,7 +638,10 @@ class GameViewModel @JvmOverloads constructor(
                     data.copy(records = (data.records + record).takeLast(MAX_RECORDS))
                 }
             }
-            _state.update { it.copy(profile = saved) }
+            val rewards = before?.let { CompletionRewards.forSavedTransition(it, saved, id) } ?: CompletionHighlights()
+            _state.update { if (before?.records?.any { record -> record.id == id } == false)
+                it.copy(profile = saved, completionRewardRecordId = id, completionRewards = rewards)
+                else it.copy(profile = saved) }
         } catch (_: Exception) {
             _state.update { it.copy(message = "Match finished, but this phone could not save your record.") }
         }
@@ -778,7 +787,9 @@ class GameViewModel @JvmOverloads constructor(
             viewModelScope.launch(workDispatcher) {
                 try {
                     var acceptedProgress: SoloProgress? = null
+                    var before: LocalPlayerData? = null
                     val saved = localPlayer.update { data ->
+                        before = data
                         val changed = PersonalPlay.applyEdit(data, value.dailyDate, operation, elapsed,
                             System.currentTimeMillis(), value.autoCleanNotes)
                         acceptedProgress = changed.progress
@@ -792,7 +803,9 @@ class GameViewModel @JvmOverloads constructor(
                             soloElapsedAnchor = progress.elapsedMs
                             soloStartedAt = if (visible) SystemClock.elapsedRealtime() else null
                         }
+                        val rewards = if (progress.completed) before?.let { CompletionRewards.forSavedTransition(it, saved, progress.id) } ?: CompletionHighlights() else CompletionHighlights()
                         _state.update { it.copy(snapshot = progress.snapshot(), profile = saved,
+                            completionRewardRecordId = progress.id.takeIf { progress.completed }, completionRewards = rewards,
                             soloElapsedMs = progress.elapsedMs, soloClockStartedAt = soloStartedAt, pendingId = null, finishedSolo = progress.takeIf { p -> p.completed }) }
                     }
                 } catch (_: Exception) {
