@@ -42,7 +42,7 @@ class RoomDiscovery(context: Context, private val onError: (String) -> Unit) {
     private var callback: ((List<NearbyRoom>) -> Unit)? = null
     private val type = "_sudokut._tcp."
 
-    fun startHosting(name: String, port: Int, sessionId: String, requiresCode: Boolean = true) = handler.post {
+    fun startHosting(port: Int, sessionId: String, requiresCode: Boolean = true) = handler.post {
         stopInternal()
         try {
             multicast.acquire()
