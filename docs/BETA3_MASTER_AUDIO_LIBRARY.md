@@ -38,3 +38,16 @@ Use existing Eden-Development-Standards/audio/gridmates direction; its main bran
 5. Deliver AUD-11 copyable hub handoff for shared review; do not publish an approved standard prematurely.
 
 No new runtime changes, signing, publication or binary transfers.
+
+## AUD-10.02 — provisional WAV export evidence
+
+Six desktop Kotlin/JVM 1.9.0 / JRE 21 WAV files generated from transcribed c9ae4e6 PuzzleFeedback synthesis functions and matching WAV writer. Two runs byte-identical; mono 22050 Hz signed 16-bit PCM; all nonzero peaks within 10000 sample amplitude. Android byte equivalence and independent erase listening remain open. Local ZIP GridMates-SFX-v0.1.zip includes source, six WAVs, manifest and README; not yet durably archived to hub. SHA-256 of exports:
+
+- puzzle-complete: 86c9b6ee9dd735e3269b4dfd44714c86da2d894a0010334f98eedcb5806b3e4c
+- puzzle-erase: 05c4a22e44f10c62fe9ed71f058e804e598668d222a02f3d0769cc0213d6bc2d
+- puzzle-note: f5fb7baecf48c7763c7740046e539fbe7a9a3bb8277c8a33129e88e0b7c8ec56
+- puzzle-number: e04a3f972bfbb31f2368fc8fc3cdbf39df60cae13ef3c92c503db6cf910a42a4
+- puzzle-select: 75c72016d3466a2c01469110acfa6f1756bbdb5dbdbe8bf1c2ecb670b4ab9da1
+- puzzle-undo: 3db0d7c944c5e9dc7d4843ea38378fd247f35029a7916326d73a08369868a7e7
+
+Current conversation, Library and Drive filename searches did not locate original M4A masters; no conclusion of deletion. Recover from owner originals or prior uploads, verify recorded master checksums, and preserve privately. Optimized archive remains recorded in repository. No binary transfer or public release in this pass.
