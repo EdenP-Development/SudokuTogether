@@ -1,0 +1,21 @@
+name: Fox emote artwork verification
+on:
+  push:
+    branches: [feat/beta3-foundation]
+    paths:
+      - 'design/emotes/fox/v1/**'
+      - 'scripts/prepare_fox_emotes.py'
+      - '.github/workflows/beta3-fox-emotes.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install Pillow==11.3.0
+      - run: python scripts/prepare_fox_emotes.py
