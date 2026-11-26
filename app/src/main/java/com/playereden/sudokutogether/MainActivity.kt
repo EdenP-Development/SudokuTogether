@@ -68,7 +68,7 @@ class MainActivity : ComponentActivity() {
                     model::sendChat, model::chatVisible, model::chooseCosmetic, model::setUniformNumbers,
                     model::setTouchFeedback, model::setDifficulty, model::requestHint, model::dismissHint,
                     model::setAutoCleanNotes, model::daily, model::openDaily, model::checkWork,
-                    model::setRequireRoomCode, rematch = model::rematch, soundEffects = model::setSoundEffects, partnerPing = model::sendPartnerPing
+                    model::setRequireRoomCode, rematch = model::rematch, soundEffects = model::setSoundEffects, partnerPing = model::sendPartnerPing, muteCommunication = model::setCommunicationMuted
                 )
             }
             DisposableEffect(state.page) {
