@@ -77,4 +77,50 @@ class NetworkSafetyTest {
             peer.join(3000)
         }
     }
+
+    @Test fun liveStatesRejectInvalidNamesBoardsAndInconsistentOutcomes() {
+        val valid = state()
+        val status = RoomStatus(true, true, true)
+        val good = Outcome(true, ResultCode.ACCEPTED, valid, "operation")
+        val invalidMessages = listOf(
+            Message("state", snapshot = valid.copy(hostName = "Unknown Name"), status = status),
+            Message("state", snapshot = valid.copy(cells = emptyList()), status = status),
+            Message("state", snapshot = valid, status = status, outcome = good.copy(snapshot = valid.copy(guestName = "Unknown Name"))),
+            Message("state", snapshot = valid, status = status, outcome = good.copy(snapshot = valid.copy(cells = emptyList()))),
+            Message("state", snapshot = valid, status = status, outcome = good.copy(snapshot = valid.copy(epoch = "different"))),
+            Message("state", snapshot = valid, status = status, outcome = good.copy(snapshot = valid.copy(hostName = "Clever Fox")))
+        )
+        for (invalid in invalidMessages) {
+            ServerSocket(0).use { server ->
+                val release = java.util.concurrent.CountDownLatch(1)
+                val peer = thread(isDaemon = true) {
+                    server.accept().use { socket ->
+                        socket.soTimeout = 3000
+                        Protocol.read(socket.getInputStream())
+                        Protocol.write(socket.getOutputStream(), Message("welcome", snapshot = valid,
+                            status = status, token = "x".repeat(64)))
+                        Protocol.write(socket.getOutputStream(), Message("state", snapshot = valid, status = status, outcome = good))
+                        Protocol.write(socket.getOutputStream(), invalid)
+                        release.await(8, TimeUnit.SECONDS)
+                    }
+                }
+                val events = LinkedBlockingQueue<ClientEvent>()
+                try {
+                    GuestClient(listener = events::offer).use { guest ->
+                        guest.connect("127.0.0.1", server.localPort, "", "Lucky Otter")
+                        assertEquals(valid, events.poll(5, TimeUnit.SECONDS)?.snapshot)
+                        assertEquals(good, events.poll(5, TimeUnit.SECONDS)?.outcome)
+                        val rejection = events.poll(5, TimeUnit.SECONDS)
+                        assertNotNull("Invalid live state must disconnect", rejection)
+                        assertTrue(rejection!!.disconnected)
+                        assertNull(rejection.snapshot)
+                        assertNull(rejection.outcome)
+                    }
+                } finally {
+                    release.countDown()
+                    peer.join(3000)
+                }
+            }
+        }
+    }
 }
