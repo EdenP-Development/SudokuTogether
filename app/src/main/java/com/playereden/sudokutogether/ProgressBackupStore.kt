@@ -10,6 +10,7 @@ import com.playereden.sudokutogether.core.Cosmetic
 import com.playereden.sudokutogether.core.Cosmetics
 import com.playereden.sudokutogether.core.GameRecord
 import com.playereden.sudokutogether.core.LocalPlayerData
+import com.playereden.sudokutogether.core.NameCollection
 import com.playereden.sudokutogether.core.PuzzleSupply
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -205,7 +206,7 @@ internal class ProgressBackupStore(
             cosmetic("cosmeticFont", Cosmetics.fonts), cosmetic("cosmeticEmblem", Cosmetics.emblems),
             cosmetic("cosmeticPortrait", Cosmetics.portraits))
         return BackupSettings(
-            name = cleanPlayerName(value("name")),
+            name = value("name").let { if (NameCollection.parseCanonical(it) != null) it else cleanPlayerName(it) },
             appearance = Cosmetics.accessible(appearance, profile.records, profile.ownedCosmeticIds),
             uniformNumbers = value("uniformNumbers").toBooleanStrict(),
             touchFeedback = value("touchFeedback").toBooleanStrict(),
