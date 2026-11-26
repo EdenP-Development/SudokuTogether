@@ -21,10 +21,13 @@ data class NearbyRoom(val name: String, val host: String, val port: Int, val ses
 internal fun nearbyRoomLabel(sessionId: String): String =
     "GridMates puzzle " + sessionId.filter { it in '0'..'9' || it in 'a'..'f' || it in 'A'..'F' }.takeLast(6).uppercase().ifEmpty { "LOCAL" }
 
+@Suppress("UNUSED_PARAMETER") // Never display the remote service name.
 internal fun decodeNearbyRoom(name: String, host: String?, port: Int, attributes: Map<String, ByteArray>): NearbyRoom? {
     if (host.isNullOrBlank() || port !in 1..65535 ||
         attributes["v"]?.toString(Charsets.UTF_8) != WIRE_PROTOCOL_VERSION.toString()) return null
-    return NearbyRoom(name, host, port, attributes["session"]?.toString(Charsets.UTF_8) ?: "",
+    val sessionId = attributes["session"]?.toString(Charsets.UTF_8) ?: return null
+    if (!sessionId.matches(Regex("[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"))) return null
+    return NearbyRoom(nearbyRoomLabel(sessionId), host, port, sessionId,
         attributes["locked"]?.toString(Charsets.UTF_8) != "0")
 }
 
