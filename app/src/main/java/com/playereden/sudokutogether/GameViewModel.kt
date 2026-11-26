@@ -52,7 +52,7 @@ data class GameUiState(
     val todayDate: String = DailyChallenge.today(),
     val hintUnavailable: Boolean = false,
     val entryCheck: SudokuAssistance.EntryCheck? = null,
-    val requireRoomCode: Boolean = false,
+    val requireRoomCode: Boolean = true,
     val backupSuccessMessage: String? = null
 ) {
     val canEdit: Boolean get() = snapshot != null && !snapshot.completed && !busy && pendingId == null && ((role == SOLO && !localSaveBlocked) || (role != SOLO && !status.paused && (snapshot.mode != VERSUS || status.guestActive) && (role == HOST || connected)))
@@ -87,7 +87,7 @@ class GameViewModel @JvmOverloads constructor(
         touchFeedback = preferences.getBoolean("touchFeedback", true),
         soundEffects = preferences.getBoolean("soundEffects", true),
         autoCleanNotes = preferences.getBoolean("autoCleanNotes", false),
-        requireRoomCode = preferences.getBoolean("requireRoomCode", false),
+        requireRoomCode = preferences.getBoolean("requireRoomCode", true),
         selectedDifficulty = preferences.getString("difficulty", "EASY")
             .let { if (it in listOf("EASY", "MEDIUM", "HARD")) it!! else "EASY" })
     private val _state = MutableStateFlow(GameUiState(busy = true).withStoredPlayerSettings())
