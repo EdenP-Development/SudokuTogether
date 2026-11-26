@@ -64,4 +64,30 @@ class NameCollectionTest {
         }
         assertEquals(1100, count)
     }
+
+    @Test fun entireCatalogRoundTripsWithinDisplayBudget() {
+        val earned = Achievements.knownIds
+        val first = NameCollection.available(NameSlot.FIRST, earned)
+        val middle = NameCollection.available(NameSlot.MIDDLE, earned)
+        val last = NameCollection.available(NameSlot.LAST, earned)
+        var count = 0
+        var longest = 0
+        for (f in first) for (m in listOf(null) + middle.map { it.id }) for (l in last) {
+            val name = PlayerNameSelection(f.id, m, l.id)
+            val label = NameCollection.display(name)!!
+            assertTrue(label.length <= NameCollection.MAX_DISPLAY_LENGTH)
+            assertEquals(name, NameCollection.parseCanonical(label))
+            longest = maxOf(longest, label.length)
+            count++
+        }
+        assertEquals(188442, count)
+        assertEquals(37, longest)
+        assertNull(NameCollection.parseCanonical("x".repeat(NameCollection.MAX_DISPLAY_LENGTH + 1)))
+    }
+
+    @Test fun ordinarySoloAndDailyProgressCanUnlockMostWordsWithoutMultiplayer() {
+        val offline = Achievements.progress(emptyList()).filter { it.category !in listOf("Together", "Versus") }.map { it.id }.toSet()
+        assertEquals(34, offline.size)
+        for (slot in NameSlot.entries) assertEquals(44, NameCollection.available(slot, offline).size)
+    }
 }
