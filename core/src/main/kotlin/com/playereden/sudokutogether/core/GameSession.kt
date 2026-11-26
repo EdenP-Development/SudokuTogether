@@ -97,6 +97,32 @@ class GameSession(initial: SavedSession, private val persist: (SavedSession) -> 
         try { commit(next) } catch (_: Exception) { return result(false, ResultCode.SAVE_FAILED) }
         return result(true, ResultCode.ACCEPTED)
     }
+    /** Prepare a room before publishing it to peers. Keep board, history and invitation intact. */
+    @Synchronized fun prepareCanonicalNames(hostName: String) {
+        require(NameCollection.parseCanonical(hostName) != null)
+        val current = state.guest
+        val guest = current?.let {
+            if (NameCollection.parseCanonical(it.name) != null) it
+            else it.copy(name = "Friendly Fox")
+        }
+        val next = state.copy(guest = guest, snapshot = state.snapshot.copy(hostName = hostName, guestName = guest?.name))
+        if (next != state) commit(next)
+    }
+
+    /** Strict network admission. A valid reconnect token allows a new approved display name. */
+    @Synchronized fun admitCanonicalGuest(name: String, token: String? = null, appearance: Appearance = Appearance()): GuestIdentity {
+        require(NameCollection.parseCanonical(name) != null) { "Choose an approved player name." }
+        require(Cosmetics.valid(appearance))
+        val current = state.guest ?: return admitGuest(name, token, appearance)
+        require(token != null && MessageDigest.isEqual(current.token.toByteArray(), token.toByteArray())) {
+            "This game already has a partner. Use the same phone to rejoin, or ask the host to replace the partner."
+        }
+        val identity = current.copy(name = name)
+        val next = state.copy(guest = identity, snapshot = state.snapshot.copy(guestName = name, guestAppearance = appearance))
+        if (next != state) commit(next)
+        return identity
+    }
+
     @Synchronized fun admitGuest(name: String, token: String? = null, appearance: Appearance = Appearance()): GuestIdentity {
         require(Cosmetics.valid(appearance))
         val current = state.guest
