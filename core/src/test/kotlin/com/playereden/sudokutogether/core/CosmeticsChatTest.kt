@@ -47,8 +47,11 @@ class CosmeticsChatTest {
                 guest.connect("127.0.0.1", port, host.code, "Rival",
                     appearance = Appearance(ink = "cobalt"))
                 await(guestEvents) { it.token != null }
-                assertTrue(host.chat("  Good game!  "))
-                assertFalse("Immediate repeat should be rate-limited", host.chat("Another message too soon"))
+                assertFalse(host.chat("  Good game!  "))
+                assertFalse(host.chat("Unapproved message"))
+                assertThrows(IllegalArgumentException::class.java) { guest.sendChat("Unapproved message") }
+                assertTrue(host.chat("Good game!"))
+                assertFalse("Immediate repeat should be rate-limited", host.chat("Yes"))
                 assertEquals("Good game!", await(guestEvents) { it.chat?.player == HOST }.chat!!.text)
                 guest.sendChat("Nice move!")
                 val received = await(hostEvents) { it.chat?.player == GUEST }.chat!!
@@ -91,15 +94,15 @@ class CosmeticsChatTest {
             val token = GuestClient(listener = first::offer).use { guest ->
                 guest.connect("127.0.0.1", port, host.code, "First")
                 val credential = await(first) { it.token != null }.token!!
-                assertTrue(host.chat("Previous conversation"))
-                await(first) { it.chat?.text == "Previous conversation" }
+                assertTrue(host.chat("Thank you!"))
+                await(first) { it.chat?.text == "Thank you!" }
                 credential
             }
             await(hostEvents) { !it.status.guestActive && it.snapshot.guestName != null }
             val returning = LinkedBlockingQueue<ClientEvent>()
             GuestClient(listener = returning::offer).use { guest ->
                 guest.connect("127.0.0.1", port, host.code, "First", resumeToken = token)
-                assertTrue(await(returning) { it.token != null }.history.orEmpty().any { it.text == "Previous conversation" })
+                assertTrue(await(returning) { it.token != null }.history.orEmpty().any { it.text == "Thank you!" })
                 host.replaceGuest()
             }
             val replacement = LinkedBlockingQueue<ClientEvent>()
