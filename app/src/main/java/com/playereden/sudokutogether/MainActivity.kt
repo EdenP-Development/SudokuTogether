@@ -37,8 +37,8 @@ class MainActivity : ComponentActivity() {
             val state by model.state.collectAsStateWithLifecycle()
             val progressBackup by model.progressBackup.collectAsStateWithLifecycle()
             var startupFinished by remember { mutableStateOf(false) }
-            val musicPanel: @Composable () -> Unit = if (BuildConfig.DEBUG) {
-                rememberPrivateMusicPilot(enabled = startupFinished && !progressBackup.working && !progressBackup.recoveryRequired)
+            val musicPanel: @Composable () -> Unit = if (BuildConfig.DEBUG || BuildConfig.BETA3_AUDIO_CANDIDATE) {
+                rememberPrivateMusicPilot(enabled = startupFinished && !progressBackup.working && !progressBackup.recoveryRequired, allowPrivateImport = BuildConfig.DEBUG)
             } else { {} }
             var pendingExport by rememberSaveable { mutableStateOf<Uri?>(null) }
             var pendingRestore by rememberSaveable { mutableStateOf<Uri?>(null) }
