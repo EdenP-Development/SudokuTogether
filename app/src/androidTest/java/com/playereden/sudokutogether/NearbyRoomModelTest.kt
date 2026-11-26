@@ -96,4 +96,17 @@ class NearbyRoomModelTest {
         assertNotEquals(nearbyRoomLabel("123456"), nearbyRoomLabel("654321"))
         assertTrue(nearbyRoomLabel(UUID.randomUUID().toString()).matches(Regex("GridMates puzzle [0-9A-F]{6}")))
     }
+
+    @Test fun profileNameSelectionRejectsUnknownAndUnearnedWordsAndPersistsApprovedNames() {
+        val (first, _) = model()
+        val original = first.state.value.name
+        main { first.setName("Arbitrary nickname") }
+        assertEquals(original, first.state.value.name)
+        main { first.setName("First Acorn Solver") }
+        assertEquals(original, first.state.value.name)
+        main { first.setName("Clever Maple Fox") }
+        assertEquals("Clever Maple Fox", first.state.value.name)
+        val (restored, _) = model()
+        assertEquals("Clever Maple Fox", restored.state.value.name)
+    }
 }
