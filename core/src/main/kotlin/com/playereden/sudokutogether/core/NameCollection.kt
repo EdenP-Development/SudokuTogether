@@ -10,6 +10,8 @@ data class NameWord(val id: String, val label: String, val slot: NameSlot, val a
 data class PlayerNameSelection(val firstId: String, val middleId: String? = null, val lastId: String)
 
 object NameCollection {
+    const val MAX_DISPLAY_LENGTH = 40
+
     // Catalog IDs are permanent and independent of future localized display text.
     private fun word(slot: NameSlot, label: String, achievementId: String? = null) =
         NameWord(slot.name.lowercase(Locale.ROOT) + "." + label.lowercase(Locale.ROOT), label, slot, achievementId)
@@ -87,10 +89,11 @@ object NameCollection {
         val middle = if (selection.middleId == null) null
             else byId[selection.middleId]?.takeIf { it.slot == NameSlot.MIDDLE } ?: return null
         val label = listOfNotNull(first.label, middle?.label, last.label).joinToString(" ")
-        return label.takeUnless { it in blockedNames }
+        return label.takeUnless { it.length > MAX_DISPLAY_LENGTH || it in blockedNames }
     }
 
     fun parseCanonical(label: String): PlayerNameSelection? {
+        if (label.length !in 1..MAX_DISPLAY_LENGTH) return null
         val parts = label.split(' ')
         if (parts.size !in 2..3) return null
         val first = byLabel[NameSlot.FIRST to parts.first()] ?: return null
