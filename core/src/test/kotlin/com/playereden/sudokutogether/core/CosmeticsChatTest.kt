@@ -113,6 +113,24 @@ class CosmeticsChatTest {
         }
     }
 
+    @Test fun legacyClientCannotJoinPresetOnlyRoom() {
+        HostServer(GameSession.create(fixture())).use { host ->
+            val port = host.start(java.net.InetAddress.getByName("127.0.0.1"))
+            java.net.Socket("127.0.0.1", port).use { legacy ->
+                legacy.soTimeout = 5000
+                Protocol.write(legacy.getOutputStream(), Message("hello", version = 8, code = host.code, name = "Legacy"))
+                val reply = Protocol.read(legacy.getInputStream())
+                assertEquals("error", reply.type)
+                assertTrue(reply.text.contains("same app version"))
+            }
+            val events = LinkedBlockingQueue<ClientEvent>()
+            GuestClient(listener = events::offer).use { guest ->
+                guest.connect("127.0.0.1", port, host.code, "Current")
+                assertNotNull(await(events) { it.token != null }.token)
+            }
+        }
+    }
+
     private fun <T> await(queue: LinkedBlockingQueue<T>, match: (T) -> Boolean): T {
         val deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(8)
         while (System.nanoTime() < deadline) {
