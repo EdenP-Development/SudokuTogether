@@ -164,21 +164,63 @@ class MultiplayerPolishUiTest {
         compose.onNodeWithText("Copy code").performScrollTo().assertIsDisplayed()
         compose.onNodeWithContentDescription("Room code 123456").assertExists()
     }
-    @Test fun chatUsesYouAndEveryQuickReplyFitsWithoutHorizontalHunting() {
+    @Test fun approvedRepliesAndEmotesAreReachableWithoutTextEntry() {
         val sent = mutableListOf<String>()
-        val state = polishState().copy(chat = listOf(ChatLine("a", HOST, "Hello", 1), ChatLine("b", GUEST, "Hi", 2)))
+        val state = polishState().copy(chat = listOf(ChatLine("a", HOST, "Yes", 1), ChatLine("b", GUEST, GridMatesEmote.HAPPY.wireValue, 2)))
         compose.setContent { SudokuTogetherTheme { RoomChatSheet(state, polishActions(send = sent::add), {}) } }
-        compose.onNodeWithText("You").assertIsDisplayed();compose.onNodeWithText("Taylor").assertIsDisplayed()
-        for (reply in listOf("Nice move!", "Need a hint?", "Good game!", "Rematch?")) compose.onNodeWithText(reply).performClick()
-        compose.runOnIdle { assertEquals(4, sent.size) }
+        compose.onNodeWithText("You").assertIsDisplayed()
+        compose.onNodeWithText("Taylor").assertIsDisplayed()
+        compose.onNodeWithText("😊 Happy").assertExists()
+        compose.onNodeWithTag("chat_input").assertDoesNotExist()
+        for ((category, group) in listOf("Responses" to QuickChatGroup.RESPONSE, "Teamwork" to QuickChatGroup.TEAMWORK, "Friendly" to QuickChatGroup.FRIENDLY)) {
+            compose.onNodeWithText(category).performScrollTo().performClick()
+            for (reply in QuickChatPhrase.entries.filter { it.group == group })
+                compose.onNodeWithTag("quick_chat_" + reply.id).performScrollTo().assertIsDisplayed().performClick()
+        }
+        compose.onNodeWithTag("quick_chat_emotes").performScrollTo().performClick()
+        for (emote in GridMatesEmote.entries)
+            compose.onNodeWithTag("emote_" + emote.id).performScrollTo().assertIsDisplayed().performClick()
+        compose.runOnIdle { assertEquals(QuickChat.phrases + GridMatesEmote.entries.map { it.wireValue }, sent) }
     }
-    @Test fun largeTextChatKeepsTheComposerAndSendActionUsable() {
-        var sent: String? = null
+
+    @Test fun largeTextCommunicationKeepsResponsesAndReactionsReachable() {
+        val sent = mutableListOf<String>()
         compose.setContent { SudokuTogetherTheme { CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, 2f)) {
-            RoomChatSheet(polishState(), polishActions(send = { sent = it }), {})
+            RoomChatSheet(polishState(), polishActions(send = sent::add), {})
         } } }
-        compose.onNodeWithTag("chat_input").performClick().performTextInput("Hello Taylor")
-        compose.onNodeWithText("Send").assertIsDisplayed().performClick()
-        compose.runOnIdle { assertEquals("Hello Taylor", sent) }
+        compose.onNodeWithTag("quick_chat_yes").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithTag("quick_chat_no").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithTag("quick_chat_emotes").performScrollTo().performClick()
+        compose.onNodeWithTag("emote_ready").performScrollTo().assertIsDisplayed().performClick()
+        compose.runOnIdle { assertEquals(listOf("Yes", "No", GridMatesEmote.READY.wireValue), sent) }
+    }
+
+    @Test fun partnerPingControlRequiresSelectionAndActiveCoopPartner() {
+        val base = polishState()
+        val state = mutableStateOf(base)
+        var sent = 0
+        compose.setContent { SudokuTogetherTheme { PlayScreen(state.value, polishActions().copy(partnerPing = { sent++ }), {}, {}, {}, {}) } }
+        compose.onNodeWithTag("partner_ping_send").assertIsNotEnabled()
+        compose.runOnIdle { state.value = base.copy(selected = 2) }
+        compose.onNodeWithTag("partner_ping_send").performScrollTo().assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals(1, sent); state.value = state.value.copy(connected = false) }
+        compose.onNodeWithTag("partner_ping_send").assertIsNotEnabled()
+        compose.runOnIdle { state.value = base.copy(snapshot = requireNotNull(base.snapshot).copy(mode = VERSUS)) }
+        compose.onNodeWithTag("partner_ping_send").assertDoesNotExist()
+    }
+
+    @Test fun expiredPartnerMarkerDoesNotAppearAndActiveMarkerIsAccessible() {
+        val base = polishState().copy(selected = 2)
+        val snapshot = requireNotNull(base.snapshot)
+        val marker = PartnerPing(snapshot.sessionId, snapshot.epoch, 4)
+        val state = mutableStateOf(base.copy(partnerPing = marker, partnerPingUntil = 0L))
+        compose.setContent { SudokuTogetherTheme { PlayScreen(state.value, polishActions(), {}, {}, {}, {}) } }
+        compose.onNodeWithText("Partner: Look here! R1 C5").assertDoesNotExist()
+        compose.runOnIdle { state.value = state.value.copy(partnerPingUntil = android.os.SystemClock.elapsedRealtime() + PartnerPing.DISPLAY_MS) }
+        compose.onNodeWithText("Partner: Look here! R1 C5").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithContentDescription("Row 1 column 5, clue 7, partner attention marker").assertExists()
+        compose.runOnIdle { assertEquals(2, state.value.selected) }
+        compose.mainClock.advanceTimeBy(PartnerPing.DISPLAY_MS + 100L)
+        compose.onNodeWithText("Partner: Look here! R1 C5").assertDoesNotExist()
     }
 }
