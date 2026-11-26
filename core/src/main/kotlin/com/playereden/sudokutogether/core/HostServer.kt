@@ -1,6 +1,8 @@
 package com.playereden.sudokutogether.core
 
 import java.io.IOException
+import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
 import java.security.SecureRandom
@@ -52,10 +54,16 @@ class HostServer(val session: GameSession, private val listener: (HostEvent) -> 
             outcome = outcome?.copy(snapshot = session.snapshotForGuest())))
         emit(outcome)
     }
-    fun start(): Int = synchronized(lock) {
+    fun start(bindAddress: InetAddress? = null): Int = synchronized(lock) {
         check(!closed) { "Room is closed" }
-        socket?.let { return@synchronized it.localPort }
-        val server = ServerSocket(0); socket = server
+        socket?.let {
+            check(bindAddress == null || it.inetAddress == bindAddress) { "Room already bound to another address" }
+            return@synchronized it.localPort
+        }
+        val server = ServerSocket()
+        try { server.bind(InetSocketAddress(bindAddress, 0)) }
+        catch (e: Exception) { runCatching { server.close() }; throw e }
+        socket = server
         acceptor.execute {
             while (!server.isClosed) {
                 val incoming = try { server.accept() } catch (_: IOException) { break }
