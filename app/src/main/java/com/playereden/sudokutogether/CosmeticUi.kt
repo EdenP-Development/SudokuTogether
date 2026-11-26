@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.semantics.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -601,9 +602,14 @@ private val TealColor = Color(0xFFDCECE4)
                             Text(if (mine) "You" else author, fontSize = 12.sp, color = Muted)
                         }
                         val reaction = GridMatesEmote.fromWire(msg.text)
-                        Text(if (reaction == null) msg.text else "${reaction.glyph} ${reaction.label}", modifier = Modifier.background(if (mine) TealColor else Paper,
-                            RoundedCornerShape(12.dp)).padding(12.dp), fontFamily = fontFor(look.font),
-                            color = inkFor(look.ink, false), fontSize = 14.sp)
+                        if (reaction == null) {
+                            Text(msg.text, modifier = Modifier.background(if (mine) TealColor else Paper,
+                                RoundedCornerShape(12.dp)).padding(12.dp), fontFamily = fontFor(look.font),
+                                color = inkFor(look.ink, false), fontSize = 14.sp)
+                        } else {
+                            Image(painterResource(foxEmoteDrawable(reaction)), contentDescription = reaction.label,
+                                modifier = Modifier.size(72.dp).testTag("chat_emote_" + reaction.id))
+                        }
                     }
                 }
             }
@@ -624,10 +630,10 @@ private val TealColor = Color(0xFFDCECE4)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     trio.forEach { emote ->
                         OutlinedButton(onClick = { actions.sendChat(emote.wireValue) },
-                            modifier = Modifier.weight(1f).heightIn(min = 64.dp).testTag("emote_" + emote.id),
+                            modifier = Modifier.weight(1f).heightIn(min = 76.dp).testTag("emote_" + emote.id),
                             contentPadding = PaddingValues(4.dp), enabled = enabled) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                Text(emote.glyph, fontSize = 24.sp, modifier = Modifier.clearAndSetSemantics { })
+                                Image(painterResource(foxEmoteDrawable(emote)), contentDescription = null, modifier = Modifier.size(48.dp))
                                 Text(emote.label, fontSize = 12.sp, textAlign = TextAlign.Center)
                             }
                         }
@@ -646,4 +652,21 @@ private val TealColor = Color(0xFFDCECE4)
             }
         }
     }
+}
+
+/** Stable wire IDs map to the approved, bundled Fox V1 stickers. */
+internal fun foxEmoteDrawable(emote: GridMatesEmote): Int = when (emote.id) {
+    "happy" -> R.drawable.gm_emote_fox_happy
+    "approve" -> R.drawable.gm_emote_fox_approve
+    "disapprove" -> R.drawable.gm_emote_fox_disapprove
+    "appreciation" -> R.drawable.gm_emote_fox_appreciation
+    "thinking" -> R.drawable.gm_emote_fox_thinking
+    "celebration" -> R.drawable.gm_emote_fox_celebration
+    "oops" -> R.drawable.gm_emote_fox_oops
+    "greeting" -> R.drawable.gm_emote_fox_greeting
+    "confused" -> R.drawable.gm_emote_fox_confused
+    "applause" -> R.drawable.gm_emote_fox_applause
+    "break" -> R.drawable.gm_emote_fox_break
+    "ready" -> R.drawable.gm_emote_fox_ready
+    else -> error("Unmapped GridMates emote")
 }

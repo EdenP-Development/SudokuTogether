@@ -172,7 +172,37 @@ val beta2ArtApproval = Properties().apply {
 }
 val beta2ApprovedArt = beta2ArtApproval.getProperty("ownerApproved") == "true"
 if (signedBeta) require(beta2ApprovedArt && privateSigning.isNotEmpty() && qaVersion == null) { "Approved art, dedicated signing and release version required" }
+// Reproducible import of the independently verified Fox V1 transport.
+val foxTransfer = rootProject.file("design/emotes/fox/v1/transfer")
+val foxResources = layout.buildDirectory.dir("generated/foxEmotes/res")
+val foxIds = "happy approve disapprove appreciation thinking celebration oops greeting confused applause break ready".split(" ")
+val prepareFoxEmotes = tasks.register("prepareFoxEmotes") {
+    inputs.dir(foxTransfer)
+    outputs.dir(foxResources)
+    doLast {
+        val parts = (1..13).map { foxTransfer.resolve("part_%02d.bin".format(Locale.ROOT, it).replace('_', '-')) }
+        val bytes = java.io.ByteArrayOutputStream().also { out -> parts.forEach { out.write(it.readBytes()) } }.toByteArray()
+        val digest = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        require(bytes.size == 3754384 && digest == "c10b3fcae7e09d09a4c500d74a479c1842a19c54de6f9a7b1907714aa38bdf5b") { "Fox V1 artwork archive checksum mismatch" }
+        val expected = foxIds.map { "runtime/gm_emote_fox_$it.webp" }.toSet()
+        val found = mutableSetOf<String>()
+        val destination = foxResources.get().asFile.resolve("drawable-nodpi")
+        destination.mkdirs()
+        java.util.zip.ZipInputStream(bytes.inputStream()).use { zip ->
+            while (true) {
+                val entry = zip.nextEntry ?: break
+                if (entry.name in expected) {
+                    require(found.add(entry.name))
+                    destination.resolve(entry.name.substringAfterLast('/')).outputStream().use { zip.copyTo(it) }
+                }
+                zip.closeEntry()
+            }
+        }
+        require(found == expected) { "Incomplete Fox V1 artwork" }
+    }
+}
 android {
+    sourceSets.getByName("main").res.srcDir(foxResources)
     namespace = "com.playereden.sudokutogether"
     compileSdk = 36
     defaultConfig {
@@ -270,6 +300,9 @@ android {
     compileOptions { sourceCompatibility = JavaVersion.VERSION_17; targetCompatibility = JavaVersion.VERSION_17 }
     kotlinOptions { jvmTarget = "17" }
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
+}
+tasks.matching { it.name == "preBuild" || (it.name.startsWith("merge") && it.name.endsWith("Resources")) }.configureEach {
+    dependsOn(prepareFoxEmotes)
 }
 // Do not create altered QA/debug variants when staging the new production ID.
 androidComponents {
