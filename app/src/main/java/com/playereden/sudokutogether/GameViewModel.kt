@@ -91,6 +91,12 @@ class GameViewModel @JvmOverloads constructor(
         requireRoomCode = preferences.getBoolean("requireRoomCode", true),
         selectedDifficulty = preferences.getString("difficulty", "EASY")
             .let { if (it in listOf("EASY", "MEDIUM", "HARD")) it!! else "EASY" })
+    private fun normalizeStoredName(profile: LocalPlayerData): String {
+        val existing = preferences.getString("name", "Player") ?: "Player"
+        val approved = NameCollection.normalizedProfileName(existing, profile)
+        if (approved != existing) preferences.edit().putString("name", approved).apply()
+        return approved
+    }
     private val _state = MutableStateFlow(GameUiState(busy = true).withStoredPlayerSettings())
     val state = _state.asStateFlow()
     private val _progressBackup = MutableStateFlow(ProgressBackupUiState())
@@ -124,7 +130,8 @@ class GameViewModel @JvmOverloads constructor(
         val hosted = hostStore.load(); val raced = raceStore.load(); val joined = guestStore.load()
         guestResume = when (joined) { is LoadResult.Loaded -> joined.data; is LoadResult.Recovered -> joined.data; else -> null }
         val restoreBlocked = _progressBackup.value.recoveryRequired
-        _state.update { it.withStoredPlayerSettings().copy(busy = restoreBlocked, profile = profile, resumeSolo = profile.activeSolo != null,
+        val approvedName = if (restoreBlocked) NameCollection.normalizedProfileName(preferences.getString("name", "Player") ?: "Player", profile) else normalizeStoredName(profile)
+        _state.update { it.withStoredPlayerSettings().copy(name = approvedName, busy = restoreBlocked, profile = profile, resumeSolo = profile.activeSolo != null,
             appearance = savedAppearance(), localSaveBlocked = restoreBlocked || !localPlayer.canSave,
             resumeHost = hosted is LoadResult.Loaded || hosted is LoadResult.Recovered,
             resumeGuest = guestResume != null, resumeRace = raced is LoadResult.Loaded || raced is LoadResult.Recovered,
@@ -160,8 +167,10 @@ class GameViewModel @JvmOverloads constructor(
             val restored = synchronized(localStartLock) {
                 backupStore.restore(localPlayer, preview).also { recentCoach.clear() }
             }
+            val approvedName = normalizeStoredName(restored)
             _state.update {
                 it.withStoredPlayerSettings().copy(
+                    name = approvedName,
                     profile = restored,
                     resumeSolo = restored.activeSolo != null,
                     appearance = savedAppearance()
