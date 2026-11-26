@@ -130,4 +130,41 @@ class GameSessionTest {
         assertTrue(game.snapshot().completed)
         assertEquals(ResultCode.COMPLETE, game.submit(HOST, game.snapshot().move(0, Kind.CLEAR)).code)
     }
+
+    @Test fun canonicalRoomMigrationPreservesBoardAndReconnectCredential() {
+        val game = GameSession.create(fixture(), hostName = "Legacy Host")
+        val originalGuest = game.admitGuest("Legacy Guest")
+        game.setPresence()
+        assertTrue(game.submit(HOST, game.snapshot().move(0)).accepted)
+        val before = game.saved()
+        var persisted = before
+        val restored = GameSession(before) { persisted = it }
+        restored.prepareCanonicalNames("Clever Maple Fox")
+        val migrated = restored.saved()
+        assertEquals("Clever Maple Fox", migrated.snapshot.hostName)
+        assertEquals("Friendly Fox", migrated.snapshot.guestName)
+        assertEquals(before.guest!!.token, migrated.guest!!.token)
+        assertEquals(before.snapshot, migrated.snapshot.copy(hostName = before.snapshot.hostName, guestName = before.snapshot.guestName))
+        assertEquals(before.history, migrated.history)
+        assertEquals(before.recent, migrated.recent)
+        assertEquals(migrated, persisted)
+        validateSaved(migrated)
+        val rejoined = restored.admitCanonicalGuest("Everlasting Constellation Hummingbird", originalGuest.token)
+        assertEquals(originalGuest.token, rejoined.token)
+        assertEquals("Everlasting Constellation Hummingbird", restored.snapshot().guestName)
+        assertEquals(before.snapshot.cells, restored.snapshot().cells)
+        validateSaved(restored.saved())
+        val after = restored.saved()
+        assertThrows(IllegalArgumentException::class.java) { restored.admitCanonicalGuest("Arbitrary nickname", originalGuest.token) }
+        assertThrows(IllegalArgumentException::class.java) { restored.admitCanonicalGuest("Happy Fox", "wrong token") }
+        assertEquals(after, restored.saved())
+    }
+
+    @Test fun canonicalMigrationFailureDoesNotChangeInMemoryRoom() {
+        val game = GameSession.create(fixture(), hostName = "Legacy")
+        val before = game.saved()
+        val restored = GameSession(before) { error("disk full") }
+        assertThrows(IllegalStateException::class.java) { restored.prepareCanonicalNames("Happy Fox") }
+        assertEquals(before, restored.saved())
+    }
 }
