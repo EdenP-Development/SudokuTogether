@@ -51,3 +51,6 @@ Six desktop Kotlin/JVM 1.9.0 / JRE 21 WAV files generated from transcribed c9ae4
 - puzzle-undo: 3db0d7c944c5e9dc7d4843ea38378fd247f35029a7916326d73a08369868a7e7
 
 Current conversation, Library and Drive filename searches did not locate original M4A masters; no conclusion of deletion. Recover from owner originals or prior uploads, verify recorded master checksums, and preserve privately. Optimized archive remains recorded in repository. No binary transfer or public release in this pass.
+
+## AUD-10.03 — original masters recovered
+Owner resupplied all six original M4A files. All six SHA-256 hashes exactly match BETA3_SOUNDTRACK_INVENTORY.md; ffprobe confirms Opus stereo 48 kHz and recorded durations. Private preservation ZIP GridMates-Cozy-Puzzle-Masters-v0.1.zip created and reopened, all six archived master hashes verified. ZIP 17,308,766 bytes, SHA-256 2fd6f802e74adadbff69b06182f8d8d79503dc62690b7df138c8ff578cdf76c0. Includes machine-readable manifest and preservation instructions. Durable private storage upload not yet verified; owner should retain archive. Track-specific commercial entitlement remains undocumented. No binary commit or runtime change.
