@@ -137,6 +137,10 @@ import kotlinx.coroutines.delay
     if (details && state.role != SOLO) AlertDialog(onDismissRequest = { details = false },
         title = { Text("Game details") }, text = {
             Column(Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                if (state.role == HOST && snapshot != null) {
+                    Text(nearbyRoomLabel(snapshot.sessionId), color = Forest,
+                        modifier = Modifier.testTag("host_nearby_room_label"))
+                }
                 if (state.role == HOST && state.roomCode.isNotBlank()) {
                     SelectionContainer { Text(state.roomCode, color = Forest, fontSize = 18.sp,
                         modifier = Modifier.semantics { contentDescription = "Room code ${state.roomCode}" }) }
