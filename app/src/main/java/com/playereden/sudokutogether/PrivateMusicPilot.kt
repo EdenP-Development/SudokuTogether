@@ -39,6 +39,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     var titles by remember { mutableStateOf(bundled) }
     var expanded by remember { mutableStateOf(false) }
     var playing by remember { mutableStateOf(false) }
+    var preparing by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf(if (bundled.isEmpty()) { if (allowPrivateImport) "Choose the soundtrack files." else "Soundtrack unavailable." } else "Soundtrack ready.") }
     val preferences = remember(context) { context.getSharedPreferences("gridmates_music", Context.MODE_PRIVATE) }
     var volume by remember { mutableStateOf(normalizeMusicVolume(
@@ -72,15 +73,24 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
         if (!enabled || !musicEnabled || order.isEmpty() || !lifecycle.currentState.isAtLeast(Lifecycle.State.RESUMED)) return
         selectTrack(position)
         val selected = order[index]
-        playing = player.start(selected, volume, looping = order.size == 1,
-            onFinished = { playAt(index + 1) },
-            onStopped = { interrupted = true; playing = false; message = "Music interrupted. Tap Play to retry." })
-        if (!playing) interrupted = true
-        message = if (playing) "Playing" else "Unable to play this track."
+        if (player.isActive(selected)) return
+        playing = false
+        preparing = true
+        message = "Preparing music…"
+        val accepted = player.start(selected, volume, looping = order.size == 1,
+            onStarted = { preparing = false; playing = true; message = "Playing" },
+            onFinished = { preparing = false; playing = false; playAt(index + 1) },
+            onStopped = { interrupted = true; preparing = false; playing = false; message = "Music interrupted. Tap Play to retry." })
+        if (!accepted) {
+            preparing = false
+            interrupted = true
+            message = "Unable to play this track."
+        }
     }
     val picker = rememberLauncherForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { selected ->
         if (allowPrivateImport && selected.isNotEmpty()) {
             player.stop()
+            preparing = false
             playing = false
             tracks = selected.distinct()
             titles = tracks.associateWith { title(it) }
@@ -96,6 +106,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
             if (event == Lifecycle.Event.ON_PAUSE || event == Lifecycle.Event.ON_STOP) {
                 foreground = false
                 player.stop()
+                preparing = false
                 playing = false
             }
         }
@@ -105,8 +116,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
     LaunchedEffect(enabled, foreground, musicEnabled) {
         if (!enabled || !foreground || !musicEnabled) {
             player.stop()
+            preparing = false
             playing = false
-        } else if (bundled.isNotEmpty() && !playing && !interrupted) {
+        } else if (bundled.isNotEmpty() && !playing && !preparing && !interrupted) {
             playAt(index)
         }
     }
@@ -119,7 +131,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                     interrupted = false
                     setMusicEnabled(value)
                     if (value && order.isNotEmpty() && bundled.isEmpty()) playAt(index)
-                    else if (!value) { player.stop(); playing = false; message = "Music stopped." }
+                    else if (!value) { player.stop(); preparing = false; playing = false; message = "Music stopped." }
                 })
             }
             Text("Good puzzles. Good company.", color = Muted, style = MaterialTheme.typography.bodySmall)
@@ -127,16 +139,16 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 Text(if (allowPrivateImport) "Choose the soundtrack files to begin." else "Soundtrack unavailable.", color = Muted, style = MaterialTheme.typography.bodySmall)
             } else {
                 Text(titles[order[index]] ?: "Track", color = Forest, style = MaterialTheme.typography.titleMedium)
-                Text("Track ${index + 1} of ${order.size} · ${if (playing) "Playing" else if (interrupted) "Interrupted" else "Stopped"}",
+                Text("Track ${index + 1} of ${order.size} · ${if (playing) "Playing" else if (preparing) "Preparing" else if (interrupted) "Interrupted" else "Stopped"}",
                     color = Muted, style = MaterialTheme.typography.bodySmall)
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                    TextButton(onClick = { if (playing) playAt(index - 1) else selectTrack(index - 1) },
+                    TextButton(onClick = { if (playing || preparing) playAt(index - 1) else selectTrack(index - 1) },
                         enabled = enabled && order.size > 1, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Previous") }
                     Button(onClick = {
-                        if (playing) { setMusicEnabled(false); player.stop(); playing = false; message = "Music stopped." }
+                        if (playing || preparing) { setMusicEnabled(false); player.stop(); preparing = false; playing = false; message = "Music stopped." }
                         else { interrupted = false; setMusicEnabled(true); playAt(index) }
-                    }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text(if (playing) "Stop" else "Play") }
-                    TextButton(onClick = { if (playing) playAt(index + 1) else selectTrack(index + 1) },
+                    }, enabled = enabled, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text(if (playing || preparing) "Stop" else "Play") }
+                    TextButton(onClick = { if (playing || preparing) playAt(index + 1) else selectTrack(index + 1) },
                         enabled = enabled && order.size > 1, modifier = Modifier.weight(1f).heightIn(min = 48.dp)) { Text("Next") }
                 }
                 Text("Music volume: ${(volume * 100).toInt()}%", color = Forest)
@@ -153,7 +165,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                 }
             }
             Text(message, color = Muted, style = MaterialTheme.typography.bodySmall)
-            if (allowPrivateImport && bundled.isEmpty()) OutlinedButton(onClick = { player.stop(); playing = false; picker.launch(arrayOf("audio/*")) },
+            if (allowPrivateImport && bundled.isEmpty()) OutlinedButton(onClick = { player.stop(); preparing = false; playing = false; picker.launch(arrayOf("audio/*")) },
                 enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                 Text(if (order.isEmpty()) "Choose soundtrack" else "Change test files")
             }
@@ -178,8 +190,10 @@ private class PilotPlayer(private val context: Context) {
         }
     }
 
+    fun isActive(uri: Uri): Boolean = media != null && activeUri == uri
+
     @Suppress("DEPRECATION")
-    fun start(uri: Uri, volume: Float, looping: Boolean, onFinished: () -> Unit, onStopped: () -> Unit): Boolean {
+    fun start(uri: Uri, volume: Float, looping: Boolean, onStarted: () -> Unit, onFinished: () -> Unit, onStopped: () -> Unit): Boolean {
         if (media != null && activeUri == uri) return true
         stop()
         level = volume
@@ -205,7 +219,7 @@ private class PilotPlayer(private val context: Context) {
             next.setOnCompletionListener { if (media === it) { stop(); onFinished() } }
             next.setOnPreparedListener {
                 if (media === it) {
-                    try { it.setVolume(level, level); it.start() }
+                    try { it.setVolume(level, level); it.start(); onStarted() }
                     catch (_: Exception) { fail(it) }
                 }
             }
