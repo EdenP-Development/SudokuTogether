@@ -41,7 +41,7 @@ class GardenCosmeticsTest {
         val encoded = ByteArrayOutputStream()
         Protocol.write(encoded, Message("hello", appearance = style))
         val decoded = Protocol.read(ByteArrayInputStream(encoded.toByteArray()))
-        assertEquals(8, decoded.version)
+        assertEquals(WIRE_PROTOCOL_VERSION, decoded.version)
         assertEquals(style, decoded.appearance)
         assertFalse(Cosmetics.valid(style.copy(portrait = "garden_unrecognized")))
     }
