@@ -572,46 +572,53 @@ private val TealColor = Color(0xFFDCECE4)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun RoomChatSheet(state: GameUiState, actions: GameActions, close: () -> Unit) {
-    var draft by remember { mutableStateOf("") }
+    var group by remember { mutableStateOf(QuickChatGroup.RESPONSE) }
     val scroll = rememberLazyListState()
-    LaunchedEffect(state.chat.size) { if (state.chat.isNotEmpty()) scroll.animateScrollToItem(state.chat.lastIndex) }
+    val enabled = state.role == HOST || state.connected
+    LaunchedEffect(state.chat.lastOrNull()?.id) { if (state.chat.isNotEmpty()) scroll.animateScrollToItem(state.chat.lastIndex) }
     ModalBottomSheet(onDismissRequest = close, containerColor = Cream,
         sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)) {
-        BoxWithConstraints(Modifier.fillMaxWidth().heightIn(max = 560.dp).imePadding()) {
-            val showReplies = WindowInsets.ime.getBottom(LocalDensity.current) == 0 && maxHeight >= 360.dp
-            Column(Modifier.fillMaxWidth().heightIn(max = maxHeight).padding(horizontal = 16.dp).padding(bottom = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp)) {
-                Text("Room chat", fontFamily = FontFamily.Serif, color = Forest, fontSize = 23.sp)
-                Text("Messages aren't saved.", color = Muted, fontSize = 12.sp)
-                LazyColumn(Modifier.fillMaxWidth().weight(1f, fill = false).heightIn(max = 240.dp), state = scroll,
-                    verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    items(state.chat, key = { it.id }) { msg ->
-                        val mine = msg.player == state.role
-                        val author = if (msg.player == HOST) state.snapshot?.hostName ?: "Host" else state.snapshot?.guestName ?: "Partner"
-                        val look = if (msg.player == HOST) state.snapshot?.hostAppearance ?: Appearance() else state.snapshot?.guestAppearance ?: Appearance()
-                        Column(Modifier.fillMaxWidth(), horizontalAlignment = if (mine) Alignment.End else Alignment.Start) {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                                AnimalPortrait(look, Modifier.size(24.dp))
-                                Text(if (mine) "You" else author, fontSize = 12.sp, color = Muted)
-                            }
-                            Text(msg.text, modifier = Modifier.background(if (mine) TealColor else Paper,
-                                RoundedCornerShape(12.dp)).padding(12.dp), fontFamily = fontFor(look.font),
-                                color = inkFor(look.ink, false), fontSize = 14.sp)
+        Column(Modifier.fillMaxWidth().heightIn(max = 560.dp).verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp).padding(bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text("Quick Chat", fontFamily = FontFamily.Serif, color = Forest, fontSize = 23.sp)
+            Text("Choose a message for your partner. Messages aren't saved.", color = Muted, fontSize = 12.sp)
+            LazyColumn(Modifier.fillMaxWidth().height(128.dp).testTag("quick_chat_history"), state = scroll,
+                verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                items(state.chat, key = { it.id }) { msg ->
+                    val mine = msg.player == state.role
+                    val author = if (msg.player == HOST) state.snapshot?.hostName ?: "Host" else state.snapshot?.guestName ?: "Partner"
+                    val look = if (msg.player == HOST) state.snapshot?.hostAppearance ?: Appearance() else state.snapshot?.guestAppearance ?: Appearance()
+                    Column(Modifier.fillMaxWidth(), horizontalAlignment = if (mine) Alignment.End else Alignment.Start) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            AnimalPortrait(look, Modifier.size(24.dp))
+                            Text(if (mine) "You" else author, fontSize = 12.sp, color = Muted)
                         }
+                        Text(msg.text, modifier = Modifier.background(if (mine) TealColor else Paper,
+                            RoundedCornerShape(12.dp)).padding(12.dp), fontFamily = fontFor(look.font),
+                            color = inkFor(look.ink, false), fontSize = 14.sp)
                     }
                 }
-                if (showReplies) FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalArrangement = Arrangement.spacedBy(2.dp)) {
-                    listOf("Nice move!", "Need a hint?", "Good game!", "Rematch?").forEach { phrase ->
-                        TextButton(onClick = { actions.sendChat(phrase) }, modifier = Modifier.heightIn(min = 48.dp),
-                            enabled = state.role == HOST || state.connected) { Text(phrase, fontSize = 13.sp) }
+            }
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp), modifier = Modifier.selectableGroup()) {
+                QuickChatGroup.entries.forEach { category ->
+                    val label = when (category) {
+                        QuickChatGroup.RESPONSE -> "Responses"
+                        QuickChatGroup.TEAMWORK -> "Teamwork"
+                        QuickChatGroup.FRIENDLY -> "Friendly"
                     }
+                    FilterChip(selected = group == category, onClick = { group = category },
+                        label = { Text(label) }, modifier = Modifier.heightIn(min = 48.dp))
                 }
-                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    OutlinedTextField(value = draft, onValueChange = { draft = it.take(ChatRules.MAX_LENGTH) },
-                        placeholder = { Text("Message your partner") }, maxLines = 3,
-                        modifier = Modifier.weight(1f).testTag("chat_input"), enabled = state.role == HOST || state.connected)
-                    Button(onClick = { actions.sendChat(draft);draft = "" }, modifier = Modifier.heightIn(min = 48.dp),
-                        enabled = draft.isNotBlank() && (state.role == HOST || state.connected)) { Text("Send") }
+            }
+            QuickChatPhrase.entries.filter { it.group == group }.chunked(2).forEach { pair ->
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    pair.forEach { phrase ->
+                        OutlinedButton(onClick = { actions.sendChat(phrase.label) },
+                            modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("quick_chat_" + phrase.id),
+                            enabled = enabled) { Text(phrase.label, textAlign = TextAlign.Center) }
+                    }
+                    if (pair.size == 1) Spacer(Modifier.weight(1f))
                 }
             }
         }
