@@ -757,9 +757,7 @@ import kotlinx.coroutines.delay
 /** Shared result panel for Solo, Daily, Co-op and Versus. */
 @Composable internal fun CompletionRewardPanel(state: GameUiState, snapshot: Snapshot) {
     val recordId = if (state.role == SOLO) snapshot.sessionId else "${snapshot.sessionId}:${snapshot.epoch}:${state.role}"
-    val earned = remember(state.profile.records, recordId) {
-        CompletionRewards.forRecord(state.profile.records, recordId)
-    }
+    val earned = state.completionRewards.takeIf { state.completionRewardRecordId == recordId } ?: return
     if (!earned.hasNewRewards) return
     var showAllRewards by rememberSaveable(recordId) { mutableStateOf(false) }
     Surface(Modifier.fillMaxWidth().testTag("finish_new_rewards"),
