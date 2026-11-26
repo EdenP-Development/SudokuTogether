@@ -52,7 +52,9 @@ fun validateSnapshot(s: Snapshot) {
     require(s.puzzle.id.length in 1..128 && Sudoku.solutionCount(s.puzzle.clues) == 1)
     require(s.puzzle.difficulty == null || s.puzzle.difficulty in listOf("EASY", "MEDIUM", "HARD"))
     require(s.cells.size == 81 && s.revision >= 0)
-    require(s.hostName.length in 1..24 && (s.guestName == null || s.guestName.length in 1..24))
+    // Legacy saves remain readable; longer names must be canonical catalog selections.
+    fun storedNameValid(name: String) = name.length in 1..24 || NameCollection.parseCanonical(name) != null
+    require(storedNameValid(s.hostName) && (s.guestName == null || storedNameValid(s.guestName)))
     s.cells.forEachIndexed { i, c ->
         require(c.value in 0..9 && c.notes in 0..511 && c.revision in 0..s.revision && (c.owner == null || c.owner == HOST || c.owner == GUEST))
         require(c.value == 0 || c.notes == 0)
