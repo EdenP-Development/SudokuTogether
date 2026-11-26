@@ -72,6 +72,7 @@ import com.playereden.sudokutogether.core.Snapshot
         SectionTitle(if (snapshot.winner == state.role) "Victory!" else "Your rival won",
             modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite })
         VersusLanes(presence)
+        CompletionRewardPanel(state, snapshot)
         when {
             state.role == HOST -> {
                 if (!state.status.guestActive) {
