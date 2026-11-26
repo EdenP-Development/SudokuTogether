@@ -462,32 +462,7 @@ import kotlinx.coroutines.delay
                                 color = Muted, fontSize = 11.sp)
                     }
                 }
-                // Only announce unlocks recorded with the completed match.
-                // Re-opening this finish can safely show the same earned items.
-                val earned = remember(state.profile.records, snapshot.sessionId) {
-                    CompletionRewards.forRecord(state.profile.records, snapshot.sessionId)
-                }
-                if (earned.hasNewRewards) {
-                    var showAllRewards by rememberSaveable(snapshot.sessionId) { mutableStateOf(false) }
-                    Surface(Modifier.fillMaxWidth().testTag("finish_new_rewards"),
-                        color = Paper, shape = RoundedCornerShape(13.dp), border = BorderStroke(1.dp, Rule)) {
-                        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
-                            Eyebrow("EARNED WITH THIS PUZZLE")
-                            (if (showAllRewards) earned.achievements else earned.achievements.take(2)).forEach { title ->
-                                Text("Achievement · ${title}", style = MaterialTheme.typography.bodySmall, color = Forest)
-                            }
-                            (if (showAllRewards) earned.cosmetics else earned.cosmetics.take(2)).forEach { title ->
-                                Text("Collection unlock · ${title}", style = MaterialTheme.typography.bodySmall, color = Forest)
-                            }
-                            val more = (earned.achievements.size - 2).coerceAtLeast(0) +
-                                (earned.cosmetics.size - 2).coerceAtLeast(0)
-                            if (more > 0) TextButton(onClick = { showAllRewards = !showAllRewards },
-                                modifier = Modifier.heightIn(min = 48.dp).testTag("finish_rewards_expand")) {
-                                Text(if (showAllRewards) "Show fewer rewards" else "Show all rewards (+$more)")
-                            }
-                        }
-                    }
-                }
+                CompletionRewardPanel(state, snapshot)
                 if (state.dailyDate != null) {
                     val completedDays = DailyChallenge.completedDays(state.profile.records)
                     if (completedDays > 0) Text("${completedDays} daily puzzle" +
@@ -778,3 +753,39 @@ import kotlinx.coroutines.delay
 }
 
 
+
+/** Shared result panel for Solo, Daily, Co-op and Versus. */
+@Composable internal fun CompletionRewardPanel(state: GameUiState, snapshot: Snapshot) {
+    val recordId = if (state.role == SOLO) snapshot.sessionId else "${snapshot.sessionId}:${snapshot.epoch}:${state.role}"
+    val earned = remember(state.profile.records, recordId) {
+        CompletionRewards.forRecord(state.profile.records, recordId)
+    }
+    if (!earned.hasNewRewards) return
+    var showAllRewards by rememberSaveable(recordId) { mutableStateOf(false) }
+    Surface(Modifier.fillMaxWidth().testTag("finish_new_rewards"),
+        color = Paper, shape = RoundedCornerShape(13.dp), border = BorderStroke(1.dp, Rule)) {
+        Column(Modifier.padding(12.dp), verticalArrangement = Arrangement.spacedBy(5.dp)) {
+            Eyebrow("EARNED WITH THIS PUZZLE")
+            (if (showAllRewards) earned.achievements else earned.achievements.take(2)).forEach { title ->
+                Text("Achievement · $title", style = MaterialTheme.typography.bodySmall, color = Forest)
+            }
+            (if (showAllRewards) earned.cosmetics else earned.cosmetics.take(2)).forEach { title ->
+                Text("Collection unlock · $title", style = MaterialTheme.typography.bodySmall, color = Forest)
+            }
+            if (earned.nameWords.isNotEmpty()) {
+                Column(Modifier.fillMaxWidth().testTag("finish_name_words"), verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text("${earned.nameWords.size} name words collected", style = MaterialTheme.typography.titleSmall, color = Forest)
+                    val words = if (showAllRewards) earned.nameWords else earned.nameWords.take(3)
+                    Text(words.joinToString(" · ") { it.label }, style = MaterialTheme.typography.bodyMedium, color = Forest)
+                    Text("Added to your Name Collection", style = MaterialTheme.typography.bodySmall, color = Muted)
+                }
+            }
+            val more = (earned.achievements.size - 2).coerceAtLeast(0) +
+                (earned.cosmetics.size - 2).coerceAtLeast(0) + (earned.nameWords.size - 3).coerceAtLeast(0)
+            if (more > 0) TextButton(onClick = { showAllRewards = !showAllRewards },
+                modifier = Modifier.heightIn(min = 48.dp).testTag("finish_rewards_expand")) {
+                Text(if (showAllRewards) "Show fewer rewards" else "Show all rewards (+$more)")
+            }
+        }
+    }
+}
