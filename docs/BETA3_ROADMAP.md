@@ -1,5 +1,9 @@
 # GridMates: Sudoku — Beta 3: Polish and depth
 
+## Latest — COM-01–06 / ART-EMOTE-01 communication direction (2026-11-25)
+
+Owner approved retiring unrestricted multiplayer text in favor of predefined Quick Chat, emotes and contextual Partner Ping for the entire GridMates series, not Amazon-only. Central standard: https://github.com/EdenP-Development/Eden-Development-Standards/blob/d0a4e82db411cfafd849f159e4bc72b623c8cc45/communication/gridmates/README.md . Sudoku pilot: COM-01 catalog/validation, COM-02 retire arbitrary text at send/receive and legacy boundary, COM-03 basic emotes, COM-04 explicit single-cell Co-op Partner Ping (no Versus board coordinates), COM-05 integrated regressions, COM-06 hub handoff. Include Yes/No, contextual Look here, useful teamwork and friendly reactions; no automatic puzzle edits. ART-EMOTE-01 original shared illustrated master collection planned; companion variants, animation, suggested numbers and advanced markers deferred. Existing four UI presets and new core eight-phrase catalog at 9f555a8; catalog CI not yet confirmed; free-text UI/transport still present. No implementation or policy acceptance beyond evidence. Preserve saves, signing, identity and local-first networking; review nicknames, actual privacy, age/audience and user-to-user disclosures before any store release. Latest verified prior runtime c2c264e gates 45744682356 / 45744682377; physical LAN, tablet and signed upgrade pending. Next COM-01/02 design and validation. No upload or publication authorized.
+
 ## Latest — B3-AMZ active (2026-11-25)
 
 Owner authorized starting Amazon readiness alongside B3-08. See BETA3_AMAZON_READINESS.md AMZ-01.01. Unsigned audio candidate passed at 325c03e; AUD-11 handoff ready at 46d725d. Fire OS 7/8 candidate targets; older API22/25 excluded. Privacy, tablet QA, signed upgrade, rights and submission approvals remain open. No publication authorized.
