@@ -8,6 +8,8 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import com.playereden.sudokutogether.core.*
 
@@ -76,7 +78,7 @@ private fun NameWordPicker(
         Text(label, style = MaterialTheme.typography.labelLarge)
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             OutlinedButton(onClick = { choose(choices[(index + choices.size - 1) % choices.size]) },
-                contentPadding = PaddingValues(0.dp), modifier = Modifier.size(48.dp).testTag("name_${tag}_previous")) {
+                contentPadding = PaddingValues(0.dp), modifier = Modifier.size(48.dp).testTag("name_${tag}_previous").semantics { contentDescription = "Previous ${label.lowercase()}" }) {
                 Text("‹")
             }
             Box(Modifier.weight(1f)) {
@@ -91,7 +93,7 @@ private fun NameWordPicker(
                 }
             }
             OutlinedButton(onClick = { choose(choices[(index + 1) % choices.size]) },
-                contentPadding = PaddingValues(0.dp), modifier = Modifier.size(48.dp).testTag("name_${tag}_next")) {
+                contentPadding = PaddingValues(0.dp), modifier = Modifier.size(48.dp).testTag("name_${tag}_next").semantics { contentDescription = "Next ${label.lowercase()}" }) {
                 Text("›")
             }
         }
