@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.*
 import com.playereden.sudokutogether.core.*
 
 internal enum class ProfileSection(val title: String) {
-    OVERVIEW("Profile"), STATISTICS("Statistics"), HISTORY("Game history"), ACHIEVEMENTS("Achievements")
+    OVERVIEW("Profile"), STATISTICS("Statistics"), HISTORY("Game history"), ACHIEVEMENTS("Achievements"), NAMES("Name Collection")
 }
 
 @Composable internal fun JournalScreen(
@@ -50,6 +50,7 @@ internal enum class ProfileSection(val title: String) {
                         ProfileSection.STATISTICS -> StatisticsContent(state)
                         ProfileSection.HISTORY -> HistoryContent(state, actions)
                         ProfileSection.ACHIEVEMENTS -> AchievementsContent(state.profile)
+                        ProfileSection.NAMES -> NameAlbumContent(state, actions)
                     }
                     JournalTab.COLLECTION -> CollectionContent(state, actions, scroll)
                     JournalTab.SETTINGS -> SettingsContent(state, actions, help, share, settingsLocked, settingsExtra)
@@ -244,6 +245,7 @@ internal enum class ProfileSection(val title: String) {
         }
         GamePrimaryButton("View achievements", { openSection(ProfileSection.ACHIEVEMENTS) })
     }
+    ProfileLink("Name Collection", "Collect words and build your name", GameSymbol.PENCIL) { openSection(ProfileSection.NAMES) }
     ProfileLink("Statistics", "Best times and puzzle totals", GameSymbol.CLOCK) { openSection(ProfileSection.STATISTICS) }
     ProfileLink("Game history", "Daily puzzles and recent finishes", GameSymbol.CALENDAR) { openSection(ProfileSection.HISTORY) }
 
