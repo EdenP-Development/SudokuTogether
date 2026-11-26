@@ -9,7 +9,7 @@ class VersusTest {
     @Test fun raceStartsOnJoinAndPlayersHaveIndependentGridsAndUndo() {
         val game = GameSession.create(fixture(), mode = VERSUS)
         assertFalse(game.editable())
-        game.admitGuest("Rival")
+        game.admitGuest("Brave Owl")
         game.setPresence()
         assertTrue(game.editable())
         assertNotNull(game.snapshot().raceStartedAtMs)
@@ -33,7 +33,7 @@ class VersusTest {
 
     @Test fun firstValidSolveWinsAndOpponentCannotKeepEditing() {
         val game = GameSession.create(fixture(), mode = VERSUS)
-        game.admitGuest("Rival")
+        game.admitGuest("Brave Owl")
         game.setPresence()
         for ((i, digit) in listOf(0 to 1, 1 to 2, 9 to 4, 10 to 5)) {
             assertTrue(game.submit(HOST, game.snapshot().move(i, number = digit)).accepted)
@@ -47,10 +47,10 @@ class VersusTest {
 
     @Test fun socketUpdatesNeverRevealOpponentsCellsEvenInsideOutcomes() {
         val events = LinkedBlockingQueue<ClientEvent>()
-        HostServer(GameSession.create(fixture(), mode = VERSUS)).use { host ->
+        HostServer(GameSession.create(fixture(), hostName = "Happy Bear", mode = VERSUS)).use { host ->
             val port = host.start()
             GuestClient(listener = events::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "Rival")
+                guest.connect("127.0.0.1", port, host.code, "Brave Owl")
                 val joined = await(events) { it.token != null }.snapshot!!
                 assertEquals(VERSUS, joined.mode)
                 assertTrue(joined.guestCells.isEmpty())
@@ -69,10 +69,10 @@ class VersusTest {
         val guestEvents = LinkedBlockingQueue<ClientEvent>()
         val game = GameSession.create(fixture(), mode = VERSUS)
         val nextPuzzle = fixture().copy(id = "next-puzzle")
-        HostServer(game, listener = hostEvents::offer).use { host ->
+        HostServer(game.also { it.prepareCanonicalNames("Happy Bear") }, listener = hostEvents::offer).use { host ->
             val port = host.start()
             val token = GuestClient(listener = guestEvents::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "Rival")
+                guest.connect("127.0.0.1", port, host.code, "Brave Owl")
                 val welcome = await(guestEvents) { it.token != null }
                 val joined = welcome.snapshot!!
                 assertFalse(host.nextRace(joined.epoch, nextPuzzle, afterFinish = true))
@@ -97,7 +97,7 @@ class VersusTest {
             assertEquals(finished, game.snapshot())
 
             GuestClient(listener = guestEvents::offer).use { guest ->
-                guest.connect("127.0.0.1", port, "", "Rival", token)
+                guest.connect("127.0.0.1", port, "", "Brave Owl", token)
                 val welcome = await(guestEvents) { it.token == token }
                 val returned = welcome.snapshot!!
                 assertEquals(finished.epoch, returned.epoch)
@@ -116,7 +116,7 @@ class VersusTest {
                 val next = await(guestEvents) { event -> event.snapshot?.let { it.epoch != finished.epoch } == true }.snapshot!!
                 assertEquals(finished.sessionId, next.sessionId)
                 assertEquals(nextPuzzle, next.puzzle)
-                assertEquals("Rival", next.guestName)
+                assertEquals("Brave Owl", next.guestName)
                 assertEquals(77, next.hostProgress)
                 assertEquals(77, next.guestProgress)
                 assertEquals(nextPuzzle.clues.map(::Cell), next.cells)
@@ -132,7 +132,7 @@ class VersusTest {
 
     @Test fun tamperedRaceProgressOrOwnershipIsRejectedOnSaveAndWire() {
         val game = GameSession.create(fixture(), mode = VERSUS)
-        game.admitGuest("Rival")
+        game.admitGuest("Brave Owl")
         game.setPresence()
         assertTrue(game.submit(HOST, game.snapshot().move(0, number = 1)).accepted)
         val master = game.saved()

@@ -41,10 +41,10 @@ class CosmeticsChatTest {
     @Test fun messagesAppearOnBothPhonesButOnlyAuthenticatedPeerChoosesSender() {
         val hostEvents = LinkedBlockingQueue<HostEvent>()
         val guestEvents = LinkedBlockingQueue<ClientEvent>()
-        HostServer(GameSession.create(fixture()), hostEvents::offer).use { host ->
+        HostServer(GameSession.create(fixture(), hostName = "Happy Bear"), hostEvents::offer).use { host ->
             val port = host.start()
             GuestClient(listener = guestEvents::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "Rival",
+                guest.connect("127.0.0.1", port, host.code, "Brave Owl",
                     appearance = Appearance(ink = "cobalt"))
                 await(guestEvents) { it.token != null }
                 assertFalse(host.chat("  Good game!  "))
@@ -69,7 +69,7 @@ class CosmeticsChatTest {
 
     @Test fun explicitHostBindingAcceptsOnlyTheSelectedLoopbackAddress() {
         val address = java.net.InetAddress.getByName("127.0.0.1")
-        HostServer(GameSession.create(fixture())).use { host ->
+        HostServer(GameSession.create(fixture(), hostName = "Happy Bear")).use { host ->
             val port = host.start(address)
             assertEquals(port, host.start(address))
             assertThrows(IllegalStateException::class.java) {
@@ -77,7 +77,7 @@ class CosmeticsChatTest {
             }
             val events = LinkedBlockingQueue<ClientEvent>()
             GuestClient(listener = events::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "Rival")
+                guest.connect("127.0.0.1", port, host.code, "Brave Owl")
                 assertNotNull(await(events) { it.token != null }.token)
             }
             assertThrows(java.io.IOException::class.java) {
@@ -88,11 +88,11 @@ class CosmeticsChatTest {
 
     @Test fun replacingPartnerClearsChatButReconnectingPreservesIt() {
         val hostEvents = LinkedBlockingQueue<HostEvent>()
-        HostServer(GameSession.create(fixture()), hostEvents::offer).use { host ->
+        HostServer(GameSession.create(fixture(), hostName = "Happy Bear"), hostEvents::offer).use { host ->
             val port = host.start(java.net.InetAddress.getByName("127.0.0.1"))
             val first = LinkedBlockingQueue<ClientEvent>()
             val token = GuestClient(listener = first::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "First")
+                guest.connect("127.0.0.1", port, host.code, "Clever Fox")
                 val credential = await(first) { it.token != null }.token!!
                 assertTrue(host.chat("Thank you!"))
                 await(first) { it.chat?.text == "Thank you!" }
@@ -103,7 +103,7 @@ class CosmeticsChatTest {
             await(hostEvents) { !it.status.guestActive && it.snapshot.guestName != null }
             val returning = LinkedBlockingQueue<ClientEvent>()
             GuestClient(listener = returning::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "First", resumeToken = token)
+                guest.connect("127.0.0.1", port, host.code, "Clever Fox", resumeToken = token)
                 val history = await(returning) { it.token != null }.history.orEmpty()
                 assertTrue(history.any { it.text == "Thank you!" })
                 assertTrue(history.any { it.text == GridMatesEmote.CELEBRATION.wireValue && it.player == GUEST })
@@ -111,14 +111,14 @@ class CosmeticsChatTest {
             }
             val replacement = LinkedBlockingQueue<ClientEvent>()
             GuestClient(listener = replacement::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "Second")
+                guest.connect("127.0.0.1", port, host.code, "Gentle Owl")
                 assertEquals(emptyList<ChatLine>(), await(replacement) { it.token != null }.history)
             }
         }
     }
 
     @Test fun legacyClientCannotJoinPresetOnlyRoom() {
-        HostServer(GameSession.create(fixture())).use { host ->
+        HostServer(GameSession.create(fixture(), hostName = "Happy Bear")).use { host ->
             val port = host.start(java.net.InetAddress.getByName("127.0.0.1"))
             java.net.Socket("127.0.0.1", port).use { legacy ->
                 legacy.soTimeout = 5000
@@ -129,7 +129,7 @@ class CosmeticsChatTest {
             }
             val events = LinkedBlockingQueue<ClientEvent>()
             GuestClient(listener = events::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "Current")
+                guest.connect("127.0.0.1", port, host.code, "Cozy Bear")
                 assertNotNull(await(events) { it.token != null }.token)
             }
         }
@@ -138,10 +138,10 @@ class CosmeticsChatTest {
     @Test fun emotesTravelBothDirectionsAndShareChatRateLimit() {
         val hostEvents = LinkedBlockingQueue<HostEvent>()
         val guestEvents = LinkedBlockingQueue<ClientEvent>()
-        HostServer(GameSession.create(fixture()), hostEvents::offer).use { host ->
+        HostServer(GameSession.create(fixture(), hostName = "Happy Bear"), hostEvents::offer).use { host ->
             val port = host.start()
             GuestClient(listener = guestEvents::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "Partner")
+                guest.connect("127.0.0.1", port, host.code, "Happy Fox")
                 await(guestEvents) { it.token != null }
                 assertFalse(host.chat("emote:unknown"))
                 assertThrows(IllegalArgumentException::class.java) { guest.sendChat("emote:unknown") }

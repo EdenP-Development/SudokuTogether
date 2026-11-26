@@ -660,6 +660,7 @@ class GameViewModel @JvmOverloads constructor(
                     }
                 }
                 if (generation.get() != current) return@launch
+                session.prepareCanonicalNames(name)
                 val hosted = HostServer(session) { event -> if (generation.get() == current) {
                     recordMultiplayer(event.snapshot, HOST)
                     _state.update { previous ->

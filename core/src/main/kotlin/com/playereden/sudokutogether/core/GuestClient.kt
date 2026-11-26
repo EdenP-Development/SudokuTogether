@@ -13,18 +13,20 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
     private fun emit(event: ClientEvent) { runCatching { listener(event) } }
     fun connect(host: String, port: Int, code: String, name: String, resumeToken: String? = null, appearance: Appearance = Appearance(), expectedSessionId: String? = null) {
         require(Cosmetics.valid(appearance))
+        if (NameCollection.parseCanonical(name) == null) throw IOException("Choose an approved player name.")
         if (host.isBlank() || port !in 1..65535) throw IOException("Enter a valid host address and port.")
         check(link == null) { "Already connected" }
         val socket = socketFactory()
         try {
             socket.connect(InetSocketAddress(host, port), 5000); socket.soTimeout = 8000; socket.tcpNoDelay = true
-            Protocol.write(socket.getOutputStream(), Message("hello", code = code, name = cleanName(name, "Partner"), token = resumeToken, appearance = appearance))
+            Protocol.write(socket.getOutputStream(), Message("hello", code = code, name = name, token = resumeToken, appearance = appearance))
             val welcome = try { Protocol.read(socket.getInputStream()) }
                 catch (e: java.io.EOFException) {
                     throw IOException("Connection closed. Check that both phones use the same app version, then try again.", e)
                 }
-            if (welcome.type == "error") throw IOException(welcome.text.take(300))
+            if (welcome.type == "error") throw IOException(approvedRoomError(welcome.text))
             if (welcome.type != "welcome" || welcome.version != WIRE_PROTOCOL_VERSION || welcome.snapshot == null || welcome.status == null || welcome.token == null) throw IOException("The host is running an incompatible app version.")
+            validateNetworkIdentity(welcome.snapshot)
             validateSnapshot(welcome.snapshot)
             if (expectedSessionId != null && welcome.snapshot.sessionId != expectedSessionId)
                 throw IOException("This is a different puzzle room. Rejoin your original room or start a new join.")
@@ -43,6 +45,8 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
                             "state" -> {
                                 val snapshot = message.snapshot ?: throw IOException("Missing puzzle")
                                 val status = message.status ?: throw IOException("Missing room state")
+                                validateNetworkIdentity(snapshot)
+                                message.outcome?.snapshot?.let(::validateNetworkIdentity)
                                 validateSnapshot(snapshot)
                                 if (snapshot.sessionId != latest.sessionId || (snapshot.epoch == latest.epoch && snapshot.revision < latest.revision)) throw IOException("Out-of-order puzzle state")
                                 latest = snapshot; latestSnapshot = snapshot; latestStatus = status; emit(ClientEvent(snapshot, status, outcome = message.outcome))
@@ -62,7 +66,7 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
                                     emit(ClientEvent(partnerPing = marker))
                             }
                             "ping" -> current.send(Message("pong"))
-                            "error" -> throw IOException(message.text.take(300))
+                            "error" -> throw IOException(approvedRoomError(message.text))
                             else -> throw IOException("Unsupported game message")
                         }
                     }
@@ -101,3 +105,17 @@ class GuestClient(private val socketFactory: () -> Socket = { Socket() }, privat
         synchronized(this) { val current = link; link = null; latestSnapshot = null; latestStatus = null; current?.close(); reader.shutdownNow() }
     }
 }
+
+private fun validateNetworkIdentity(snapshot: Snapshot) {
+    if (NameCollection.parseCanonical(snapshot.hostName) == null ||
+        snapshot.guestName?.let { NameCollection.parseCanonical(it) == null } == true)
+        throw IOException("Invalid player name in room state.")
+}
+
+private fun approvedRoomError(text: String): String = if (text in setOf(
+    "This room has closed.", "Install the same app version on both phones.",
+    "This room already has two players.", "Too many incorrect codes. Try again in a minute.",
+    "That room code is incorrect.", "Choose an approved player name.",
+    "This game already has a partner. Use the same phone to rejoin, or ask the host to replace the partner.",
+    "That saved invitation is no longer valid. Join again with the room code."
+)) text else "Could not join this room."

@@ -72,6 +72,8 @@ class HostServer(val session: GameSession, private val listener: (HostEvent) -> 
             check(bindAddress == null || it.inetAddress == bindAddress) { "Room already bound to another address" }
             return@synchronized it.localPort
         }
+        require(NameCollection.parseCanonical(session.snapshot().hostName) != null) { "Choose an approved host name." }
+        require(session.snapshot().guestName?.let { NameCollection.parseCanonical(it) != null } != false)
         val server = ServerSocket()
         try { server.bind(InetSocketAddress(bindAddress, 0)) }
         catch (e: Exception) { runCatching { server.close() }; throw e }
@@ -108,7 +110,7 @@ class HostServer(val session: GameSession, private val listener: (HostEvent) -> 
                 val attempts = failures.getOrPut(address) { mutableListOf() }.also { it.removeAll { time -> now - time > 60_000 } }
                 if (attempts.size >= 5) reject("Too many incorrect codes. Try again in a minute.")
                 if (session.requiresCode && hello.token == null && hello.code != code) { attempts.add(now); reject("That room code is incorrect.") }
-                val identity = try { session.admitGuest(hello.name, hello.token, hello.appearance) } catch (e: Exception) { reject(e.message ?: "Could not join this room.") }
+                val identity = try { session.admitCanonicalGuest(hello.name, hello.token, hello.appearance) } catch (e: Exception) { reject(e.message ?: "Could not join this room.") }
                 incoming.soTimeout = 10_000
                 val snapshot = session.snapshotForGuest()
                 val link = Link(incoming, ::drop); admitted = link; peer = link; partnerCell = -1

@@ -6,8 +6,8 @@ import org.junit.Test
 class CoopNextPuzzleTest {
     @Test fun staleOrCancelledNextPuzzleCannotReplaceTheCurrentRound() {
         val game = GameSession.create(fixture())
-        game.admitGuest("Partner")
-        HostServer(game).use { host ->
+        game.admitGuest("Happy Fox")
+        HostServer(game.also { it.prepareCanonicalNames("Happy Bear") }).use { host ->
             val before = game.snapshot()
             val next = fixture().copy(id = "next-coop")
             assertFalse(host.nextCoopPuzzle(before.epoch, next) { false })

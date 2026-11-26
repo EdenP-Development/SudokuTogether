@@ -41,11 +41,11 @@ class PartnerPingTest {
     @Test fun activePartnersCanPingBothWaysWithoutChangingPuzzleOrHistory() {
         val hostEvents = LinkedBlockingQueue<HostEvent>()
         val guestEvents = LinkedBlockingQueue<ClientEvent>()
-        HostServer(GameSession.create(fixture()), hostEvents::offer).use { host ->
+        HostServer(GameSession.create(fixture(), hostName = "Happy Bear"), hostEvents::offer).use { host ->
             val port = host.start()
             assertFalse(host.partnerPing(marker(host.session.snapshot())))
             GuestClient(listener = guestEvents::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "Partner")
+                guest.connect("127.0.0.1", port, host.code, "Happy Fox")
                 await(guestEvents) { it.token != null }
                 val before = host.session.snapshot()
                 val ping = marker(before)
@@ -78,10 +78,10 @@ class PartnerPingTest {
 
     @Test fun versusRejectsMarkersFromBothPlayers() {
         val events = LinkedBlockingQueue<ClientEvent>()
-        HostServer(GameSession.create(fixture(), mode = VERSUS)).use { host ->
+        HostServer(GameSession.create(fixture(), hostName = "Happy Bear", mode = VERSUS)).use { host ->
             val port = host.start()
             GuestClient(listener = events::offer).use { guest ->
-                guest.connect("127.0.0.1", port, host.code, "Rival")
+                guest.connect("127.0.0.1", port, host.code, "Brave Owl")
                 await(events) { it.token != null }
                 val ping = marker(host.session.snapshot())
                 assertFalse(host.partnerPing(ping))
