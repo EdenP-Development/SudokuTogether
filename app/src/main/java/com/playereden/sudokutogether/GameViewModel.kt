@@ -31,7 +31,7 @@ enum class Page { HOME, JOIN, PLAY, PROFILE }
 data class GameUiState(
     val page: Page = Page.HOME, val name: String = "Player", val role: String = HOST,
     val snapshot: Snapshot? = null, val status: RoomStatus = RoomStatus(), val selected: Int = -1,
-    val partnerCell: Int = -1, val notes: Boolean = false, val pendingId: String? = null,
+    val partnerCell: Int = -1, val partnerPing: PartnerPing? = null, val partnerPingUntil: Long = 0L, val notes: Boolean = false, val pendingId: String? = null,
     val busy: Boolean = false, val connected: Boolean = false, val roomCode: String = "",
     val address: String = "", val rooms: List<NearbyRoom> = emptyList(), val resumeHost: Boolean = false,
     val resumeGuest: Boolean = false, val resumingGuest: Boolean = false, val saveIssue: String? = null, val message: String? = null,
@@ -404,6 +404,19 @@ class GameViewModel @JvmOverloads constructor(
         preferences.edit().putBoolean("uniformNumbers", enabled).apply()
         _state.update { it.copy(uniformNumbers = enabled) }
     }
+    fun sendPartnerPing() {
+        val s = _state.value
+        val snapshot = s.snapshot ?: return
+        val marker = PartnerPing(snapshot.sessionId, snapshot.epoch, s.selected)
+        if (s.page != Page.PLAY || !s.connected || !marker.matches(snapshot) || !s.status.hostActive || !s.status.guestActive) return
+        if (s.role == HOST) server?.partnerPing(marker) else if (s.role == GUEST) guest?.partnerPing(marker)
+    }
+    private fun GameUiState.withPartnerPing(marker: PartnerPing?, next: Snapshot?, status: RoomStatus, clear: Boolean): GameUiState {
+        if (clear || next == null || !status.hostActive || !status.guestActive || next.completed || next.mode != COOP)
+            return copy(partnerPing = null, partnerPingUntil = 0L)
+        if (marker != null && marker.matches(next)) return copy(partnerPing = marker, partnerPingUntil = SystemClock.elapsedRealtime() + PartnerPing.DISPLAY_MS)
+        return this
+    }
     fun chatVisible(open: Boolean) { _state.update { it.copy(chatVisible = open, unreadChat = if (open) 0 else it.unreadChat) } }
     fun sendChat(raw: String) {
         if (!QuickChat.isPreset(raw)) return
@@ -562,7 +575,7 @@ class GameViewModel @JvmOverloads constructor(
     private fun closeRoom(): Long {
         val current = synchronized(localStartLock) {
             generation.incrementAndGet().also {
-                _state.update { ui -> ui.copy(hint = null, hintUnavailable = false, entryCheck = null, chat = emptyList(), unreadChat = 0, chatVisible = false) }
+                _state.update { ui -> ui.copy(hint = null, hintUnavailable = false, entryCheck = null, chat = emptyList(), unreadChat = 0, chatVisible = false, partnerPing = null, partnerPingUntil = 0L) }
             }
         }
         guest?.close(); guest = null; server?.close(); server = null; discovery.stop()
@@ -645,6 +658,7 @@ class GameViewModel @JvmOverloads constructor(
                             resumeRace = if (versus) true else previous.resumeRace,
                             chat = if (event.chat != null) (previous.chat + listOfNotNull(event.chat)).takeLast(ChatRules.HISTORY_LIMIT) else previous.chat,
                             unreadChat = if (previous.chatVisible) 0 else previous.unreadChat + if (event.chat?.player == GUEST) 1 else 0)
+                            .withPartnerPing(event.partnerPing, event.snapshot, event.status, changed)
                     }
                 } }
                 server = hosted
@@ -706,6 +720,7 @@ class GameViewModel @JvmOverloads constructor(
                             message = when { saveMessage != null -> saveMessage; event.message != null -> event.message; event.outcome != null -> event.outcome?.let { if (it.accepted) null else explain(it.code) }; changed -> null; else -> previous.message },
                             chat = event.history ?: if (event.chat != null) (previous.chat + listOfNotNull(event.chat)).takeLast(ChatRules.HISTORY_LIMIT) else previous.chat,
                             unreadChat = if (event.history != null || previous.chatVisible) 0 else previous.unreadChat + if (event.chat?.player == HOST) 1 else 0)
+                            .withPartnerPing(event.partnerPing, snapshot ?: previous.snapshot, event.status ?: previous.status, changed || event.disconnected || event.history != null)
                     }
                 }
             }
@@ -792,11 +807,12 @@ class GameViewModel @JvmOverloads constructor(
     }
     private fun publishRoomPresence() = synchronized(roomPresenceLock) {
         val active = visible
+        if (!active) _state.update { it.copy(partnerPing = null, partnerPingUntil = 0L) }
         server?.setForeground(active)
         guest?.setForeground(active)
     }
     fun replacePartner() { viewModelScope.launch(workDispatcher) {
-        try { server?.replaceGuest(); _state.update { it.copy(chat = emptyList(), unreadChat = 0, chatVisible = false) } } catch (_: Exception) { _state.update { it.copy(message = "Couldn't save the partner change. Try again.") } }
+        try { server?.replaceGuest(); _state.update { it.copy(chat = emptyList(), unreadChat = 0, chatVisible = false, partnerPing = null, partnerPingUntil = 0L) } } catch (_: Exception) { _state.update { it.copy(message = "Couldn't save the partner change. Try again.") } }
     } }
     fun newPuzzle() {
         val before = _state.value
