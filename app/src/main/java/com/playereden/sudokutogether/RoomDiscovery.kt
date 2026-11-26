@@ -124,6 +124,13 @@ class RoomDiscovery(context: Context, private val onError: (String) -> Unit) {
         return try { network.socketFactory.createSocket() }
         catch (e: IOException) { throw IOException("Wi-Fi changed. Reconnect both phones and join again.", e) }
     }
+    fun hostWifiAddress(): Inet4Address {
+        val connectivity = app.getSystemService(ConnectivityManager::class.java)
+        return wifiNetworks().flatMap { connectivity.getLinkProperties(it)?.linkAddresses.orEmpty() }
+            .map { it.address }.filterIsInstance<Inet4Address>()
+            .firstOrNull { !it.isLoopbackAddress && !it.isAnyLocalAddress && !it.isLinkLocalAddress }
+            ?: throw IOException("Connect to home Wi-Fi before hosting a nearby game.")
+    }
     fun localAddresses(): List<String> {
         val connectivity = app.getSystemService(ConnectivityManager::class.java)
         val wifi = wifiNetworks()
