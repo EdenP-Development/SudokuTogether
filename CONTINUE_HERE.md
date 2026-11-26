@@ -1,5 +1,9 @@
 # Continue GridMates: Sudoku
 
+## Owner direction — Name Collection (2026-11-25)
+
+Supersedes prior custom-text nickname decision: retain one unified profile but replace unrestricted nickname entry with mix-and-match approved words (about ten free choices per slot; many earnable words). First/optional middle/last proposed. Central standard: https://github.com/EdenP-Development/Eden-Development-Standards/blob/a393aaff28ac2d715d17090ff1d1e354b1ee2ab8/identity/gridmates/README.md . ID-01 builder/catalog, ID-02 achievement-linked unlocks, ID-03 strict network validation, ID-04 save/backup and resumed-room migration, ID-05 verification and adoption. Exact unlock thresholds and vocabulary pending review. No runtime changes yet; preserve existing progress and signing; no publication authorized. Integrate with COM-05 privacy review before storefront acceptance.
+
 ## Owner decision — unified player identity (2026-11-25)
 
 Retain one customizable player profile and nickname for local and connected multiplayer play. Owner rejected separate private/public identities and generated companion aliases as unnecessary complexity. Preserve existing profiles, cosmetics, progression and saved names. Recommend concise nickname-field disclosure that connected partners can see the chosen name and that players should avoid sensitive personal information. Generic nickname-free nearby discovery already implemented; retain it pending usability verification, not as a second profile. Quick Chat, emotes, Partner Ping and visibility controls remain the approved communication direction. Nickname disclosure alone does not establish store compliance; review actual audience, local peer exchange and current policies before submission. No publication authorized.
