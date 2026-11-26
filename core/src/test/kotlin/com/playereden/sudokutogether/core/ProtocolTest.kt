@@ -48,6 +48,30 @@ class ProtocolTest {
         }
     }
 
+    @Test fun emoteCatalogRoundTripsAndRejectsUnknownIds() {
+        fun read(message: Message): Message {
+            val encoded = ByteArrayOutputStream()
+            Protocol.write(encoded, message)
+            return Protocol.read(ByteArrayInputStream(encoded.toByteArray()))
+        }
+        assertEquals(12, GridMatesEmote.entries.size)
+        assertEquals(12, GridMatesEmote.entries.map { it.id }.toSet().size)
+        for (emote in GridMatesEmote.entries) {
+            assertEquals(emote, GridMatesEmote.fromWire(emote.wireValue))
+            assertEquals(emote.wireValue, read(Message("chat", text = emote.wireValue)).text)
+            val line = ChatLine("reaction", HOST, emote.wireValue, 1234L)
+            assertEquals(line, read(Message("chat", line = line)).line)
+            assertEquals(listOf(line), read(Message("welcome", lines = listOf(line))).lines)
+        }
+        for (invalid in listOf("emote:unknown", "emote:Happy", "emote:happy ", "😊", "emote:")) {
+            assertNull(GridMatesEmote.fromWire(invalid))
+            assertThrows(IOException::class.java) { read(Message("chat", text = invalid)) }
+            val line = ChatLine("reaction", HOST, invalid, 1234L)
+            assertThrows(IOException::class.java) { read(Message("chat", line = line)) }
+            assertThrows(IOException::class.java) { read(Message("welcome", lines = listOf(line))) }
+        }
+    }
+
     @Test fun rejectsNegativeOversizedTruncatedAndMalformedFrames() {
         for (length in listOf(-1, 0, 131073)) {
             val bytes = ByteArrayOutputStream().also { DataOutputStream(it).writeInt(length) }
