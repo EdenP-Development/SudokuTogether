@@ -14,6 +14,30 @@ data class CompletionHighlights(
 }
 
 object CompletionRewards {
+    /** Compare durable ownership around a successful match save, not reconstructed history. */
+    fun forSavedTransition(before: LocalPlayerData, after: LocalPlayerData, finishedId: String): CompletionHighlights {
+        if (before.playerId != after.playerId || before.records.any { it.id == finishedId }) return CompletionHighlights()
+        val finished = after.records.firstOrNull { it.id == finishedId } ?: return CompletionHighlights()
+        val valid = when (finished.mode) {
+            SOLO, DAILY, COOP -> finished.result == "SOLVED"
+            VERSUS -> finished.result in setOf("WIN", "LOSS", "DRAW")
+            else -> false
+        }
+        if (!valid) return CompletionHighlights()
+        val priorIds = NameCollection.earnedIds(before)
+        val newAchievements = Achievements.progress(after.records, after.earnedAchievementIds)
+            .filter { it.unlocked && it.id !in priorIds }
+        val ids = newAchievements.map { it.id }.toSet()
+        val previous = Cosmetics.progressAll(before.records, before.ownedCosmeticIds)
+        val current = Cosmetics.progressAll(after.records, after.ownedCosmeticIds)
+        val catalog = Cosmetics.portraits + Cosmetics.emblems + Cosmetics.inks + Cosmetics.boards + Cosmetics.fonts
+        return CompletionHighlights(
+            newAchievements.map { it.title },
+            catalog.filter { previous[it.id]?.unlocked == false && current[it.id]?.unlocked == true }.map { it.name },
+            NameCollection.words.filter { it.achievementId in ids }
+        )
+    }
+
     fun forRecord(records: List<GameRecord>, finishedId: String): CompletionHighlights {
         val saved = records.distinctBy { it.id }
         val finished = saved.firstOrNull { it.id == finishedId && (it.result == "SOLVED" || it.result == "WIN" || (it.mode == VERSUS && it.result in setOf("LOSS", "DRAW"))) }
