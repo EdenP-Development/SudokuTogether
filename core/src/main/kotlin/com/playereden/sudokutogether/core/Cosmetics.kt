@@ -307,6 +307,15 @@ object Cosmetics {
     val id: String, val player: String, val text: String, val atMs: Long
 )
 
+/** Shared English v1 preset catalog. Existing wire text remains unchanged. */
+object QuickChat {
+    val phrases: List<String> = listOf(
+        "Nice move!", "Need a hint?", "Good game!", "Rematch?",
+        "Thank you!", "Take your time.", "Be right back.", "I'm ready!"
+    )
+    fun isPreset(text: String): Boolean = text in phrases
+}
+
 object ChatRules {
     const val MAX_LENGTH = 160
     const val HISTORY_LIMIT = 30
