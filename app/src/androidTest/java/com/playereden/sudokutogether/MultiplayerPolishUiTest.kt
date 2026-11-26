@@ -223,4 +223,26 @@ class MultiplayerPolishUiTest {
         compose.mainClock.advanceTimeBy(PartnerPing.DISPLAY_MS + 100L)
         compose.onNodeWithText("Partner: Look here! R1 C5").assertDoesNotExist()
     }
+
+    @Test fun communicationVisibilityHidesIncomingHistoryButKeepsSendingAvailable() {
+        val sent = mutableListOf<String>()
+        val history = listOf(
+            ChatLine("mine", HOST, "Thank you!", 1),
+            ChatLine("partner", GUEST, GridMatesEmote.HAPPY.wireValue, 2)
+        )
+        val state = mutableStateOf(polishState().copy(chat = history))
+        val actions = polishActions(send = sent::add).copy(muteCommunication = { muted ->
+            state.value = state.value.copy(communicationMuted = muted, unreadChat = 0, partnerPing = null, partnerPingUntil = 0L)
+        })
+        compose.setContent { SudokuTogetherTheme { RoomChatSheet(state.value, actions, {}) } }
+        compose.onNodeWithTag("communication_visibility").assertIsOn().performClick()
+        compose.onNodeWithTag("communication_visibility").assertIsOff()
+        compose.onNodeWithText("😊 Happy").assertDoesNotExist()
+        compose.onNodeWithText("Thank you!").assertExists()
+        compose.onNodeWithTag("quick_chat_yes").performScrollTo().assertIsEnabled().performClick()
+        compose.runOnIdle { assertEquals(listOf("Yes"), sent); assertEquals(history, state.value.chat); assertTrue(state.value.connected) }
+        compose.onNodeWithTag("communication_visibility").performScrollTo().performClick()
+        compose.onNodeWithText("😊 Happy").assertExists()
+        compose.onNodeWithTag("communication_visibility").assertIsOn()
+    }
 }
