@@ -248,13 +248,10 @@ internal enum class ProfileSection(val title: String) {
     ProfileLink("Game history", "Daily puzzles and recent finishes", GameSymbol.CALENDAR) { openSection(ProfileSection.HISTORY) }
 
     draft?.let { name ->
-        fun save() { actions.name(name); draft = null }
-        AlertDialog(onDismissRequest = { draft = null }, title = { Text("Edit player name") }, text = {
-            OutlinedTextField(name, { draft = it }, label = { Text("Player name") }, singleLine = true,
-                modifier = Modifier.fillMaxWidth().testTag("player_name"), shape = RoundedCornerShape(13.dp),
-                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done), keyboardActions = KeyboardActions(onDone = { save() }))
-        }, confirmButton = { TextButton(onClick = { save() }) { Text("Save") } },
-            dismissButton = { TextButton(onClick = { draft = null }) { Text("Cancel") } })
+        NameBuilderDialog(state.profile, name, onConfirm = { selection ->
+            NameCollection.display(selection)?.let(actions.name)
+            draft = null
+        }, onDismiss = { draft = null })
     }
 }
 
