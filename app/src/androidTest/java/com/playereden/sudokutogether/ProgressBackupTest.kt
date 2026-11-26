@@ -372,4 +372,36 @@ class ProgressBackupTest {
             assertEquals(ProgressBackupException.Reason.INVALID, expected.reason)
         }
     }
+
+    @Test fun longCanonicalNameSurvivesExportRestoreAndRestartWithEarnedWords() {
+        val name = "Everlasting Constellation Hummingbird"
+        val earned = listOf("daily-60", "hard-15", "quick-thinker")
+        val sourceFile = File(root, "name-source.json")
+        val source = LocalPlayerStore(sourceFile)
+        val incoming = source.update { fixture(it.playerId).copy(earnedAchievementIds = earned) }
+        check(preferences.edit().putString("name", name).commit())
+        val bytes = ProgressBackupStore(sourceFile, preferences).export(source, "1.0.0-beta.3")
+        val preview = ProgressBackup.decode(bytes.inputStream())
+        assertEquals(name, preview.settings.name)
+        val destination = LocalPlayerStore(profileFile)
+        val destinationId = destination.current().playerId
+        check(preferences.edit().putString("name", "Legacy").commit())
+        val restored = ProgressBackupStore(profileFile, preferences).restore(destination, preview)
+        assertEquals(incoming.copy(playerId = destinationId), restored)
+        val reloaded = LocalPlayerStore(profileFile).current()
+        assertEquals(restored, reloaded)
+        assertEquals(name, preferences.getString("name", null))
+        assertTrue(NameCollection.canEquip(requireNotNull(NameCollection.parseCanonical(name)), NameCollection.earnedIds(reloaded)))
+        assertEquals(name, ProgressBackup.decode(ProgressBackupStore(profileFile, preferences).export(destination, "1.0.0-beta.3").inputStream()).settings.name)
+    }
+
+    @Test fun legacyNicknameRemainsReadableButOversizeArbitraryTextIsRejected() {
+        val legacy = ProgressBackup.decode(incomingBytes().inputStream())
+        assertEquals("River", legacy.settings.name)
+        val invalid = backupJson().withField(JsonPrimitive("x".repeat(25)), "settings", "name")
+        assertEquals(ProgressBackupException.Reason.INVALID,
+            assertThrows(ProgressBackupException::class.java) {
+                ProgressBackup.decode(invalid.toString().byteInputStream())
+            }.reason)
+    }
 }
