@@ -1,5 +1,10 @@
 # Continue GridMates: Sudoku
 
+## AMZ-05.06 — multiplayer safety checkpoint (2026-11-25)
+
+Packaged dependency/permission audit passed 45741172498. Wi-Fi address binding and dedicated loopback regression passed candidate 45744155146; chat cleanup implementation passed 45744179648. Same-partner reconnect/replacement isolation fixture 26bf368 pending CI at inspection. Room-code default enabled when unset (77cb241), backup export default aligned (c2c264e); explicit saved settings and existing room configuration preserved, no schema or protocol changes. Existing users with no saved setting also receive new default. Fresh CI, default/restore regression, physical LAN and Fire tests remain open. Chat stays in host memory during live room and is cleared on partner replacement/closure; no durable chat field identified in saved session review, verify UI and actual retention on device. Next AMZ-07 current Amazon audience/UGC review, then privacy hosting and tablet QA. No upload, publication or signing changes authorized.
+
+
 ## AUD-09 automated candidate verification — 2026-11-25
 
 Latest runtime 325c03e638d02b4e946550f9311e70c5ea81b7e8: ordinary Android quality gate 45735580949 and unsigned audio candidate 45735580929 both completed successfully; individual build/test and identity/audio verification steps confirmed. Candidate validates release JVM tests, lint, unsigned assembly, existing staging package/version and six stored soundtrack hashes. UI instrumentation compiled, not executed. Automated candidate gate passed; final production promotion/signing/version increment and physical regression remain open. Earlier incomplete status lookup superseded. Original six masters recovered (ffe1f63), six reproducible desktop WAV effects cataloged (16fde84), existing private Drive optimized archive metadata verified (15,369,442 bytes; no fresh Drive rehash). Do not duplicate existing archives. Canonical master ZIP durable upload and commercial entitlement per track remain open. AUD-11 hub handoff next, then integrated B3-08; no public release authorized.
