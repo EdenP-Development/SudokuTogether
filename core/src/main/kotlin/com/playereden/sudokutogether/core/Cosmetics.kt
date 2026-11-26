@@ -307,13 +307,28 @@ object Cosmetics {
     val id: String, val player: String, val text: String, val atMs: Long
 )
 
-/** Shared English v1 preset catalog. Existing wire text remains unchanged. */
+/** Stable semantic IDs; English labels remain the transitional wire representation. */
+enum class QuickChatGroup { RESPONSE, TEAMWORK, FRIENDLY }
+enum class QuickChatPhrase(val id: String, val label: String, val group: QuickChatGroup) {
+    YES("yes", "Yes", QuickChatGroup.RESPONSE),
+    NO("no", "No", QuickChatGroup.RESPONSE),
+    UNSURE("unsure", "Not sure", QuickChatGroup.RESPONSE),
+    OKAY("okay", "Okay!", QuickChatGroup.RESPONSE),
+    NEED_HELP("need_help", "Need help?", QuickChatGroup.TEAMWORK),
+    GOT_IT("got_it", "I've got it!", QuickChatGroup.TEAMWORK),
+    NICE_MOVE("nice_move", "Nice move!", QuickChatGroup.FRIENDLY),
+    GOOD_GAME("good_game", "Good game!", QuickChatGroup.FRIENDLY),
+    THANKS("thanks", "Thank you!", QuickChatGroup.FRIENDLY),
+    REMATCH("rematch", "Rematch?", QuickChatGroup.FRIENDLY),
+    TAKE_YOUR_TIME("take_your_time", "Take your time.", QuickChatGroup.FRIENDLY),
+    BE_RIGHT_BACK("be_right_back", "Be right back.", QuickChatGroup.FRIENDLY),
+    READY("ready", "I'm ready!", QuickChatGroup.FRIENDLY),
+    SORRY("sorry", "Sorry!", QuickChatGroup.FRIENDLY)
+}
 object QuickChat {
-    val phrases: List<String> = listOf(
-        "Nice move!", "Need a hint?", "Good game!", "Rematch?",
-        "Thank you!", "Take your time.", "Be right back.", "I'm ready!"
-    )
-    fun isPreset(text: String): Boolean = text in phrases
+    val phrases: List<String> = QuickChatPhrase.entries.map { it.label }
+    fun byId(id: String): QuickChatPhrase? = QuickChatPhrase.entries.firstOrNull { it.id == id }
+    fun isPreset(text: String): Boolean = QuickChatPhrase.entries.any { it.label == text }
 }
 
 object ChatRules {
