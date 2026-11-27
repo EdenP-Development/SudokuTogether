@@ -95,7 +95,12 @@ import kotlinx.coroutines.delay
                 val wide = maxWidth >= 520.dp && maxWidth > maxHeight && !snapshot.completed
                 val availablePlayHeight = maxHeight
                 if (wide) {
-                    val railWidth = (maxWidth * .46f).coerceIn(288.dp, 352.dp)
+                    // Give large landscape windows a wider control rail without
+                    // consuming the space needed by the board. Compact windows
+                    // retain their established rail dimensions.
+                    val railWidth = if (maxWidth >= 1000.dp) {
+                        (maxWidth * .36f).coerceIn(352.dp, 480.dp)
+                    } else (maxWidth * .46f).coerceIn(288.dp, 352.dp)
                     Row(Modifier.fillMaxSize().padding(horizontal = 12.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                         PlayBoardPane(state, actions, new,
                             Modifier.weight(1f).fillMaxHeight(), roomStatus = false, feedback = ::tick)
