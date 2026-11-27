@@ -42,7 +42,7 @@ class CompactPlayLayoutTest {
         shell("settings put system font_scale 2.0"); shell("wm size 640x1136")
     }
     @After fun restore() {
-        scenario?.close(); shell("settings put system font_scale $oldFont"); shell("wm size ${oldSize ?: "reset"}")
+        scenario?.close(); instrumentation.uiAutomation.setRotation(android.app.UiAutomation.ROTATION_UNFREEZE); shell("settings put system font_scale $oldFont"); shell("wm size ${oldSize ?: "reset"}")
     }
     private fun fixture(role: String, mode: String = COOP): GameUiState {
         val digits = "123456789456789123789123456234567891567891234891234567345678912678912345912345678".map { it.digitToInt() }
@@ -53,7 +53,18 @@ class CompactPlayLayoutTest {
     private fun launch(landscape: Boolean) {
         scenario = ActivityScenario.launch(MainActivity::class.java)
         scenario!!.onActivity { it.requestedOrientation = if (landscape) ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE else ActivityInfo.SCREEN_ORIENTATION_PORTRAIT }
-        compose.waitUntil(20000) { (context.resources.configuration.screenWidthDp > context.resources.configuration.screenHeightDp) == landscape }
+        // Android 16 may ignore requestedOrientation on large displays.
+        // Force the test display rotation rather than relying on the activity request.
+        if (landscape) instrumentation.uiAutomation.setRotation(android.app.UiAutomation.ROTATION_FREEZE_90)
+        else instrumentation.uiAutomation.setRotation(android.app.UiAutomation.ROTATION_FREEZE_0)
+        compose.waitUntil(20000) {
+            var matches = false
+            scenario!!.onActivity { activity ->
+                val config = activity.resources.configuration
+                matches = (config.screenWidthDp > config.screenHeightDp) == landscape
+            }
+            matches
+        }
         EmulatorSystemDialogs.dismiss()
     }
     private fun capture(name: String) {
