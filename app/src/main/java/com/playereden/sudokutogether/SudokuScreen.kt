@@ -98,10 +98,17 @@ data class GameActions(
     )
     if (practiceOpen) CoachPracticeDialog(state.appearance, state.uniformNumbers) { practiceOpen = false }
     confirmation?.let { kind ->
-        val title = when (kind) { "leave" -> "Leave the room?"; "partner" -> "Replace your partner?"; else -> "Start a new puzzle?" }
+        val title = when (kind) {
+            "leave" -> "Leave the room?"
+            "partner" -> "Replace your partner?"
+            "fresh" -> "Start a new shared game?"
+            "freshRace" -> "Start a new race?"
+            else -> "Start a new puzzle?"
+        }
         val body = when (kind) {
             "leave" -> "Confirmed progress is saved. You can resume or rejoin this puzzle later."
             "partner" -> "Your current partner will be disconnected. A partner can join again using the room code. The puzzle stays as it is."
+            "fresh" -> "Starting a new shared game replaces the saved Co-op room and its puzzle entries and notes. Completed records are kept."
             "freshSolo" -> "Starting again replaces your unfinished solo puzzle. Your previous completed records are kept."
             "freshRace" -> "Starting a fresh race replaces the saved head-to-head room and its unfinished match."
             else -> if (state.role == SOLO) "This replaces your current solo puzzle. Completed records are kept." else if (state.snapshot?.mode == VERSUS) "This starts another race on both phones and resets their entries." else "This replaces your saved shared puzzle, including its entries and notes."
@@ -111,7 +118,7 @@ data class GameActions(
                 confirmation = null
                 when (kind) { "leave" -> actions.home(); "partner" -> actions.replacePartner(); "fresh" -> actions.host(false); "freshSolo" -> actions.solo(false); "freshRace" -> actions.hostRace(false); else -> actions.newPuzzle() }
             }) { Text(if (kind == "leave") "Leave room" else if (kind == "partner") "Replace partner" else "Start new") } },
-            dismissButton = { TextButton(onClick = { confirmation = null }) { Text("Keep playing") } })
+            dismissButton = { TextButton(onClick = { confirmation = null }) { Text(if (state.page == Page.PLAY) "Keep playing" else "Cancel") } })
     }
 }
 
