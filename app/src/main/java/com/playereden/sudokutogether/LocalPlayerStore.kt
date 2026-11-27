@@ -63,7 +63,8 @@ class LocalPlayerStore(file: File) {
         val candidate = if (legacyBackup.exists()) legacyBackup else file.baseFile
         val text = candidate.inputStream().use {
             if (it.channel.size() > LOCAL_PROFILE_MAX_BYTES) throw IOException("Local progress is too large to read safely.")
-            it.readBytes().toString(Charsets.UTF_8)
+            // Reject malformed UTF-8 instead of silently changing saved identity or text.
+            it.readBytes().decodeToString(throwOnInvalidSequence = true)
         }
         return json.decodeFromString<LocalPlayerData>(text).also(::validateLocalPlayerData)
     }
