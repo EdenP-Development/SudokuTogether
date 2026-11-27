@@ -278,7 +278,8 @@ class GameViewModel @JvmOverloads constructor(
         val current = generation.get()
         viewModelScope.launch(workDispatcher) {
             try {
-                if (generation.get() == current) {
+                // A queued older selection must not overwrite the newer equipped style in a room.
+                if (generation.get() == current && _state.value.appearance == next) {
                     if (state.role == HOST) server?.setHostAppearance(next)
                     else if (state.role == GUEST) guest?.changeAppearance(next)
                 }
