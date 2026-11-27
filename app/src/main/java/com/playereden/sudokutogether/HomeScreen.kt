@@ -320,9 +320,15 @@ import com.playereden.sudokutogether.core.SoloProgress
                     )
                 }
                 if (mode == "together") {
-                    if (state.resumeHost) GamePrimaryButton("Resume room",
-                        { actions.host(true) }, !state.busy)
-                    GamePrimaryButton("Start a game", fresh, !state.busy)
+                    if (state.resumeHost) {
+                        GamePrimaryButton("Resume room", { actions.host(true) }, !state.busy)
+                        OutlinedButton(onClick = fresh, enabled = !state.busy,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, Forest)) {
+                            Text("Start a game", color = Forest)
+                        }
+                    } else GamePrimaryButton("Start a game", fresh, !state.busy)
                     OutlinedButton({ actions.showJoin(false) }, enabled = !state.busy,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                         shape = RoundedCornerShape(12.dp),
@@ -332,9 +338,15 @@ import com.playereden.sudokutogether.core.SoloProgress
                     if (state.resumeGuest) TextButton({ actions.showJoin(true) },
                         enabled = !state.busy) { Text("Rejoin room") }
                 } else {
-                    if (state.resumeRace) GamePrimaryButton("Resume race",
-                        { actions.hostRace(true) }, !state.busy)
-                    GamePrimaryButton("Start a race", freshRace, !state.busy)
+                    if (state.resumeRace) {
+                        GamePrimaryButton("Resume race", { actions.hostRace(true) }, !state.busy)
+                        OutlinedButton(onClick = freshRace, enabled = !state.busy,
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            border = BorderStroke(1.dp, Forest)) {
+                            Text("Start a race", color = Forest)
+                        }
+                    } else GamePrimaryButton("Start a race", freshRace, !state.busy)
                     OutlinedButton({ actions.showJoin(false) }, enabled = !state.busy,
                         modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                         shape = RoundedCornerShape(12.dp),
