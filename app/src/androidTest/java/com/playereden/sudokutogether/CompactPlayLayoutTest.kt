@@ -155,4 +155,37 @@ class CompactPlayLayoutTest {
         capture("tablet-portrait-expanded")
     }
 
+
+    @Test fun largeTabletLandscapeAt200PercentKeepsBoardAndWideControlsSeparate() {
+        val density = context.resources.displayMetrics.density
+        shell("wm size ${(800 * density).toInt()}x${(1280 * density).toInt()}")
+        launch(true)
+        val initial = fixture(HOST, VERSUS)
+        val state = initial.copy(
+            name = "Clever Maple Fox",
+            snapshot = requireNotNull(initial.snapshot).copy(
+                hostName = "Clever Maple Fox",
+                guestName = "Everlasting Constellation Hummingbird"),
+            status = RoomStatus(guestActive = true, reserved = true), connected = true)
+        scenario!!.onActivity {
+            it.setContent { SudokuTogetherTheme { SudokuApp(state, actions, {}) } }
+        }
+        val board = compose.onNodeWithTag("board_frame").assertIsDisplayed().getUnclippedBoundsInRoot()
+        val presence = compose.onNodeWithTag("versus_presence").assertIsDisplayed().getUnclippedBoundsInRoot()
+        val dock = compose.onNodeWithTag("input_dock").getUnclippedBoundsInRoot()
+        assertTrue("Tablet control rail should expand beyond 352dp", (dock.right - dock.left).value > 352f)
+        assertTrue("Control rail should stay within the tablet cap", (dock.right - dock.left).value <= 481f)
+        assertTrue("Presence must be beside the board", presence.left >= board.right)
+        assertTrue("Keypad must not overlap the board", dock.left >= board.right)
+        assertTrue("Presence must precede the keypad", presence.bottom <= dock.top)
+        for (cell in listOf(0, 40, 80)) compose.onNodeWithTag("cell_$cell").performScrollTo().assertIsDisplayed()
+        for (tool in listOf("Notes", "Erase", "Undo")) compose.onNodeWithText(tool).performScrollTo().assertIsDisplayed()
+        for (number in 1..9) {
+            val key = compose.onNodeWithTag("number_$number").performScrollTo().assertIsDisplayed().getUnclippedBoundsInRoot()
+            assertTrue("Key $number needs sufficient height", (key.bottom - key.top).value >= 47.5f)
+            assertTrue("Key $number needs sufficient width", (key.right - key.left).value >= 47.5f)
+        }
+        capture("tablet-landscape-large-text")
+    }
+
 }
