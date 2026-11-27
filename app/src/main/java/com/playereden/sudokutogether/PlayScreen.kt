@@ -163,7 +163,7 @@ import kotlinx.coroutines.delay
                         modifier = Modifier.heightIn(min = 48.dp)) { Text("Replace partner") }
                 }
             }
-        }, confirmButton = { TextButton({ details = false }) { Text("Done") } })
+        }, confirmButton = { TextButton({ details = false }, modifier = Modifier.heightIn(min = 48.dp)) { Text("Done") } })
     HintAndChat(state, actions, chatOpen) { chatOpen = false; actions.chatVisible(false) }
 }
 
