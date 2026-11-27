@@ -17,14 +17,19 @@ class FinishAndDailyPresentationUiTest {
     private fun completed(id: String, mode: String = SOLO, date: String? = null) =
         GameRecord(id, mode, "SOLVED", "puzzle", 120_000L, 3, 170_000L, "EASY", dailyDate = date)
 
-    private fun finishedState(daily: Boolean = false): GameUiState {
+    private fun finishedState(daily: Boolean = false, newlyEarned: Boolean = true): GameUiState {
         val puzzle = Puzzle("puzzle", List(81) { 0 }, "EASY")
         val record = completed("just-finished", if (daily) DAILY else SOLO, if (daily) "2026-11-17" else null)
         val saved = SoloProgress(record.id, puzzle, List(81) { Cell() }, 100L, elapsedMs = 120_000L, moves = 3, finishedAtMs = 170_000L)
+        val before = LocalPlayerData()
+        val after = Achievements.preserveEarned(Cosmetics.preserveEarned(before.copy(records = listOf(record))))
         return GameUiState(page = Page.PLAY, role = SOLO, todayDate = "2026-11-17",
             dailyDate = if (daily) "2026-11-17" else null,
             snapshot = saved.snapshot(), finishedSolo = saved,
-            profile = LocalPlayerData(records = listOf(record)))
+            profile = after,
+            completionRewardRecordId = record.id.takeIf { newlyEarned },
+            completionRewards = if (newlyEarned) CompletionRewards.forSavedTransition(before, after, record.id)
+                else CompletionHighlights())
     }
 
     @Test fun savedSoloFinishListsEarnedMilestonesAndKeepsNewPuzzle() {
@@ -32,9 +37,16 @@ class FinishAndDailyPresentationUiTest {
         compose.onNodeWithText("Puzzle completed").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("finish_new_rewards").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Achievement · First Grid").assertExists()
-        compose.onNodeWithText("Collection unlock · Rabbit").assertExists()
+        compose.onNodeWithTag("finish_name_words").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("New puzzle").performScrollTo().assertIsDisplayed()
         compose.onNodeWithText("Records").performScrollTo().assertIsDisplayed()
+    }
+
+    @Test fun reopenedFinishDoesNotPresentHistoricalUnlocksAsNew() {
+        compose.setContent { SudokuTogetherTheme { SudokuApp(finishedState(newlyEarned = false), polishActions(), {}) } }
+        compose.onNodeWithText("Puzzle completed").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("finish_new_rewards").assertDoesNotExist()
+        compose.onNodeWithText("New puzzle").performScrollTo().assertIsDisplayed()
     }
 
     @Test fun finishedDailyShowsActualCompletedDaysAndBackHome() {
