@@ -25,6 +25,24 @@ class DailyChallengeTest {
         assertEquals(saved, DailyChallenge.complete(saved, "2026-09-01", completed))
     }
 
+    @Test fun archivedCompletedDateCannotBeReopenedForAnotherCompletion() {
+        val date = "2026-09-01"
+        val record = GameRecord("archived-daily", DAILY, "SOLVED", "puzzle", 1000L, 4, 2000L,
+            difficulty = "EASY", dailyDate = date)
+        val existing = LocalPlayerData(records = listOf(record))
+        var generated = false
+        val error = assertThrows(IllegalArgumentException::class.java) {
+            DailyChallenge.open(existing, date, 3000L) {
+                generated = true
+                fixture()
+            }
+        }
+        assertTrue(error.message.orEmpty().contains("already completed"))
+        assertFalse(generated)
+        assertEquals(listOf(record), existing.records)
+        assertTrue(existing.dailyProgress.isEmpty())
+    }
+
     @Test fun completingANewDayKeepsEveryUnfinishedBoardAndOnly31CompletedReviews() {
         val progress = PersonalPlay.newSolo(fixture().copy(difficulty = "EASY"), 1000L)
         val completed = progress.copy(cells = solution.map { Cell(it) }, finishedAtMs = 5000L)
