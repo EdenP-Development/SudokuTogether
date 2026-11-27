@@ -74,7 +74,8 @@ import kotlinx.coroutines.delay
     BoxWithConstraints(Modifier.fillMaxSize()) {
         val scale = LocalDensity.current.fontScale.coerceIn(1f, 2f)
         // Narrow large-text layouts need room for the two-row toolbar; let the whole page scroll.
-        val shortStack = (maxWidth < 364.dp && scale > 1.3f) || maxHeight < 160.dp || (maxWidth < 520.dp && maxHeight < (380f + (scale - 1f) * 160f).dp)
+        // Compact three-row keypad also needs a scrollable page at normal font scale.
+        val shortStack = maxWidth < 288.dp || (maxWidth < 364.dp && scale > 1.3f) || maxHeight < 160.dp || (maxWidth < 520.dp && maxHeight < (380f + (scale - 1f) * 160f).dp)
         if (shortStack) {
             // A short window must be able to scroll the header and dock too;
             // reserving their height would give the active grid no viewport.
