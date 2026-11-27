@@ -552,87 +552,87 @@ import kotlinx.coroutines.delay
             val tablet = maxWidth >= 560.dp
             val dockWidth = if (tablet) 560.dp else 440.dp
             val keypadHeight = maxOf(if (tablet) 60.dp else 48.dp, ((if (tablet) 48 else 40) * fontScale).dp)
+            val splitTools = minOf(maxWidth, dockWidth) < 340.dp && fontScale > 1.3f
             Column(Modifier.widthIn(max = dockWidth).fillMaxWidth().align(Alignment.TopCenter),
                 verticalArrangement = Arrangement.spacedBy(6.dp)) {
-            val splitTools = maxWidth < 340.dp && LocalDensity.current.fontScale > 1.3f
-            val tools = if (state.role == SOLO) listOf("notes", "erase", "undo", "hint")
-                else listOf("notes", "erase", "undo")
-            val rows = if (splitTools) tools.chunked(2) else listOf(tools)
-            Column(verticalArrangement = Arrangement.spacedBy(6.dp),
-                modifier = Modifier.testTag("solving_toolbar")) {
-                for (rowTools in rows) {
+                val tools = if (state.role == SOLO) listOf("notes", "erase", "undo", "hint")
+                    else listOf("notes", "erase", "undo")
+                val rows = if (splitTools) tools.chunked(2) else listOf(tools)
+                Column(verticalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.testTag("solving_toolbar")) {
+                    for (rowTools in rows) {
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            for (tool in rowTools) when (tool) {
+                                "notes" -> DockTool(if (state.notes) "Notes on" else "Notes", GameSymbol.PENCIL,
+                                    state.canEdit, state.notes, Modifier.weight(1f)) { tick(PuzzleCue.NOTE); actions.toggleNotes() }
+                                "erase" -> DockTool("Erase", GameSymbol.ERASE, state.canEdit && editable && hasEraseTarget,
+                                    modifier = Modifier.weight(1f)) { tick(PuzzleCue.ERASE); actions.erase() }
+                                "undo" -> DockTool("Undo", GameSymbol.UNDO, state.canEdit && snapshot.undoTargets.containsKey(state.role),
+                                    modifier = Modifier.weight(1f)) { tick(PuzzleCue.UNDO); actions.undo() }
+                                "hint" -> DockTool("Hint", GameSymbol.HELP, state.canEdit, modifier = Modifier.weight(1f),
+                                    description = "Request a solo Sudoku hint") { actions.hint() }
+                            }
+                        }
+                    }
+                }
+                // Keep the guidance row present across selection and input-mode changes.
+                // Removing it used to change dock height and therefore the board viewport.
+                val guidance = when {
+                    !editable -> "Choose an empty or editable square"
+                    state.notes && !noteTargetOpen -> "Erase the entry to add pencil marks"
+                    state.notes -> "Tap a number to add or remove a pencil mark"
+                    else -> "Small numbers show how many of each digit are left"
+                }
+                Text(guidance, color = Muted, fontSize = 10.sp, lineHeight = 14.sp,
+                    minLines = 2,
+                    modifier = Modifier.fillMaxWidth()
+                        .testTag(if (state.notes || !editable) "keypad_mode_guidance" else "keypad_remaining_explanation"),
+                    textAlign = TextAlign.Center)
+                for (numbers in listOf((1..5).toList(), (6..9).toList())) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                        for (tool in rowTools) when (tool) {
-                            "notes" -> DockTool(if (state.notes) "Notes on" else "Notes", GameSymbol.PENCIL,
-                                state.canEdit, state.notes, Modifier.weight(1f)) { tick(PuzzleCue.NOTE); actions.toggleNotes() }
-                            "erase" -> DockTool("Erase", GameSymbol.ERASE, state.canEdit && editable && hasEraseTarget,
-                                modifier = Modifier.weight(1f)) { tick(PuzzleCue.ERASE); actions.erase() }
-                            "undo" -> DockTool("Undo", GameSymbol.UNDO, state.canEdit && snapshot.undoTargets.containsKey(state.role),
-                                modifier = Modifier.weight(1f)) { tick(PuzzleCue.UNDO); actions.undo() }
-                            "hint" -> DockTool("Hint", GameSymbol.HELP, state.canEdit, modifier = Modifier.weight(1f),
-                                description = "Request a solo Sudoku hint") { actions.hint() }
-                        }
-                    }
-                }
-            }
-        // Keep the guidance row present across selection and input-mode changes.
-        // Removing it used to change dock height and therefore the board viewport.
-        val guidance = when {
-            !editable -> "Choose an empty or editable square"
-            state.notes && !noteTargetOpen -> "Erase the entry to add pencil marks"
-            state.notes -> "Tap a number to add or remove a pencil mark"
-            else -> "Small numbers show how many of each digit are left"
-        }
-        Text(guidance, color = Muted, fontSize = 10.sp, lineHeight = 14.sp,
-            minLines = 2,
-            modifier = Modifier.fillMaxWidth()
-                .testTag(if (state.notes || !editable) "keypad_mode_guidance" else "keypad_remaining_explanation"),
-            textAlign = TextAlign.Center)
-        for (numbers in listOf((1..5).toList(), (6..9).toList())) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                // Center the four-key second row rather than leaving a dead slot on its right.
-                if (numbers.size == 4) Spacer(Modifier.weight(.5f))
-                for (number in numbers) {
-                    val remaining = (9 - snapshot.cells.count { it.value == number }).coerceAtLeast(0)
+                        // Center the four-key second row rather than leaving a dead slot on its right.
+                        if (numbers.size == 4) Spacer(Modifier.weight(.5f))
+                        for (number in numbers) {
+                            val remaining = (9 - snapshot.cells.count { it.value == number }).coerceAtLeast(0)
                     
-                    // Tell the player what a note tap will do in the selected square.
-                    // Remaining counts describe placed values, not pencil marks.
-                    val notePresent = ((selectedCell?.notes ?: 0) and (1 shl (number - 1))) != 0
-                    val highlighted = if (state.notes) editable && noteTargetOpen && notePresent else number == chosenValue
-                    val spokenAction = if (state.notes) {
-                        if (notePresent) "Remove pencil mark $number" else "Add pencil mark $number"
-                    } else "Number $number, $remaining remaining"
-                    OutlinedButton(onClick = { tick(if (state.notes) PuzzleCue.NOTE else PuzzleCue.NUMBER); actions.number(number) },
-                        enabled = state.canEdit && editable && noteTargetOpen,
-                        modifier = Modifier.weight(1f).height(keypadHeight).testTag("number_$number")
-                            .semantics {
-                                contentDescription = spokenAction
-                                if (state.notes) selected = highlighted
-                            },
-                        shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(0.dp),
-                        border = BorderStroke(if (highlighted) 2.dp else 1.dp, if (highlighted) Forest else Rule),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            containerColor = if (highlighted) TealLight else Paper,
-                            disabledContainerColor = Paper,
-                            disabledContentColor = Forest.copy(alpha = .60f))) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.Center) {
-                            Text(number.toString(), fontSize = if (tablet) 26.sp else 21.sp, lineHeight = if (tablet) 28.sp else 22.sp,
-                                fontWeight = FontWeight.SemiBold)
-                            // A placed-digit count is misleading while editing pencil notes.
-                            if (!state.notes) {
-                                Text(remaining.toString(), modifier = Modifier.testTag("number_remaining_$number"),
-                                    fontSize = if (tablet) 12.sp else 10.sp, lineHeight = if (tablet) 14.sp else 11.sp, color = Muted)
-                            } else Text(if (highlighted) "✓" else " ",
-                                modifier = Modifier.clearAndSetSemantics {},
-                                fontSize = 10.sp, lineHeight = 11.sp, color = Forest,
-                                fontWeight = FontWeight.Bold)
+                            // Tell the player what a note tap will do in the selected square.
+                            // Remaining counts describe placed values, not pencil marks.
+                            val notePresent = ((selectedCell?.notes ?: 0) and (1 shl (number - 1))) != 0
+                            val highlighted = if (state.notes) editable && noteTargetOpen && notePresent else number == chosenValue
+                            val spokenAction = if (state.notes) {
+                                if (notePresent) "Remove pencil mark $number" else "Add pencil mark $number"
+                            } else "Number $number, $remaining remaining"
+                            OutlinedButton(onClick = { tick(if (state.notes) PuzzleCue.NOTE else PuzzleCue.NUMBER); actions.number(number) },
+                                enabled = state.canEdit && editable && noteTargetOpen,
+                                modifier = Modifier.weight(1f).height(keypadHeight).testTag("number_$number")
+                                    .semantics {
+                                        contentDescription = spokenAction
+                                        if (state.notes) selected = highlighted
+                                    },
+                                shape = RoundedCornerShape(12.dp), contentPadding = PaddingValues(0.dp),
+                                border = BorderStroke(if (highlighted) 2.dp else 1.dp, if (highlighted) Forest else Rule),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = if (highlighted) TealLight else Paper,
+                                    disabledContainerColor = Paper,
+                                    disabledContentColor = Forest.copy(alpha = .60f))) {
+                                Column(horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center) {
+                                    Text(number.toString(), fontSize = if (tablet) 26.sp else 21.sp, lineHeight = if (tablet) 28.sp else 22.sp,
+                                        fontWeight = FontWeight.SemiBold)
+                                    // A placed-digit count is misleading while editing pencil notes.
+                                    if (!state.notes) {
+                                        Text(remaining.toString(), modifier = Modifier.testTag("number_remaining_$number"),
+                                            fontSize = if (tablet) 12.sp else 10.sp, lineHeight = if (tablet) 14.sp else 11.sp, color = Muted)
+                                    } else Text(if (highlighted) "✓" else " ",
+                                        modifier = Modifier.clearAndSetSemantics {},
+                                        fontSize = 10.sp, lineHeight = 11.sp, color = Forest,
+                                        fontWeight = FontWeight.Bold)
+                                }
+                            }
                         }
+                        if (numbers.size == 4) Spacer(Modifier.weight(.5f))
                     }
                 }
-                if (numbers.size == 4) Spacer(Modifier.weight(.5f))
-            }
-        }
             }
         }
     }
