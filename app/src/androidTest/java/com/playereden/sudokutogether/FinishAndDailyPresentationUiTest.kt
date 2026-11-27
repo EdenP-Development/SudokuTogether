@@ -89,7 +89,7 @@ class FinishAndDailyPresentationUiTest {
             }
         }
         compose.onNodeWithTag("daily_seven_day_summary", useUnmergedTree = true)
-            .assertTextContains("1 of the last 7 days completed", substring = true)
+            .assertTextEquals("1 / 7")
         compose.onNodeWithTag("daily_seven_day_history", useUnmergedTree = true).assertExists()
     }
 
@@ -103,7 +103,7 @@ class FinishAndDailyPresentationUiTest {
             }
         }
         compose.onNodeWithTag("daily_seven_day_summary", useUnmergedTree = true)
-            .assertTextContains("0 of the last 7 days completed", substring = true)
+            .assertTextEquals("0 / 7")
         compose.onNodeWithTag("daily_seven_day_history", useUnmergedTree = true).assertDoesNotExist()
     }
 }
