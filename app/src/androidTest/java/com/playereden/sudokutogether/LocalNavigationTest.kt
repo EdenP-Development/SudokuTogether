@@ -59,6 +59,29 @@ class LocalNavigationTest {
         launch(); instrumentation.runOnMainSync { model.solo(false); model.home() }; queue.first()
         assertNull(saved().activeSolo); assertEquals(Page.HOME, model.state.value.page)
     }
+    @Test fun equippedStarterStyleSurvivesNavigationAndFreshViewModel() {
+        val app = FixtureApplication(instrumentation.targetContext, root)
+        instrumentation.runOnMainSync { model = GameViewModel(app, queue) }
+        queue.first()
+        instrumentation.runOnMainSync {
+            model.chooseCosmetic("ink", "lagoon")
+            model.chooseCosmetic("portrait", "woodland_owl")
+            model.chooseCosmetic("portrait", "woodland_fox")
+            model.chooseCosmetic("board", "woodland_owl") // Wrong category.
+            model.showProfile()
+            model.home()
+        }
+        val expected = Appearance(ink = "lagoon", portrait = "woodland_fox")
+        assertEquals(expected, model.state.value.appearance)
+        while (queue.tasks.isNotEmpty()) queue.first()
+        instrumentation.runOnMainSync { model = GameViewModel(app, queue) }
+        queue.first()
+        assertEquals(expected, model.state.value.appearance)
+        instrumentation.runOnMainSync { model.chooseCosmetic("emblem", "tile") }
+        assertEquals(expected.copy(portrait = ""), model.state.value.appearance)
+        assertEquals("", app.getSharedPreferences("settings", 0).getString("cosmeticPortrait", null))
+    }
+
     @Test fun unreadableProgressDoesNotPersistNameNormalization() {
         val file = File(root, "local-player.json").also { it.writeText("unreadable profile") }
         val app = FixtureApplication(instrumentation.targetContext, root)
