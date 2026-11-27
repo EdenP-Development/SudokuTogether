@@ -349,7 +349,11 @@ import kotlinx.coroutines.delay
         }.single().measure(textConstraints)
         val gap = 8.dp.roundToPx()
         val frame = gap * 2
-        val maxGrid = (constraints.maxWidth - frame).coerceAtLeast(1).coerceAtMost(440.dp.roundToPx())
+        // Expand only when the board pane itself has tablet-sized space.
+        // A wide window with a narrow landscape rail must still respect its
+        // actual pane width and measured vertical budget.
+        val gridCap = if (constraints.maxWidth >= 580.dp.roundToPx()) 600.dp else 440.dp
+        val maxGrid = (constraints.maxWidth - frame).coerceAtLeast(1).coerceAtMost(gridCap.roundToPx())
         val minGrid = minOf(144.dp.roundToPx(), maxGrid)
         val gridTop = meta.height + if (meta.height > 0) gap else 0
         val gridPixels = (viewportHeight.roundToPx() - gridTop - label.height - frame - gap).coerceIn(minGrid, maxGrid)
