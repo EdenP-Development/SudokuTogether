@@ -109,4 +109,48 @@ class NearbyRoomModelTest {
         val (restored, _) = model()
         assertEquals("Clever Maple Fox", restored.state.value.name)
     }
+
+    @Test fun freshInstallationGetsAnApprovedNameWithoutMigrationNotice() {
+        val (first, _) = model()
+        assertNotNull(NameCollection.parseCanonical(first.state.value.name))
+        assertFalse(first.state.value.nameMigrationNotice)
+        val (reopened, _) = model()
+        assertEquals(first.state.value.name, reopened.state.value.name)
+        assertFalse(reopened.state.value.nameMigrationNotice)
+    }
+
+    @Test fun legacyNameNoticePersistsUntilDismissedWithoutChangingProgress() {
+        val store = LocalPlayerStore(File(root, "local-player.json"))
+        val saved = store.update { it.copy(records = listOf(GameRecord("one", SOLO, "SOLVED", "p", 1000, 1, 1000))) }
+        app.getSharedPreferences("settings", 0).edit().putString("name", "Old nickname").commit()
+        val (first, _) = model()
+        assertTrue(first.state.value.nameMigrationNotice)
+        assertNotNull(NameCollection.parseCanonical(first.state.value.name))
+        assertEquals(saved, first.state.value.profile)
+        main { first.home(); first.showProfile() }
+        assertTrue(first.state.value.nameMigrationNotice)
+        val (reopened, _) = model()
+        assertTrue(reopened.state.value.nameMigrationNotice)
+        assertEquals(first.state.value.name, reopened.state.value.name)
+        main { reopened.dismissNameMigrationNotice() }
+        assertFalse(reopened.state.value.nameMigrationNotice)
+        val (dismissed, _) = model()
+        assertFalse(dismissed.state.value.nameMigrationNotice)
+        assertEquals(first.state.value.name, dismissed.state.value.name)
+        assertEquals(saved, dismissed.state.value.profile)
+    }
+
+    @Test fun rejectedNameDoesNotDismissNoticeButConfirmedApprovedNameDoes() {
+        app.getSharedPreferences("settings", 0).edit().putString("name", "Legacy player").commit()
+        val (first, _) = model()
+        assertTrue(first.state.value.nameMigrationNotice)
+        main { first.setName("Arbitrary nickname"); first.setName("First Acorn Solver") }
+        assertTrue(first.state.value.nameMigrationNotice)
+        main { first.setName("Clever Maple Fox") }
+        assertFalse(first.state.value.nameMigrationNotice)
+        val (reopened, _) = model()
+        assertFalse(reopened.state.value.nameMigrationNotice)
+        assertEquals("Clever Maple Fox", reopened.state.value.name)
+    }
+
 }
