@@ -139,7 +139,8 @@ class GameViewModel @JvmOverloads constructor(
         val hosted = hostStore.load(); val raced = raceStore.load(); val joined = guestStore.load()
         guestResume = when (joined) { is LoadResult.Loaded -> joined.data; is LoadResult.Recovered -> joined.data; else -> null }
         val restoreBlocked = _progressBackup.value.recoveryRequired
-        val approvedName = if (restoreBlocked) NameCollection.normalizedProfileName(preferences.getString("name", "Player") ?: "Player", profile) else normalizeStoredName(profile)
+        // A read-only placeholder cannot establish which name words the player earned.
+        val approvedName = if (restoreBlocked || !localPlayer.canSave) NameCollection.normalizedProfileName(preferences.getString("name", "Player") ?: "Player", profile) else normalizeStoredName(profile)
         _state.update { it.withStoredPlayerSettings().copy(name = approvedName, busy = restoreBlocked, profile = profile, resumeSolo = profile.activeSolo != null,
             appearance = savedAppearance(), localSaveBlocked = restoreBlocked || !localPlayer.canSave,
             resumeHost = hosted is LoadResult.Loaded || hosted is LoadResult.Recovered,
