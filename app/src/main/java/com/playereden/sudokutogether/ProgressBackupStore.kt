@@ -43,9 +43,13 @@ internal class ProgressBackupStore(
             val snapshot = RecoverySnapshot(JOURNAL_SCHEMA, previous.playerId, BackupProgress(previous), preferencesSnapshot())
             val next = Achievements.preserveEarned(
                 Cosmetics.preserveEarned(preview.progress.forInstallation(previous.playerId)))
+            val importedName = preview.settings.name
+            val normalizedName = NameCollection.normalizedProfileName(importedName, next)
             val newSettings = preview.settings.copy(
                 appearance = Cosmetics.accessible(preview.settings.appearance, next.records, next.ownedCosmeticIds)
-            ).preferenceValues()
+            ).preferenceValues() + if (normalizedName != importedName) {
+                mapOf("nameMigrationNotice" to JsonPrimitive(true))
+            } else emptyMap()
             prepareJournal(snapshot)
             try {
                 player.replaceForRestore(next, rollback = false)
@@ -234,7 +238,8 @@ internal class ProgressBackupStore(
     private companion object {
         const val JOURNAL_SCHEMA = 1
         const val JOURNAL_MAX_BYTES = LOCAL_PROFILE_MAX_BYTES.toInt() + 1024 * 1024
-        val defaultPreferences = BackupSettings(requireRoomCode = true).preferenceValues()
+        val defaultPreferences = BackupSettings(requireRoomCode = true).preferenceValues() +
+            ("nameMigrationNotice" to JsonPrimitive(false))
 
         fun BackupSettings.preferenceValues() = mapOf(
             "name" to JsonPrimitive(name),

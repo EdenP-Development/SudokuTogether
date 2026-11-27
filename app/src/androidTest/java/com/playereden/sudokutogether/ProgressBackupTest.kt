@@ -375,7 +375,7 @@ class ProgressBackupTest {
 
     @Test fun longCanonicalNameSurvivesExportRestoreAndRestartWithEarnedWords() {
         val name = "Everlasting Constellation Hummingbird"
-        val earned = listOf("daily-60", "hard-15", "quick-thinker")
+        val earned = listOf("daily-60", "hard-50", "quick-thinker")
         val sourceFile = File(root, "name-source.json")
         val source = LocalPlayerStore(sourceFile)
         val incoming = source.update { fixture(it.playerId).copy(earnedAchievementIds = earned) }
@@ -404,4 +404,37 @@ class ProgressBackupTest {
                 ProgressBackup.decode(invalid.toString().byteInputStream())
             }.reason)
     }
+
+    @Test fun restoreReevaluatesLocalMigrationNoticeWithoutExportingIt() {
+        val player = LocalPlayerStore(profileFile)
+        val id = player.current().playerId
+        val store = ProgressBackupStore(profileFile, preferences)
+        store.restore(player, incomingPreview())
+        assertTrue(preferences.getBoolean("nameMigrationNotice", false))
+        assertEquals(id, player.current().playerId)
+        assertFalse(store.export(player, "1.0.0-beta.3").decodeToString().contains("nameMigrationNotice"))
+
+        val name = "Everlasting Constellation Hummingbird"
+        val source = LocalPlayerData(playerId = "source", earnedAchievementIds =
+            listOf("daily-60", "hard-50", "quick-thinker"), ownedCosmeticIds = listOf("rose"))
+        val canonical = ProgressBackup.decode(ProgressBackup.encode(source,
+            BackupSettings(name = name), "1.0.0-beta.3", 1000L).inputStream())
+        val restored = store.restore(player, canonical)
+        assertFalse(preferences.getBoolean("nameMigrationNotice", false))
+        assertEquals(name, preferences.getString("name", null))
+        assertEquals(id, restored.playerId)
+        assertEquals(source.earnedAchievementIds.toSet(), restored.earnedAchievementIds.toSet())
+        assertTrue("rose" in restored.ownedCosmeticIds)
+        assertTrue(NameCollection.canEquip(requireNotNull(NameCollection.parseCanonical(name)), NameCollection.earnedIds(restored)))
+
+        check(preferences.edit().putBoolean("nameMigrationNotice", false).commit())
+        val before = preferences.all
+        val failing = onFirstPreferenceCommit { false }
+        assertThrows(ProgressBackupException::class.java) {
+            ProgressBackupStore(profileFile, failing).restore(player, incomingPreview())
+        }
+        assertEquals(before, preferences.all)
+        assertEquals(restored, player.current())
+    }
+
 }
