@@ -116,13 +116,13 @@ class PlaySmokeTest {
         if (compose.onAllNodesWithText("Start new").fetchSemanticsNodes().isNotEmpty()) {
             compose.onNodeWithText("Start new").performClick()
         }
-        compose.waitUntil(20000) { compose.onAllNodesWithText("Hint").fetchSemanticsNodes().isNotEmpty() }
+        compose.waitUntil(20000) { compose.onAllNodesWithContentDescription("Request a solo Sudoku hint").fetchSemanticsNodes().isNotEmpty() }
         lateinit var model: GameViewModel
         compose.runOnUiThread { model = ViewModelProvider(compose.activity)[GameViewModel::class.java] }
         val before = model.state.value.snapshot!!.cells.map { it.copy() }
         val hintsBefore = model.state.value.profile.activeSolo!!.hintsUsed
         fun openCoach() {
-            compose.onNodeWithText("Hint").performClick()
+            compose.onNodeWithContentDescription("Request a solo Sudoku hint").performClick()
             compose.waitUntil(20000) { compose.onAllNodesWithText("Your next deduction").fetchSemanticsNodes().isNotEmpty() }
         }
         openCoach()
