@@ -1,5 +1,8 @@
 # GridMates: Sudoku — Beta 3: Polish and depth
 
+## Latest stabilization checkpoint — 2026-11-27
+Active branch `feat/beta3-foundation`. Latest verified code `8e2dcee`: Android quality gate 45962075841 and unsigned candidate 45962075789 passed. STAB-04 accessibility, STAB-05 save integrity and STAB-06 rewards source work documented in their respective handoffs. Actual save instrumentation passed 45957495632 on earlier source; integrated reward/save runtime 45962562834 at 8242358 is running (setup passed, instrumentation in progress). Do not claim current runtime acceptance. The delivered STAB-05/06 checkpoints cover both original roadmap topics (progression and save preservation), with numbering reversed in the detailed handoffs; retain the delivered IDs. Next STAB-07 repository synchronization, STAB-08 feature freeze, STAB-09 consolidated owner QA, STAB-10 storefront readiness. Preserve release identity and signing, no new major features or public distribution. See CONTINUE_HERE.md and docs/STAB-06-REWARD-INTEGRITY-HANDOFF.md for recovery.
+
 ## Current authoritative checkpoint — Beta 3 stabilization (2026-11-26)
 
 Supersedes all earlier checkpoint status statements below; retain older entries as development history. Latest verified runtime [1088451](https://github.com/EdenP-Development/SudokuTogether/commit/1088451bdb4995697c9d20c2781acb3f44900500): [Android quality gate 45894433045](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45894433045) and [unsigned candidate 45894433028](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45894433028) completed successfully. Instrumentation compiled, not executed. No public Beta 3 distribution.
