@@ -1,3 +1,9 @@
+
+## STAB-08.08 — automated stabilization acceptance
+- Reward matrix 45972419647 successful after retry: all five jobs passed, 73 tests across storage (43), completion (12), names (3), collection (13), backup UI (2). Accessibility 46054499738 successful, 36 tests, sender scroll correction verified. Ordinary quality 46054499731 and unsigned 46054499790 successful. Separate source revisions; no claim of physical acceptance.
+- Consolidated verification 46055088268 at 0f31071 passed: package com.playereden.sudokutogether.qa.beta3integrated1, code 31, version 1.0.0-beta.2-qa.beta3integrated1, signature and branding checks, six soundtrack checks; verification-only artifact 15226062530 expires 2026-12-11. APK built in CI but not retained for distribution. No production identity/signing changes.
+- Next: STAB-09 preparation, verify exact emote inventory and distribution access/rights, prepare owner-only artifact and physical QA; signed install-over gate separate. See docs/STAB-09-CONSOLIDATED-OWNER-QA.md and docs/STAB-07-RELEASE-EVIDENCE.md. No public release authorized.
+
 # Continue GridMates: Sudoku
 
 ## Latest feature freeze checkpoint — 2026-11-27
