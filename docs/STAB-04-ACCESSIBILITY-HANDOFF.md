@@ -40,3 +40,10 @@ Preserve gameplay, artwork, progression, networking, save formats and signing. O
 - `367be0c` unsigned candidate passed (45950127346); `296c32c` quality gate and unsigned candidate were still running when inspected.
 - `e22fcbf`, `96fcfb1`: migrate Hint selectors in CompactPlayLayoutTest and PlaySmokeTest to the descriptive content description. Targeted review of ten gameplay/Coach test files found these two files using old Hint selectors. Full suite search not completed; directory retrieval retry failed.
 - Latest changes are committed, not yet build/runtime verified. Next: complete selector review, inspect board cell duplicate announcements and navigation focus, verify instrumentation execution and physical QA before closing accessibility. No production code changes in this checkpoint.
+
+## STAB-04.12 — board and navigation semantics
+- `296c32c` unsigned candidate passed (45950138255); quality gate cancelled by newer work. `96fcfb1` workflows 45950479083 and 45950479102 in progress when inspected.
+- `3d81b60`: suppress redundant digit and pencil glyph text semantics while retaining cell descriptions, actions, state descriptions, and pencil test tags.
+- `77bc1d1`: extend Beta3BoardClarityTest with value, clue and pencil descriptions, absence of redundant Text, selection and click assertions, and retained pencil tags.
+- Navigation source review confirms selectableGroup, Tab role, selected state, single label, 69dp minimum height, journal heading and 48dp back button. Actual focus order and narrow widths remain unverified.
+- New commits require compile and instrumentation verification. Full selector audit and physical TalkBack/tablet testing remain open. No visual, rules, save, network or signing changes. Next: verify builds, audit remaining selectors and run instrumentation where available; then source-level accessibility closeout with explicit deferred device QA.
