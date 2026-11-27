@@ -171,13 +171,15 @@ class PlaySmokeTest {
         compose.onNodeWithText("Done").performClick()
         compose.onNodeWithTag("input_dock").assertIsDisplayed()
         compose.onNodeWithText("Chat").performClick()
-        compose.onNodeWithText("Room chat").assertExists()
-        compose.onNodeWithText("Message your partner").assertExists()
-        compose.onNodeWithText("Send").assertExists()
+        compose.onNodeWithTag("quick_chat_yes").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("chat_input").assertDoesNotExist()
+        compose.onNodeWithText("Send").assertDoesNotExist()
+        compose.onNodeWithTag("quick_chat_emotes").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithTag("emote_ready").performScrollTo().assertIsDisplayed()
         compose.waitForIdle()
         compose.onAllNodes(SemanticsMatcher.keyIsDefined(SemanticsActions.Dismiss), useUnmergedTree = true)
             .onFirst().performSemanticsAction(SemanticsActions.Dismiss) { it() }
-        compose.waitUntil(20000) { compose.onAllNodesWithText("Room chat").fetchSemanticsNodes().isEmpty() }
+        compose.waitUntil(20000) { compose.onAllNodesWithTag("quick_chat_emotes").fetchSemanticsNodes().isEmpty() }
         compose.waitForIdle()
     }
 
