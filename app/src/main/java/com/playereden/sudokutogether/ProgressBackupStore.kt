@@ -97,7 +97,8 @@ internal class ProgressBackupStore(
     }
 
     private fun checkReady(player: LocalPlayerStore) {
-        if (pending.exists()) throw ProgressBackupException(ProgressBackupException.Reason.RECOVERY_REQUIRED)
+        // Do not supersede unresolved commit evidence with another transaction.
+        if (pending.exists() || committed.exists()) throw ProgressBackupException(ProgressBackupException.Reason.RECOVERY_REQUIRED)
         if (!player.canSave) throw ProgressBackupException(ProgressBackupException.Reason.STORAGE)
     }
 
