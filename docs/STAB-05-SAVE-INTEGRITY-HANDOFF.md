@@ -29,3 +29,10 @@ Audit encoded write-size limits versus read limits; restore journal lifecycle an
 - `637bcf3`: when local progress is unreadable or otherwise blocked, do not persist startup name normalization based on an incomplete/read-only profile; preserve stored name and migration notice for future healthy recovery. Display still uses safe normalized name.
 - `10f522c`: startup regression checks corrupted profile and existing name preferences remain unchanged. CI and runtime verification pending. Explicit settings changes, async preference durability and wider progression persistence still warrant review.
 - Next: STAB-05.05 completion idempotence, including duplicate LAN completion events and record retention boundaries. Keep restore cleanup, instrumentation and physical accessibility QA open. No schema/signing/gameplay changes.
+
+## STAB-05.05 — completion duplication prevention
+- `10f522c` unsigned candidate passed (45952734650); quality gate 45952734664 running at inspection. Restore-marker candidate 812be3f passed (45952485511).
+- Reviewed PersonalPlay, CompletionRewards and GameViewModel.recordMultiplayer. Completed Solo edits are rejected, Solo record insertion checks ID, LAN completion checks session:epoch:role both before and inside synchronized update, reward announcements compare durable before/after state. Deduplication based on retained records has a boundary at MAX_RECORDS=10000; older evicted LAN IDs are not covered by this guard.
+- `fbad349`: PersonalPlay.stats counts distinct record IDs consistently with soloSummary, retaining first occurrence without changing saved history. Prevents duplicate legacy records from inflating counts and total solo time.
+- `3d51276`: JVM regression tests duplicate Solo, Co-op, Versus win/loss/draw IDs and confirm original record list stays intact. CI pending.
+- Next STAB-05.06: inspect record retention, achievement/cosmetic thresholds and old LAN session replay after eviction; avoid destructive deduplication or schema changes without justification. Instrumentation/device and restore cleanup gates remain open.
