@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.liveRegion
@@ -90,11 +91,21 @@ import com.playereden.sudokutogether.core.Snapshot
 }
 
 @Composable private fun VersusLanes(presence: VersusPresenceState) {
-    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        VersusLane("You", presence.self, presence.target, Forest, GreenTint, false,
-            Modifier.weight(1f).testTag("versus_you"))
-        VersusLane("Rival", presence.rival, presence.target, Gold, GoldTint,
-            presence.phase == VersusPhase.LIVE, Modifier.weight(1f).testTag("versus_rival"))
+    val stacked = LocalDensity.current.fontScale > 1.3f
+    if (stacked) {
+        Column(Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            VersusLane("You", presence.self, presence.target, Forest, GreenTint, false,
+                Modifier.fillMaxWidth().testTag("versus_you"), fullName = true)
+            VersusLane("Rival", presence.rival, presence.target, Gold, GoldTint,
+                presence.phase == VersusPhase.LIVE, Modifier.fillMaxWidth().testTag("versus_rival"), fullName = true)
+        }
+    } else {
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            VersusLane("You", presence.self, presence.target, Forest, GreenTint, false,
+                Modifier.weight(1f).testTag("versus_you"))
+            VersusLane("Rival", presence.rival, presence.target, Gold, GoldTint,
+                presence.phase == VersusPhase.LIVE, Modifier.weight(1f).testTag("versus_rival"))
+        }
     }
 }
 
@@ -105,7 +116,8 @@ import com.playereden.sudokutogether.core.Snapshot
     accent: Color,
     tint: Color,
     animate: Boolean,
-    modifier: Modifier
+    modifier: Modifier,
+    fullName: Boolean = false
 ) {
     Surface(
         modifier.semantics(mergeDescendants = true) {},
@@ -128,7 +140,7 @@ import com.playereden.sudokutogether.core.Snapshot
             }
             Text(player?.name ?: "Open seat", modifier = Modifier.fillMaxWidth(),
                 color = Ink, fontSize = 13.sp, lineHeight = 16.sp,
-                fontWeight = FontWeight.SemiBold, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                fontWeight = FontWeight.SemiBold, maxLines = if (fullName) Int.MAX_VALUE else 2, overflow = TextOverflow.Ellipsis)
             Text(
                 if (player == null) "Join over Wi-Fi" else "${player.filled} of $target filled",
                 color = Ink, fontSize = 11.sp, lineHeight = 14.sp
