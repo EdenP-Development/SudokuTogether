@@ -35,6 +35,35 @@ class LocalPlayerStoreTest {
         return LocalPlayerData(playerId = "existing-player", activeSolo = solo)
     }
 
+    @Test fun oversizedUpdateCannotModifyEitherCommittedCopy() {
+        val original = saved()
+        val bytes = json.encodeToString(original).toByteArray(Charsets.UTF_8)
+        val file = target().also { it.writeBytes(bytes) }
+        val recovery = File(file.path + ".recovery").also { it.writeBytes(bytes) }
+        val store = LocalPlayerStore(file, bytes.size.toLong() + 1024)
+        val before = store.current()
+        val oversized = before.activeSolo!!.copy(id = "x".repeat(4096))
+        assertThrows(IOException::class.java) { store.update { it.copy(activeSolo = oversized) } }
+        assertEquals(before, store.current())
+        assertArrayEquals(bytes, file.readBytes())
+        assertArrayEquals(bytes, recovery.readBytes())
+        assertEquals(before, LocalPlayerStore(file, bytes.size.toLong() + 1024).current())
+    }
+
+    @Test fun oversizedRestoreCannotModifyEitherCommittedCopy() {
+        val original = saved()
+        val bytes = json.encodeToString(original).toByteArray(Charsets.UTF_8)
+        val file = target().also { it.writeBytes(bytes) }
+        val recovery = File(file.path + ".recovery").also { it.writeBytes(bytes) }
+        val store = LocalPlayerStore(file, bytes.size.toLong() + 1024)
+        val before = store.current()
+        val oversized = before.copy(activeSolo = before.activeSolo!!.copy(id = "x".repeat(4096)))
+        assertThrows(IOException::class.java) { store.replaceForRestore(oversized, rollback = false) }
+        assertEquals(before, store.current())
+        assertArrayEquals(bytes, file.readBytes())
+        assertArrayEquals(bytes, recovery.readBytes())
+    }
+
     @Test fun malformedUtf8CannotSilentlyChangePlayerIdentity() {
         val serialized = json.encodeToString(saved())
         val encoded = serialized.toByteArray(Charsets.UTF_8)
