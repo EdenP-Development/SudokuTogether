@@ -59,7 +59,7 @@ class ProgressBackupSettingsUiTest {
             compose.onNodeWithText("Progress restored.").performScrollTo().assertIsDisplayed()
             compose.onNodeWithTag("notice_success").assertIsDisplayed()
             assertEquals(before.profile, model.state.value.profile)
-            assertEquals("Transferred player", model.state.value.name)
+            assertEquals(com.playereden.sudokutogether.core.NameCollection.normalizedProfileName("Transferred player", before.profile), model.state.value.name)
             assertEquals("HARD", model.state.value.selectedDifficulty)
         } finally {
             if (saved.length() > 0L && !model.state.value.busy) {
