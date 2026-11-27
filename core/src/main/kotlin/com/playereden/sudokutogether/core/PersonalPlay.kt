@@ -192,15 +192,17 @@ object PersonalPlay {
     }
 
     fun stats(data: LocalPlayerData): PersonalStats {
-        val solo = data.records.filter { it.mode == SOLO && it.result == "SOLVED" }
+        // Match the record summary and reward calculations: one result per saved ID.
+        val records = data.records.distinctBy { it.id }
+        val solo = records.filter { it.mode == SOLO && it.result == "SOLVED" }
         return PersonalStats(
             soloWins = solo.size,
             soloBestMs = solo.minOfOrNull { it.elapsedMs },
             soloTotalMs = solo.sumOf { it.elapsedMs },
-            versusWins = data.records.count { it.mode == "versus" && it.result == "WIN" },
-            versusLosses = data.records.count { it.mode == "versus" && it.result == "LOSS" },
-            versusDraws = data.records.count { it.mode == "versus" && it.result == "DRAW" },
-            coopCompletions = data.records.count { it.mode == "coop" && it.result == "SOLVED" }
+            versusWins = records.count { it.mode == "versus" && it.result == "WIN" },
+            versusLosses = records.count { it.mode == "versus" && it.result == "LOSS" },
+            versusDraws = records.count { it.mode == "versus" && it.result == "DRAW" },
+            coopCompletions = records.count { it.mode == "coop" && it.result == "SOLVED" }
         )
     }
 }
