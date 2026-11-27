@@ -22,3 +22,10 @@ Audit encoded write-size limits versus read limits; restore journal lifecycle an
 - `57c8fa9`: reject new portable export/restore operations while either pending or committed restore marker exists. Existing startup recovery handles the committed marker without rolling back a successful restore. This prevents subsequent backup operations superseding unresolved commit evidence.
 - `812be3f`: add instrumentation fixture simulating retained committed marker, checking export/restore rejection, unchanged primary bytes/settings, startup cleanup without rollback, and successful export afterward.
 - Scope deliberately limited to readiness guard; marker deletion durability, normal gameplay writes, and physical interruption/storage exhaustion tests remain to audit. Latest commits pending CI/runtime verification. Next: inspect profile persistence and completion idempotence, with restore cleanup durability tracked as open. No changes to schema, backup format or signing.
+
+## STAB-05.04 — profile persistence
+- `9e7f7a7` unsigned candidate passed (45952097399); quality gate cancelled by newer work. `812be3f` workflows 45952485521 and 45952485511 were running at inspection.
+- Reviewed GameViewModel startup, name normalization, cosmetic selection and profile navigation. Existing normal store updates preserve identity and union earned reward ledgers; legacy migration and portable restore tests already exist.
+- `637bcf3`: when local progress is unreadable or otherwise blocked, do not persist startup name normalization based on an incomplete/read-only profile; preserve stored name and migration notice for future healthy recovery. Display still uses safe normalized name.
+- `10f522c`: startup regression checks corrupted profile and existing name preferences remain unchanged. CI and runtime verification pending. Explicit settings changes, async preference durability and wider progression persistence still warrant review.
+- Next: STAB-05.05 completion idempotence, including duplicate LAN completion events and record retention boundaries. Keep restore cleanup, instrumentation and physical accessibility QA open. No schema/signing/gameplay changes.
