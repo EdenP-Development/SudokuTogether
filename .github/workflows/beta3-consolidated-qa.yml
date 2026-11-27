@@ -96,6 +96,14 @@ jobs:
                   assert entry.compress_type == zipfile.ZIP_STORED
                   assert hashlib.sha256(z.read(entry)).digest() == hashlib.sha256(p.read_bytes()).digest()
               assert len([n for n in z.namelist() if n.startswith('assets/soundtrack/') and n.endswith('.m4a')]) == 6
+              ids = 'happy approve disapprove appreciation thinking celebration oops greeting confused applause break ready'.split()
+              expected = {'gm_emote_fox_' + i + '.webp' for i in ids}
+              entries = [n for n in z.namelist() if pathlib.PurePosixPath(n).name.startswith('gm_emote_fox_')]
+              assert len(entries) == 12 and {pathlib.PurePosixPath(n).name for n in entries} == expected, entries
+              for n in entries:
+                  source = pathlib.Path('app/build/generated/foxEmotes/res/drawable-nodpi') / pathlib.PurePosixPath(n).name
+                  assert hashlib.sha256(z.read(n)).digest() == hashlib.sha256(source.read_bytes()).digest(), n
+              print('All 12 Fox V1 packaged WebP fingerprints matched')
           PY
           sha256sum "$APK" > beta3-review/SHA256SUMS.txt
           git rev-parse HEAD > beta3-review/source-commit.txt
