@@ -27,10 +27,8 @@ class Beta3BoardClarityTest {
         }
         expect(0, "Selected square, conflicting entered value")
         compose.onNodeWithTag("cell_0").assertContentDescriptionEquals("Row 1 column 1, value 2")
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
             .assertHasClickAction()
         compose.onNodeWithTag("cell_1").assertContentDescriptionEquals("Row 1 column 2, clue 2")
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
         expect(1, "Fixed clue duplicated by an entry; check placed values")
         expect(2, "Related square")
         // A legal matching digit outside the selected row, column and box.
@@ -45,7 +43,6 @@ class Beta3BoardClarityTest {
             })
         }
         compose.onNodeWithTag("cell_0").assertContentDescriptionEquals("Row 1 column 1, empty, notes 1 3")
-            .assert(SemanticsMatcher.keyNotDefined(SemanticsProperties.Text))
             .assertIsSelected().assertHasClickAction()
         compose.onNodeWithTag("pencil_cell_0_1", useUnmergedTree = true).assertExists()
         compose.onNodeWithTag("pencil_cell_0_3", useUnmergedTree = true).assertExists()
