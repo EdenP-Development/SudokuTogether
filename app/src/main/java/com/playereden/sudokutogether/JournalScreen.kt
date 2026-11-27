@@ -263,7 +263,11 @@ internal enum class ProfileSection(val title: String) {
         }
         GamePrimaryButton("View achievements", { openSection(ProfileSection.ACHIEVEMENTS) })
     }
-    ProfileLink("Name Collection", "Collect words and build your name", GameSymbol.PENCIL) { openSection(ProfileSection.NAMES) }
+    val collectedNameWords = NameCollection.words.count { word ->
+        word.achievementId == null || milestones.any { it.id == word.achievementId && it.unlocked }
+    }
+    ProfileLink("Name Collection", "$collectedNameWords of ${NameCollection.words.size} words collected · Build your name",
+        GameSymbol.PENCIL) { openSection(ProfileSection.NAMES) }
     ProfileLink("Statistics", "Best times and puzzle totals", GameSymbol.CLOCK) { openSection(ProfileSection.STATISTICS) }
     ProfileLink("Game history", "Daily puzzles and recent finishes", GameSymbol.CALENDAR) { openSection(ProfileSection.HISTORY) }
 
