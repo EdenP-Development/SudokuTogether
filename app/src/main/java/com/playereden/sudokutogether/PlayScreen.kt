@@ -447,16 +447,17 @@ import kotlinx.coroutines.delay
 }
 
 @Composable private fun DockTool(label: String, symbol: GameSymbol, enabled: Boolean, chosen: Boolean = false,
-    modifier: Modifier, description: String? = null, click: () -> Unit) {
+    modifier: Modifier, description: String? = null, selectionControl: Boolean = false, click: () -> Unit) {
     OutlinedButton(click, enabled = enabled, modifier = modifier.heightIn(min = 52.dp)
         .then(if (description != null) Modifier.semantics { contentDescription = description } else Modifier)
-        .semantics { selected = chosen }, shape = RoundedCornerShape(12.dp),
+        .then(if (selectionControl) Modifier.semantics { selected = chosen } else Modifier), shape = RoundedCornerShape(12.dp),
         border = BorderStroke(if (chosen) 2.dp else 1.dp, if (chosen) Forest else Rule),
         colors = ButtonDefaults.outlinedButtonColors(containerColor = if (chosen) GreenTint else Paper),
         contentPadding = PaddingValues(horizontal = 3.dp, vertical = 7.dp)) {
         Column(horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.spacedBy(3.dp)) {
             GameIcon(symbol, if (enabled) Forest else Muted.copy(alpha = .45f), Modifier.size(17.dp))
-            Text(label, fontSize = 11.sp, lineHeight = 14.sp, textAlign = TextAlign.Center)
+            Text(label, modifier = if (description != null) Modifier.clearAndSetSemantics {} else Modifier,
+                fontSize = 11.sp, lineHeight = 14.sp, textAlign = TextAlign.Center)
         }
     }
 }
@@ -573,7 +574,7 @@ import kotlinx.coroutines.delay
                         Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                             for (tool in rowTools) when (tool) {
                                 "notes" -> DockTool(if (state.notes) "Notes on" else "Notes", GameSymbol.PENCIL,
-                                    state.canEdit, state.notes, Modifier.weight(1f)) { tick(PuzzleCue.NOTE); actions.toggleNotes() }
+                                    state.canEdit, state.notes, Modifier.weight(1f), selectionControl = true) { tick(PuzzleCue.NOTE); actions.toggleNotes() }
                                 "erase" -> DockTool("Erase", GameSymbol.ERASE, state.canEdit && editable && hasEraseTarget,
                                     modifier = Modifier.weight(1f)) { tick(PuzzleCue.ERASE); actions.erase() }
                                 "undo" -> DockTool("Undo", GameSymbol.UNDO, state.canEdit && snapshot.undoTargets.containsKey(state.role),
@@ -628,11 +629,11 @@ import kotlinx.coroutines.delay
                                     disabledContentColor = Forest.copy(alpha = .60f))) {
                                 Column(horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.Center) {
-                                    Text(number.toString(), fontSize = if (tablet) 26.sp else 21.sp, lineHeight = if (tablet) 28.sp else 22.sp,
+                                    Text(number.toString(), modifier = Modifier.clearAndSetSemantics {}, fontSize = if (tablet) 26.sp else 21.sp, lineHeight = if (tablet) 28.sp else 22.sp,
                                         fontWeight = FontWeight.SemiBold)
                                     // A placed-digit count is misleading while editing pencil notes.
                                     if (!state.notes) {
-                                        Text(remaining.toString(), modifier = Modifier.testTag("number_remaining_$number"),
+                                        Text(remaining.toString(), modifier = Modifier.testTag("number_remaining_$number").clearAndSetSemantics {},
                                             fontSize = if (tablet) 12.sp else 10.sp, lineHeight = if (tablet) 14.sp else 11.sp, color = Muted)
                                     } else Text(if (highlighted) "✓" else " ",
                                         modifier = Modifier.clearAndSetSemantics {},
