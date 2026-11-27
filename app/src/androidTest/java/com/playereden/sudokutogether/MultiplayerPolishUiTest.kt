@@ -274,4 +274,33 @@ class MultiplayerPolishUiTest {
         compose.onNodeWithTag("number_9").performScrollTo().assertIsDisplayed()
     }
 
+
+    @Test fun chatEmptyMutedAndDisconnectedStatesFollowConnectionAndVisibility() {
+        val sent = mutableListOf<String>()
+        val state = mutableStateOf(polishState().copy(role = GUEST, connected = false))
+        compose.setContent {
+            SudokuTogetherTheme { RoomChatSheet(state.value, polishActions(send = sent::add), {}) }
+        }
+        compose.onNodeWithText("No messages yet.").assertExists()
+        compose.onNodeWithTag("quick_chat_disconnected").assertExists()
+        compose.onNodeWithTag("quick_chat_yes").performScrollTo().assertIsNotEnabled()
+        compose.onNodeWithTag("quick_chat_emotes").performScrollTo().performClick()
+        compose.onNodeWithTag("emote_ready").performScrollTo().assertIsNotEnabled()
+        compose.runOnIdle {
+            assertTrue(sent.isEmpty())
+            state.value = state.value.copy(connected = true, communicationMuted = true,
+                chat = listOf(ChatLine("hidden", HOST, "Thank you!", 1)))
+        }
+        compose.onNodeWithTag("quick_chat_disconnected").assertDoesNotExist()
+        compose.onNodeWithText("Incoming messages are hidden.").assertExists()
+        compose.onNodeWithText("Thank you!").assertDoesNotExist()
+        compose.onNodeWithTag("emote_ready").performScrollTo().assertIsEnabled().performClick()
+        compose.runOnIdle {
+            assertEquals(listOf(GridMatesEmote.READY.wireValue), sent)
+            state.value = state.value.copy(communicationMuted = false)
+        }
+        compose.onNodeWithTag("quick_chat_empty").assertDoesNotExist()
+        compose.onNodeWithText("Thank you!").assertExists()
+    }
+
 }
