@@ -32,6 +32,9 @@ object DailyChallenge {
     fun open(data: LocalPlayerData, date: String, nowMs: Long, puzzleFactory: () -> Puzzle = { puzzle(date) }): LocalPlayerData {
         require(LocalDate.parse(date).toString() == date) { "Date must be ISO yyyy-MM-dd" }
         if (data.dailyProgress.any { it.date == date }) return data
+        require(data.records.none { it.mode == DAILY && it.result == "SOLVED" && it.dailyDate == date }) {
+            "That Daily Challenge is already completed and its board is no longer saved."
+        }
         require(data.dailyProgress.count { !it.solo.completed } < MAX_SAVED_DAYS) {
             "Too many unfinished Daily Challenges. Complete an older day before starting another."
         }
