@@ -117,8 +117,8 @@ data class GameActions(
             confirmButton = { TextButton(onClick = {
                 confirmation = null
                 when (kind) { "leave" -> actions.home(); "partner" -> actions.replacePartner(); "fresh" -> actions.host(false); "freshSolo" -> actions.solo(false); "freshRace" -> actions.hostRace(false); else -> actions.newPuzzle() }
-            }) { Text(if (kind == "leave") "Leave room" else if (kind == "partner") "Replace partner" else "Start new") } },
-            dismissButton = { TextButton(onClick = { confirmation = null }) { Text(if (state.page == Page.PLAY) "Keep playing" else "Cancel") } })
+            }, modifier = Modifier.heightIn(min = 48.dp)) { Text(if (kind == "leave") "Leave room" else if (kind == "partner") "Replace partner" else "Start new") } },
+            dismissButton = { TextButton(onClick = { confirmation = null }, modifier = Modifier.heightIn(min = 48.dp)) { Text(if (state.page == Page.PLAY) "Keep playing" else "Cancel") } })
     }
 }
 
