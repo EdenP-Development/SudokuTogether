@@ -35,6 +35,20 @@ class LocalPlayerStoreTest {
         return LocalPlayerData(playerId = "existing-player", activeSolo = solo)
     }
 
+    @Test fun malformedUtf8CannotSilentlyChangePlayerIdentity() {
+        val serialized = json.encodeToString(saved())
+        val encoded = serialized.toByteArray(Charsets.UTF_8)
+        val index = serialized.indexOf("existing-player")
+        assertTrue(index >= 0)
+        val offset = serialized.substring(0, index).toByteArray(Charsets.UTF_8).size
+        encoded[offset] = 0xff.toByte()
+        val file = target().also { it.writeBytes(encoded) }
+        val store = LocalPlayerStore(file)
+        assertFalse(store.canSave)
+        assertThrows(IOException::class.java) { store.update { it } }
+        assertArrayEquals(encoded, file.readBytes())
+    }
+
     @Test fun unreadableProfileCannotBeOverwrittenByANewEmptyProfile() {
         val file = target().also { it.writeText("broken original progress") }
         val store = LocalPlayerStore(file)
