@@ -67,7 +67,7 @@ class CompactPlayLayoutTest {
         scenario!!.onActivity { it.setContent { SudokuTogetherTheme { SudokuApp(fixture(SOLO), actions, {}) } } }
         compose.onNodeWithTag("input_dock").assertExists(); capture("landscape-before-scroll")
         for (cell in 0..80) compose.onNodeWithTag("cell_$cell").performScrollTo().assertIsDisplayed()
-        for (tool in listOf("Notes", "Erase", "Undo", "Hint")) compose.onNodeWithText(tool).performScrollTo().assertIsDisplayed()
+        for (tool in listOf("Notes", "Erase", "Undo", "Hint")) (if (tool == "Hint") compose.onNodeWithContentDescription("Request a solo Sudoku hint") else compose.onNodeWithText(tool)).performScrollTo().assertIsDisplayed()
         for (number in 1..9) compose.onNodeWithTag("number_$number").performScrollTo().assertIsDisplayed()
         capture("landscape-controls")
     }
@@ -87,7 +87,7 @@ class CompactPlayLayoutTest {
         // The intended stacked fallback must still expose every board cell.
         compose.onNodeWithTag("versus_presence").performScrollTo().assertIsDisplayed()
         for (cell in 0..80) compose.onNodeWithTag("cell_$cell").performScrollTo().assertIsDisplayed()
-        for (tool in listOf("Notes", "Erase", "Undo")) compose.onNodeWithText(tool).performScrollTo().assertIsDisplayed()
+        for (tool in listOf("Notes", "Erase", "Undo")) (if (tool == "Hint") compose.onNodeWithContentDescription("Request a solo Sudoku hint") else compose.onNodeWithText(tool)).performScrollTo().assertIsDisplayed()
         for (number in 1..9) compose.onNodeWithTag("number_$number").performScrollTo().assertIsDisplayed()
         capture("versus-compact-controls")
     }
@@ -121,7 +121,7 @@ class CompactPlayLayoutTest {
         launch(false)
         scenario!!.onActivity { it.setContent { SudokuTogetherTheme { SudokuApp(fixture(SOLO), actions, {}) } } }
         compose.onNodeWithTag("solving_toolbar").assertExists()
-        for (tool in listOf("Notes", "Erase", "Undo", "Hint")) compose.onNodeWithText(tool).performScrollTo().assertIsDisplayed()
+        for (tool in listOf("Notes", "Erase", "Undo", "Hint")) (if (tool == "Hint") compose.onNodeWithContentDescription("Request a solo Sudoku hint") else compose.onNodeWithText(tool)).performScrollTo().assertIsDisplayed()
         for (number in 1..9) compose.onNodeWithTag("number_$number").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("cell_0").performScrollTo().assertIsDisplayed()
     }
@@ -179,7 +179,7 @@ class CompactPlayLayoutTest {
         assertTrue("Keypad must not overlap the board", dock.left >= board.right)
         assertTrue("Presence must precede the keypad", presence.bottom <= dock.top)
         for (cell in listOf(0, 40, 80)) compose.onNodeWithTag("cell_$cell").performScrollTo().assertIsDisplayed()
-        for (tool in listOf("Notes", "Erase", "Undo")) compose.onNodeWithText(tool).performScrollTo().assertIsDisplayed()
+        for (tool in listOf("Notes", "Erase", "Undo")) (if (tool == "Hint") compose.onNodeWithContentDescription("Request a solo Sudoku hint") else compose.onNodeWithText(tool)).performScrollTo().assertIsDisplayed()
         for (number in 1..9) {
             val key = compose.onNodeWithTag("number_$number").performScrollTo().assertIsDisplayed().getUnclippedBoundsInRoot()
             assertTrue("Key $number needs sufficient height", (key.bottom - key.top).value >= 47.5f)
@@ -212,7 +212,7 @@ class CompactPlayLayoutTest {
         assertTrue("First row must have three distinct columns",
             keyBounds[0].left < keyBounds[1].left && keyBounds[1].left < keyBounds[2].left)
         for (tool in listOf("Notes", "Erase", "Undo", "Hint"))
-            compose.onNodeWithText(tool).performScrollTo().assertIsDisplayed()
+            (if (tool == "Hint") compose.onNodeWithContentDescription("Request a solo Sudoku hint") else compose.onNodeWithText(tool)).performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("cell_0").performScrollTo().assertIsDisplayed()
         compose.runOnIdle { shown.value = shown.value.copy(notes = true) }
         compose.onNodeWithTag("number_1").performScrollTo().assertIsDisplayed()
