@@ -10,3 +10,9 @@ Source audit of LocalPlayerStore and ProgressBackupStore confirms schema 1, veri
 
 ## Next
 Audit encoded write-size limits versus read limits; restore journal lifecycle and failure cases; then progression idempotence, record trimming and reward retention. Verify upgrade continuity with signed install-over on appropriate QA devices before release. Do not alter save schema, signing, existing artwork or player data without a specific justified migration.
+
+## STAB-05.02 — atomic writes and storage limits
+- `333123c` passed Android quality gate 45951523107 and unsigned candidate 45951523191; instrumentation execution not established.
+- `8a38359`: enforce the same 64 MiB limit on encoded local profile reads and writes. Preflight both next and previous payloads before normal writes; encode and validate restored profile size before writing either copy. Public one-argument constructor and schema remain unchanged; internal constructor permits a smaller test limit. Recovery source archival and portable backup/journal limits unchanged.
+- `9e7f7a7`: two instrumented tests use a small injected limit to check oversized updates and direct restore replacement fail without changing primary/recovery bytes or in-memory data; update test also reopens the original. Pending compile/runtime verification.
+- Tradeoff: preflighting both byte arrays increases peak memory during unusually large saves; no stress benchmark performed. Next STAB-05.03: inspect restore journal lifecycle, commit-marker cleanup, storage failures, and existing interruption tests. Keep accessibility runtime gates open and preserve schema/signing.
