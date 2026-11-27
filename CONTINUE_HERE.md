@@ -1,5 +1,8 @@
 # Continue GridMates: Sudoku
 
+## Latest repository synchronization checkpoint — 2026-11-27
+Active branch `feat/beta3-foundation`. Latest build-verified code `8e2dcee916bf7189a6a252951046b5d5fca52f62`: quality gate 45962075841 and unsigned candidate 45962075789 passed. Earlier save runtime 45957495632 passed on earlier source; integrated reward/save run 45962562834 still executing at inspection. STAB-07 repository synchronization closeout: see [release evidence](docs/STAB-07-RELEASE-EVIDENCE.md). Next STAB-08 feature freeze (scope only, not release approval); inspect integrated results and repair failures before acceptance. Physical, rights, privacy, exact signed upgrade and owner approval gates remain open. No publication or signing changes.
+
 ## Latest reward stabilization pointer — 2026-11-27
 Active branch `feat/beta3-foundation`. Resume from [STAB-06 reward integrity handoff](docs/STAB-06-REWARD-INTEGRITY-HANDOFF.md). `8e2dcee` passed Android quality gate 45962075841; unsigned candidate 45962075789 pending at inspection. Integrated reward/save Android emulator workflow added at `8242358`, result pending; first inspect and repair any runtime failures before moving to next roadmap phase. Earlier save runtime 45957495632 passed on prior source. Signed upgrade, physical accessibility and two-device QA remain open. No public release/signing change. Prior pointers retained as history.
 
