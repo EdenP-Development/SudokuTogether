@@ -9,7 +9,10 @@ import java.io.IOException
 import java.util.UUID
 
 /** A verified primary plus a last-good private recovery snapshot. Schema 1 stays compatible. */
-class LocalPlayerStore(file: File) {
+class LocalPlayerStore internal constructor(file: File, private val profileMaxBytes: Long) {
+    constructor(file: File) : this(file, LOCAL_PROFILE_MAX_BYTES)
+
+    init { require(profileMaxBytes in 1..LOCAL_PROFILE_MAX_BYTES) }
     private val atomic = AtomicFile(file)
     private val recovery = AtomicFile(File(file.path + ".recovery"))
     private val json = Json { encodeDefaults = true }
@@ -62,7 +65,7 @@ class LocalPlayerStore(file: File) {
         val legacyBackup = File(file.baseFile.path + ".bak")
         val candidate = if (legacyBackup.exists()) legacyBackup else file.baseFile
         val text = candidate.inputStream().use {
-            if (it.channel.size() > LOCAL_PROFILE_MAX_BYTES) throw IOException("Local progress is too large to read safely.")
+            if (it.channel.size() > profileMaxBytes) throw IOException("Local progress is too large to read safely.")
             // Reject malformed UTF-8 instead of silently changing saved identity or text.
             it.readBytes().decodeToString(throwOnInvalidSequence = true)
         }
@@ -93,8 +96,11 @@ class LocalPlayerStore(file: File) {
         require(next.playerId == data.playerId)
         validateLocalPlayerData(next)
         if (next == data && !needsRepair) return data
-        writeProfile(recovery, data)
-        writeProfile(atomic, next)
+        // Preflight both payloads before touching either committed copy.
+        val nextBytes = encodeProfile(next)
+        val previousBytes = encodeProfile(data)
+        writeVerifiedAtomic(recovery, previousBytes)
+        writeVerifiedAtomic(atomic, nextBytes)
         data = next; needsRepair = false
         return data
     }
@@ -109,8 +115,9 @@ class LocalPlayerStore(file: File) {
         validateLocalPlayerData(migrated)
         // The separate transaction journal protects the previous pair. Both normal
         // profile copies must agree with the settings after the restore commits.
-        writeProfile(recovery, migrated)
-        writeProfile(atomic, migrated)
+        val bytes = encodeProfile(migrated)
+        writeVerifiedAtomic(recovery, bytes)
+        writeVerifiedAtomic(atomic, bytes)
         if (read(atomic) != migrated || read(recovery) != migrated) throw IOException("Restored progress could not be reloaded.")
         data = migrated
         needsRepair = false
@@ -123,8 +130,11 @@ class LocalPlayerStore(file: File) {
         if (!canSave || persisted != data) throw IOException("Restored progress could not be reloaded.")
     }
 
-    private fun writeProfile(file: AtomicFile, saved: LocalPlayerData) =
-        writeVerifiedAtomic(file, json.encodeToString(saved).toByteArray(Charsets.UTF_8))
+    private fun encodeProfile(saved: LocalPlayerData): ByteArray {
+        val bytes = json.encodeToString(saved).toByteArray(Charsets.UTF_8)
+        if (bytes.size.toLong() > profileMaxBytes) throw IOException("Local progress is too large to save safely.")
+        return bytes
+    }
 }
 
 internal const val LOCAL_PROFILE_MAX_BYTES = 64L * 1024 * 1024
