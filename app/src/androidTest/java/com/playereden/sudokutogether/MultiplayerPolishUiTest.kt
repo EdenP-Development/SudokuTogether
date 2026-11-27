@@ -168,19 +168,28 @@ class MultiplayerPolishUiTest {
         val sent = mutableListOf<String>()
         val state = polishState().copy(chat = listOf(ChatLine("a", HOST, "Yes", 1), ChatLine("b", GUEST, GridMatesEmote.HAPPY.wireValue, 2)))
         compose.setContent { SudokuTogetherTheme { RoomChatSheet(state, polishActions(send = sent::add), {}) } }
-        compose.onNodeWithText("You").assertIsDisplayed()
-        compose.onNodeWithText("Taylor").assertIsDisplayed()
+        fun verifyVisible(label: String, action: () -> Unit) {
+            try { action() } catch (failure: AssertionError) {
+                throw AssertionError("Quick Chat visibility: $label", failure)
+            }
+        }
+        verifyVisible("history sender You") { compose.onNodeWithText("You").assertIsDisplayed() }
+        verifyVisible("history sender Taylor") { compose.onNodeWithText("Taylor").assertIsDisplayed() }
         compose.onNodeWithTag("chat_emote_happy").assertExists()
         compose.onNodeWithContentDescription(GridMatesEmote.HAPPY.label).assertExists()
         compose.onNodeWithTag("chat_input").assertDoesNotExist()
         for ((category, group) in listOf("Responses" to QuickChatGroup.RESPONSE, "Teamwork" to QuickChatGroup.TEAMWORK, "Friendly" to QuickChatGroup.FRIENDLY)) {
             compose.onNodeWithText(category).performScrollTo().performClick()
             for (reply in QuickChatPhrase.entries.filter { it.group == group })
-                compose.onNodeWithTag("quick_chat_" + reply.id).performScrollTo().assertIsDisplayed().performClick()
+                verifyVisible("reply ${reply.id}") {
+                    compose.onNodeWithTag("quick_chat_" + reply.id).performScrollTo().assertIsDisplayed().performClick()
+                }
         }
         compose.onNodeWithTag("quick_chat_emotes").performScrollTo().performClick()
         for (emote in GridMatesEmote.entries) {
-            compose.onNodeWithTag("emote_" + emote.id).performScrollTo().assertIsDisplayed().performClick()
+            verifyVisible("emote ${emote.id}") {
+                compose.onNodeWithTag("emote_" + emote.id).performScrollTo().assertIsDisplayed().performClick()
+            }
         }
         compose.runOnIdle { assertEquals(QuickChat.phrases + GridMatesEmote.entries.map { it.wireValue }, sent) }
     }
