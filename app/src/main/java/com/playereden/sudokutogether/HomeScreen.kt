@@ -129,7 +129,7 @@ import com.playereden.sudokutogether.core.SoloProgress
                         enabled = !state.busy && !state.localSaveBlocked)
                     if (lastCompleted && state.resumeSolo) {
                         TextButton(onClick = { actions.solo(true) }, enabled = !state.busy,
-                            modifier = Modifier.fillMaxWidth().heightIn(min = 44.dp)) {
+                            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                             Text("Review last puzzle", color = Forest)
                         }
                     }
@@ -388,12 +388,12 @@ import com.playereden.sudokutogether.core.SoloProgress
     state: GameUiState, help: () -> Unit, profile: () -> Unit
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(7.dp)) {
-        IconButton(help, modifier = Modifier.size(46.dp)
+        IconButton(help, modifier = Modifier.size(48.dp)
             .semantics { contentDescription = "How to play Sudoku" }) {
             GameIcon(GameSymbol.HELP, modifier = Modifier.size(21.dp))
         }
         IconButton(profile, enabled = !state.busy,
-            modifier = Modifier.size(46.dp).background(GreenTint, RoundedCornerShape(14.dp))
+            modifier = Modifier.size(48.dp).background(GreenTint, RoundedCornerShape(14.dp))
                 .semantics { contentDescription = "My profile & records" }) {
             AnimalPortrait(state.appearance, Modifier.size(39.dp))
         }
