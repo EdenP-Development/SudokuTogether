@@ -1,0 +1,112 @@
+name: Beta 3 consolidated QA build verification
+on:
+  push:
+    branches: [feat/beta3-foundation]
+    paths:
+      - '.github/workflows/beta3-consolidated-qa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  preview:
+    if: github.ref == 'refs/heads/feat/beta3-foundation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install Pillow==11.3.0
+      - name: Verify bundled Spudacus artwork
+        run: echo '74773dbda822161f73a639f959e8bce5c6e0b333a94ebeb8ee27f620d4995d25  app/src/main/res/drawable-nodpi/spudacus_v1_full_transparent.png' | sha256sum -c -
+      - name: Verify bundled GridMates artwork
+        run: echo 'eef6d631cac0b9523f7e0dbebac229f9a2458d36fe2e73e111d251704d9ff292  app/src/main/res/drawable-nodpi/gridmates_v1_runtime_transparent.png' | sha256sum -c -
+      - name: Generate adaptive icon from verified master
+        run: |
+          python - <<'PY'
+          import pathlib, hashlib, zipfile, io
+          from PIL import Image, ImageDraw
+          root = pathlib.Path('design/branding/transfer')
+          parts = sorted(root.glob('part-*.bin'))
+          assert [p.name for p in parts] == [f'part-{i:02}.bin' for i in range(1,15)]
+          data = b''.join(p.read_bytes() for p in parts)
+          assert hashlib.sha256(data).hexdigest() == '487ee37d5087822e9b085b1dddf2e04b01b13a2d70d8e24dd90e60b233bf0dc8'
+          with zipfile.ZipFile(io.BytesIO(data)) as z:
+              master = z.read('launcher-master.png')
+          assert hashlib.sha256(master).hexdigest() == 'ea3812eb46f6d3601fd5edf1d1f1f2d1c9c445a4140c7e1d2a86c08563d3367f'
+          with Image.open(io.BytesIO(master)) as im:
+              assert im.format == 'PNG' and im.size == (1254,1254)
+              icon = im.convert('RGBA')
+          res = pathlib.Path('build/beta3-visual-res')
+          drawable = res / 'drawable-nodpi'
+          drawable.mkdir(parents=True,exist_ok=True)
+          # 108dp adaptive canvas; 58dp art centered within the 66dp visible region.
+          canvas = Image.new('RGBA',(432,432))
+          canvas.alpha_composite(icon.resize((232,232),Image.Resampling.LANCZOS),(100,100))
+          canvas.save(drawable/'beta3_fox_foreground.png')
+          mip = res/'mipmap-anydpi-v26'
+          mip.mkdir(parents=True,exist_ok=True)
+          (mip/'ic_launcher.xml').write_text('<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@color/icon_background"/><foreground android:drawable="@drawable/beta3_fox_foreground"/><monochrome android:drawable="@drawable/ic_launcher_monochrome"/></adaptive-icon>')
+          out = pathlib.Path('beta3-review')
+          out.mkdir()
+          # Simulated centered 66dp mask, not physical launcher evidence.
+          composite = Image.new('RGBA',(432,432),'#123e28')
+          composite.alpha_composite(canvas)
+          visible = composite.crop((84,84,348,348))
+          for name,radius in [('circle',132),('rounded',50),('square',12)]:
+              mask = Image.new('L',(264,264))
+              ImageDraw.Draw(mask).rounded_rectangle((0,0,263,263),radius=radius,fill=255)
+              sample = visible.copy()
+              sample.putalpha(mask)
+              sample.save(out/f'icon-{name}.png')
+          PY
+      - name: Verify six-track soundtrack transfer
+        run: python scripts/prepare_beta3_soundtrack.py
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Test and assemble isolated consolidated QA
+        run: |
+          chmod +x gradlew
+          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta3VisualPreview=true -PgridmatesBeta3ConsolidatedQa=true --no-daemon --max-workers=2 --console=plain
+      - name: Verify preview identity and signature
+        run: |
+          set -euo pipefail
+          APK=app/build/outputs/apk/debug/app-debug.apk
+          TOOLS="$ANDROID_HOME/build-tools/35.0.0"
+          "$TOOLS/aapt" dump badging "$APK" > beta3-review/apk-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta3integrated1'" beta3-review/apk-badging.txt
+          grep -F "versionCode='31' versionName='1.0.0-beta.2-qa.beta3integrated1'" beta3-review/apk-badging.txt
+          "$TOOLS/apksigner" verify --verbose --print-certs "$APK" > beta3-review/signature.txt
+          unzip -l "$APK" | grep -F 'beta3_fox_foreground'
+          unzip -l "$APK" | grep -F 'spudacus_v1_full_transparent'
+          unzip -l "$APK" | grep -F 'gridmates_v1_runtime_transparent'
+          python - <<'PY'
+          import hashlib, pathlib, zipfile
+          with zipfile.ZipFile('app/build/outputs/apk/debug/app-debug.apk') as z:
+              for p in sorted(pathlib.Path('build/beta3-audio-assets/soundtrack').glob('track_*.m4a')):
+                  entry = z.getinfo('assets/soundtrack/' + p.name)
+                  assert entry.compress_type == zipfile.ZIP_STORED
+                  assert hashlib.sha256(z.read(entry)).digest() == hashlib.sha256(p.read_bytes()).digest()
+              assert len([n for n in z.namelist() if n.startswith('assets/soundtrack/') and n.endswith('.m4a')]) == 6
+          PY
+          sha256sum "$APK" > beta3-review/SHA256SUMS.txt
+          git rev-parse HEAD > beta3-review/source-commit.txt
+          # Verification only: never upload APK or audio before distribution approval.
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Sudoku-Beta3-ConsolidatedQA-Verification
+          path: |
+            beta3-review/apk-badging.txt
+            beta3-review/signature.txt
+            beta3-review/SHA256SUMS.txt
+            beta3-review/source-commit.txt
+          if-no-files-found: error
+          retention-days: 14
