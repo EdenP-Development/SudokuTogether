@@ -35,7 +35,8 @@ object Achievements {
         val medium = solo.count { it.difficulty?.uppercase() == "MEDIUM" }
         val hard = solo.count { it.difficulty?.uppercase() == "HARD" }
         val clean = solo.count { !it.assisted && it.hintsUsed == 0 && it.checksUsed == 0 }
-        val fastest = solo.minOfOrNull { it.elapsedMs }
+        // A legacy zero-duration record must not mask a legitimate timed solve.
+        val fastest = solo.asSequence().map { it.elapsedMs }.filter { it > 0L }.minOrNull()
         val speed = if (fastest != null && fastest > 0 && fastest <= 10 * 60_000L) 1 else 0
 
         fun entry(id: String, title: String, description: String, current: Int, target: Int,
