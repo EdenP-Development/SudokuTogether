@@ -4,6 +4,9 @@ on:
     branches: [feat/beta3-foundation]
     paths:
       - '.github/workflows/beta3-reward-integrity-runtime.yml'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/CollectionPolishUiTest.kt'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/ProgressBackupSettingsUiTest.kt'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/FinishAndDailyPresentationUiTest.kt'
   workflow_dispatch:
 permissions:
   contents: read
