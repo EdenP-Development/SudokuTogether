@@ -242,6 +242,35 @@ class LocalPlayerStoreTest {
         assertTrue("woodland_robin" in reopened.ownedCosmeticIds)
     }
 
+    @Test fun actualRecordRetentionBoundaryKeepsEarnedSoloRewardsAfterRestart() {
+        val file = target()
+        val store = LocalPlayerStore(file)
+        val solo = (1..5).map {
+            GameRecord("old-solo-$it", SOLO, "SOLVED", "puzzle", 1000L, 30, it.toLong(), "EASY")
+        }
+        val coop = (1..(MAX_RECORDS - solo.size)).map {
+            GameRecord("coop-$it", COOP, "SOLVED", "puzzle", 1000L, 30, (it + 5).toLong())
+        }
+        val initial = store.update { it.copy(records = solo + coop) }
+        assertEquals(MAX_RECORDS, initial.records.size)
+        assertTrue("steady-hand" in initial.earnedAchievementIds)
+        assertTrue("rose" in initial.ownedCosmeticIds)
+        val appended = (1..5).map { n -> coop.last().copy(id = "new-coop-$n",
+            finishedAtMs = (MAX_RECORDS + n).toLong()) }
+        val trimmed = store.update { it.copy(records = (it.records + appended).takeLast(MAX_RECORDS),
+            earnedAchievementIds = emptyList(), ownedCosmeticIds = emptyList()) }
+        assertEquals(MAX_RECORDS, trimmed.records.size)
+        assertTrue(trimmed.records.none { it.mode == SOLO })
+        val reopened = LocalPlayerStore(file).current()
+        assertEquals(trimmed, reopened)
+        assertEquals(initial.playerId, reopened.playerId)
+        assertTrue(reopened.earnedAchievementIds.containsAll(initial.earnedAchievementIds))
+        assertTrue(reopened.ownedCosmeticIds.containsAll(initial.ownedCosmeticIds))
+        assertTrue(Achievements.progress(reopened.records, reopened.earnedAchievementIds)
+            .single { it.id == "steady-hand" }.unlocked)
+        assertTrue(Cosmetics.allowed("rose", reopened.records, reopened.ownedCosmeticIds))
+    }
+
     @Test fun aTamperedCosmeticOwnershipListCannotReplaceExistingProgress() {
         val original = saved()
         val file = target().also { it.writeText(json.encodeToString(original)) }
