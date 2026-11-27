@@ -46,6 +46,7 @@ internal class ProgressBackupStore(
             val importedName = preview.settings.name
             val normalizedName = NameCollection.normalizedProfileName(importedName, next)
             val newSettings = preview.settings.copy(
+                name = normalizedName,
                 appearance = Cosmetics.accessible(preview.settings.appearance, next.records, next.ownedCosmeticIds)
             ).preferenceValues() + if (normalizedName != importedName) {
                 mapOf("nameMigrationNotice" to JsonPrimitive(true))
