@@ -40,6 +40,11 @@ class AchievementsTest {
         assertTrue(Achievements.progress(listOf(short)).first { it.id == "quick-thinker" }.unlocked)
         val invalid = rec("none", SOLO, "SOLVED", 0)
         assertFalse(Achievements.progress(listOf(invalid)).first { it.id == "quick-thinker" }.unlocked)
+        assertTrue(Achievements.progress(listOf(invalid, short)).first { it.id == "quick-thinker" }.unlocked)
+        val boundary = rec("boundary", SOLO, "SOLVED", 600_000L)
+        val slow = rec("slow", SOLO, "SOLVED", 600_001L)
+        assertTrue(Achievements.progress(listOf(invalid, boundary)).first { it.id == "quick-thinker" }.unlocked)
+        assertFalse(Achievements.progress(listOf(invalid, slow)).first { it.id == "quick-thinker" }.unlocked)
     }
 
     @Test fun chosenEmblemSurvivesNetworkRoundTripWithoutLeakingVersusGrid() {
