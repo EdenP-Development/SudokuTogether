@@ -29,4 +29,23 @@ class PersonalPlayTest {
         assertEquals(8000L, PersonalPlay.stats(repeated).soloBestMs)
         assertNull(PersonalPlay.edit(game, 0, Kind.CLEAR, elapsedMs = 9000))
     }
+
+    @Test fun duplicateHistoricalCompletionIdsDoNotInflateStatistics() {
+        val solo = GameRecord("solo-1", SOLO, "SOLVED", "puzzle", 8000L, 4, 9000L)
+        val coop = solo.copy(id = "coop-1", mode = COOP)
+        val win = solo.copy(id = "race-1", mode = VERSUS, result = "WIN")
+        val loss = win.copy(id = "race-2", result = "LOSS")
+        val draw = win.copy(id = "race-3", result = "DRAW")
+        val unique = listOf(solo, coop, win, loss, draw)
+        val data = LocalPlayerData(records = unique + unique)
+        val stats = PersonalPlay.stats(data)
+        assertEquals(PersonalPlay.stats(data.copy(records = unique)), stats)
+        assertEquals(1, stats.soloWins)
+        assertEquals(8000L, stats.soloTotalMs)
+        assertEquals(1, stats.coopCompletions)
+        assertEquals(1, stats.versusWins)
+        assertEquals(1, stats.versusLosses)
+        assertEquals(1, stats.versusDraws)
+        assertEquals(10, data.records.size)
+    }
 }
