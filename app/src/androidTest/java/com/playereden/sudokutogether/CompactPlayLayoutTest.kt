@@ -125,4 +125,34 @@ class CompactPlayLayoutTest {
         for (number in 1..9) compose.onNodeWithTag("number_$number").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("cell_0").performScrollTo().assertIsDisplayed()
     }
+
+    @Test fun tabletPortraitUsesExpandedBoardAndKeypadWithoutChangingNoteModeGeometry() {
+        shell("settings put system font_scale 1.0")
+        // Convert the desired logical viewport to pixels at the device's
+        // existing density instead of assuming a particular emulator density.
+        val density = context.resources.displayMetrics.density
+        shell("wm size ${(800 * density).toInt()}x${(1280 * density).toInt()}")
+        launch(false)
+        val shown = mutableStateOf(fixture(SOLO, SOLO))
+        scenario!!.onActivity {
+            it.setContent { SudokuTogetherTheme { SudokuApp(shown.value, actions, {}) } }
+        }
+        val board = compose.onNodeWithTag("board_frame").assertIsDisplayed().getUnclippedBoundsInRoot()
+        assertTrue("Tablet board must exceed the former 440dp grid plus its frame",
+            (board.right - board.left).value > 456f)
+        assertTrue("Tablet board must respect the 600dp grid cap plus frame",
+            (board.right - board.left).value <= 617f)
+        val one = compose.onNodeWithTag("number_1").assertIsDisplayed().assertIsEnabled()
+        val key = one.getUnclippedBoundsInRoot()
+        assertTrue("Tablet key must be at least 60dp tall", (key.bottom - key.top).value >= 59.5f)
+        assertTrue("Tablet key must be at least 48dp wide", (key.right - key.left).value >= 48f)
+        for (number in 1..9) compose.onNodeWithTag("number_$number").assertIsDisplayed()
+        compose.runOnIdle { shown.value = shown.value.copy(notes = true) }
+        one.assertContentDescriptionEquals("Add pencil mark 1")
+        val after = compose.onNodeWithTag("board_frame").getUnclippedBoundsInRoot()
+        assertTrue("Changing note mode must not resize the board",
+            kotlin.math.abs((after.right - after.left).value - (board.right - board.left).value) < 1f)
+        capture("tablet-portrait-expanded")
+    }
+
 }
