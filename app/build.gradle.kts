@@ -136,6 +136,12 @@ val beta3VisualPreview = providers.gradleProperty("gridmatesBeta3VisualPreview")
     true
 } ?: false
 if (beta3VisualPreview) require(!signedBeta && !permanentIdentityStaging && signingFile == null) { "Beta 3 visual preview must use isolated debug signing" }
+// Fresh owner QA identity; never overwrite an earlier temporary-signer preview.
+val beta3ConsolidatedQa = providers.gradleProperty("gridmatesBeta3ConsolidatedQa").orNull?.let {
+    require(it == "true") { "gridmatesBeta3ConsolidatedQa only accepts true" }
+    true
+} ?: false
+if (beta3ConsolidatedQa) require(beta3VisualPreview) { "Consolidated QA requires the isolated visual preview" }
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
 require(qaUpdateFlag == null || qaUpdateFlag == "true") { "gridmatesQaUpdate must be true when supplied" }
 if (beta3VisualPreview) require(qaUpdateFlag == null) { "Beta 3 preview must not use persistent QA signing" }
@@ -237,6 +243,7 @@ android {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
+                beta3ConsolidatedQa -> ".qa.beta3integrated1"
                 beta3VisualPreview -> ".qa.beta3coach2"
                 beta2BoardsPreview -> ".qa.beta2boards"
                 beta2IntegratedRc3Preview -> ".qa.beta2integratedrc3"
@@ -257,6 +264,7 @@ android {
                 else -> ".qa"
             }
             versionNameSuffix = when {
+                beta3ConsolidatedQa -> "-qa.beta3integrated1"
                 beta3VisualPreview -> "-qa.beta3coach2"
                 beta2BoardsPreview -> "-qa.beta2boards"
                 beta2IntegratedRc3Preview -> "-qa.beta2integratedrc3"
