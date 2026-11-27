@@ -557,7 +557,10 @@ import kotlinx.coroutines.delay
             val tablet = maxWidth >= 560.dp
             val dockWidth = if (tablet) 560.dp else 440.dp
             val keypadHeight = maxOf(if (tablet) 60.dp else 48.dp, ((if (tablet) 48 else 40) * fontScale).dp)
-            val splitTools = minOf(maxWidth, dockWidth) < 340.dp && fontScale > 1.3f
+            val availableDockWidth = minOf(maxWidth, dockWidth)
+            val splitTools = availableDockWidth < 210.dp || (availableDockWidth < 340.dp && fontScale > 1.3f)
+            // Five 48dp keys plus four 6dp gaps need 264dp.
+            val compactKeys = availableDockWidth < 264.dp
             Column(Modifier.widthIn(max = dockWidth).fillMaxWidth().align(Alignment.TopCenter),
                 verticalArrangement = Arrangement.spacedBy(6.dp)) {
                 val tools = if (state.role == SOLO) listOf("notes", "erase", "undo", "hint")
@@ -593,10 +596,12 @@ import kotlinx.coroutines.delay
                     modifier = Modifier.fillMaxWidth()
                         .testTag(if (state.notes || !editable) "keypad_mode_guidance" else "keypad_remaining_explanation"),
                     textAlign = TextAlign.Center)
-                for (numbers in listOf((1..5).toList(), (6..9).toList())) {
+                val numberRows = if (compactKeys) (1..9).toList().chunked(3)
+                    else listOf((1..5).toList(), (6..9).toList())
+                for (numbers in numberRows) {
                     Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                         // Center the four-key second row rather than leaving a dead slot on its right.
-                        if (numbers.size == 4) Spacer(Modifier.weight(.5f))
+                        if (!compactKeys && numbers.size == 4) Spacer(Modifier.weight(.5f))
                         for (number in numbers) {
                             val remaining = (9 - snapshot.cells.count { it.value == number }).coerceAtLeast(0)
                     
@@ -635,7 +640,7 @@ import kotlinx.coroutines.delay
                                 }
                             }
                         }
-                        if (numbers.size == 4) Spacer(Modifier.weight(.5f))
+                        if (!compactKeys && numbers.size == 4) Spacer(Modifier.weight(.5f))
                     }
                 }
             }
