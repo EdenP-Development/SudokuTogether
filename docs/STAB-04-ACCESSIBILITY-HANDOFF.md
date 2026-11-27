@@ -16,3 +16,9 @@ Updated 2026-11-27. Active development branch: `feat/beta3-foundation`. Do not r
 Audit actual touch widths at narrow screens, large font scales and landscape; inspect remaining dialogs and navigation, TalkBack focus order, duplicate labels and state announcements; add regression assertions; finish accessibility documentation and physical tablet QA. Then progression/save preservation audit.
 
 Preserve gameplay, artwork, progression, networking, save formats and signing. Ordinary touch target 48x48dp minimum where feasible; board cells treated separately. Do not claim comprehensive accessibility or release readiness from source inspection alone.
+
+## STAB-04.08 — responsive keypad
+- Previous dialog changes verified at `f4c4942`: quality gate 45946925532 and unsigned candidate 45946925536 succeeded.
+- `795a755`: use three columns below 264dp available dock width (five 48dp keys and four 6dp gaps require 264dp); split toolbar below 210dp regardless of font scale. Existing font-scale split rule retained. Normal phone/tablet layouts unchanged.
+- New layout is source-reviewed only; CI and physical narrow/landscape checks pending. Three columns need at least 156dp for 48dp keys; extreme constraints remain outside this guarantee. Extra row increases dock height, so verify board viewport and scrolling.
+- Next: runtime bounds and font-scale regression tests; TalkBack duplicate labels/focus/state audit. Do not mark physical QA complete.
