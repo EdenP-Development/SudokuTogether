@@ -49,3 +49,9 @@ Audit encoded write-size limits versus read limits; restore journal lifecycle an
 - `0357ab2`: refuse to generate a fresh board for a previously solved Daily date whose review board was pruned, provided its completion record is retained. Existing saved boards can still reopen. This protects clock rollback/timezone revisit scenarios without changing seeds or dates.
 - `164f16a`: explain already-completed archived Daily to player instead of generic failure. `023c250`: JVM regression confirms no new board factory invocation and original history unchanged. GameViewModel may still prepare a deterministic board before the guarded store operation; no new board is installed. New commits require CI verification.
 - Limitation: date deduplication cannot establish completion after both board and record have been evicted. No migration to permanent history implemented. Next STAB-05.08: audit signed APK install-over continuity and existing upgrade verification scripts; no signing changes or public release.
+
+## STAB-05.08 — APK upgrade continuity
+- `023c250` passed quality gate 45955312268 and unsigned candidate 45955312308.
+- Source audit of Gradle, unsigned candidate workflow, signed Beta 2 workflow, QA preflight, legacy install-over rehearsal and UpgradeContinuityTest identifies versionCode 31 still shared by current staging and published baseline; QA-only tooling cannot certify production. No signed install-over performed.
+- `f9c5e0d`: dedicated acceptance procedure in docs/STAB-05-APK-UPGRADE-GATE.md. Keep original signer/package; require strictly newer release code and actual isolated install-over, semantic save verification and subsequent restart. Google Play and Amazon identity compatibility separately assessed before release.
+- Next STAB-05.09: consolidate open save/accessibility runtime gates and verify current build; design modern QA rehearsal before claiming release readiness. No version/signing changes.
