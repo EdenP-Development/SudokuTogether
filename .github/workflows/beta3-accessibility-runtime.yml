@@ -4,6 +4,9 @@ on:
     branches: [feat/beta3-foundation]
     paths:
       - '.github/workflows/beta3-accessibility-runtime.yml'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/PlaySmokeTest.kt'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/CompactPlayLayoutTest.kt'
+      - 'app/src/androidTest/java/com/playereden/sudokutogether/MultiplayerPolishUiTest.kt'
   workflow_dispatch:
 permissions:
   contents: read
@@ -40,7 +43,7 @@ jobs:
           profile: pixel_5
           emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
           disable-animations: true
-          script: chmod +x gradlew && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.CompactPlayLayoutTest,com.playereden.sudokutogether.SudokuKeypadAccessibilityTest,com.playereden.sudokutogether.Beta3BoardClarityTest,com.playereden.sudokutogether.CoachProofUiTest,com.playereden.sudokutogether.PlaySmokeTest --no-daemon --max-workers=2 --console=plain
+          script: chmod +x gradlew && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.CompactPlayLayoutTest,com.playereden.sudokutogether.SudokuKeypadAccessibilityTest,com.playereden.sudokutogether.Beta3BoardClarityTest,com.playereden.sudokutogether.CoachProofUiTest,com.playereden.sudokutogether.PlaySmokeTest,com.playereden.sudokutogether.MultiplayerPolishUiTest --no-daemon --max-workers=2 --console=plain
       - name: Retain test reports only
         if: always()
         uses: actions/upload-artifact@v4
