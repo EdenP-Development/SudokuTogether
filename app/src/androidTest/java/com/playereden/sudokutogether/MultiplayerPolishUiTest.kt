@@ -173,8 +173,8 @@ class MultiplayerPolishUiTest {
                 throw AssertionError("Quick Chat visibility: $label", failure)
             }
         }
-        verifyVisible("history sender You") { compose.onNodeWithText("You").assertIsDisplayed() }
-        verifyVisible("history sender Taylor") { compose.onNodeWithText("Taylor").assertIsDisplayed() }
+        verifyVisible("history sender You") { compose.onNodeWithText("You").performScrollTo().assertIsDisplayed() }
+        verifyVisible("history sender Taylor") { compose.onNodeWithText("Taylor").performScrollTo().assertIsDisplayed() }
         compose.onNodeWithTag("chat_emote_happy").assertExists()
         compose.onNodeWithContentDescription(GridMatesEmote.HAPPY.label).assertExists()
         compose.onNodeWithTag("chat_input").assertDoesNotExist()
