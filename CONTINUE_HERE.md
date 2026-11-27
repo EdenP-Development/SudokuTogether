@@ -1,5 +1,8 @@
 # Continue GridMates: Sudoku
 
+## Latest reward stabilization pointer — 2026-11-27
+Active branch `feat/beta3-foundation`. Resume from [STAB-06 reward integrity handoff](docs/STAB-06-REWARD-INTEGRITY-HANDOFF.md). `8e2dcee` passed Android quality gate 45962075841; unsigned candidate 45962075789 pending at inspection. Integrated reward/save Android emulator workflow added at `8242358`, result pending; first inspect and repair any runtime failures before moving to next roadmap phase. Earlier save runtime 45957495632 passed on prior source. Signed upgrade, physical accessibility and two-device QA remain open. No public release/signing change. Prior pointers retained as history.
+
 ## Latest stabilization pointer — 2026-11-27
 Active branch `feat/beta3-foundation`. Resume from [STAB-05 save integrity handoff](docs/STAB-05-SAVE-INTEGRITY-HANDOFF.md), [APK upgrade acceptance gate](docs/STAB-05-APK-UPGRADE-GATE.md) and [STAB-04 accessibility handoff](docs/STAB-04-ACCESSIBILITY-HANDOFF.md). Latest verified code `023c250` passed quality gate 45955312268 and unsigned candidate 45955312308. Next STAB-05.09 integrated verification; physical accessibility, instrumentation execution and signed install-over remain open. This pointer supersedes older status below, not historical design decisions. No public release or signing change.
 
