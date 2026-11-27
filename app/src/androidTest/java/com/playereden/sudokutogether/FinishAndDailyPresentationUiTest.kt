@@ -42,6 +42,27 @@ class FinishAndDailyPresentationUiTest {
         compose.onNodeWithText("Records").performScrollTo().assertIsDisplayed()
     }
 
+    @Test fun completionRewardPanelExpandsAndCollapsesWithoutLosingRewards() {
+        val state = finishedState().copy(completionRewards = CompletionHighlights(
+            achievements = listOf("First Grid", "Second milestone", "Third milestone"),
+            cosmetics = listOf("Cobalt", "Bookish", "Rabbit")))
+        compose.setContent { SudokuTogetherTheme { CompletionRewardPanel(state, state.snapshot!!) } }
+        compose.onNodeWithText("Achievement · Third milestone").assertDoesNotExist()
+        compose.onNodeWithText("Collection unlock · Rabbit").assertDoesNotExist()
+        compose.onNodeWithText("Show all rewards (+2)").performClick()
+        compose.onNodeWithText("Achievement · Third milestone").assertExists()
+        compose.onNodeWithText("Collection unlock · Rabbit").assertExists()
+        compose.onNodeWithText("Show fewer rewards").performClick()
+        compose.onNodeWithText("Achievement · Third milestone").assertDoesNotExist()
+        compose.onNodeWithText("Collection unlock · Rabbit").assertDoesNotExist()
+    }
+
+    @Test fun rewardsForAnotherCompletionAreNeverDisplayed() {
+        val state = finishedState().copy(completionRewardRecordId = "different-puzzle")
+        compose.setContent { SudokuTogetherTheme { CompletionRewardPanel(state, state.snapshot!!) } }
+        compose.onNodeWithTag("finish_new_rewards").assertDoesNotExist()
+    }
+
     @Test fun reopenedFinishDoesNotPresentHistoricalUnlocksAsNew() {
         compose.setContent { SudokuTogetherTheme { SudokuApp(finishedState(newlyEarned = false), polishActions(), {}) } }
         compose.onNodeWithText("Puzzle completed").performScrollTo().assertIsDisplayed()
