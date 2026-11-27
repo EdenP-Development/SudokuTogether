@@ -295,10 +295,10 @@ object Cosmetics {
     fun allowed(id: String, records: List<GameRecord>, owned: Collection<String> = emptyList()): Boolean =
         progress(id, records, owned)?.unlocked == true
     fun accessible(a: Appearance, records: List<GameRecord>, owned: Collection<String> = emptyList()): Appearance = Appearance(
-        ink = a.ink.takeIf { allowed(it, records, owned) } ?: "forest",
-        board = a.board.takeIf { allowed(it, records, owned) } ?: "classic",
-        font = a.font.takeIf { allowed(it, records, owned) } ?: "clear",
-        emblem = a.emblem.takeIf { allowed(it, records, owned) } ?: "tile",
+        ink = a.ink.takeIf { id -> inks.any { it.id == id } && allowed(id, records, owned) } ?: "forest",
+        board = a.board.takeIf { id -> boards.any { it.id == id } && allowed(id, records, owned) } ?: "classic",
+        font = a.font.takeIf { id -> fonts.any { it.id == id } && allowed(id, records, owned) } ?: "clear",
+        emblem = a.emblem.takeIf { id -> emblems.any { it.id == id } && allowed(id, records, owned) } ?: "tile",
         portrait = a.portrait.takeIf { it.isEmpty() || (portraits.any { item -> item.id == it } && allowed(it, records, owned)) } ?: ""
     )
 }
