@@ -8,3 +8,10 @@ Active branch `feat/beta3-foundation`. STAB-05 runtime gate 45957495632 at addc7
 - `aa1f94a`: regression tests mixed zero and valid duration, inclusive 600000ms boundary and 600001ms rejection. CI pending.
 
 Next: verify emulator and latest quality gate; repair genuine failures first, then STAB-06.02 cosmetic catalog/ownership audit. Subsequent: unlock balance, completion feedback, equipped style consistency, name collection, legacy reward compatibility and integrated verification. Preserve save schema, IDs, artwork and signing; retention limitations and physical QA remain open.
+
+## STAB-06.02 — cosmetic catalog and ownership
+- `aa1f94a` passed quality gate 45957993381 and unsigned candidate 45957993449. STAB-05 emulator gate 45957495632 passed; job steps confirm instrumentation command and report upload succeeded. Individual report counts not inspected. Physical and signed upgrade acceptance remain open.
+- Catalog: 85 items, 43 portraits (17 woodland, 11 ocean, 9 garden, 6 farm), 10 inks, 11 boards, 9 fonts, 12 emblems. 10 starter and 75 earnable items. Existing alternate unlock routes and ownership ledgers retained.
+- `7f50d82`: accessible appearance now checks category as well as ownership for ink, board, font and emblem; portrait already did so. Prevents a valid owned ID in the wrong preference slot from producing invalid appearance. Correctly equipped items unchanged.
+- `85c84e7`: regression tests wrong-slot IDs fall back to defaults and correctly equipped owned items survive absent history. CI pending. No artwork/threshold/ID changes. Artwork reference coverage and physical presentation still open.
+- Next STAB-06.03: evaluate unlock thresholds, alternative paths, milestone consistency and pacing without raising existing requirements.
