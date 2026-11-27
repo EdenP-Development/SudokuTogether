@@ -29,3 +29,9 @@ Preserve gameplay, artwork, progression, networking, save formats and signing. O
 - `e3ff9a3`: add CompactPlayLayoutTest fixture at nominal 260x900dp, 100% font scale. Checks nine visible/reachable keys, at least 47.5dp measured width and height (rounding tolerance), repeated three-column alignment, toolbar and board reachability, and note-mode content description.
 - Existing tests already cover 200% compact portrait/landscape, large tablet landscape, expanded tablet portrait and keypad note-mode semantics/geometry. New fixture is committed, execution not yet verified. Check workflow coverage and actual test results before declaring pass.
 - Next: verify CI and fixture execution; review TalkBack focus, duplicate announcements and remaining controls; physical tablet QA remains open. No save, gameplay, networking, artwork or signing changes.
+
+## STAB-04.10 — screen-reader semantics
+- `e3ff9a3` passed quality gate 45949048724 and unsigned candidate 45949048731. Job inspection confirms source/UI-test compilation, JVM regression and lint; no instrumented test execution established.
+- `367be0c`: selection semantics restricted to Notes toggle; ordinary Erase/Undo/Hint actions no longer expose selected state. Hide redundant visual keypad number/count and descriptive Hint child labels from semantics, retain button actions and number count test tags.
+- `296c32c`: add semantics assertions for no redundant keypad Text property, Notes selection state, and absence of Selected on ordinary actions. Compilation and instrumentation execution pending. Review any existing tests that locate Hint by visible text; semantics change can require locator migration.
+- Next: verify CI and audit text-based test selectors, then remaining board cell/heading/focus semantics and physical TalkBack/tablet QA. No game rules, visual styling, saved data, networking or signing changes.
