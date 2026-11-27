@@ -129,6 +129,8 @@ class PlaySmokeTest {
         val hint = requireNotNull(model.state.value.hint)
         compose.onNodeWithTag("coach_cell_${hint.cell}").assertExists()
         compose.onNodeWithText(hint.explanation).assertDoesNotExist()
+        compose.onNodeWithText("Show evidence").performScrollTo().assertIsDisplayed().performClick()
+        compose.onNodeWithText(hint.explanation).assertDoesNotExist()
         compose.onNodeWithText("Show why").performScrollTo().assertIsDisplayed().performClick()
         compose.onNodeWithText(hint.explanation).assertExists()
         assertEquals(before, model.state.value.snapshot!!.cells)
