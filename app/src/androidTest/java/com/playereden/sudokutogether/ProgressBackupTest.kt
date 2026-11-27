@@ -90,6 +90,28 @@ class ProgressBackupTest {
         rooms.forEach { assertEquals("saved room ${it.name}", it.readText()) }
     }
 
+    @Test fun outstandingCommittedMarkerBlocksNewBackupOperationsUntilStartupRecovery() {
+        val player = LocalPlayerStore(profileFile)
+        val store = ProgressBackupStore(profileFile, preferences)
+        val restored = store.restore(player, incomingPreview())
+        val before = profileFile.readBytes()
+        val settingsBefore = preferences.all
+        // Simulate a completed transaction whose marker could not be removed.
+        val marker = File(profileFile.path + ".restore.committed").also { it.writeText("retained marker") }
+        assertEquals(ProgressBackupException.Reason.RECOVERY_REQUIRED,
+            assertThrows(ProgressBackupException::class.java) { store.export(player, "1.0.0-beta.3") }.reason)
+        assertEquals(ProgressBackupException.Reason.RECOVERY_REQUIRED,
+            assertThrows(ProgressBackupException::class.java) { store.restore(player, incomingPreview()) }.reason)
+        assertArrayEquals(before, profileFile.readBytes())
+        assertEquals(settingsBefore, preferences.all)
+        assertTrue(marker.exists())
+        val reopened = LocalPlayerStore(profileFile)
+        assertFalse(store.recoverPendingRestore(reopened))
+        assertFalse(marker.exists())
+        assertEquals(restored, reopened.current())
+        assertTrue(store.export(reopened, "1.0.0-beta.3").isNotEmpty())
+    }
+
     @Test fun soundPreferenceIsDeviceLocalAndSurvivesPortableRestore() {
         val player = LocalPlayerStore(profileFile)
         check(preferences.edit().putBoolean("soundEffects", true).commit())
