@@ -41,7 +41,8 @@ data class GameActions(
     val rematch: (String) -> Unit = {},
     val soundEffects: (Boolean) -> Unit = {},
     val partnerPing: () -> Unit = {},
-    val muteCommunication: (Boolean) -> Unit = {}
+    val muteCommunication: (Boolean) -> Unit = {},
+    val dismissNameMigrationNotice: () -> Unit = {}
 )
 
 @Composable fun SudokuApp(

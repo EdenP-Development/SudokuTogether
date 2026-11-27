@@ -153,6 +153,24 @@ internal enum class ProfileSection(val title: String) {
         }
     }
 
+    if (state.nameMigrationNotice) {
+        GamePanel(Modifier.fillMaxWidth().testTag("name_migration_notice"), padding = 14.dp) {
+            SectionTitle("Your name, your adventure")
+            Text("GridMates now lets you build your name using collectible words. We've selected a starter name for you.",
+                style = MaterialTheme.typography.bodyMedium, color = Forest)
+            Text("Changing your name does not reset your achievements or puzzle progress.",
+                style = MaterialTheme.typography.bodySmall, color = Muted)
+            OutlinedButton(onClick = { draft = state.name }, enabled = !state.busy && !state.localSaveBlocked,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("name_migration_customize")) {
+                Text("Customize my name")
+            }
+            TextButton(onClick = actions.dismissNameMigrationNotice, enabled = !state.busy && !state.localSaveBlocked,
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("name_migration_dismiss")) {
+                Text("Dismiss")
+            }
+        }
+    }
+
     val records = state.profile.records
     val stats = PersonalPlay.stats(state.profile)
     GamePanel(Modifier.fillMaxWidth(), padding = 14.dp) {

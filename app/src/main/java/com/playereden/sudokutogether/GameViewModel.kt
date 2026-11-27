@@ -56,7 +56,8 @@ data class GameUiState(
     val requireRoomCode: Boolean = true,
     val backupSuccessMessage: String? = null,
     val completionRewardRecordId: String? = null,
-    val completionRewards: CompletionHighlights = CompletionHighlights()
+    val completionRewards: CompletionHighlights = CompletionHighlights(),
+    val nameMigrationNotice: Boolean = false
 ) {
     val canEdit: Boolean get() = snapshot != null && !snapshot.completed && !busy && pendingId == null && ((role == SOLO && !localSaveBlocked) || (role != SOLO && !status.paused && (snapshot.mode != VERSUS || status.guestActive) && (role == HOST || connected)))
     internal val canRematch: Boolean get() = role == HOST && !busy && status.hostActive && status.guestActive &&
@@ -86,6 +87,7 @@ class GameViewModel @JvmOverloads constructor(
     private var soloElapsedAnchor: Long = 0L
     private fun GameUiState.withStoredPlayerSettings(): GameUiState = copy(
         name = preferences.getString("name", "Player") ?: "Player",
+        nameMigrationNotice = preferences.getBoolean("nameMigrationNotice", false),
         uniformNumbers = preferences.getBoolean("uniformNumbers", false),
         touchFeedback = preferences.getBoolean("touchFeedback", true),
         soundEffects = preferences.getBoolean("soundEffects", true),
@@ -96,7 +98,12 @@ class GameViewModel @JvmOverloads constructor(
     private fun normalizeStoredName(profile: LocalPlayerData): String {
         val existing = preferences.getString("name", "Player") ?: "Player"
         val approved = NameCollection.normalizedProfileName(existing, profile)
-        if (approved != existing) preferences.edit().putString("name", approved).apply()
+        if (approved != existing) {
+            val hadStoredName = preferences.contains("name")
+            preferences.edit().putString("name", approved).apply {
+                if (hadStoredName) putBoolean("nameMigrationNotice", true)
+            }.apply()
+        }
         return approved
     }
     private val _state = MutableStateFlow(GameUiState(busy = true).withStoredPlayerSettings())
@@ -237,7 +244,13 @@ class GameViewModel @JvmOverloads constructor(
         val selection = NameCollection.parseCanonical(name) ?: return
         if (!NameCollection.canEquip(selection, NameCollection.earnedIds(_state.value.profile))) return
         val value = NameCollection.display(selection) ?: return
-        _state.update { it.copy(name = value) }; preferences.edit().putString("name", value).apply()
+        preferences.edit().putString("name", value).remove("nameMigrationNotice").apply()
+        _state.update { it.copy(name = value, nameMigrationNotice = false) }
+    }
+    fun dismissNameMigrationNotice() {
+        if (settingsLocked) return
+        preferences.edit().remove("nameMigrationNotice").apply()
+        _state.update { it.copy(nameMigrationNotice = false) }
     }
     fun setRequireRoomCode(enabled: Boolean) {
         if (settingsLocked) return
@@ -611,7 +624,7 @@ class GameViewModel @JvmOverloads constructor(
             resumeSolo = saved.activeSolo != null, resumeRace = it.resumeRace, appearance = it.appearance,
             uniformNumbers = it.uniformNumbers, touchFeedback = it.touchFeedback, soundEffects = it.soundEffects,
             autoCleanNotes = it.autoCleanNotes, selectedDifficulty = it.selectedDifficulty, requireRoomCode = it.requireRoomCode,
-            todayDate = DailyChallenge.today()) }
+            todayDate = DailyChallenge.today(), nameMigrationNotice = it.nameMigrationNotice) }
     }
     fun host(resume: Boolean) = hostInternal(resume, versus = false)
 
