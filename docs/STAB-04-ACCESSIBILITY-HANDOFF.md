@@ -47,3 +47,10 @@ Preserve gameplay, artwork, progression, networking, save formats and signing. O
 - `77bc1d1`: extend Beta3BoardClarityTest with value, clue and pencil descriptions, absence of redundant Text, selection and click assertions, and retained pencil tags.
 - Navigation source review confirms selectableGroup, Tab role, selected state, single label, 69dp minimum height, journal heading and 48dp back button. Actual focus order and narrow widths remain unverified.
 - New commits require compile and instrumentation verification. Full selector audit and physical TalkBack/tablet testing remain open. No visual, rules, save, network or signing changes. Next: verify builds, audit remaining selectors and run instrumentation where available; then source-level accessibility closeout with explicit deferred device QA.
+
+## STAB-04.13 — closeout risk review
+- Board changes at 77bc1d1 were still building (45950707634, 45950707637) when inspected; no new runtime pass claimed.
+- Existing Beta2StyleCompatibilityUiTest uses GetTextLayoutResult on tagged pencil glyphs for 972 board/font/size samples. Clearing glyph semantics could compromise that diagnostic. `c5e33d0` conservatively restores board glyph semantics pending actual TalkBack evidence; keypad and toolbar improvements remain. `cb77ee2` keeps descriptive board label, selection, action and pencil-tag regression checks but drops the no-Text requirement.
+- Full selector scan was interrupted by tool-call limit; do not mark complete. Check remaining selectors and compile/runtime tests.
+- Device gate: verify TalkBack traversal and duplicate speech, all nine keypad targets, scroll reachability at 100% and 200% font scales, phone/tablet portrait and landscape, navigation bounds, and Coach examples. Preserve save data and signing; no public release based on unsigned builds.
+- Next: verify latest quality gate, then begin STAB-05 source audit of save transactions, migrations and progression invariants while maintaining explicit open accessibility runtime gates.
