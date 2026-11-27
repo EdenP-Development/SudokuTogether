@@ -1,5 +1,8 @@
 # Beta 3 progress — active checkpoint
 
+## Latest repository synchronization checkpoint — 2026-11-27
+Active branch `feat/beta3-foundation`. Latest build-verified code `8e2dcee916bf7189a6a252951046b5d5fca52f62`: quality gate 45962075841 and unsigned candidate 45962075789 passed. Earlier save runtime 45957495632 passed on earlier source; integrated reward/save run 45962562834 still executing at inspection. STAB-07 repository synchronization closeout: see [release evidence](STAB-07-RELEASE-EVIDENCE.md). Next STAB-08 feature freeze (scope only, not release approval); inspect integrated results and repair failures before acceptance. Physical, rights, privacy, exact signed upgrade and owner approval gates remain open. No publication or signing changes.
+
 ## Current authoritative checkpoint — Beta 3 stabilization (2026-11-26)
 
 Supersedes all earlier checkpoint status statements below; retain older entries as development history. Latest verified runtime [1088451](https://github.com/EdenP-Development/SudokuTogether/commit/1088451bdb4995697c9d20c2781acb3f44900500): [Android quality gate 45894433045](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45894433045) and [unsigned candidate 45894433028](https://github.com/EdenP-Development/SudokuTogether/actions/runs/45894433028) completed successfully. Instrumentation compiled, not executed. No public Beta 3 distribution.
