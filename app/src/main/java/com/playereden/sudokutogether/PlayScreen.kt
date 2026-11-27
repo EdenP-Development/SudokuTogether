@@ -251,7 +251,18 @@ import kotlinx.coroutines.delay
             if (snapshot.mode == COOP && snapshot.completed && snapshot.guestName != null) {
                 GamePanel(Modifier.widthIn(max = 460.dp).fillMaxWidth()) {
                     SectionTitle("A board solved together")
-                    Text("Final entries: ${snapshot.hostName} ${snapshot.cells.count { it.owner == HOST && it.value in 1..9 }} · ${snapshot.guestName} ${snapshot.cells.count { it.owner == GUEST && it.value in 1..9 }}", color = Ink, fontSize = 12.sp)
+                    Text("Final entries", color = Muted, style = MaterialTheme.typography.labelMedium)
+                    for ((playerRole, playerName) in listOf(HOST to snapshot.hostName, GUEST to snapshot.guestName.orEmpty())) {
+                        val entries = snapshot.cells.count { it.owner == playerRole && it.value in 1..9 }
+                        Row(Modifier.fillMaxWidth().testTag("coop_final_entries_" + playerRole),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically) {
+                            Text(playerName, modifier = Modifier.weight(1f), color = Ink,
+                                style = MaterialTheme.typography.bodyMedium)
+                            Text(entries.toString(), color = Ink, style = MaterialTheme.typography.titleSmall,
+                                modifier = Modifier.semantics { contentDescription = "$entries final entries" })
+                        }
+                    }
                     Text("A shared contribution, not a skill ranking.", color = Muted, fontSize = 11.sp)
                 }
             }
@@ -400,12 +411,27 @@ import kotlinx.coroutines.delay
     val snapshot = state.snapshot ?: return
     val other = if (state.role == HOST) snapshot.guestAppearance else snapshot.hostAppearance
     val partner = if (state.role == HOST) snapshot.guestName else snapshot.hostName
-    Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-        for ((look, name) in listOf(state.appearance to state.name, other to (partner ?: "Waiting for partner"))) {
-            Row(Modifier.weight(1f), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(5.dp)) {
-                AnimalPortrait(look, Modifier.size(24.dp))
-                Text(name, color = inkFor(look.ink, false), fontSize = 11.sp, maxLines = 1, overflow = TextOverflow.Ellipsis)
-            }
+    val identities = listOf(state.appearance to state.name, other to (partner ?: "Waiting for partner"))
+    val stacked = LocalDensity.current.fontScale > 1.3f
+    @Composable fun Identity(index: Int, modifier: Modifier) {
+        val (look, name) = identities[index]
+        Row(modifier.testTag("coop_player_identity_$index"),
+            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            AnimalPortrait(look, Modifier.size(24.dp).clearAndSetSemantics {})
+            Text(name, modifier = Modifier.weight(1f), color = inkFor(look.ink, false),
+                style = MaterialTheme.typography.bodySmall, maxLines = if (stacked) Int.MAX_VALUE else 2,
+                overflow = TextOverflow.Ellipsis)
+        }
+    }
+    if (stacked) {
+        Column(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            identities.indices.forEach { Identity(it, Modifier.fillMaxWidth()) }
+        }
+    } else {
+        Row(Modifier.fillMaxWidth().padding(horizontal = 4.dp, vertical = 2.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            identities.indices.forEach { Identity(it, Modifier.weight(1f)) }
         }
     }
 }
