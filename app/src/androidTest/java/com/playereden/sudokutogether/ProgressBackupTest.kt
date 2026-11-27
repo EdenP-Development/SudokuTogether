@@ -77,7 +77,7 @@ class ProgressBackupTest {
         val restored = ProgressBackupStore(profileFile, preferences).restore(destination, preview)
         assertEquals(incoming.copy(playerId = original.playerId), restored)
         assertEquals(restored, LocalPlayerStore(profileFile).current())
-        assertEquals("River", preferences.getString("name", null))
+        assertEquals(NameCollection.normalizedProfileName("River", restored), preferences.getString("name", null))
         assertEquals(expectedAppearance, readAppearance())
         assertTrue(preferences.getBoolean("uniformNumbers", false))
         assertFalse(preferences.getBoolean("touchFeedback", true))
@@ -244,7 +244,7 @@ class ProgressBackupTest {
         assertThrows(TestInterruption::class.java) {
             ProgressBackupStore(profileFile, interrupted).restore(player, incomingPreview())
         }
-        assertEquals("River", preferences.getString("name", null))
+        assertEquals(NameCollection.normalizedProfileName("River", player.current()), preferences.getString("name", null))
         val reopened = LocalPlayerStore(profileFile)
         assertEquals("unfinished-solo", reopened.current().activeSolo?.id)
 
@@ -433,6 +433,7 @@ class ProgressBackupTest {
         val store = ProgressBackupStore(profileFile, preferences)
         store.restore(player, incomingPreview())
         assertTrue(preferences.getBoolean("nameMigrationNotice", false))
+        assertEquals(NameCollection.normalizedProfileName("River", player.current()), preferences.getString("name", null))
         assertEquals(id, player.current().playerId)
         assertFalse(store.export(player, "1.0.0-beta.3").decodeToString().contains("nameMigrationNotice"))
 
