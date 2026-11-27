@@ -188,4 +188,34 @@ class CompactPlayLayoutTest {
         capture("tablet-landscape-large-text")
     }
 
+
+    @Test fun ultraNarrowNormalTextUsesThreeRowsAndKeepsEveryKeyReachable() {
+        shell("settings put system font_scale 1.0")
+        val density = context.resources.displayMetrics.density
+        shell("wm size ${(260 * density).toInt()}x${(900 * density).toInt()}")
+        launch(false)
+        val shown = mutableStateOf(fixture(SOLO, SOLO))
+        scenario!!.onActivity {
+            it.setContent { SudokuTogetherTheme { SudokuApp(shown.value, actions, {}) } }
+        }
+        val dock = compose.onNodeWithTag("input_dock")
+        dock.assertExists()
+        val keyBounds = (1..9).map { number ->
+            val key = compose.onNodeWithTag("number_$number").performScrollTo().assertIsDisplayed().getUnclippedBoundsInRoot()
+            assertTrue("Key $number needs sufficient width", (key.right - key.left).value >= 47.5f)
+            assertTrue("Key $number needs sufficient height", (key.bottom - key.top).value >= 47.5f)
+            key
+        }
+        // Column positions stay stable even when scrolling changes root Y coordinates.
+        for (i in 0..5) assertTrue("Three-column keypad must align repeated columns",
+            kotlin.math.abs((keyBounds[i].left - keyBounds[i + 3].left).value) < 1f)
+        assertTrue("First row must have three distinct columns",
+            keyBounds[0].left < keyBounds[1].left && keyBounds[1].left < keyBounds[2].left)
+        for (tool in listOf("Notes", "Erase", "Undo", "Hint"))
+            compose.onNodeWithText(tool).performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("cell_0").performScrollTo().assertIsDisplayed()
+        compose.runOnIdle { shown.value = shown.value.copy(notes = true) }
+        compose.onNodeWithTag("number_1").performScrollTo().assertIsDisplayed()
+            .assertContentDescriptionEquals("Add pencil mark 1")
+    }
 }
