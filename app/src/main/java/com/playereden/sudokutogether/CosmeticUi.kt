@@ -573,7 +573,7 @@ private val TealColor = Color(0xFFDCECE4)
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable fun RoomChatSheet(state: GameUiState, actions: GameActions, close: () -> Unit) {
-    var group by remember { mutableStateOf<QuickChatGroup?>(QuickChatGroup.RESPONSE) }
+    var group by rememberSaveable { mutableStateOf<QuickChatGroup?>(QuickChatGroup.RESPONSE) }
     val scroll = rememberLazyListState()
     val visibleChat = if (state.communicationMuted) state.chat.filter { it.player == state.role } else state.chat
     val enabled = state.role == HOST || state.connected
@@ -590,16 +590,27 @@ private val TealColor = Color(0xFFDCECE4)
                 Switch(checked = !state.communicationMuted, onCheckedChange = { actions.muteCommunication(!it) }, modifier = Modifier.testTag("communication_visibility").semantics { contentDescription = "Show incoming messages, emotes and markers" })
             }
             if (state.communicationMuted) Text("Your partner can still play and receive your messages. Unmute to see recent messages again.", color = Muted, fontSize = 12.sp)
+            if (!enabled) Text("Reconnect to send messages.", color = Muted,
+                style = MaterialTheme.typography.bodyMedium, modifier = Modifier.testTag("quick_chat_disconnected"))
             LazyColumn(Modifier.fillMaxWidth().height(128.dp).testTag("quick_chat_history"), state = scroll,
                 verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                if (visibleChat.isEmpty()) item {
+                    Box(Modifier.fillMaxWidth().padding(vertical = 16.dp), contentAlignment = Alignment.Center) {
+                        Text(if (state.communicationMuted) "Incoming messages are hidden." else "No messages yet.",
+                            color = Muted, style = MaterialTheme.typography.bodyMedium,
+                            textAlign = TextAlign.Center, modifier = Modifier.testTag("quick_chat_empty"))
+                    }
+                }
                 items(visibleChat, key = { it.id }) { msg ->
                     val mine = msg.player == state.role
                     val author = if (msg.player == HOST) state.snapshot?.hostName ?: "Host" else state.snapshot?.guestName ?: "Partner"
                     val look = if (msg.player == HOST) state.snapshot?.hostAppearance ?: Appearance() else state.snapshot?.guestAppearance ?: Appearance()
                     Column(Modifier.fillMaxWidth(), horizontalAlignment = if (mine) Alignment.End else Alignment.Start) {
-                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-                            AnimalPortrait(look, Modifier.size(24.dp))
-                            Text(if (mine) "You" else author, fontSize = 12.sp, color = Muted)
+                        Row(Modifier.widthIn(max = 420.dp), verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                            AnimalPortrait(look, Modifier.size(24.dp).clearAndSetSemantics {})
+                            Text(if (mine) "You" else author, modifier = Modifier.weight(1f, fill = false),
+                                style = MaterialTheme.typography.bodySmall, color = Muted)
                         }
                         val reaction = GridMatesEmote.fromWire(msg.text)
                         if (reaction == null) {
@@ -626,7 +637,10 @@ private val TealColor = Color(0xFFDCECE4)
                 FilterChip(selected = group == null, onClick = { group = null },
                     label = { Text("Emotes") }, modifier = Modifier.heightIn(min = 48.dp).testTag("quick_chat_emotes"))
             }
-            if (group == null) GridMatesEmote.entries.chunked(3).forEach { trio ->
+            val largeText = LocalDensity.current.fontScale > 1.3f
+            val emoteColumns = if (largeText) 2 else 3
+            val phraseColumns = if (largeText) 1 else 2
+            if (group == null) GridMatesEmote.entries.chunked(emoteColumns).forEach { trio ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                     trio.forEach { emote ->
                         OutlinedButton(onClick = { actions.sendChat(emote.wireValue) },
@@ -638,16 +652,16 @@ private val TealColor = Color(0xFFDCECE4)
                             }
                         }
                     }
-                    repeat(3 - trio.size) { Spacer(Modifier.weight(1f)) }
+                    repeat(emoteColumns - trio.size) { Spacer(Modifier.weight(1f)) }
                 }
-            } else QuickChatPhrase.entries.filter { it.group == group }.chunked(2).forEach { pair ->
+            } else QuickChatPhrase.entries.filter { it.group == group }.chunked(phraseColumns).forEach { pair ->
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     pair.forEach { phrase ->
                         OutlinedButton(onClick = { actions.sendChat(phrase.label) },
                             modifier = Modifier.weight(1f).heightIn(min = 48.dp).testTag("quick_chat_" + phrase.id),
                             enabled = enabled) { Text(phrase.label, textAlign = TextAlign.Center) }
                     }
-                    if (pair.size == 1) Spacer(Modifier.weight(1f))
+                    repeat(phraseColumns - pair.size) { Spacer(Modifier.weight(1f)) }
                 }
             }
         }
