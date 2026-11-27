@@ -22,3 +22,10 @@ Preserve gameplay, artwork, progression, networking, save formats and signing. O
 - `795a755`: use three columns below 264dp available dock width (five 48dp keys and four 6dp gaps require 264dp); split toolbar below 210dp regardless of font scale. Existing font-scale split rule retained. Normal phone/tablet layouts unchanged.
 - New layout is source-reviewed only; CI and physical narrow/landscape checks pending. Three columns need at least 156dp for 48dp keys; extreme constraints remain outside this guarantee. Extra row increases dock height, so verify board viewport and scrolling.
 - Next: runtime bounds and font-scale regression tests; TalkBack duplicate labels/focus/state audit. Do not mark physical QA complete.
+
+## STAB-04.09 — ultra-narrow regression coverage
+- `795a755` responsive keypad baseline passed Android quality gate (45947701258) and unsigned candidate (45947701214).
+- `29cd896`: enable whole-page scrolling below 288dp window width at normal text scale, accounting for 24dp dock padding and the extra keypad row.
+- `e3ff9a3`: add CompactPlayLayoutTest fixture at nominal 260x900dp, 100% font scale. Checks nine visible/reachable keys, at least 47.5dp measured width and height (rounding tolerance), repeated three-column alignment, toolbar and board reachability, and note-mode content description.
+- Existing tests already cover 200% compact portrait/landscape, large tablet landscape, expanded tablet portrait and keypad note-mode semantics/geometry. New fixture is committed, execution not yet verified. Check workflow coverage and actual test results before declaring pass.
+- Next: verify CI and fixture execution; review TalkBack focus, duplicate announcements and remaining controls; physical tablet QA remains open. No save, gameplay, networking, artwork or signing changes.
