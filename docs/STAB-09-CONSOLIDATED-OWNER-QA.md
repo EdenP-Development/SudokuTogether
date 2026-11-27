@@ -1,0 +1,38 @@
+# STAB-09 — Consolidated owner QA matrix
+
+Prepared 2026-11-27 under STAB-08.02. Not executed. Candidate source, APK SHA-256, package, certificate, version and device details must be filled before acceptance. Latest build-verified code 8e2dcee; integrated runtime 45962562834 still executing at inspection. Do not install unsigned artifacts.
+
+## Test setup
+Use one isolated QA candidate where feasible, plus second device for LAN. Record device/model, OS/API, screen size, text scale, build identity and test date. Protect the existing public Beta 2 installation; do not uninstall or clear data. Use noncritical profiles and a portable backup. Separate debug QA from actual signed install-over acceptance per STAB-05-APK-UPGRADE-GATE.md. Record PASS / FAIL / BLOCKED / NOT RUN; screenshots and logs sanitized of credentials or private data.
+
+| ID | Workflow | Expected outcome | Priority |
+| --- | --- | --- | --- |
+| QA-01 | Cold launch, splash skip, Home, background/relaunch | No crash, silent splash, correct startup and navigation | P1 |
+| QA-02 | Solo Easy/Medium/Hard, select/enter/erase/notes/undo/check/hint | Correct board, controls and saved progress | P1 |
+| QA-03 | Leave unfinished Solo, force-stop/reopen, resume | Board, notes, time and settings retained | P0 |
+| QA-04 | Complete Solo and reopen result | Correct record once; earned rewards only on new completion | P1 |
+| QA-05 | Daily start/resume/complete/review | Correct date, distinct completion and no duplicate rewards | P1 |
+| QA-06 | Coach existing lessons and proof UI | Valid teaching steps, readable controls, no unintended edits | P1 |
+| QA-07 | Profile, collection, owned and locked styles, name builder | Valid equip only; retained selection after relaunch; readable long name | P1 |
+| QA-08 | Achievements, name album, expanded completion rewards | Accurate ownership and reachable actions | P1 |
+| QA-09 | Portable export/preview/cancel/restore on isolated data | Confirmed import only, correct profile/settings, local identity and room credentials retained | P0 |
+| QA-10 | Two devices: Co-op host/join/code, edit, ping, replies/emotes, reconnect, finish/rematch | Shared state correct; no duplicate records; no arbitrary text | P1 |
+| QA-11 | Two devices: Versus start/win/loss/reconnect/rematch | Correct outcome/records, no Co-op coordinate ping | P1 |
+| QA-12 | Rapid appearance changes in LAN; leave during completion | Current appearance eventually agrees; no stale reward panel | P1 |
+| QA-13 | Phone portrait/landscape; tablet/Fire portrait/landscape; 100% and 200% text | No clipped critical controls; board/keypad and dialogs reachable | P1 |
+| QA-14 | TalkBack Home, navigation, board, keypad, Coach, rewards and settings | Clear labels, selection/role, usable focus order, no disruptive duplicate announcements | P1 |
+| QA-15 | Airplane mode Solo/Daily/Coach and backup | Core offline flows work without account or network | P1 |
+| QA-16 | Audio candidate: six tracks, Music Corner, independent 50% fresh defaults, saved off and volume, last track | Correct playback/status and preferences; no unexpected audio | P1 |
+| QA-17 | Audio focus/background/lock/relaunch, Final Piece intro, number vs erase, completion once, haptics | Distinct cues, no duplicate chime or unwanted playback; respects settings | P1 |
+| QA-18 | Exact prior signed APK to higher-version signed candidate on backed-up isolated device | Identity, records, notes, progress, cosmetics, preferences and saved room preserved | P0 |
+| QA-19 | Actual candidate screenshots and branding on target devices | Accurate store images, approved visuals; no private data | P2 |
+
+## Evidence entry (repeat per failure or acceptance)
+- Test ID / result / severity:
+- Candidate source SHA / APK digest / package / version / signer:
+- Device and OS / orientation / font scale:
+- Steps / expected / actual:
+- Screenshot or sanitized log reference:
+- Fix commit / rerun result:
+
+P0 stops release; P1 repair before acceptance; P2 evaluate or explicitly defer. No public signing/version change, upload or acceptance implied. Earlier general handset audio acceptance is historical evidence only; retest exact candidate. Rights, privacy, support and storefront declarations are separate gates. No requirement that owner repeat destructive scenarios on real personal saves.
