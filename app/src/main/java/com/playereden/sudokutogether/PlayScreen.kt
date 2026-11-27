@@ -752,7 +752,7 @@ import kotlinx.coroutines.delay
                     }
                 Box(Modifier.weight(1f).fillMaxHeight().background(background).then(outline).then(click).then(semantics),
                     contentAlignment = Alignment.Center) {
-                    if (cell.value != 0) Text(cell.value.toString(), modifier = Modifier.fillMaxWidth().clearAndSetSemantics {},
+                    if (cell.value != 0) Text(cell.value.toString(), modifier = Modifier.fillMaxWidth(),
                         style = digitStyle.copy(fontFamily = authoredFont), textAlign = TextAlign.Center,
                         maxLines = 1, softWrap = false, fontWeight = if (given) FontWeight.Bold else FontWeight.Normal,
                         color = if (i in conflicts && !given) conflictDigitInk(background, palette) else if (given) neutralInk
@@ -789,7 +789,7 @@ import kotlinx.coroutines.delay
                                     if (n in noteNumbers) {
                                         val removed = n in crossedOff
                                         val color = if (removed) crossedOffNoteInk(background, palette) else pencilColor
-                                        Text(n.toString(), modifier = Modifier.fillMaxWidth().testTag("pencil_cell_${i}_${n}").clearAndSetSemantics {}, color = color,
+                                        Text(n.toString(), modifier = Modifier.fillMaxWidth().testTag("pencil_cell_${i}_${n}"), color = color,
                                             style = inkNoteStyle, textAlign = TextAlign.Center,
                                             textDecoration = if (removed) TextDecoration.LineThrough else null,
                                             maxLines = 1, softWrap = false)
