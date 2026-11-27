@@ -6,6 +6,7 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import com.playereden.sudokutogether.core.*
 
@@ -37,17 +38,37 @@ private enum class NameAlbumFilter { ALL, AVAILABLE, LOCKED }
             style = MaterialTheme.typography.bodySmall, color = Muted)
         GamePrimaryButton("Build your name", { builder = true }, !state.busy)
     }
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-        Text("Word category", style = MaterialTheme.typography.labelLarge)
-        for ((item, label) in listOf(NameSlot.FIRST to "First words", NameSlot.MIDDLE to "Middle words", NameSlot.LAST to "Last words")) {
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val stacked = maxWidth < 300.dp || LocalDensity.current.fontScale > 1.3f
+        val categories = listOf(NameSlot.FIRST to "First", NameSlot.MIDDLE to "Middle", NameSlot.LAST to "Last")
+        val filters = listOf(NameAlbumFilter.ALL to "All words", NameAlbumFilter.AVAILABLE to "Collected", NameAlbumFilter.LOCKED to "Locked")
+        @Composable fun Category(item: NameSlot, label: String, modifier: Modifier) {
             FilterChip(selected = slot == item, onClick = { slot = item },
-                label = { Text(label) }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("name_album_slot_${item.name.lowercase()}"))
+                label = { Text("$label words") },
+                modifier = modifier.heightIn(min = 48.dp).testTag("name_album_slot_${item.name.lowercase()}"))
         }
-        Text("${available.size} of ${NameCollection.words.count { it.slot == slot }} available", color = Muted)
-        Text("Show", style = MaterialTheme.typography.labelLarge)
-        for ((item, label) in listOf(NameAlbumFilter.ALL to "All words", NameAlbumFilter.AVAILABLE to "Collected", NameAlbumFilter.LOCKED to "Locked")) {
+        @Composable fun Filter(item: NameAlbumFilter, label: String, modifier: Modifier) {
             FilterChip(selected = filter == item, onClick = { filter = item }, label = { Text(label) },
-                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("name_album_filter_${item.name.lowercase()}"))
+                modifier = modifier.heightIn(min = 48.dp).testTag("name_album_filter_${item.name.lowercase()}"))
+        }
+        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Text("Word category", style = MaterialTheme.typography.labelLarge)
+            if (stacked) {
+                categories.forEach { (item, label) -> Category(item, label, Modifier.fillMaxWidth()) }
+            } else {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    categories.forEach { (item, label) -> Category(item, label, Modifier.weight(1f)) }
+                }
+            }
+            Text("${available.size} of ${NameCollection.words.count { it.slot == slot }} available", color = Muted)
+            Text("Show", style = MaterialTheme.typography.labelLarge)
+            if (stacked) {
+                filters.forEach { (item, label) -> Filter(item, label, Modifier.fillMaxWidth()) }
+            } else {
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                    filters.forEach { (item, label) -> Filter(item, label, Modifier.weight(1f)) }
+                }
+            }
         }
     }
     if (visible.isEmpty()) Text("No words in this view.", color = Muted)
