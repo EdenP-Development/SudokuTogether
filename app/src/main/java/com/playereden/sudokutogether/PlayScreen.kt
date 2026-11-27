@@ -534,7 +534,7 @@ import kotlinx.coroutines.delay
 }
 
 @Composable private fun SudokuInputDock(snapshot: Snapshot, state: GameUiState, actions: GameActions, tick: (PuzzleCue) -> Unit) {
-    val keypadHeight = maxOf(48.dp, (40 * LocalDensity.current.fontScale).dp)
+    val fontScale = LocalDensity.current.fontScale
     val editable = state.selected in 0..80 && snapshot.puzzle.clues[state.selected] == 0
     val selectedCell = snapshot.cells.getOrNull(state.selected)
     // Both Solo and LAN rules reject note edits on filled squares. Disable
@@ -548,7 +548,12 @@ import kotlinx.coroutines.delay
         .padding(horizontal = 12.dp, vertical = 8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        BoxWithConstraints(Modifier.widthIn(max = 440.dp).fillMaxWidth()) {
+        BoxWithConstraints(Modifier.fillMaxWidth()) {
+            val tablet = maxWidth >= 560.dp
+            val dockWidth = if (tablet) 560.dp else 440.dp
+            val keypadHeight = maxOf(if (tablet) 60.dp else 48.dp, ((if (tablet) 48 else 40) * fontScale).dp)
+            Column(Modifier.widthIn(max = dockWidth).fillMaxWidth().align(Alignment.TopCenter),
+                verticalArrangement = Arrangement.spacedBy(6.dp)) {
             val splitTools = maxWidth < 340.dp && LocalDensity.current.fontScale > 1.3f
             val tools = if (state.role == SOLO) listOf("notes", "erase", "undo", "hint")
                 else listOf("notes", "erase", "undo")
@@ -570,7 +575,6 @@ import kotlinx.coroutines.delay
                     }
                 }
             }
-        }
         // Keep the guidance row present across selection and input-mode changes.
         // Removing it used to change dock height and therefore the board viewport.
         val guidance = when {
@@ -581,11 +585,11 @@ import kotlinx.coroutines.delay
         }
         Text(guidance, color = Muted, fontSize = 10.sp, lineHeight = 14.sp,
             minLines = 2,
-            modifier = Modifier.widthIn(max = 440.dp).fillMaxWidth()
+            modifier = Modifier.fillMaxWidth()
                 .testTag(if (state.notes || !editable) "keypad_mode_guidance" else "keypad_remaining_explanation"),
             textAlign = TextAlign.Center)
         for (numbers in listOf((1..5).toList(), (6..9).toList())) {
-            Row(Modifier.widthIn(max = 440.dp).fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                 // Center the four-key second row rather than leaving a dead slot on its right.
                 if (numbers.size == 4) Spacer(Modifier.weight(.5f))
                 for (number in numbers) {
@@ -613,12 +617,12 @@ import kotlinx.coroutines.delay
                             disabledContentColor = Forest.copy(alpha = .60f))) {
                         Column(horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center) {
-                            Text(number.toString(), fontSize = 21.sp, lineHeight = 22.sp,
+                            Text(number.toString(), fontSize = if (tablet) 26.sp else 21.sp, lineHeight = if (tablet) 28.sp else 22.sp,
                                 fontWeight = FontWeight.SemiBold)
                             // A placed-digit count is misleading while editing pencil notes.
                             if (!state.notes) {
                                 Text(remaining.toString(), modifier = Modifier.testTag("number_remaining_$number"),
-                                    fontSize = 10.sp, lineHeight = 11.sp, color = Muted)
+                                    fontSize = if (tablet) 12.sp else 10.sp, lineHeight = if (tablet) 14.sp else 11.sp, color = Muted)
                             } else Text(if (highlighted) "✓" else " ",
                                 modifier = Modifier.clearAndSetSemantics {},
                                 fontSize = 10.sp, lineHeight = 11.sp, color = Forest,
@@ -627,6 +631,8 @@ import kotlinx.coroutines.delay
                     }
                 }
                 if (numbers.size == 4) Spacer(Modifier.weight(.5f))
+            }
+        }
             }
         }
     }
