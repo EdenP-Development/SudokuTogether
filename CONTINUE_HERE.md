@@ -1,4 +1,9 @@
 
+## STAB-09.05 — downloadable gameplay QA ready
+- Workflow 46083936347 job 140789029218 passed; artifact 15238442305 GridMates-Sudoku-Beta3-GameplayQA1, 43150010 bytes ZIP, expires 2026-12-11T23:44:58Z. Source 424f4da. Isolated debug package, soundtrack intentionally omitted, full soundtrack candidate unchanged. APK, checksum, signer, source receipt and notes included by workflow. No production signing or version change.
+- Owner can download ZIP and extract/install isolated APK alongside Beta 2; do not uninstall or clear existing data if conflict. Physical QA still NOT RUN. Prior 109 runtime tests passed across separate revisions; this build passed compilation/unit/lint/asset gates, not fresh runtime execution. Next collect QA-01 through QA-15 and applicable QA-17/19 results, defer soundtrack-specific checks and signed upgrade to respective candidates. No public release authorization.
+
+
 ## STAB-08.08 — automated stabilization acceptance
 - Reward matrix 45972419647 successful after retry: all five jobs passed, 73 tests across storage (43), completion (12), names (3), collection (13), backup UI (2). Accessibility 46054499738 successful, 36 tests, sender scroll correction verified. Ordinary quality 46054499731 and unsigned 46054499790 successful. Separate source revisions; no claim of physical acceptance.
 - Consolidated verification 46055088268 at 0f31071 passed: package com.playereden.sudokutogether.qa.beta3integrated1, code 31, version 1.0.0-beta.2-qa.beta3integrated1, signature and branding checks, six soundtrack checks; verification-only artifact 15226062530 expires 2026-12-11. APK built in CI but not retained for distribution. No production identity/signing changes.
