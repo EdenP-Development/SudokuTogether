@@ -19,3 +19,7 @@ Every change records reproduction, affected source, minimal fix, test evidence, 
 See STAB-07-RELEASE-EVIDENCE.md. Integrated reward/save runtime, targeted accessibility instrumentation, actual physical phone/tablet/Fire and two-device tests, rights and privacy review, exact signed install-over and explicit artifact/channel approval remain open. Preserve itch Beta 2 package com.playereden.gridmates.sudoku.beta, code 31, certificate 9d7b30b2b5dccaa4b87843fdff6f2d836d6207ea64b726ef837730572a04cf3d until separately approved higher-version release. Amazon rehearsal only; Google Play long-term priority.
 
 Next STAB-08.02: review integrated runtime outcome and assemble consolidated owner QA matrix, including defect severity and evidence capture. No release authorization.
+
+## STAB-08.02 — consolidated QA preparation
+- `a1df17e`: prepared [STAB-09 consolidated owner QA matrix](STAB-09-CONSOLIDATED-OWNER-QA.md), 19 scenarios with P0/P1/P2 priorities and evidence template. Reuses APK upgrade gate and prior audio acceptance checklist; exact build and device results required. No physical tests executed.
+- Integrated reward runtime 45962562834 still executing at inspection. Next inspect outcome, repair failures, then identify isolated consolidated QA candidate workflow and required accessibility runtime coverage before owner testing. No production signing or public distribution.
