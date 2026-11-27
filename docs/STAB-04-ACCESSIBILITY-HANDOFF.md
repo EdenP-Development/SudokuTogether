@@ -35,3 +35,8 @@ Preserve gameplay, artwork, progression, networking, save formats and signing. O
 - `367be0c`: selection semantics restricted to Notes toggle; ordinary Erase/Undo/Hint actions no longer expose selected state. Hide redundant visual keypad number/count and descriptive Hint child labels from semantics, retain button actions and number count test tags.
 - `296c32c`: add semantics assertions for no redundant keypad Text property, Notes selection state, and absence of Selected on ordinary actions. Compilation and instrumentation execution pending. Review any existing tests that locate Hint by visible text; semantics change can require locator migration.
 - Next: verify CI and audit text-based test selectors, then remaining board cell/heading/focus semantics and physical TalkBack/tablet QA. No game rules, visual styling, saved data, networking or signing changes.
+
+## STAB-04.11 — test integration
+- `367be0c` unsigned candidate passed (45950127346); `296c32c` quality gate and unsigned candidate were still running when inspected.
+- `e22fcbf`, `96fcfb1`: migrate Hint selectors in CompactPlayLayoutTest and PlaySmokeTest to the descriptive content description. Targeted review of ten gameplay/Coach test files found these two files using old Hint selectors. Full suite search not completed; directory retrieval retry failed.
+- Latest changes are committed, not yet build/runtime verified. Next: complete selector review, inspect board cell duplicate announcements and navigation focus, verify instrumentation execution and physical QA before closing accessibility. No production code changes in this checkpoint.
