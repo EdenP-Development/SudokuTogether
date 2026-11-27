@@ -26,7 +26,7 @@ class CollectionPolishUiTest {
     @get:Rule val compose = createComposeRule()
 
     @Test fun compactProfileActionsEditTheNameAndOpenPlayerIconsAtLargeText() {
-        val state = mutableStateOf(GameUiState(page = Page.PROFILE, name = "Alexandria Puzzle Friend"))
+        val state = mutableStateOf(GameUiState(page = Page.PROFILE, name = "Happy Maple Fox"))
         val actions = polishActions().copy(name = { state.value = state.value.copy(name = it) })
         compose.setContent {
             SudokuTogetherTheme {
@@ -44,9 +44,12 @@ class CollectionPolishUiTest {
         assertTrue("Edit name target must be 48dp; actual=$editWidth, bounds=$editBounds",
             editWidth + 0.001.dp >= 48.dp)
         edit.performClick()
-        compose.onNodeWithTag("player_name").performTextReplacement("Puzzle partner")
-        compose.onNodeWithText("Save").performClick()
-        compose.onNodeWithText("Puzzle partner").assertIsDisplayed()
+        compose.onNodeWithTag("name_preview").assertTextEquals("Happy Maple Fox")
+        compose.onNodeWithTag("player_name").assertDoesNotExist()
+        compose.onNodeWithTag("name_first_next").performScrollTo().performClick()
+        compose.onNodeWithTag("name_preview").assertTextEquals("Clever Maple Fox")
+        compose.onNodeWithTag("name_confirm").performClick()
+        compose.onNodeWithText("Clever Maple Fox").assertIsDisplayed()
 
         compose.onNodeWithText("Change icon").performScrollTo().performClick()
         compose.onNodeWithTag("nav_collection").assertIsSelected()
