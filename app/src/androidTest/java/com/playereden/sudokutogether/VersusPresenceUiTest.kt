@@ -147,8 +147,8 @@ class VersusPresenceUiTest {
     }
 
     @Test fun largeTextOnAShortPhoneKeepsTheBoardAndKeypadReachable() {
-        val hostName = "Christopher Longlastname"
-        val guestName = "Alexandria Longlastname"
+        val hostName = "Everlasting Constellation Hummingbird"
+        val guestName = "Clever Maple Fox"
         val state = base.copy(snapshot = race.copy(
             hostName = hostName, guestName = guestName
         ))
@@ -166,9 +166,10 @@ class VersusPresenceUiTest {
         compose.onNodeWithTag("versus_presence").performScrollTo().assertIsDisplayed()
         for ((lane, name) in listOf("versus_you" to hostName, "versus_rival" to guestName)) {
             val layout = mutableListOf<TextLayoutResult>()
-            laneText(lane, name).assertIsDisplayed()
+            laneText(lane, name).performScrollTo().assertIsDisplayed()
                 .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layout) }
-            assertTrue("$name should wrap at large text", layout.single().lineCount > 1)
+            assertTrue("$name must not be clipped at large text", !layout.single().hasVisualOverflow)
+            if (name == hostName) assertTrue("Longest name should wrap", layout.single().lineCount > 1)
         }
         compose.onNodeWithTag("cell_40").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("number_9").performScrollTo().assertIsDisplayed()

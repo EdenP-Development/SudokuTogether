@@ -247,4 +247,31 @@ class MultiplayerPolishUiTest {
         compose.onNodeWithTag("chat_emote_happy").assertExists()
         compose.onNodeWithTag("communication_visibility").assertIsOn()
     }
+
+    @Test fun longCoopNamesRemainReadableAtLargeTextAndGameplayStaysReachable() {
+        val hostName = "Everlasting Constellation Hummingbird"
+        val guestName = "Clever Maple Fox"
+        val base = polishState()
+        val state = base.copy(name = hostName, snapshot = requireNotNull(base.snapshot).copy(
+            hostName = hostName, guestName = guestName))
+        compose.setContent {
+            SudokuTogetherTheme {
+                CompositionLocalProvider(LocalDensity provides Density(LocalDensity.current.density, 2f)) {
+                    Box(Modifier.width(320.dp).height(480.dp)) {
+                        PlayScreen(state, polishActions(), {}, {}, {}, {})
+                    }
+                }
+            }
+        }
+        for ((index, name) in listOf(hostName, guestName).withIndex()) {
+            val layout = mutableListOf<TextLayoutResult>()
+            compose.onNode(hasText(name) and hasAnyAncestor(hasTestTag("coop_player_identity_$index")),
+                useUnmergedTree = true).performScrollTo().assertIsDisplayed()
+                .performSemanticsAction(SemanticsActions.GetTextLayoutResult) { it(layout) }
+            assertFalse("Full name should fit its stacked row", layout.single().hasVisualOverflow)
+        }
+        compose.onNodeWithTag("cell_40").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("number_9").performScrollTo().assertIsDisplayed()
+    }
+
 }
