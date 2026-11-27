@@ -590,6 +590,8 @@ class GameViewModel @JvmOverloads constructor(
                     busy = false, dailyDate = null, todayDate = DailyChallenge.today(),
                     message = if (e.message?.contains("Too many unfinished") == true)
                         "Your daily progress is safe. Finish an older Daily Challenge before starting a new one."
+                    else if (e.message?.contains("already completed") == true)
+                        "You already completed that Daily Challenge. Its review board is no longer saved."
                     else "Couldn't open that daily puzzle. Your Solo progress is still saved.") }
             }
         }
