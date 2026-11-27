@@ -1,5 +1,8 @@
 # Continue GridMates: Sudoku
 
+## Latest feature freeze checkpoint — 2026-11-27
+STAB-08.01 development scope freeze documented in [STAB-08-FEATURE-FREEZE.md](docs/STAB-08-FEATURE-FREEZE.md), commit a9bfdb8. Active branch `feat/beta3-foundation`; latest build-verified code 8e2dcee. Integrated runtime 45962562834 still executing at inspection. Next STAB-08.02: inspect runtime outcome, repair defects, assemble consolidated owner QA matrix. No final candidate pin, signing, version increment or release authorization. Keep STAB-07 release evidence requirements open.
+
 ## Latest repository synchronization checkpoint — 2026-11-27
 Active branch `feat/beta3-foundation`. Latest build-verified code `8e2dcee916bf7189a6a252951046b5d5fca52f62`: quality gate 45962075841 and unsigned candidate 45962075789 passed. Earlier save runtime 45957495632 passed on earlier source; integrated reward/save run 45962562834 still executing at inspection. STAB-07 repository synchronization closeout: see [release evidence](docs/STAB-07-RELEASE-EVIDENCE.md). Next STAB-08 feature freeze (scope only, not release approval); inspect integrated results and repair failures before acceptance. Physical, rights, privacy, exact signed upgrade and owner approval gates remain open. No publication or signing changes.
 
