@@ -33,3 +33,10 @@ Next: verify emulator and latest quality gate; repair genuine failures first, th
 - `39f4389`: queued appearance broadcast checks current equipped appearance as well as room generation before sending; avoids obsolete queued selections. This is a best-effort stale-task guard, not full serialization of concurrent transport writes. Two-device runtime test remains open.
 - `7c230a2`: instrumented fixture checks starter ink/portrait selection, wrong-category rejection, Home/Profile navigation, fresh ViewModel reading same preferences and emblem clearing portrait. Does not simulate process death or verify remote appearance delivery. CI/runtime pending.
 - Next STAB-06.06 Name Collection integration, then legacy compatibility and targeted runtime tests. No artwork, catalog, schema, signing or unlock changes.
+
+## STAB-06.06 — Name Collection integration
+- `7c230a2` quality gate 45960999339 passed; unsigned candidate 45960999223 running at inspection.
+- Source and existing tests cover 171 words, 30 starters, 141 earned, 57 per slot, three words per achievement, 188442 structural combinations, longest 37 within 40-character budget, 34 non-multiplayer achievements and 132 offline-accessible words. Canonical parsing and owned-word checks unchanged; historical earned ledger protects words.
+- `a3d7565`: restore already computed normalized name and migration notice but wrote original name into transactional settings. Persist normalized name in same restore transaction, avoiding post-commit migration dependency; preserve destination identity and notice. Legacy backup decoding remains unchanged.
+- `78b2490`: update legacy restore and interruption assertions to check normalized name; explicit migration notice test now verifies name saved. Existing valid earned-name round-trip tests retained. CI and emulator rerun required; no vocabulary, thresholds, wire protocol or schema changes.
+- Next STAB-06.07 legacy reward compatibility, then integrated reward runtime gate. Physical QA and signed upgrade remain open.
