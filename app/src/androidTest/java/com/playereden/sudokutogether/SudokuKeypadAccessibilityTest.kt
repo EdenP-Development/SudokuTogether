@@ -36,6 +36,14 @@ class SudokuKeypadAccessibilityTest {
 
         val one = compose.onNodeWithTag("number_1")
         one.assertIsEnabled().assertContentDescriptionEquals("Number 1, 1 remaining")
+        one.assert(SemanticsMatcher.keyNotDefined(androidx.compose.ui.semantics.SemanticsProperties.Text))
+        compose.onNodeWithText("Notes").assertIsNotSelected()
+        for (tool in listOf("Erase", "Undo")) {
+            compose.onNodeWithText(tool).assert(
+                SemanticsMatcher.keyNotDefined(androidx.compose.ui.semantics.SemanticsProperties.Selected))
+        }
+        compose.onNodeWithContentDescription("Request a solo Sudoku hint").assert(
+            SemanticsMatcher.keyNotDefined(androidx.compose.ui.semantics.SemanticsProperties.Selected))
         compose.onNodeWithTag("number_remaining_1", useUnmergedTree = true).assertExists()
         one.performClick()
         compose.runOnIdle { assertEquals(1, lastPressed) }
@@ -50,7 +58,7 @@ class SudokuKeypadAccessibilityTest {
         assertEquals(dockBefore.bottom - dockBefore.top, dockAfter.bottom - dockAfter.top)
         one.assertIsEnabled().assertContentDescriptionEquals("Add pencil mark 1").assertIsNotSelected()
         compose.onNodeWithText("Erase").assertIsNotEnabled()
-        compose.onNodeWithText("Notes on").assertExists()
+        compose.onNodeWithText("Notes on").assertIsSelected()
         compose.onNodeWithTag("number_remaining_1", useUnmergedTree = true).assertDoesNotExist()
         one.performClick()
         compose.runOnIdle { assertEquals(1, lastPressed) }
