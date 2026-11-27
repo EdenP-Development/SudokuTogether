@@ -13,6 +13,28 @@ class Beta3RewardContinuityTest {
         assertTrue(medals.mapNotNull { it.rewardId }.all { id -> Cosmetics.emblems.any { it.id == id } })
     }
 
+    @Test fun legacyProfileWithoutLedgersRetroactivelyEarnsNamesAndCosmetics() {
+        val legacy = kotlinx.serialization.json.Json.decodeFromString<LocalPlayerData>(
+            """{"schema":1,"playerId":"legacy-player","records":[]}""")
+        val records = (1..5).map {
+            GameRecord("legacy-$it", SOLO, "SOLVED", "p-$it", 900000L, 35,
+                it.toLong(), difficulty = "EASY", assisted = true)
+        }
+        val imported = legacy.copy(records = records)
+        val migrated = Achievements.preserveEarned(Cosmetics.preserveEarned(imported))
+        assertEquals("legacy-player", migrated.playerId)
+        assertEquals(records, migrated.records)
+        assertEquals(setOf("first-grid", "steady-hand"), migrated.earnedAchievementIds.toSet())
+        assertTrue("rose" in migrated.ownedCosmeticIds)
+        val selection = PlayerNameSelection("first.first", "middle.acorn", "last.solver")
+        val label = requireNotNull(NameCollection.display(selection))
+        val pruned = migrated.copy(records = emptyList())
+        assertTrue(NameCollection.canEquip(selection, NameCollection.earnedIds(pruned)))
+        assertEquals(label, NameCollection.normalizedProfileName(label, pruned))
+        assertEquals(Appearance(ink = "rose"),
+            Cosmetics.accessible(Appearance(ink = "rose"), pruned.records, pruned.ownedCosmeticIds))
+    }
+
     @Test fun bothEarnedLedgersSurviveRecordPruningAndRepeatedPreservation() {
         val records = (1..110).map {
             GameRecord("reward-$it", SOLO, "SOLVED", "p-$it", 900000L, 35, it.toLong(),
