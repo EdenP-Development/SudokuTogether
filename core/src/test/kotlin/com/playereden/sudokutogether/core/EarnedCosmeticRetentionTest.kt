@@ -36,6 +36,18 @@ class EarnedCosmeticRetentionTest {
         assertTrue(Cosmetics.allowed("woodland_squirrel", next.records, next.ownedCosmeticIds))
     }
 
+    @Test fun ownedCosmeticsCannotBeEquippedInTheWrongCategory() {
+        val wrong = Appearance(ink = "woodland_owl", board = "rose", font = "linen",
+            emblem = "serif", portrait = "leaf")
+        val owned = listOf("rose", "linen", "serif", "leaf")
+        val resolved = Cosmetics.accessible(wrong, emptyList(), owned)
+        assertEquals(Appearance(), resolved)
+        assertTrue(Cosmetics.valid(resolved))
+        val correct = Appearance(ink = "rose", board = "linen", font = "serif", emblem = "leaf",
+            portrait = "woodland_owl")
+        assertEquals(correct, Cosmetics.accessible(correct, emptyList(), owned))
+    }
+
     @Test fun emptyFreshProfileHasNoUnnecessaryLedgerWrite() {
         val fresh = LocalPlayerData(playerId = "new-player")
         assertEquals(fresh, Cosmetics.preserveEarned(fresh))
