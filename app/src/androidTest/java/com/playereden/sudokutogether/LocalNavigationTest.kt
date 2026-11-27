@@ -59,6 +59,20 @@ class LocalNavigationTest {
         launch(); instrumentation.runOnMainSync { model.solo(false); model.home() }; queue.first()
         assertNull(saved().activeSolo); assertEquals(Page.HOME, model.state.value.page)
     }
+    @Test fun unreadableProgressDoesNotPersistNameNormalization() {
+        val file = File(root, "local-player.json").also { it.writeText("unreadable profile") }
+        val app = FixtureApplication(instrumentation.targetContext, root)
+        val settings = app.getSharedPreferences("settings", 0)
+        val originalName = "Legacy player nickname"
+        check(settings.edit().putString("name", originalName).commit())
+        val before = settings.all
+        instrumentation.runOnMainSync { model = GameViewModel(app, queue) }
+        queue.first()
+        assertTrue(model.state.value.localSaveBlocked)
+        assertEquals(before, settings.all)
+        assertEquals("unreadable profile", file.readText())
+    }
+
     @Test fun blockedLocalSavingKeepsItsExplanationAfterHostingAndReturningHome() {
         launch(corrupt = true); val warning = model.state.value.saveIssue
         assertTrue(model.state.value.localSaveBlocked); assertNotNull(warning)
