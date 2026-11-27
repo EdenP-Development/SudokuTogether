@@ -14,7 +14,21 @@ jobs:
   reward-runtime:
     if: github.ref == 'refs/heads/feat/beta3-foundation'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 35
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - suite: storage
+            classes: com.playereden.sudokutogether.LocalPlayerStoreTest,com.playereden.sudokutogether.ProgressBackupTest,com.playereden.sudokutogether.LocalNavigationTest
+          - suite: completion
+            classes: com.playereden.sudokutogether.FinishAndDailyPresentationUiTest,com.playereden.sudokutogether.DailyFinishUiTest,com.playereden.sudokutogether.VeteranRewardsUiTest
+          - suite: names
+            classes: com.playereden.sudokutogether.NameAlbumUiTest,com.playereden.sudokutogether.NameBuilderUiTest
+          - suite: collection
+            classes: com.playereden.sudokutogether.CollectionPolishUiTest
+          - suite: backupUi
+            classes: com.playereden.sudokutogether.ProgressBackupSettingsUiTest
     steps:
       - uses: actions/checkout@v4
         with:
@@ -40,12 +54,12 @@ jobs:
           profile: pixel_5
           emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
           disable-animations: true
-          script: chmod +x gradlew && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.LocalPlayerStoreTest,com.playereden.sudokutogether.ProgressBackupTest,com.playereden.sudokutogether.LocalNavigationTest,com.playereden.sudokutogether.FinishAndDailyPresentationUiTest,com.playereden.sudokutogether.DailyFinishUiTest,com.playereden.sudokutogether.VeteranRewardsUiTest,com.playereden.sudokutogether.NameAlbumUiTest,com.playereden.sudokutogether.NameBuilderUiTest,com.playereden.sudokutogether.CollectionPolishUiTest,com.playereden.sudokutogether.ProgressBackupSettingsUiTest --no-daemon --max-workers=2 --console=plain
+          script: chmod +x gradlew && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${{ matrix.classes }} --no-daemon --max-workers=2 --console=plain
       - name: Retain test reports only
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: Beta3-reward-runtime-reports
+          name: Beta3-reward-runtime-reports-${{ matrix.suite }}
           path: |
             app/build/reports/androidTests/**
             app/build/outputs/androidTest-results/**
