@@ -653,7 +653,8 @@ import kotlinx.coroutines.delay
 @Composable internal fun SudokuBoard(snapshot: Snapshot, selected: Int, partner: Int, size: Dp, select: ((Int) -> Unit)?,
     boardTheme: String, localStyle: Appearance, solo: Boolean, uniformNumbers: Boolean,
     proofTargets: Set<Int> = emptySet(), proofSources: Set<Int> = emptySet(),
-    proofEliminations: Map<Int, List<Int>> = emptyMap(), announceAllCells: Boolean = false, pingCell: Int = -1) {
+    proofEliminations: Map<Int, List<Int>> = emptyMap(), announceAllCells: Boolean = false, pingCell: Int = -1,
+    focusProofConflicts: Boolean = false) {
     val systemScale = LocalDensity.current.fontScale.coerceAtLeast(.5f)
     // A nine-cell row has fixed space. Let surrounding controls scale freely,
     // while fitting grid glyphs and their line heights inside each square.
@@ -665,7 +666,10 @@ import kotlinx.coroutines.delay
     val noteSize = (noteSlot * .82f).sp
     val digitStyle = TextStyle(fontSize = digitSize, lineHeight = digitSize, platformStyle = PlatformTextStyle(includeFontPadding = false))
     val noteStyle = TextStyle(fontSize = noteSize, lineHeight = noteSize, platformStyle = PlatformTextStyle(includeFontPadding = false))
-    val conflicts = remember(snapshot.cells) { Sudoku.conflicts(snapshot.cells.map { it.value }) }
+    val allConflicts = remember(snapshot.cells) { Sudoku.conflicts(snapshot.cells.map { it.value }) }
+    // Entry-review diagrams show only conflicts involved in the current explanation.
+    // The playable board retains every conflict, as do other existing board callers.
+    val conflicts = if (focusProofConflicts) allConflicts.intersect(proofTargets + proofSources) else allConflicts
     val selectedValue = snapshot.cells.getOrNull(selected)?.value ?: 0
     val palette = boardPalette(boardTheme)
     val darkBoard = palette.dark
