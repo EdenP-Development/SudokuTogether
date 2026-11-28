@@ -244,7 +244,7 @@ jobs:
       - name: Recover exact historical Beta 2 archive
         if: >-
           (github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal) ||
-          (github.event_name == 'push' && github.event.head_commit.message == 'ci: execute STAB-10.19 isolated signed retry')
+          (github.event_name == 'push' && github.event.head_commit.message == 'ci: execute STAB-10.22 final signed retry')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -267,7 +267,7 @@ jobs:
       - name: Privately sign audited candidate and verify pair
         if: >-
           (github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal) ||
-          (github.event_name == 'push' && github.event.head_commit.message == 'ci: execute STAB-10.19 isolated signed retry')
+          (github.event_name == 'push' && github.event.head_commit.message == 'ci: execute STAB-10.22 final signed retry')
         env:
           KEYSTORE_BASE64: ${{ secrets.GRIDMATES_SUDOKU_BETA_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.GRIDMATES_SUDOKU_BETA_KEYSTORE_PASSWORD }}
@@ -279,7 +279,7 @@ jobs:
       - name: Enable KVM for signed rehearsal
         if: >-
           (github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal) ||
-          (github.event_name == 'push' && github.event.head_commit.message == 'ci: execute STAB-10.19 isolated signed retry')
+          (github.event_name == 'push' && github.event.head_commit.message == 'ci: execute STAB-10.22 final signed retry')
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
@@ -287,7 +287,7 @@ jobs:
       - name: Public signed install-over and Solo UI continuity
         if: >-
           (github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal) ||
-          (github.event_name == 'push' && github.event.head_commit.message == 'ci: execute STAB-10.19 isolated signed retry')
+          (github.event_name == 'push' && github.event.head_commit.message == 'ci: execute STAB-10.22 final signed retry')
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 36
