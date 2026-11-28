@@ -19,6 +19,12 @@ class Beta2VisualPolishCopyTest {
         assertEquals(14, collectionIconLabelSize("Focused Solver"))
     }
 
+    @Test fun fontSampleIncludesDistinctiveSeparatedSudokuDigits() {
+        assertEquals(listOf("1 4", "7 9"), FONT_PREVIEW_ROWS)
+        assertEquals(4, FONT_PREVIEW_ROWS.flatMap { it.split(" ") }.distinct().size)
+        assertTrue(FONT_PREVIEW_ROWS.all { it.matches(Regex("[1-9] [1-9]")) })
+    }
+
     @Test fun numberSampleVisiblySeparatesTwoSudokuDigits() {
         assertEquals("5 9", NUMBER_PREVIEW_SAMPLE)
         assertFalse(NUMBER_PREVIEW_SAMPLE == "59")
