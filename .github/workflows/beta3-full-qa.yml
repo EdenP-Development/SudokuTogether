@@ -5,11 +5,6 @@ on:
     paths:
       - '.github/workflows/beta3-full-qa.yml'
   workflow_dispatch:
-    inputs:
-      soundtrack_rights_confirmed:
-        description: 'Owner confirms rights to distribute all six final soundtrack tracks in this QA APK'
-        type: boolean
-        default: false
 permissions:
   contents: read
 jobs:
@@ -112,7 +107,7 @@ jobs:
           PY
           sha256sum "$APK" > beta3-review/SHA256SUMS.txt
           git rev-parse HEAD > beta3-review/source-commit.txt
-          # The full QA APK is retained only after explicit soundtrack distribution confirmation.
+          # Owner-confirmed six-track entitlement: shared library record 3c8eedfd; full development QA authorized.
       - uses: actions/upload-artifact@v4
         with:
           name: GridMates-Sudoku-Beta3-FullQA1-Verification
@@ -124,13 +119,11 @@ jobs:
           if-no-files-found: error
           retention-days: 14
       - name: Prepare complete downloadable QA package
-        if: github.event_name == 'workflow_dispatch' && inputs.soundtrack_rights_confirmed
         run: |
           cp app/build/outputs/apk/debug/app-debug.apk beta3-review/GridMates-Sudoku-Beta3-FullQA1.apk
           (cd beta3-review && sha256sum GridMates-Sudoku-Beta3-FullQA1.apk > SHA256SUMS.txt)
           echo 'Complete integrated QA, six bundled tracks, isolated temporary debug signer. Install alongside existing games; never uninstall or clear data to resolve conflicts. Not an official release.' > beta3-review/QA-NOTES.txt
       - uses: actions/upload-artifact@v4
-        if: github.event_name == 'workflow_dispatch' && inputs.soundtrack_rights_confirmed
         with:
           name: GridMates-Sudoku-Beta3-FullQA1
           path: |
