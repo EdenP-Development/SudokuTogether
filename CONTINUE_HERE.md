@@ -1,4 +1,7 @@
 
+## STAB-09.13 — Name Collection browsing
+Music Corner 789e5ec passed quality gate 46097529387 and unsigned audio 46097529426. Name album 388cd48 groups collected words into compact two-column cards at sufficient width/normal font scale, single column below 300dp or fontScale >1.3; locked cards keep descriptions and progress, progress row compacted, selected filters forest green. Existing IDs/tags, filter/category behavior, builder and 171-word catalog/ownership unchanged. Updated NameAlbumUiTest section-count regressions; fresh CI pending, physical/large text review pending. Next Name Builder direct selection audit. No new APK yet; complete cumulative build only.
+
 ## STAB-09.12 — Music Corner status refinement
 Coach correction 387d06f passed Android quality gate 46096999326 and unsigned candidate 46096999349. Music Corner 7cb2566 removes duplicate ordinary playback status and empty-library guidance while retaining actionable failure/interruption text; new MusicStatusDetailTest covers visibility. Playback controller, tracks, volume, preferences, signing and save data unchanged. Fresh CI pending. Next Name Collection browsing, then remaining visual audit polish. Complete cumulative APK only after meaningful refinement. Existing FullQA1 remains current owner candidate.
 ## Current checkpoint — STAB-09.11 (2026-11-27)
