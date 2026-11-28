@@ -69,7 +69,7 @@ import com.playereden.sudokutogether.core.SudokuAssistance
                             }
                             Text(if (check.kind == SudokuAssistance.CheckKind.INCORRECT_ENTRY)
                                 "The outlined square contains your entry. You can erase it or return to the puzzle to review it yourself."
-                                else "The outlined square is the entry to review. Shaded squares contain conflicting numbers.",
+                                else "The outlined square is the entry to review. Shaded squares repeat that number in the same row, column or box. Other errors may remain.",
                                 color = Muted, style = MaterialTheme.typography.bodySmall)
                         }
                         if (check.usesSolution) Text("This puzzle is marked Assisted.",color=Muted)
