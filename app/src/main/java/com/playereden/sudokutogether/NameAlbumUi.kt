@@ -1,6 +1,8 @@
 package com.playereden.sudokutogether
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -45,10 +47,12 @@ private enum class NameAlbumFilter { ALL, AVAILABLE, LOCKED }
         @Composable fun Category(item: NameSlot, label: String, modifier: Modifier) {
             FilterChip(selected = slot == item, onClick = { slot = item },
                 label = { Text("$label words") },
+                colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Forest, selectedLabelColor = Color.White),
                 modifier = modifier.heightIn(min = 48.dp).testTag("name_album_slot_${item.name.lowercase()}"))
         }
         @Composable fun Filter(item: NameAlbumFilter, label: String, modifier: Modifier) {
             FilterChip(selected = filter == item, onClick = { filter = item }, label = { Text(label) },
+                colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Forest, selectedLabelColor = Color.White),
                 modifier = modifier.heightIn(min = 48.dp).testTag("name_album_filter_${item.name.lowercase()}"))
         }
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -72,17 +76,46 @@ private enum class NameAlbumFilter { ALL, AVAILABLE, LOCKED }
         }
     }
     if (visible.isEmpty()) Text("No words in this view.", color = Muted)
-    for (word in visible) {
-        val goal = word.achievementId?.let(achievements::get)
-        val unlocked = word in available
-        GamePanel(Modifier.fillMaxWidth().testTag("name_album_word_${word.id}"), padding = 10.dp) {
-            Text(word.label, style = MaterialTheme.typography.titleMedium, color = Forest)
-            Text(if (unlocked) (if (goal == null) "Starter word" else "Collected · ${goal.title}") else "Locked · ${goal?.title.orEmpty()}",
-                style = MaterialTheme.typography.bodySmall, color = Muted)
-            if (!unlocked && goal != null) {
-                Text(goal.description, style = MaterialTheme.typography.bodySmall)
-                Text("${goal.current.coerceIn(0, goal.target)} / ${goal.target}", style = MaterialTheme.typography.bodySmall, color = Muted)
-                MilestoneTrack(goal.current.coerceIn(0, goal.target), goal.target)
+    // Collected words are compact; locked words retain their full earning instructions.
+    BoxWithConstraints(Modifier.fillMaxWidth()) {
+        val columns = if (maxWidth < 300.dp || LocalDensity.current.fontScale > 1.3f) 1 else 2
+        val collected = visible.filter { it in available }
+        val locked = visible.filterNot { it in available }
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            if (collected.isNotEmpty()) {
+                Text("Collected · ${collected.size}", color = Forest, style = MaterialTheme.typography.titleSmall)
+                for (row in collected.chunked(columns)) {
+                    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        for (word in row) {
+                            val goal = word.achievementId?.let(achievements::get)
+                            GamePanel(Modifier.weight(1f).testTag("name_album_word_${word.id}"), padding = 10.dp) {
+                                Text(word.label, style = MaterialTheme.typography.titleMedium, color = Forest)
+                                Text(if (goal == null) "Starter word" else "Collected · ${goal.title}",
+                                    style = MaterialTheme.typography.bodySmall, color = Muted)
+                            }
+                        }
+                        repeat(columns - row.size) { Spacer(Modifier.weight(1f)) }
+                    }
+                }
+            }
+            if (locked.isNotEmpty()) {
+                Text("Locked · ${locked.size}", color = Forest, style = MaterialTheme.typography.titleSmall)
+                for (word in locked) {
+                    val goal = word.achievementId?.let(achievements::get)
+                    GamePanel(Modifier.fillMaxWidth().testTag("name_album_word_${word.id}"), padding = 10.dp) {
+                        Text(word.label, style = MaterialTheme.typography.titleMedium, color = Forest)
+                        Text("Locked · ${goal?.title.orEmpty()}", style = MaterialTheme.typography.bodySmall, color = Muted)
+                        if (goal != null) {
+                            Text(goal.description, style = MaterialTheme.typography.bodySmall)
+                            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("${goal.current.coerceIn(0, goal.target)} / ${goal.target}",
+                                    style = MaterialTheme.typography.bodySmall, color = Muted)
+                                Box(Modifier.weight(1f)) { MilestoneTrack(goal.current.coerceIn(0, goal.target), goal.target) }
+                            }
+                        }
+                    }
+                }
             }
         }
     }
