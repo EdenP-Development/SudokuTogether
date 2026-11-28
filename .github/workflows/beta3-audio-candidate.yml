@@ -162,7 +162,7 @@ jobs:
               _, lines = resources['bool/' + name]
               values = []
               for line in lines:
-                  match = re.search(r'\b(true|false)\s*$, line, re.I)
+                  match = re.search(r'\b(true|false)\s* line, re.I)
                   if match:
                       values.append(match.group(1).lower() == 'true')
               assert values and all(v == enabled for v in values), (name, lines)
@@ -191,5 +191,77 @@ jobs:
           (root / 'adaptive-launcher.txt').write_text(icon)
           print('\n'.join(evidence))
           PY
+, line, re.I)
+                  if match:
+                      values.append(match.group(1).lower() == 'true')
+              assert values and all(v == enabled for v in values), (name, lines)
+              evidence.append(f'{name}: {enabled}')
+          launcher_id, lines = resources['mipmap/ic_launcher']
+          adaptive = []
+          for line in lines:
+              match = re.search(r'\(file\)\s+(\S+)', line)
+              if match and re.search(r'\bv(?:2[6-9]|[3-9][0-9])\b', line):
+                  adaptive.append(match.group(1))
+          assert len(adaptive) == 1, lines
+          def xml(path):
+              return subprocess.check_output([tool, 'dump', 'xmltree', '--file', path, apk], text=True)
+          icon = xml(adaptive[0])
+          manifest = xml('AndroidManifest.xml')
+          fox_id = resources['drawable/beta3_fox_foreground'][0]
+          assert 'adaptive-icon' in icon
+          foreground = re.search(r'E: foreground[^\n]*\n([^\n]*\n)*?\s*A: android:drawable[^\n]*', icon)
+          assert foreground and fox_id in foreground.group(0).lower(), icon
+          for attr in ('icon', 'roundIcon'):
+              matches = re.findall(r'^\s*A: android:' + attr + r'\([^)]*\)[^\n]* manifest, re.M)
+              assert any(launcher_id in line.lower() for line in matches), (attr, matches)
+          evidence.append(f'Launcher {launcher_id} -> {adaptive[0]} -> Fox foreground {fox_id}')
+          root = pathlib.Path('release-audit')
+          (root / 'visual-config.txt').write_text('\n'.join(evidence) + '\n')
+          (root / 'adaptive-launcher.txt').write_text(icon)
+          print('\n'.join(evidence))
+          PY
+, manifest, re.M)
+              assert any(launcher_id in line.lower() for line in matches), (attr, matches)
+          evidence.append(f'Launcher {launcher_id} -> {adaptive[0]} -> Fox foreground {fox_id}')
+          root = pathlib.Path('release-audit')
+          (root / 'visual-config.txt').write_text('\n'.join(evidence) + '\n')
+          (root / 'adaptive-launcher.txt').write_text(icon)
+          print('\n'.join(evidence))
+          PY
       - name: Capture and audit release dependencies and packaged manifest
-$
+        run: |
+          set -euo pipefail
+          mkdir -p release-audit
+          ./gradlew :app:dependencies --configuration releaseRuntimeClasspath -PgridmatesPermanentIdentityStaging=true -PgridmatesBeta3AudioCandidate=true -PgridmatesBeta3ProductionParity=true -PgridmatesBeta3UpgradeCandidate=true --no-daemon --max-workers=2 --console=plain > release-audit/dependencies.txt
+          APK=app/build/outputs/apk/release/app-release-unsigned.apk
+          TOOLS="$ANDROID_HOME/build-tools/35.0.0"
+          "$TOOLS/aapt" dump permissions "$APK" > release-audit/permissions.txt
+          "$TOOLS/aapt" dump xmltree "$APK" AndroidManifest.xml > release-audit/manifest.txt
+          cp candidate-badging.txt release-audit/badging.txt
+          cp candidate-resources.txt release-audit/resources.txt
+          sha256sum "$APK" > release-audit/unsigned-apk.sha256
+          git rev-parse HEAD > release-audit/source-commit.txt
+          python - <<'PY'
+          import pathlib, re
+          root = pathlib.Path('release-audit')
+          deps = (root / 'dependencies.txt').read_text()
+          assert 'releaseRuntimeClasspath' in deps
+          assert not re.search(r'\bFAILED\b', deps), 'Unresolved dependency'
+          blocked = re.findall(r'(?:com\.google\.android\.gms|com\.google\.firebase|com\.android\.billingclient|com\.amazon\.device|com\.facebook\.android|com\.applovin|com\.adjust\.sdk|com\.appsflyer):[^\s]+', deps)
+          assert not blocked, f'Review unexpected SDK dependencies: {blocked}'
+          permissions = set(re.findall(r"uses-permission(?:-sdk-23)?: name='([^']+)'", (root / 'permissions.txt').read_text()))
+          expected = {'android.permission.INTERNET', 'android.permission.ACCESS_NETWORK_STATE', 'android.permission.ACCESS_WIFI_STATE', 'android.permission.CHANGE_WIFI_MULTICAST_STATE'}
+          allowed = expected | {'com.playereden.gridmates.sudoku.beta.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION'}
+          assert expected <= permissions, f'Missing expected permissions: {expected - permissions}'
+          assert permissions <= allowed, f'Review unexpected permissions: {permissions - allowed}'
+          print('Release dependency and permission screening passed; manual manifest and traffic review still required.')
+          PY
+      - name: Retain text-only release audit evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Beta3-release-audit-text
+          path: release-audit/
+          if-no-files-found: warn
+          retention-days: 14
+      # Deliberately do not upload or distribute the APK.
