@@ -166,7 +166,9 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
                     }
                 }
             }
-            Text(message, color = Muted, style = MaterialTheme.typography.bodySmall)
+            if (showMusicStatusDetail(order.isNotEmpty(), message)) {
+                Text(message, color = Muted, style = MaterialTheme.typography.bodySmall)
+            }
             if (allowPrivateImport && bundled.isEmpty()) OutlinedButton(onClick = { player.stop(); preparing = false; playing = false; picker.launch(arrayOf("audio/*")) },
                 enabled = enabled, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp)) {
                 Text(if (order.isEmpty()) "Choose soundtrack" else "Change test files")
@@ -260,3 +262,9 @@ private class PilotPlayer(private val context: Context) {
 internal fun normalizeMusicVolume(value: Float): Float = if (value.isFinite()) value.coerceIn(0f, 1f) else .50f
 
 internal fun restoredTrackIndex(tracks: List<String>, saved: String?): Int = tracks.indexOf(saved).coerceAtLeast(0)
+
+/** Keep actionable errors and interruption guidance; ordinary status is already beside the track count. */
+internal fun showMusicStatusDetail(hasTracks: Boolean, message: String): Boolean =
+    message !in setOf("Playing", "Preparing music…", "Music stopped.", "Soundtrack ready.",
+        "Choose the soundtrack files.", "Soundtrack unavailable.") &&
+        !(hasTracks && message.endsWith(" tracks ready."))
