@@ -3,6 +3,9 @@ import java.util.zip.ZipInputStream
 import java.util.Properties
 import java.security.MessageDigest
 import java.util.Locale
+import java.awt.RenderingHints
+import java.awt.image.BufferedImage
+import javax.imageio.ImageIO
 
 plugins { id("com.android.application"); kotlin("android"); kotlin("plugin.compose"); kotlin("plugin.serialization") }
 // Explicit separate-package transition; legacy and existing QA remain the default.
@@ -234,8 +237,47 @@ val prepareFoxEmotes = tasks.register("prepareFoxEmotes") {
         require(found == expected) { "Incomplete Fox V1 artwork" }
     }
 }
+// Home uses the same fingerprinted master as the approved adaptive launcher.
+val brandingTransfer = rootProject.file("design/branding/transfer")
+val headerResources = layout.buildDirectory.dir("generated/headerBranding/res")
+val prepareHeaderBranding = tasks.register("prepareHeaderBranding") {
+    inputs.dir(brandingTransfer)
+    outputs.dir(headerResources)
+    doLast {
+        val parts = (1..14).map { brandingTransfer.resolve("part-%02d.bin".format(Locale.ROOT, it)) }
+        val bytes = ByteArrayOutputStream().also { out -> parts.forEach { out.write(it.readBytes()) } }.toByteArray()
+        fun digest(data: ByteArray) = MessageDigest.getInstance("SHA-256").digest(data)
+            .joinToString("") { "%02x".format(it.toInt() and 0xff) }
+        require(digest(bytes) == "487ee37d5087822e9b085b1dddf2e04b01b13a2d70d8e24dd90e60b233bf0dc8") { "Branding archive checksum mismatch" }
+        var master: ByteArray? = null
+        ZipInputStream(bytes.inputStream()).use { zip ->
+            while (true) {
+                val entry = zip.nextEntry ?: break
+                if (entry.name == "launcher-master.png") {
+                    require(master == null) { "Duplicate branding master" }
+                    master = zip.readBytes()
+                }
+                zip.closeEntry()
+            }
+        }
+        val verified = requireNotNull(master) { "Missing branding master" }
+        require(digest(verified) == "ea3812eb46f6d3601fd5edf1d1f1f2d1c9c445a4140c7e1d2a86c08563d3367f") { "Branding master checksum mismatch" }
+        val image = ImageIO.read(verified.inputStream())
+        require(image.width == 1254 && image.height == 1254) { "Unexpected branding dimensions" }
+        val resized = BufferedImage(256, 256, BufferedImage.TYPE_INT_ARGB)
+        val graphics = resized.createGraphics()
+        try {
+            graphics.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC)
+            graphics.drawImage(image, 0, 0, 256, 256, null)
+        } finally { graphics.dispose() }
+        val destination = headerResources.get().asFile.resolve("drawable-nodpi")
+        destination.mkdirs()
+        check(ImageIO.write(resized, "png", destination.resolve("gridmates_header_approved.png")))
+    }
+}
 android {
     sourceSets.getByName("main").res.srcDir(foxResources)
+    sourceSets.getByName("main").res.srcDir(headerResources)
     namespace = "com.playereden.sudokutogether"
     compileSdk = 36
     defaultConfig {
@@ -344,7 +386,7 @@ android {
     packaging { resources.excludes += "/META-INF/{AL2.0,LGPL2.1}" }
 }
 tasks.matching { it.name == "preBuild" || (it.name.startsWith("merge") && it.name.endsWith("Resources")) }.configureEach {
-    dependsOn(prepareFoxEmotes)
+    dependsOn(prepareFoxEmotes, prepareHeaderBranding)
 }
 // Do not create altered QA/debug variants when staging the new production ID.
 androidComponents {
