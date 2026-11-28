@@ -10,12 +10,19 @@ on:
       - 'scripts/prepare_beta3_soundtrack.py'
       - 'design/audio/transfer/**'
   workflow_dispatch:
+    inputs:
+      signed_rehearsal:
+        description: 'Run private signing and historical APK identity rehearsal (no APK upload)'
+        type: boolean
+        default: false
 permissions:
   contents: read
+  actions: read
 jobs:
   candidate:
+    if: github.ref == 'refs/heads/feat/beta3-foundation'
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -226,6 +233,40 @@ jobs:
           assert permissions <= allowed, f'Review unexpected permissions: {permissions - allowed}'
           print('Release dependency and permission screening passed; manual manifest and traffic review still required.')
           PY
+      - name: Recover exact historical Beta 2 archive
+        if: github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          umask 077
+          mkdir -p "$RUNNER_TEMP/gridmates-public-rehearsal"
+          gh api repos/EdenP-Development/SudokuTogether/actions/artifacts/14962779795/zip > "$RUNNER_TEMP/gridmates-public-rehearsal/beta2.zip"
+          echo "0dc6b20ac75db841f5b2fd407e4991111764301d6f9f28faead74c01afd9b432  $RUNNER_TEMP/gridmates-public-rehearsal/beta2.zip" | sha256sum -c -
+          python - <<'PY'
+          import os, pathlib, zipfile, hashlib
+          root = pathlib.Path(os.environ['RUNNER_TEMP']) / 'gridmates-public-rehearsal'
+          with zipfile.ZipFile(root / 'beta2.zip') as z:
+              assert z.testzip() is None
+              names = [n for n in z.namelist() if n.endswith('.apk')]
+              assert len(names) == 1, names
+              data = z.read(names[0])
+          assert hashlib.sha256(data).hexdigest() == '28f9fb4888f6ee32e960d22152b84aeed4daef55e9ec0230cb53725daa50b89c'
+          (root / 'beta2.apk').write_bytes(data)
+          PY
+      - name: Privately sign audited candidate and verify pair
+        if: github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal
+        env:
+          KEYSTORE_BASE64: ${{ secrets.GRIDMATES_SUDOKU_BETA_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.GRIDMATES_SUDOKU_BETA_KEYSTORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/gridmates-public-rehearsal"
+          bash scripts/sign_beta3_rehearsal.sh app/build/outputs/apk/release/app-release-unsigned.apk release-audit/unsigned-apk.sha256 "$root/beta3.apk" | tee release-audit/signing-rehearsal.txt
+          bash scripts/verify_beta3_public_upgrade_pair.sh "$root/beta2.apk" "$root/beta3.apk" | tee release-audit/public-pair.txt
+      - name: Remove temporary rehearsal APKs
+        if: always()
+        run: rm -rf "$RUNNER_TEMP/gridmates-public-rehearsal"
       - name: Retain text-only release audit evidence
         if: always()
         uses: actions/upload-artifact@v4
