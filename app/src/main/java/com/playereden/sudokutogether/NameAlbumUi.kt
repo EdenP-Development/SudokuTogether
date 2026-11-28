@@ -10,6 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import com.playereden.sudokutogether.core.*
 
 private enum class NameAlbumFilter { ALL, AVAILABLE, LOCKED }
@@ -46,9 +48,9 @@ private enum class NameAlbumFilter { ALL, AVAILABLE, LOCKED }
         val filters = listOf(NameAlbumFilter.ALL to "All words", NameAlbumFilter.AVAILABLE to "Collected", NameAlbumFilter.LOCKED to "Locked")
         @Composable fun Category(item: NameSlot, label: String, modifier: Modifier) {
             FilterChip(selected = slot == item, onClick = { slot = item },
-                label = { Text("$label words") },
+                label = { Text(label) },
                 colors = FilterChipDefaults.filterChipColors(selectedContainerColor = Forest, selectedLabelColor = Color.White),
-                modifier = modifier.heightIn(min = 48.dp).testTag("name_album_slot_${item.name.lowercase()}"))
+                modifier = modifier.heightIn(min = 48.dp).testTag("name_album_slot_${item.name.lowercase()}").semantics { contentDescription = "$label words" })
         }
         @Composable fun Filter(item: NameAlbumFilter, label: String, modifier: Modifier) {
             FilterChip(selected = filter == item, onClick = { filter = item }, label = { Text(label) },
