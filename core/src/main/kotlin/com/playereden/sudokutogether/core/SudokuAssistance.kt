@@ -53,7 +53,8 @@ object SudokuAssistance {
         val conflicts = Sudoku.conflicts(visible)
         if (conflicts.isNotEmpty()) {
             val target = entries.firstOrNull { it in conflicts } ?: return null
-            return EntryCheck(CheckKind.CONFLICT, target, conflicts)
+            val related = conflicts.filter { it == target || (isPeer(target, it) && visible[it] == visible[target]) }.toSet()
+            return EntryCheck(CheckKind.CONFLICT, target, related)
         }
         for (cell in entries) {
             val trial = puzzle.clues.toMutableList().also { it[cell] = visible[cell] }
