@@ -1,4 +1,7 @@
 
+## STAB-09.17 — Cosmetic preview refinement
+CosmeticUi 28eec99 adds font-only two-row sample 1 4 / 7 9 (ink sample 5 9 unchanged), compact board center selected-cell fill with existing per-cell ink contrast helper. Expanded previews, actual font files/palettes, IDs, unlocks and saves unchanged. JVM sample regression 5899d38. Fresh CI and physical preview fit pending. Settings unsigned 46101017893 passed; quality 46101017943 still running at inspection. Reward runtime 46100305104 had storage failure and completion cancellation; newer 46101017874 storage, names, collection and backupUi passed, completion running. Investigate earlier failure and verify final exact revision before acceptance. Next STAB-09.18 integrated regression audit, then complete cumulative APK with stable QA continuity review. No release or signing change.
+
 ## STAB-09.16 — Settings consistency
 Available gallery 334f3b8 passed quality 46100305112 and unsigned audio 46100305105; reward runtime 46100305104 still running at inspection. Shared gameSwitchColors 9f8bf59 uses Forest/OnForest checked and Muted thumb/border with Paper unchecked track; disabled Material defaults retained. JournalScreen 13e5f35 applies colors and adds Cow to starter guidance; PrivateMusicPilot a217325 applies same switch colors. Profile copy regression added. No toggle behavior, preferences, artwork, soundtracks, unlocks, save schema or signing changes. Fresh CI and physical contrast review pending. Next cosmetic previews; complete cumulative APK only.
 
