@@ -61,3 +61,12 @@ internal val SoftWhite = Color(0xFFFEFDF8)
         content = content
     )
 }
+
+/** Enabled off switches need a visible outline and thumb; disabled colors retain Material defaults. */
+@Composable internal fun gameSwitchColors(): SwitchColors = SwitchDefaults.colors(
+    checkedThumbColor = OnForest,
+    checkedTrackColor = Forest,
+    uncheckedThumbColor = Muted,
+    uncheckedTrackColor = Paper,
+    uncheckedBorderColor = Muted
+)
