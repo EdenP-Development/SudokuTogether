@@ -1,5 +1,9 @@
 # Beta 3 progress — active checkpoint
 
+## Current checkpoint — STAB-09.11 (2026-11-27)
+Full integrated QA 1 source d80ae8a, CI 46094167388 passed; artifact 15243190868. Owner supplied 32 screenshots, audit [STAB-09-PHYSICAL-VISUAL-AUDIT.md](STAB-09-PHYSICAL-VISUAL-AUDIT.md) (1f1a576); no confirmed visual blocker, functional acceptance remains incomplete. STAB-09.11: Coach conflict check previously passed all board conflicts into focused proof. Now limits proof conflicts to target and equal-digit peers, retains whole-board gameplay error feedback, no solution comparison/assisted scoring or save changes. Core 0b0bf48, multi-conflict regression d241c96, explanatory copy 387d06f. Fresh CI pending. Next verify tests, then bounded Music Corner status, Name Collection, Collection and settings polish per audit. Complete cumulative owner builds only; six-track Suno Pro attestation in shared hub 3c8eedfd, no repeated confirmation. Production signing/upgrade and physical gates remain open. No publication authorized.
+
+
 ## Latest repository synchronization checkpoint — 2026-11-27
 Active branch `feat/beta3-foundation`. Latest build-verified code `8e2dcee916bf7189a6a252951046b5d5fca52f62`: quality gate 45962075841 and unsigned candidate 45962075789 passed. Earlier save runtime 45957495632 passed on earlier source; integrated reward/save run 45962562834 still executing at inspection. STAB-07 repository synchronization closeout: see [release evidence](STAB-07-RELEASE-EVIDENCE.md). Next STAB-08 feature freeze (scope only, not release approval); inspect integrated results and repair failures before acceptance. Physical, rights, privacy, exact signed upgrade and owner approval gates remain open. No publication or signing changes.
 
