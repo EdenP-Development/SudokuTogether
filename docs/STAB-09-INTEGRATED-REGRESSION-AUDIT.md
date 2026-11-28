@@ -1,4 +1,8 @@
 # STAB-09.18 — Integrated regression and QA continuity audit
+
+## STAB-09.19 — Stable full QA channel (2026-11-27 local)
+Reward runtime 46101017874 retry: all five jobs successful (completion 140846603574); earlier timeout closed by passing rerun, root cause not independently proven. Latest refinements 5899d38 build gates passed; exact-current runtime remains outstanding. Gradle dd80b5b adds explicit gridmatesBeta3StableFullQa flag requiring full cumulative visual/audio configuration and existing QA update signing; fixed package com.playereden.sudokutogether.qa.beta3fullstable, version suffix includes increasing code. Workflow f207460 restores original GitHub QA secret, checks baseline cert, reserves 1000+run number, checks final APK certificate/identity and six tracks/12 emotes/branding; cleanup always. Run 46102615268 in progress; no verified artifact yet. Original .qa, .qa.beta3full1 and public .beta unchanged. First stable install is separate; portable migration optional, do not uninstall or clear. Future same-package updates require native install-over rehearsal, not guaranteed by signature alone. No official release. Next verify workflow and exact-current runtime, then owner candidate recommendation.
+
 2026-11-27 (local). All screenshot-driven source refinements through 5899d387ff7c477344aba583a5c1a0de1120c635 passed quality 46101514633 and unsigned candidate 46101514638. These gates include JVM/core tests, lint, build and instrumentation compilation, not fresh exact integrated runtime acceptance.
 
 ## Runtime evidence
