@@ -1,0 +1,99 @@
+name: Beta 3 native visual capture
+on:
+  push:
+    branches: [feat/beta3-foundation]
+    paths:
+      - '.github/workflows/beta3-native-visual-capture.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: beta3-native-visual-capture-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  visual-capture:
+    if: github.ref == 'refs/heads/feat/beta3-foundation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Prepare verified full QA artwork and soundtrack
+        run: |
+          python3 scripts/prepare_beta3_soundtrack.py
+          # Use the same approved icon master and adaptive overlay as the complete QA workflow.
+          python3 -m pip install Pillow==11.3.0
+          python3 - <<'PY'
+          import pathlib, hashlib, zipfile, io
+          from PIL import Image
+          root = pathlib.Path('design/branding/transfer')
+          data = b''.join((root / f'part-{i:02}.bin').read_bytes() for i in range(1,15))
+          assert hashlib.sha256(data).hexdigest() == '487ee37d5087822e9b085b1dddf2e04b01b13a2d70d8e24dd90e60b233bf0dc8'
+          with zipfile.ZipFile(io.BytesIO(data)) as z:
+              master = z.read('launcher-master.png')
+          assert hashlib.sha256(master).hexdigest() == 'ea3812eb46f6d3601fd5edf1d1f1f2d1c9c445a4140c7e1d2a86c08563d3367f'
+          res = pathlib.Path('build/beta3-visual-res')
+          drawable = res / 'drawable-nodpi'
+          drawable.mkdir(parents=True, exist_ok=True)
+          canvas = Image.new('RGBA',(432,432))
+          with Image.open(io.BytesIO(master)) as im:
+              assert im.size == (1254,1254)
+              canvas.alpha_composite(im.convert('RGBA').resize((232,232),Image.Resampling.LANCZOS),(100,100))
+          canvas.save(drawable/'beta3_fox_foreground.png')
+          mip = res/'mipmap-anydpi-v26'
+          mip.mkdir(parents=True,exist_ok=True)
+          (mip/'ic_launcher.xml').write_text('<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@color/icon_background"/><foreground android:drawable="@drawable/beta3_fox_foreground"/><monochrome android:drawable="@drawable/ic_launcher_monochrome"/></adaptive-icon>')
+          PY
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Capture complete QA3 native screens
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
+          disable-animations: true
+          script: |
+            chmod +x gradlew
+            ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=com.playereden.sudokutogether.Beta3VisualCaptureTest -PgridmatesBeta3VisualPreview=true -PgridmatesBeta3ConsolidatedQa=true -PgridmatesBeta3FullQa=true -PgridmatesBeta3FullQa3=true --no-daemon --max-workers=2 --console=plain
+            mkdir -p visual-review
+            adb pull /sdcard/Pictures/GridMates-Beta3-Visual/. visual-review/
+            adb shell wm size > visual-review/device.txt
+            adb shell wm density >> visual-review/device.txt
+            git rev-parse HEAD > visual-review/source-commit.txt
+            python3 - <<'PY'
+            from pathlib import Path
+            from PIL import Image
+            root = Path('visual-review')
+            names = ['01-home','02-profile','03-name-collection','04-name-builder','05-name-dropdown','06-available-icons','07-number-fonts','08-settings','09-gameplay','10-focused-coach']
+            for name in names:
+                p = root / (name + '.png')
+                assert p.stat().st_size > 10000, p
+                with Image.open(p) as im:
+                    assert im.format == 'PNG' and im.width >= 320 and im.height >= 480, p
+                    im.verify()
+            PY
+      - name: Retain native screenshots and test reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Beta3-native-visual-review
+          path: |
+            visual-review/**
+            app/build/reports/androidTests/**
+            app/build/outputs/androidTest-results/**
+          if-no-files-found: warn
+          retention-days: 7
