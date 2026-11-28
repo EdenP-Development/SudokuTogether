@@ -2,7 +2,10 @@ name: Beta 3 synthetic migration rehearsal
 on:
   push:
     branches: [feat/beta3-foundation]
-    paths: ['.github/workflows/beta3-synthetic-upgrade.yml']
+    paths:
+      - '.github/workflows/beta3-synthetic-upgrade.yml'
+      - 'scripts/upgrade-fixtures/**'
+      - 'scripts/run_beta3_test_install_over.sh'
   workflow_dispatch:
 permissions:
   contents: read
