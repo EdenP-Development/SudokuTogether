@@ -1,3 +1,6 @@
+
+## STAB-09.25 — Final integrated regression
+Cumulative source 525d66e passed quality 46107555064 and unsigned candidate 46107555046, including branding generation, focused Coach and name UI/test compilation. fe841cc adds .github/workflows/beta3-final-integrated-runtime.yml: eight suites covering all 16 existing instrumentation classes, full QA2 flags, verified six-track preparation and approved adaptive icon overlay, API36 emulator, max parallel 2 to reduce dependency pressure, 45min per job, report-only artifacts. Run 46108005826 queued at inspection. No new APK or production release. Runtime uses complete QA variant on exact workflow source, not installed owner artifact; physical/audio/LAN/upgrade gates remain. Next verify each suite, investigate failures, then decide complete cumulative candidate and STAB-10 release preparation. Stable signing secret remains unavailable. Existing FullQA2 artifact remains current.
 # STAB-09.18 — Integrated regression and QA continuity audit
 
 ## STAB-09.20 — FullQA2 downloadable build verified (2026-11-27 local)
