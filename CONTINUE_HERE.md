@@ -1,4 +1,7 @@
 
+## STAB-09.16 — Settings consistency
+Available gallery 334f3b8 passed quality 46100305112 and unsigned audio 46100305105; reward runtime 46100305104 still running at inspection. Shared gameSwitchColors 9f8bf59 uses Forest/OnForest checked and Muted thumb/border with Paper unchecked track; disabled Material defaults retained. JournalScreen 13e5f35 applies colors and adds Cow to starter guidance; PrivateMusicPilot a217325 applies same switch colors. Profile copy regression added. No toggle behavior, preferences, artwork, soundtracks, unlocks, save schema or signing changes. Fresh CI and physical contrast review pending. Next cosmetic previews; complete cumulative APK only.
+
 ## STAB-09.15 — Cosmetic Collection available gallery
 Name Builder 15529a2 passed Android quality 46099707313 and unsigned audio 46099707293; instrumentation compiled, not executed. CosmeticUi 08f95bd consolidates All-family Available player icons into one existing responsive grid with heading; All items and Locked retain chapter ordering/progress, individual family filters unchanged. Existing 85 cosmetics, equip checks, previews, artwork and save data unchanged. Added CollectionPolishUiTest to verify six starter icons, no duplicate or locked items, equipped selection and chapter restoration when returning to All. Fresh CI and physical review pending. Next STAB-09.16 settings/UI consistency. Complete cumulative APK only.
 
