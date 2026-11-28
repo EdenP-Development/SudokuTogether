@@ -156,6 +156,14 @@ val beta3StableFullQa = providers.gradleProperty("gridmatesBeta3StableFullQa").o
     require(it == "true") { "gridmatesBeta3StableFullQa only accepts true" }
     true
 } ?: false
+// Temporary fallback reviewer, deliberately distinct from FullQA1 and stable QA.
+val beta3FullQa2 = providers.gradleProperty("gridmatesBeta3FullQa2").orNull?.let {
+    require(it == "true") { "gridmatesBeta3FullQa2 only accepts true" }
+    true
+} ?: false
+if (beta3FullQa2) require(beta3FullQa && !beta3StableFullQa) {
+    "FullQA2 requires complete assets and a separate temporary identity"
+}
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
 if (beta3StableFullQa) require(beta3FullQa && qaUpdateFlag == "true") {
     "Stable full QA requires the complete asset build and persistent QA signer"
@@ -262,6 +270,7 @@ android {
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
                 beta3StableFullQa -> ".qa.beta3fullstable"
+                beta3FullQa2 -> ".qa.beta3full2"
                 beta3FullQa -> ".qa.beta3full1"
                 beta3ConsolidatedQa -> ".qa.beta3integrated1"
                 beta3VisualPreview -> ".qa.beta3coach2"
@@ -285,6 +294,7 @@ android {
             }
             versionNameSuffix = when {
                 beta3StableFullQa -> "-qa.beta3fullstable.$qaVersion"
+                beta3FullQa2 -> "-qa.beta3full2"
                 beta3FullQa -> "-qa.beta3full1"
                 beta3ConsolidatedQa -> "-qa.beta3integrated1"
                 beta3VisualPreview -> "-qa.beta3coach2"
