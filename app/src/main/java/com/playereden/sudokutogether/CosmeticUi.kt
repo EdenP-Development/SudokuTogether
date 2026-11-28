@@ -254,8 +254,14 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
             else "No available items in this set yet.", color = Ink,
             modifier = Modifier.testTag("collection_empty_filter"))
     }
-    // Preserve chapter totals and ordering regardless of the ownership filter.
-    if (category == CollectionCategory.ICONS && family == IconFamily.ALL) {
+    // Available is a cross-family equip gallery; retain chapter progress in All and Locked.
+    if (category == CollectionCategory.ICONS && family == IconFamily.ALL && ownership == OwnershipFilter.AVAILABLE) {
+        if (visibleItems.isNotEmpty()) {
+            Text("Your available icons", color = Forest, style = MaterialTheme.typography.titleMedium,
+                modifier = Modifier.testTag("collection_available_gallery"))
+            CosmeticGrid(visibleItems, progress, look, !state.busy, iconGallery = true, open = open)
+        }
+    } else if (category == CollectionCategory.ICONS && family == IconFamily.ALL) {
         items.groupBy { it.family }.entries.forEachIndexed { chapterIndex, (chapter, chapterItems) ->
             val owned = chapterItems.count { it.isEquipped(look) || progress.getValue(it.id).unlocked }
             CollectionChapterHeading(chapter?.label ?: "Basic", chapterIndex + 1, owned, chapterItems.size)
