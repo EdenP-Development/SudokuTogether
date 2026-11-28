@@ -7,7 +7,9 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -19,13 +21,17 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.res.painterResource
 
+internal fun approvedGridMatesHeaderDrawable(): Int = R.drawable.gridmates_header_approved
+
+// SUDOKU_GRID is retained as the existing default style identifier for callers.
 internal enum class GridMatesMarkStyle { SUDOKU_GRID, TILE_DOT, SHARED_WINDOW }
 
 @Composable internal fun GridMatesMark(modifier: Modifier, style: GridMatesMarkStyle = GridMatesMarkStyle.SUDOKU_GRID) {
     if (style == GridMatesMarkStyle.SUDOKU_GRID) {
-        Box(modifier.background(Forest, RoundedCornerShape(percent = 22))) {
-            Image(painterResource(R.drawable.ic_launcher_foreground), contentDescription = null,
-                modifier = Modifier.matchParentSize().scale(1.42f))
+        Box(modifier.clip(RoundedCornerShape(percent = 22)).background(Forest)) {
+            Image(painterResource(approvedGridMatesHeaderDrawable()), contentDescription = null,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier.matchParentSize().testTag("gridmates_approved_header_mark"))
         }
         return
     }
