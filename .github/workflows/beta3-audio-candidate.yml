@@ -162,7 +162,7 @@ jobs:
               _, lines = resources['bool/' + name]
               values = []
               for line in lines:
-                  match = re.search(r'\b(true|false)\s* line, re.I)
+                  match = re.search(r'\b(true|false)\s*$', line, re.I)
                   if match:
                       values.append(match.group(1).lower() == 'true')
               assert values and all(v == enabled for v in values), (name, lines)
@@ -180,47 +180,10 @@ jobs:
           manifest = xml('AndroidManifest.xml')
           fox_id = resources['drawable/beta3_fox_foreground'][0]
           assert 'adaptive-icon' in icon
-          foreground = re.search(r'E: foreground[^\n]*\n([^\n]*\n)*?\s*A: android:drawable[^\n]*', icon)
+          foreground = re.search(r'E: foreground[^\n]*\n\s*A: android:drawable[^\n]*', icon)
           assert foreground and fox_id in foreground.group(0).lower(), icon
           for attr in ('icon', 'roundIcon'):
-              matches = re.findall(r'^\s*A: android:' + attr + r'\([^)]*\)[^\n]*$, manifest, re.M)
-              assert any(launcher_id in line.lower() for line in matches), (attr, matches)
-          evidence.append(f'Launcher {launcher_id} -> {adaptive[0]} -> Fox foreground {fox_id}')
-          root = pathlib.Path('release-audit')
-          (root / 'visual-config.txt').write_text('\n'.join(evidence) + '\n')
-          (root / 'adaptive-launcher.txt').write_text(icon)
-          print('\n'.join(evidence))
-          PY
-, line, re.I)
-                  if match:
-                      values.append(match.group(1).lower() == 'true')
-              assert values and all(v == enabled for v in values), (name, lines)
-              evidence.append(f'{name}: {enabled}')
-          launcher_id, lines = resources['mipmap/ic_launcher']
-          adaptive = []
-          for line in lines:
-              match = re.search(r'\(file\)\s+(\S+)', line)
-              if match and re.search(r'\bv(?:2[6-9]|[3-9][0-9])\b', line):
-                  adaptive.append(match.group(1))
-          assert len(adaptive) == 1, lines
-          def xml(path):
-              return subprocess.check_output([tool, 'dump', 'xmltree', '--file', path, apk], text=True)
-          icon = xml(adaptive[0])
-          manifest = xml('AndroidManifest.xml')
-          fox_id = resources['drawable/beta3_fox_foreground'][0]
-          assert 'adaptive-icon' in icon
-          foreground = re.search(r'E: foreground[^\n]*\n([^\n]*\n)*?\s*A: android:drawable[^\n]*', icon)
-          assert foreground and fox_id in foreground.group(0).lower(), icon
-          for attr in ('icon', 'roundIcon'):
-              matches = re.findall(r'^\s*A: android:' + attr + r'\([^)]*\)[^\n]* manifest, re.M)
-              assert any(launcher_id in line.lower() for line in matches), (attr, matches)
-          evidence.append(f'Launcher {launcher_id} -> {adaptive[0]} -> Fox foreground {fox_id}')
-          root = pathlib.Path('release-audit')
-          (root / 'visual-config.txt').write_text('\n'.join(evidence) + '\n')
-          (root / 'adaptive-launcher.txt').write_text(icon)
-          print('\n'.join(evidence))
-          PY
-, manifest, re.M)
+              matches = re.findall(r'^\s*A: android:' + attr + r'\([^)]*\)[^\n]*$', manifest, re.M)
               assert any(launcher_id in line.lower() for line in matches), (attr, matches)
           evidence.append(f'Launcher {launcher_id} -> {adaptive[0]} -> Fox foreground {fox_id}')
           root = pathlib.Path('release-audit')
