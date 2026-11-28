@@ -56,6 +56,14 @@ if (beta3ProductionParity) {
     require(rootProject.file("build/beta3-visual-res/drawable-nodpi/beta3_fox_foreground.png").isFile)
     require(rootProject.file("build/beta3-visual-res/mipmap-anydpi-v26/ic_launcher.xml").isFile)
 }
+// Versioned unsigned upgrade rehearsal candidate. No public signing or upload.
+val beta3UpgradeCandidate = providers.gradleProperty("gridmatesBeta3UpgradeCandidate").orNull?.let {
+    require(it == "true") { "gridmatesBeta3UpgradeCandidate only accepts true" }
+    true
+} ?: false
+if (beta3UpgradeCandidate) require(beta3ProductionParity && permanentIdentityStaging && !signedBeta) {
+    "Beta 3 upgrade candidate requires unsigned complete production parity"
+}
 val signingFile = System.getenv(if (signedBeta) "GRIDMATES_BETA_SIGNING_FILE" else "SUDOKU_SIGNING_FILE")?.let { file(it) }
 if (signedBeta) require(signingFile?.isFile == true) { "Dedicated beta signing file required" }
 val privateSigning = Properties().apply { if (signingFile?.isFile == true) signingFile.inputStream().use(::load) }
@@ -300,7 +308,7 @@ android {
     compileSdk = 36
     defaultConfig {
         applicationId = if (permanentIdentityStaging || signedBeta) "com.playereden.gridmates.sudoku.beta" else "com.playereden.sudokutogether"
-        minSdk = 26; targetSdk = 36; versionCode = qaVersion ?: 31; versionName = "1.0.0-beta.2"
+        minSdk = 26; targetSdk = 36; versionCode = if (beta3UpgradeCandidate) 32 else (qaVersion ?: 31); versionName = if (beta3UpgradeCandidate) "1.0.0-beta.3" else "1.0.0-beta.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("boolean", "BETA3_AUDIO_CANDIDATE", beta3AudioCandidate.toString())
         buildConfigField("boolean", "BETA3_FULL_QA", beta3FullQa.toString())
