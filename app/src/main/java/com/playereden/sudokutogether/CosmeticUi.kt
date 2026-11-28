@@ -51,6 +51,8 @@ fun emblemSymbol(id: String): String = when (id) {
 
 /** Two Sudoku glyphs, with visible spacing so a sample is not misread as fifty-nine. */
 internal const val NUMBER_PREVIEW_SAMPLE = "5 9"
+/** Additional distinctive digit shapes for font-only comparison. */
+internal val FONT_PREVIEW_ROWS = listOf("1 4", "7 9")
 
 /** Never let one-word icon names break into orphan letters on phone galleries. */
 internal fun collectionNameIsLongSingleWord(name: String): Boolean =
@@ -458,7 +460,17 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
             val scale = LocalDensity.current.fontScale.coerceAtLeast(1f)
             Box(modifier.clip(RoundedCornerShape(10.dp)).background(Cream).clearAndSetSemantics {},
                 contentAlignment = Alignment.Center) {
-                Text(NUMBER_PREVIEW_SAMPLE, color = inkFor(look.ink, false), fontFamily = fontFor(look.font), fontSize = (26f / scale).sp)
+                if (item.group == CosmeticGroup.FONT) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        FONT_PREVIEW_ROWS.forEach { digits ->
+                            Text(digits, color = inkFor(look.ink, false), fontFamily = fontFor(look.font),
+                                fontSize = (18f / scale).sp, lineHeight = (20f / scale).sp,
+                                maxLines = 1, softWrap = false)
+                        }
+                    }
+                } else {
+                    Text(NUMBER_PREVIEW_SAMPLE, color = inkFor(look.ink, false), fontFamily = fontFor(look.font), fontSize = (26f / scale).sp)
+                }
             }
         }
     }
@@ -562,13 +574,16 @@ private val allCollectionItems = iconItems + boardItems + inkItems + fontItems
         }
     }) {
         for (r in 0..2) Row(Modifier.weight(1f).fillMaxWidth()) {
-            for (c in 0..2) Box(Modifier.weight(1f).fillMaxHeight(), contentAlignment = Alignment.Center) {
+            for (c in 0..2) Box(Modifier.weight(1f).fillMaxHeight()
+                .background(if (compact && r == 1 && c == 1) palette.selectedCell else palette.fill),
+                contentAlignment = Alignment.Center) {
                 if (!compact || r == c) {
                     val entered = allEntries || (r + c) % 2 == 0
                     Text((r * 3 + c + 1).toString(), modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center,
                         maxLines = 1, softWrap = false, fontFamily = if (entered) entryFont else clueFont,
                         fontSize = digitSize, lineHeight = digitSize, fontWeight = if (entered) FontWeight.Normal else FontWeight.Bold,
-                        color = if (entered) legibleBoardDigitInk(inkFor(numberLook.ink, dark), palette.fill, palette) else palette.clueInk)
+                        color = if (entered) legibleBoardDigitInk(inkFor(numberLook.ink, dark),
+                            if (compact && r == 1 && c == 1) palette.selectedCell else palette.fill, palette) else palette.clueInk)
                 }
             }
         }
