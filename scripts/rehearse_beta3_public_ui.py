@@ -13,15 +13,28 @@ old, new = sys.argv[2:4]
 pkg = "com.playereden.gridmates.sudoku.beta"
 
 def adb(*args):
-    return subprocess.check_output(["adb", *args], text=True)
+    return subprocess.check_output(["adb", *args], text=True, timeout=30)
 
 parents = {}
 
 def snapshot(label):
-    adb("shell", "uiautomator", "dump", "/sdcard/gridmates-rehearsal.xml")
-    data = adb("shell", "cat", "/sdcard/gridmates-rehearsal.xml")
+    # Never read an old dump if Android fails to produce a fresh hierarchy.
+    remote = "/sdcard/gridmates-rehearsal.xml"
+    for attempt in range(6):
+        try:
+            adb("shell", "rm", "-f", remote)
+            adb("shell", "uiautomator", "dump", remote)
+            data = adb("shell", "cat", remote)
+            tree = ET.fromstring(data)
+            if not list(tree.iter("node")):
+                raise ValueError("Empty Android hierarchy")
+            break
+        except (subprocess.CalledProcessError, subprocess.TimeoutExpired, ET.ParseError, ValueError) as exc:
+            print(f"Transient UI capture failure {label} attempt {attempt + 1}: {exc}", flush=True)
+            time.sleep(2)
+    else:
+        raise AssertionError("Unable to capture fresh UI hierarchy: " + label)
     (root / (label + ".xml")).write_text(data)
-    tree = ET.fromstring(data)
     parents.clear()
     parents.update({child: parent for parent in tree.iter() for child in parent})
     return list(tree.iter("node"))
@@ -57,7 +70,7 @@ def board(label):
     for n in nodes:
         m = cell(n)
         result[(m[1], m[2])] = m[3]
-    assert len(result) == 81, (label, len(result))
+    assert len(nodes) == len(result) == 81, (label, len(nodes), len(result))
     return result
 
 def resume(label):
@@ -75,6 +88,7 @@ def resume(label):
 
 def phase(name):
     subprocess.run(["bash", "scripts/run_beta3_public_upgrade_phase.sh", name, old, new], check=True)
+    time.sleep(5)
 
 phase("seed")
 tap(wait("beta2-home", named("New puzzle"))[0])
