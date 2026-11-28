@@ -103,6 +103,27 @@ class CollectionPolishUiTest {
         compose.onNodeWithTag("portrait_farm_chicken").assertExists()
     }
 
+    @Test fun availableGalleryCombinesFamiliesWithoutChangingChapterAlbum() {
+        compose.setContent {
+            SudokuTogetherTheme { SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {}) }
+        }
+        compose.onNodeWithTag("nav_collection").performClick()
+        compose.onNodeWithTag("collection_ownership_AVAILABLE").performScrollTo().performClick()
+        compose.onNodeWithTag("collection_available_gallery").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("collection_filtered_count").assertTextEquals("Showing 6 of 55 items")
+        for (chapter in 1..5) compose.onNodeWithTag("collection_chapter_$chapter").assertDoesNotExist()
+        for (starter in listOf("woodland_owl", "woodland_fox", "ocean_octopus",
+            "garden_honeybee", "farm_cow")) {
+            compose.onAllNodesWithTag("portrait_$starter").assertCountEquals(1)
+        }
+        compose.onNodeWithTag("cosmetic_emblem_tile").assertIsSelected()
+        compose.onNodeWithTag("portrait_farm_chicken").assertDoesNotExist()
+        compose.onNodeWithTag("collection_ownership_ALL").performScrollTo().performClick()
+        compose.onNodeWithTag("collection_available_gallery").assertDoesNotExist()
+        for (chapter in 1..5) compose.onNodeWithTag("collection_chapter_$chapter").assertExists()
+        compose.onNodeWithTag("portrait_farm_chicken").assertExists()
+    }
+
     @Test fun newFarmFamilyCanBeBrowsedWithCowStarterAndLockedChicken() {
         compose.setContent {
             SudokuTogetherTheme {
