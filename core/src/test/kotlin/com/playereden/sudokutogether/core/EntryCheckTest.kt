@@ -35,6 +35,18 @@ class EntryCheckTest {
         assertEquals(5, values[2])
     }
 
+    @Test fun duplicateReviewExcludesUnrelatedConflictsAndKeepsAllMatchingPeers() {
+        val values = clues.toMutableList().also { it[2] = 5; it[6] = 5; it[10] = 6 }
+        val before = values.toList()
+        assertTrue(Sudoku.conflicts(values).containsAll(listOf(0, 2, 6, 9, 10)))
+        val checked = result(values)
+        assertEquals(SudokuAssistance.CheckKind.CONFLICT, checked.kind)
+        assertEquals(2, checked.cell)
+        assertEquals(setOf(0, 2, 6), checked.conflicts)
+        assertFalse(checked.usesSolution)
+        assertEquals(before, values)
+    }
+
     @Test fun correctEntriesAreVerifiedWithoutFillingAnEmptySquare() {
         val values = clues.toMutableList().also { it[2] = 4 }
         val before = values.toList()
