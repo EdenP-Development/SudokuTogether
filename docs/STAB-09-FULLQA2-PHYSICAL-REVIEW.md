@@ -1,3 +1,6 @@
+
+## STAB-09.22 — Approved Home header branding
+Owner FullQA2 screenshot explicitly identified old grid icon. Root cause GridMatesBrand.kt default SUDOKU_GRID referenced legacy ic_launcher_foreground independent of adaptive launcher. Gradle d5afac3 adds prepareHeaderBranding to all variants: exact 14-part verified branding archive SHA256 487ee37d5087822e9b085b1dddf2e04b01b13a2d70d8e24dd90e60b233bf0dc8, launcher-master.png SHA256 ea3812eb46f6d3601fd5edf1d1f1f2d1c9c445a4140c7e1d2a86c08563d3367f, 1254 square, resampled to 256px ARGB generated drawable. c0b2cb7 uses this approved drawable in default mark with rounded clipping and Fit, retains alternate mark styles and header dimensions. 2839c80 adds resource regression. Existing splash/launcher resources, hero, cosmetics, saves and signing unchanged. Fresh CI and physical header verification pending; no new APK. Next STAB-09.23 Coach proof-specific shading, then name picker polish. FullQA2 remains current verified owner build; stable signing secret unavailable.
 # FullQA2 physical screenshot review — STAB-09.21
 
 Owner submitted 25 screenshot images across three batches, including repeated views, following the verified FullQA2 artifact 15246608732 (source 459030b). Review is visual evidence only; no screenshot binaries published.
