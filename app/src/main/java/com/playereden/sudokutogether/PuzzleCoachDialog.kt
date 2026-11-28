@@ -65,11 +65,12 @@ import com.playereden.sudokutogether.core.SudokuAssistance
                                     boardTheme = state.appearance.board, localStyle = state.appearance,
                                     solo = true, uniformNumbers = state.uniformNumbers,
                                     proofTargets = setOf(check.cell),
-                                    proofSources = check.conflicts - check.cell)
+                                    proofSources = check.conflicts - check.cell,
+                                    focusProofConflicts = true)
                             }
                             Text(if (check.kind == SudokuAssistance.CheckKind.INCORRECT_ENTRY)
                                 "The outlined square contains your entry. You can erase it or return to the puzzle to review it yourself."
-                                else "The outlined square is the entry to review. Shaded squares repeat that number in the same row, column or box. Other errors may remain.",
+                                else "The outlined square is the entry to review. Other shaded squares repeat its number in the same row, column or box. Other errors may remain; return to the puzzle to see them.",
                                 color = Muted, style = MaterialTheme.typography.bodySmall)
                         }
                         if (check.usesSolution) Text("This puzzle is marked Assisted.",color=Muted)
