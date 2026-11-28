@@ -669,7 +669,7 @@ import kotlinx.coroutines.delay
     val allConflicts = remember(snapshot.cells) { Sudoku.conflicts(snapshot.cells.map { it.value }) }
     // Entry-review diagrams show only conflicts involved in the current explanation.
     // The playable board retains every conflict, as do other existing board callers.
-    val conflicts = if (focusProofConflicts) allConflicts.intersect(proofTargets + proofSources) else allConflicts
+    val conflicts = boardDisplayConflicts(allConflicts, proofTargets, proofSources, focusProofConflicts)
     val selectedValue = snapshot.cells.getOrNull(selected)?.value ?: 0
     val palette = boardPalette(boardTheme)
     val darkBoard = palette.dark
@@ -843,3 +843,7 @@ import kotlinx.coroutines.delay
         }
     }
 }
+
+/** Presentation-only subset: never changes the puzzle or its global conflict set. */
+internal fun boardDisplayConflicts(all: Set<Int>, targets: Set<Int>, sources: Set<Int>, focused: Boolean): Set<Int> =
+    if (focused) all.intersect(targets + sources) else all
