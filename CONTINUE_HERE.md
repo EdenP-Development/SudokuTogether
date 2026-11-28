@@ -1,4 +1,7 @@
 
+## STAB-09.14 — Name Builder discoverability
+Name Album 8ba6bd3 passed Android quality 46099130438 and unsigned audio 46099130448 (instrumentation compiled, not executed). Name Builder already supported direct word selection via center button; 6d0eb35 adds visible dropdown affordance and concise guidance, explicit selected semantics and 48dp minimum menu rows; retains arrow cycling, randomizer, optional middle and existing ownership validation. Direct-selection UI regression added; fresh CI and actual runtime pending. No vocabulary, save, audio, network or signing changes. Next cosmetic Collection available-filter browsing. Complete cumulative build only.
+
 ## STAB-09.13 — Name Collection browsing
 Music Corner 789e5ec passed quality gate 46097529387 and unsigned audio 46097529426. Name album 388cd48 groups collected words into compact two-column cards at sufficient width/normal font scale, single column below 300dp or fontScale >1.3; locked cards keep descriptions and progress, progress row compacted, selected filters forest green. Existing IDs/tags, filter/category behavior, builder and 171-word catalog/ownership unchanged. Updated NameAlbumUiTest section-count regressions; fresh CI pending, physical/large text review pending. Next Name Builder direct selection audit. No new APK yet; complete cumulative build only.
 
