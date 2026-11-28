@@ -25,6 +25,14 @@ import org.junit.Test
 class CollectionPolishUiTest {
     @get:Rule val compose = createComposeRule()
 
+    @Test fun defaultProfileGuidanceIncludesEveryStarterAnimal() {
+        compose.setContent {
+            SudokuTogetherTheme { SudokuApp(GameUiState(page = Page.PROFILE), polishActions(), {}) }
+        }
+        compose.onNodeWithText("Try Owl, Fox, Octopus, Honeybee or Cow — all ready to use")
+            .performScrollTo().assertIsDisplayed()
+    }
+
     @Test fun compactProfileActionsEditTheNameAndOpenPlayerIconsAtLargeText() {
         val state = mutableStateOf(GameUiState(page = Page.PROFILE, name = "Happy Maple Fox"))
         val actions = polishActions().copy(name = { state.value = state.value.copy(name = it) })
