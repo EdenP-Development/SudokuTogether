@@ -242,7 +242,9 @@ jobs:
           print('Release dependency and permission screening passed; manual manifest and traffic review still required.')
           PY
       - name: Recover exact historical Beta 2 archive
-        if: github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal
+        if: >-
+          (github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal) ||
+          (github.event_name == 'push' && github.event.head_commit.message == 'ci: build STAB-10.24 downloadable owner playtest')
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
@@ -263,7 +265,9 @@ jobs:
           (root / 'beta2.apk').write_bytes(data)
           PY
       - name: Privately sign audited candidate and verify pair
-        if: github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal
+        if: >-
+          (github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal) ||
+          (github.event_name == 'push' && github.event.head_commit.message == 'ci: build STAB-10.24 downloadable owner playtest')
         env:
           KEYSTORE_BASE64: ${{ secrets.GRIDMATES_SUDOKU_BETA_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.GRIDMATES_SUDOKU_BETA_KEYSTORE_PASSWORD }}
@@ -273,13 +277,17 @@ jobs:
           bash scripts/sign_beta3_rehearsal.sh app/build/outputs/apk/release/app-release-unsigned.apk release-audit/unsigned-apk.sha256 "$root/beta3.apk" | tee release-audit/signing-rehearsal.txt
           bash scripts/verify_beta3_public_upgrade_pair.sh "$root/beta2.apk" "$root/beta3.apk" | tee release-audit/public-pair.txt
       - name: Enable KVM for signed rehearsal
-        if: github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal
+        if: >-
+          (github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal) ||
+          (github.event_name == 'push' && github.event.head_commit.message == 'ci: build STAB-10.24 downloadable owner playtest')
         run: |
           echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Public signed install-over and Solo UI continuity
-        if: github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal
+        if: >-
+          (github.event_name == 'workflow_dispatch' && inputs.signed_rehearsal) ||
+          (github.event_name == 'push' && github.event.head_commit.message == 'ci: build STAB-10.24 downloadable owner playtest')
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 36
@@ -289,9 +297,30 @@ jobs:
           emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
           disable-animations: true
           script: python3 scripts/rehearse_beta3_public_ui.py release-audit/public-ui "$RUNNER_TEMP/gridmates-public-rehearsal/beta2.apk" "$RUNNER_TEMP/gridmates-public-rehearsal/beta3.apk"
+      - name: Prepare verified owner playtest download
+        if: >-
+          github.event_name == 'push' && github.event.head_commit.message == 'ci: build STAB-10.24 downloadable owner playtest'
+        run: |
+          set -euo pipefail
+          test -s release-audit/public-ui/public-ui-result.txt
+          grep -Fq 'PASS: all 81 accessible cell descriptions preserved' release-audit/public-ui/public-ui-result.txt
+          mkdir -p owner-playtest
+          cp "$RUNNER_TEMP/gridmates-public-rehearsal/beta3.apk" owner-playtest/GridMates-Sudoku-1.0.0-beta.3-OWNER-PLAYTEST.apk
+          (cd owner-playtest && sha256sum *.apk > SHA256SUMS.txt)
+          cp release-audit/source-commit.txt release-audit/public-pair.txt release-audit/public-ui/public-ui-result.txt owner-playtest/
+          printf '%s\n' 'Beta 3 owner playtest; publicly accessible Actions artifact, not an official itch.io or Google Play release.' 'Install over Beta 2; back up important progress first. Do not uninstall or clear data if upgrade fails.' > owner-playtest/README.txt
+      - name: Upload owner playtest APK (public repository artifact)
+        if: >-
+          github.event_name == 'push' && github.event.head_commit.message == 'ci: build STAB-10.24 downloadable owner playtest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: GridMates-Sudoku-Beta3-OWNER-PLAYTEST
+          path: owner-playtest/
+          if-no-files-found: error
+          retention-days: 14
       - name: Remove temporary rehearsal APKs
         if: always()
-        run: rm -rf "$RUNNER_TEMP/gridmates-public-rehearsal"
+        run: rm -rf "$RUNNER_TEMP/gridmates-public-rehearsal" owner-playtest
       - name: Retain text-only release audit evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -300,4 +329,4 @@ jobs:
           path: release-audit/
           if-no-files-found: warn
           retention-days: 14
-      # Deliberately do not upload or distribute the APK.
+      # APK upload is limited to the explicitly approved owner-playtest trigger.
