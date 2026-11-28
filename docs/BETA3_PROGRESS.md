@@ -1,3 +1,6 @@
+
+## STAB-09.21 — FullQA2 physical screenshot review
+25 submitted views across three batches, some repeated. Detailed evidence and open issues in docs/STAB-09-FULLQA2-PHYSICAL-REVIEW.md. Compact gallery, chapters, settings contrast, Music Corner presentation, starter guidance and Name Collection visually verified. Owner specifically flags old Home header grid icon. Next 09.22 approved branding reference correction, 09.23 Coach proof shading clarity, 09.24 dropdown/category polish. No audible audio, exact restart, completion, LAN, tablet or signed upgrade acceptance inferred. No source/asset/save/signing changes in this audit. FullQA2 remains current candidate; persistent QA secret unavailable.
 # Beta 3 progress — active checkpoint
 
 ## STAB-09.20 — FullQA2 downloadable build verified (2026-11-27 local)
