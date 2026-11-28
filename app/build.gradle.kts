@@ -142,6 +142,15 @@ val beta3ConsolidatedQa = providers.gradleProperty("gridmatesBeta3ConsolidatedQa
     true
 } ?: false
 if (beta3ConsolidatedQa) require(beta3VisualPreview) { "Consolidated QA requires the isolated visual preview" }
+val beta3FullQa = providers.gradleProperty("gridmatesBeta3FullQa").orNull?.let {
+    require(it == "true") { "gridmatesBeta3FullQa only accepts true" }
+    true
+} ?: false
+if (beta3FullQa) {
+    require(beta3ConsolidatedQa) { "Full QA requires consolidated isolated preview" }
+    val tracks = rootProject.file("build/beta3-audio-assets/soundtrack")
+    require((1..6).all { tracks.resolve("track_%02d.m4a".format(Locale.ROOT, it)).isFile }) { "Full QA requires all six prepared soundtrack tracks" }
+}
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
 require(qaUpdateFlag == null || qaUpdateFlag == "true") { "gridmatesQaUpdate must be true when supplied" }
 if (beta3VisualPreview) require(qaUpdateFlag == null) { "Beta 3 preview must not use persistent QA signing" }
@@ -218,6 +227,7 @@ android {
         minSdk = 26; targetSdk = 36; versionCode = qaVersion ?: 31; versionName = "1.0.0-beta.2"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("boolean", "BETA3_AUDIO_CANDIDATE", beta3AudioCandidate.toString())
+        buildConfigField("boolean", "BETA3_FULL_QA", beta3FullQa.toString())
         resValue("bool", "gridmates_insignia_preview_enabled",
             (beta2VisualRc2Preview || beta2IntegratedRc3Preview).toString())
         resValue("bool", "gridmates_insignia_art_enabled",
@@ -243,6 +253,7 @@ android {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
+                beta3FullQa -> ".qa.beta3full1"
                 beta3ConsolidatedQa -> ".qa.beta3integrated1"
                 beta3VisualPreview -> ".qa.beta3coach2"
                 beta2BoardsPreview -> ".qa.beta2boards"
@@ -264,6 +275,7 @@ android {
                 else -> ".qa"
             }
             versionNameSuffix = when {
+                beta3FullQa -> "-qa.beta3full1"
                 beta3ConsolidatedQa -> "-qa.beta3integrated1"
                 beta3VisualPreview -> "-qa.beta3coach2"
                 beta2BoardsPreview -> "-qa.beta2boards"
