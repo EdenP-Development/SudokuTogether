@@ -182,6 +182,9 @@ jobs:
           icon = xml(adaptive[0])
           pathlib.Path('release-audit/adaptive-launcher.txt').write_text(icon)
           manifest = xml('AndroidManifest.xml')
+          # AAPT2 renders namespace URIs instead of the source prefix.
+          icon = icon.replace('http://schemas.android.com/apk/res/android:', 'android:')
+          manifest = manifest.replace('http://schemas.android.com/apk/res/android:', 'android:')
           fox_id = resources['drawable/beta3_fox_foreground'][0]
           assert 'adaptive-icon' in icon
           foreground = re.search(r'E: foreground[^\n]*\n\s*A: android:drawable[^\n]*', icon)
