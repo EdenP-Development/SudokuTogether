@@ -1,5 +1,9 @@
 # STAB-09 — Consolidated owner QA matrix
 
+## Current checkpoint — STAB-09.11 (2026-11-27)
+Full integrated QA 1 source d80ae8a, CI 46094167388 passed; artifact 15243190868. Owner supplied 32 screenshots, audit [STAB-09-PHYSICAL-VISUAL-AUDIT.md](STAB-09-PHYSICAL-VISUAL-AUDIT.md) (1f1a576); no confirmed visual blocker, functional acceptance remains incomplete. STAB-09.11: Coach conflict check previously passed all board conflicts into focused proof. Now limits proof conflicts to target and equal-digit peers, retains whole-board gameplay error feedback, no solution comparison/assisted scoring or save changes. Core 0b0bf48, multi-conflict regression d241c96, explanatory copy 387d06f. Fresh CI pending. Next verify tests, then bounded Music Corner status, Name Collection, Collection and settings polish per audit. Complete cumulative owner builds only; six-track Suno Pro attestation in shared hub 3c8eedfd, no repeated confirmation. Production signing/upgrade and physical gates remain open. No publication authorized.
+
+
 Prepared 2026-11-27 under STAB-08.02. Not executed. Candidate source, APK SHA-256, package, certificate, version and device details must be filled before acceptance. Latest build-verified code 8e2dcee; integrated runtime 45962562834 still executing at inspection. Do not install unsigned artifacts.
 
 ## Test setup
