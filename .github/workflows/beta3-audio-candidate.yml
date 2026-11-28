@@ -157,6 +157,7 @@ jobs:
               'gridmates_insignia_preview_enabled': False,
               'gridmates_versus_v8b_enabled': False,
           }
+          pathlib.Path('release-audit/resources.txt').write_text(pathlib.Path('candidate-resources.txt').read_text())
           evidence = []
           for name, enabled in expected.items():
               _, lines = resources['bool/' + name]
@@ -167,16 +168,19 @@ jobs:
                       values.append(match.group(1).lower() == 'true')
               assert values and all(v == enabled for v in values), (name, lines)
               evidence.append(f'{name}: {enabled}')
+          pathlib.Path('release-audit/visual-flags.txt').write_text('\n'.join(evidence) + '\n')
           launcher_id, lines = resources['mipmap/ic_launcher']
           adaptive = []
           for line in lines:
               match = re.search(r'\(file\)\s+(\S+)', line)
-              if match and re.search(r'\bv(?:2[6-9]|[3-9][0-9])\b', line):
+              if match and match.group(1).endswith('.xml'):
                   adaptive.append(match.group(1))
+          # AAPT2 may strip v26 when minSdk already guarantees adaptive icons.
           assert len(adaptive) == 1, lines
           def xml(path):
               return subprocess.check_output([tool, 'dump', 'xmltree', '--file', path, apk], text=True)
           icon = xml(adaptive[0])
+          pathlib.Path('release-audit/adaptive-launcher.txt').write_text(icon)
           manifest = xml('AndroidManifest.xml')
           fox_id = resources['drawable/beta3_fox_foreground'][0]
           assert 'adaptive-icon' in icon
