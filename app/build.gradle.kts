@@ -151,9 +151,17 @@ if (beta3FullQa) {
     val tracks = rootProject.file("build/beta3-audio-assets/soundtrack")
     require((1..6).all { tracks.resolve("track_%02d.m4a".format(Locale.ROOT, it)).isFile }) { "Full QA requires all six prepared soundtrack tracks" }
 }
+// Stable cumulative owner QA is a separate package; never reuse a temporary preview identity.
+val beta3StableFullQa = providers.gradleProperty("gridmatesBeta3StableFullQa").orNull?.let {
+    require(it == "true") { "gridmatesBeta3StableFullQa only accepts true" }
+    true
+} ?: false
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
+if (beta3StableFullQa) require(beta3FullQa && qaUpdateFlag == "true") {
+    "Stable full QA requires the complete asset build and persistent QA signer"
+}
 require(qaUpdateFlag == null || qaUpdateFlag == "true") { "gridmatesQaUpdate must be true when supplied" }
-if (beta3VisualPreview) require(qaUpdateFlag == null) { "Beta 3 preview must not use persistent QA signing" }
+if (beta3VisualPreview && !beta3StableFullQa) require(qaUpdateFlag == null) { "Beta 3 preview must not use persistent QA signing" }
 val qaVersion = providers.gradleProperty("gridmatesQaVersionCode").orNull?.let { value ->
     require(value.matches(Regex("[1-9][0-9]{0,9}"))) { "QA version code must be a positive integer" }
     val number = value.toLong()
@@ -253,6 +261,7 @@ android {
             // QA uses a separate install so updating a test APK never
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
+                beta3StableFullQa -> ".qa.beta3fullstable"
                 beta3FullQa -> ".qa.beta3full1"
                 beta3ConsolidatedQa -> ".qa.beta3integrated1"
                 beta3VisualPreview -> ".qa.beta3coach2"
@@ -275,6 +284,7 @@ android {
                 else -> ".qa"
             }
             versionNameSuffix = when {
+                beta3StableFullQa -> "-qa.beta3fullstable.$qaVersion"
                 beta3FullQa -> "-qa.beta3full1"
                 beta3ConsolidatedQa -> "-qa.beta3integrated1"
                 beta3VisualPreview -> "-qa.beta3coach2"
