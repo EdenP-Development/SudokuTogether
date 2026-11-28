@@ -15,11 +15,16 @@ pkg = "com.playereden.gridmates.sudoku.beta"
 def adb(*args):
     return subprocess.check_output(["adb", *args], text=True)
 
+parents = {}
+
 def snapshot(label):
     adb("shell", "uiautomator", "dump", "/sdcard/gridmates-rehearsal.xml")
     data = adb("shell", "cat", "/sdcard/gridmates-rehearsal.xml")
     (root / (label + ".xml")).write_text(data)
-    return list(ET.fromstring(data).iter("node"))
+    tree = ET.fromstring(data)
+    parents.clear()
+    parents.update({child: parent for parent in tree.iter() for child in parent})
+    return list(tree.iter("node"))
 
 def wait(label, predicate):
     deadline = time.monotonic() + 60
@@ -35,6 +40,10 @@ def named(name):
     return lambda n: name in (n.get("text"), n.get("content-desc"))
 
 def tap(node):
+    assert node.get('enabled') == 'true'
+    while node.get('clickable') != 'true' and node in parents:
+        node = parents[node]
+    assert node.get('clickable') == 'true' and node.get('enabled') == 'true', node.attrib
     x1, y1, x2, y2 = map(int, re.findall(r"\d+", node.get("bounds", "")))
     assert x2 > x1 and y2 > y1
     adb("shell", "input", "tap", str((x1+x2)//2), str((y1+y2)//2))
@@ -50,6 +59,19 @@ def board(label):
         result[(m[1], m[2])] = m[3]
     assert len(result) == 81, (label, len(result))
     return result
+
+def resume(label):
+    # Retry only while the known non-destructive Continue action is visible.
+    # Startup/layout transitions can swallow the first tap; never start a fresh puzzle.
+    for attempt in range(3):
+        nodes = snapshot(f"{label}-attempt-{attempt}")
+        if any(cell(n) for n in nodes):
+            return
+        candidates = [n for n in nodes if named("Continue")(n) and n.get("enabled") == "true"]
+        if candidates:
+            tap(candidates[0])
+        time.sleep(3)
+    wait(label, lambda n: cell(n) is not None)
 
 def phase(name):
     subprocess.run(["bash", "scripts/run_beta3_public_upgrade_phase.sh", name, old, new], check=True)
@@ -68,13 +90,15 @@ assert before != seeded
 tap(wait("beta2-home-control", named("Home"))[0])
 wait("beta2-continue", named("Continue"))
 phase("upgrade")
-tap(wait("beta3-continue", named("Continue"))[0])
+wait("beta3-continue", named("Continue"))
+resume("beta3-resume")
 assert board("beta3-board-resumed") == seeded, "Board differs after upgrade"
 tap(wait("beta3-home-control", named("Home"))[0])
 wait("beta3-home-saved", named("Continue"))
 adb("shell", "am", "force-stop", pkg)
 adb("shell", "am", "start", "-n", pkg + "/com.playereden.sudokutogether.MainActivity")
-tap(wait("beta3-restart-continue", named("Continue"))[0])
+wait("beta3-restart-continue", named("Continue"))
+resume("beta3-restart-resume")
 assert board("beta3-board-restarted") == seeded, "Board differs after restart"
 (root / "public-ui-result.txt").write_text("PASS: all 81 accessible cell descriptions preserved after upgrade and restart; one entered value seeded. Other progress categories not covered.\n")
 print("PASS: public signed Solo board continuity and restart")
