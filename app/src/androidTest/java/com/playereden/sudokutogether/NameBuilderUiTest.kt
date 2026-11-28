@@ -38,9 +38,14 @@ class NameBuilderUiTest {
                 NameBuilderDialog(LocalPlayerData(), "Happy Maple Fox", { result = it }, {})
             }
         }
-        compose.onNodeWithTag("name_first_picker").performScrollTo().performClick()
-        compose.onNodeWithTag("name_option_first.happy").assertIsSelected()
-        compose.onNodeWithTag("name_option_first.clever").performClick()
+        val picker = compose.onNodeWithTag("name_first_picker").performScrollTo()
+        val anchor = picker.getUnclippedBoundsInRoot()
+        picker.performClick()
+        val selectedOption = compose.onNodeWithTag("name_option_first.happy").assertIsSelected()
+        val option = selectedOption.getUnclippedBoundsInRoot()
+        assertTrue("Menu matches picker width", kotlin.math.abs((anchor.right - anchor.left).value -
+            (option.right - option.left).value) <= 2f)
+        compose.onNodeWithTag("name_option_first.clever").assertIsNotSelected().performClick()
         compose.onNodeWithTag("name_preview").assertTextEquals("Clever Maple Fox")
         compose.onNodeWithTag("name_middle_picker").performScrollTo().performClick()
         compose.onNodeWithTag("name_middle_option_none").performClick()
