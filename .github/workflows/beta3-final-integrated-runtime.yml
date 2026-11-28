@@ -1,0 +1,100 @@
+name: Beta 3 final integrated runtime
+on:
+  push:
+    branches: [feat/beta3-foundation]
+    paths:
+      - '.github/workflows/beta3-final-integrated-runtime.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: beta3-final-integrated-runtime-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  integrated-runtime:
+    if: github.ref == 'refs/heads/feat/beta3-foundation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - suite: gameplay
+            classes: com.playereden.sudokutogether.CompactPlayLayoutTest,com.playereden.sudokutogether.SudokuKeypadAccessibilityTest,com.playereden.sudokutogether.Beta3BoardClarityTest
+          - suite: coach
+            classes: com.playereden.sudokutogether.CoachProofUiTest
+          - suite: navigationAndNearby
+            classes: com.playereden.sudokutogether.PlaySmokeTest,com.playereden.sudokutogether.MultiplayerPolishUiTest
+          - suite: storage
+            classes: com.playereden.sudokutogether.LocalPlayerStoreTest,com.playereden.sudokutogether.ProgressBackupTest,com.playereden.sudokutogether.LocalNavigationTest
+          - suite: completion
+            classes: com.playereden.sudokutogether.FinishAndDailyPresentationUiTest,com.playereden.sudokutogether.DailyFinishUiTest,com.playereden.sudokutogether.VeteranRewardsUiTest
+          - suite: names
+            classes: com.playereden.sudokutogether.NameAlbumUiTest,com.playereden.sudokutogether.NameBuilderUiTest
+          - suite: collection
+            classes: com.playereden.sudokutogether.CollectionPolishUiTest
+          - suite: backupUi
+            classes: com.playereden.sudokutogether.ProgressBackupSettingsUiTest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Prepare verified full QA artwork and soundtrack
+        run: |
+          python3 scripts/prepare_beta3_soundtrack.py
+          # Use the same approved icon master and adaptive overlay as the complete QA workflow.
+          python3 -m pip install Pillow==11.3.0
+          python3 - <<'PY'
+          import pathlib, hashlib, zipfile, io
+          from PIL import Image
+          root = pathlib.Path('design/branding/transfer')
+          data = b''.join((root / f'part-{i:02}.bin').read_bytes() for i in range(1,15))
+          assert hashlib.sha256(data).hexdigest() == '487ee37d5087822e9b085b1dddf2e04b01b13a2d70d8e24dd90e60b233bf0dc8'
+          with zipfile.ZipFile(io.BytesIO(data)) as z:
+              master = z.read('launcher-master.png')
+          assert hashlib.sha256(master).hexdigest() == 'ea3812eb46f6d3601fd5edf1d1f1f2d1c9c445a4140c7e1d2a86c08563d3367f'
+          res = pathlib.Path('build/beta3-visual-res')
+          drawable = res / 'drawable-nodpi'
+          drawable.mkdir(parents=True, exist_ok=True)
+          canvas = Image.new('RGBA',(432,432))
+          with Image.open(io.BytesIO(master)) as im:
+              assert im.size == (1254,1254)
+              canvas.alpha_composite(im.convert('RGBA').resize((232,232),Image.Resampling.LANCZOS),(100,100))
+          canvas.save(drawable/'beta3_fox_foreground.png')
+          mip = res/'mipmap-anydpi-v26'
+          mip.mkdir(parents=True,exist_ok=True)
+          (mip/'ic_launcher.xml').write_text('<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android"><background android:drawable="@color/icon_background"/><foreground android:drawable="@drawable/beta3_fox_foreground"/><monochrome android:drawable="@drawable/ic_launcher_monochrome"/></adaptive-icon>')
+          PY
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Execute complete QA variant instrumentation
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
+          disable-animations: true
+          script: chmod +x gradlew && ./gradlew :app:connectedDebugAndroidTest -Pandroid.testInstrumentationRunnerArguments.class=${{ matrix.classes }} -PgridmatesBeta3VisualPreview=true -PgridmatesBeta3ConsolidatedQa=true -PgridmatesBeta3FullQa=true -PgridmatesBeta3FullQa2=true --no-daemon --max-workers=2 --console=plain
+      - name: Retain test reports only
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Beta3-final-integrated-runtime-reports-${{ matrix.suite }}
+          path: |
+            app/build/reports/androidTests/**
+            app/build/outputs/androidTest-results/**
+          if-no-files-found: warn
+          retention-days: 7
