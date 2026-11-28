@@ -129,7 +129,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
             SectionTitle("The Music Corner")
             Row(Modifier.fillMaxWidth(), verticalAlignment = androidx.compose.ui.Alignment.CenterVertically) {
                 Text("Background music", modifier = Modifier.weight(1f), color = Forest)
-                Switch(checked = musicEnabled, enabled = enabled, onCheckedChange = { value ->
+                Switch(checked = musicEnabled, enabled = enabled, colors = gameSwitchColors(), onCheckedChange = { value ->
                     interrupted = false
                     setMusicEnabled(value)
                     if (value && order.isNotEmpty() && bundled.isEmpty()) playAt(index)
