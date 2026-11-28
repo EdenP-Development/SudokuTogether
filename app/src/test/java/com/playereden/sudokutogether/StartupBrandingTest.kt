@@ -4,6 +4,11 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class StartupBrandingTest {
+    @Test fun homeHeaderUsesApprovedMasterDerivedResource() {
+        assertEquals(R.drawable.gridmates_header_approved, approvedGridMatesHeaderDrawable())
+        org.junit.Assert.assertNotEquals(R.drawable.ic_launcher_foreground, approvedGridMatesHeaderDrawable())
+    }
+
     @Test fun sharedTimingTrial() {
         assertEquals(300, STARTUP_FADE_MS)
         assertEquals(1500, STARTUP_HOLD_MS)
