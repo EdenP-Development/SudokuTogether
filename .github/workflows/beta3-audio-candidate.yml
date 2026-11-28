@@ -77,7 +77,7 @@ jobs:
       - name: Build and test unsigned candidate
         run: |
           chmod +x gradlew
-          ./gradlew :core:test :app:testReleaseUnitTest :app:lintRelease :app:assembleRelease -PgridmatesPermanentIdentityStaging=true -PgridmatesBeta3AudioCandidate=true -PgridmatesBeta3ProductionParity=true --no-daemon --max-workers=2 --console=plain
+          ./gradlew :core:test :app:testReleaseUnitTest :app:lintRelease :app:assembleRelease -PgridmatesPermanentIdentityStaging=true -PgridmatesBeta3AudioCandidate=true -PgridmatesBeta3ProductionParity=true -PgridmatesBeta3UpgradeCandidate=true --no-daemon --max-workers=2 --console=plain
       - name: Verify unsigned candidate identity and audio contents
         run: |
           set -euo pipefail
@@ -85,7 +85,7 @@ jobs:
           TOOLS="$ANDROID_HOME/build-tools/35.0.0"
           test -f "$APK"
           "$TOOLS/aapt" dump badging "$APK" > candidate-badging.txt
-          grep -F "package: name='com.playereden.gridmates.sudoku.beta' versionCode='31'" candidate-badging.txt
+          grep -F "package: name='com.playereden.gridmates.sudoku.beta' versionCode='32' versionName='1.0.0-beta.3'" candidate-badging.txt
           if "$TOOLS/apksigner" verify "$APK"; then
             echo "Unexpected signed candidate"
             exit 1
@@ -128,13 +128,15 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p release-audit
-          ./gradlew :app:dependencies --configuration releaseRuntimeClasspath -PgridmatesPermanentIdentityStaging=true -PgridmatesBeta3AudioCandidate=true -PgridmatesBeta3ProductionParity=true --no-daemon --max-workers=2 --console=plain > release-audit/dependencies.txt
+          ./gradlew :app:dependencies --configuration releaseRuntimeClasspath -PgridmatesPermanentIdentityStaging=true -PgridmatesBeta3AudioCandidate=true -PgridmatesBeta3ProductionParity=true -PgridmatesBeta3UpgradeCandidate=true --no-daemon --max-workers=2 --console=plain > release-audit/dependencies.txt
           APK=app/build/outputs/apk/release/app-release-unsigned.apk
           TOOLS="$ANDROID_HOME/build-tools/35.0.0"
           "$TOOLS/aapt" dump permissions "$APK" > release-audit/permissions.txt
           "$TOOLS/aapt" dump xmltree "$APK" AndroidManifest.xml > release-audit/manifest.txt
           cp candidate-badging.txt release-audit/badging.txt
           cp candidate-resources.txt release-audit/resources.txt
+          sha256sum "$APK" > release-audit/unsigned-apk.sha256
+          git rev-parse HEAD > release-audit/source-commit.txt
           python - <<'PY'
           import pathlib, re
           root = pathlib.Path('release-audit')
