@@ -46,6 +46,16 @@ if (beta3AudioCandidate) {
         require(actual == hash) { "Candidate soundtrack checksum mismatch: ${track.name}" }
     }
 }
+// Explicit unsigned full production-shape candidate. Never a signing or distribution switch.
+val beta3ProductionParity = providers.gradleProperty("gridmatesBeta3ProductionParity").orNull?.let {
+    require(it == "true") { "gridmatesBeta3ProductionParity only accepts true" }
+    true
+} ?: false
+if (beta3ProductionParity) {
+    require(beta3AudioCandidate && permanentIdentityStaging && !signedBeta)
+    require(rootProject.file("build/beta3-visual-res/drawable-nodpi/beta3_fox_foreground.png").isFile)
+    require(rootProject.file("build/beta3-visual-res/mipmap-anydpi-v26/ic_launcher.xml").isFile)
+}
 val signingFile = System.getenv(if (signedBeta) "GRIDMATES_BETA_SIGNING_FILE" else "SUDOKU_SIGNING_FILE")?.let { file(it) }
 if (signedBeta) require(signingFile?.isFile == true) { "Dedicated beta signing file required" }
 val privateSigning = Properties().apply { if (signingFile?.isFile == true) signingFile.inputStream().use(::load) }
@@ -373,9 +383,9 @@ android {
         }
         release {
             // Production displays accepted art, but never the comparison dialog.
-            resValue("bool", "gridmates_insignia_art_enabled", beta2ApprovedArt.toString())
-            resValue("bool", "gridmates_portrait_refinement_enabled", beta2ApprovedArt.toString())
-            resValue("bool", "gridmates_versus_v9_enabled", beta2ApprovedArt.toString())
+            resValue("bool", "gridmates_insignia_art_enabled", (beta2ApprovedArt || beta3ProductionParity).toString())
+            resValue("bool", "gridmates_portrait_refinement_enabled", (beta2ApprovedArt || beta3ProductionParity).toString())
+            resValue("bool", "gridmates_versus_v9_enabled", (beta2ApprovedArt || beta3ProductionParity).toString())
             resValue("bool", "gridmates_insignia_preview_enabled", "false")
             resValue("bool", "gridmates_versus_v8b_enabled", "false")
             isMinifyEnabled = false
@@ -385,6 +395,9 @@ android {
     if (beta3VisualPreview) {
         sourceSets.getByName("debug").res.srcDir(rootProject.file("build/beta3-visual-res"))
         sourceSets.getByName("debug").assets.srcDir(rootProject.file("build/beta3-audio-assets"))
+    }
+    if (beta3ProductionParity) {
+        sourceSets.getByName("release").res.srcDir(rootProject.file("build/beta3-visual-res"))
     }
     if (beta3AudioCandidate) {
         sourceSets.getByName("release").assets.srcDir(rootProject.file("build/beta3-audio-assets"))
