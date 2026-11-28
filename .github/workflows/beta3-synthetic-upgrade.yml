@@ -1,0 +1,88 @@
+name: Beta 3 synthetic migration rehearsal
+on:
+  push:
+    branches: [feat/beta3-foundation]
+    paths: ['.github/workflows/beta3-synthetic-upgrade.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  rehearsal:
+    if: github.ref == 'refs/heads/feat/beta3-foundation'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: c59bdf6860f7ff3ea0e01e28fe63643a7ac5342c
+          path: beta2
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          path: beta3
+          persist-credentials: false
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v4
+      - run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0'
+      - name: Build isolated historical and candidate debug fixtures
+        run: |
+          set -euo pipefail
+          cp beta3/scripts/upgrade-fixtures/Beta2ToBeta3SeederTest.kt beta2/app/src/androidTest/java/com/playereden/sudokutogether/
+          cp beta3/scripts/upgrade-fixtures/Beta2ToBeta3VerifierTest.kt beta3/app/src/androidTest/java/com/playereden/sudokutogether/
+          # Only disposable checkout: change default QA version, not committed or public version.
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('beta3/app/build.gradle.kts')
+          s = p.read_text()
+          old = 'versionCode = if (beta3UpgradeCandidate) 32 else (qaVersion ?: 31)'
+          assert s.count(old) == 1
+          p.write_text(s.replace(old, 'versionCode = if (beta3UpgradeCandidate) 32 else (qaVersion ?: 32)'))
+          PY
+          chmod +x beta2/gradlew beta3/gradlew
+          (cd beta2 && ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon --max-workers=2 --console=plain)
+          (cd beta3 && ./gradlew :app:assembleDebug :app:assembleDebugAndroidTest --no-daemon --max-workers=2 --console=plain)
+      - name: Verify exact test identity and increasing version
+        run: |
+          set -euo pipefail
+          tools="$ANDROID_HOME/build-tools/35.0.0"
+          old=beta2/app/build/outputs/apk/debug/app-debug.apk
+          new=beta3/app/build/outputs/apk/debug/app-debug.apk
+          for apk in "$old" "$new"; do
+            "$tools/apksigner" verify --print-certs "$apk"
+          done
+          old_signer=$("$tools/apksigner" verify --print-certs "$old" | awk '/certificate SHA-256 digest:/ {print $NF}')
+          new_signer=$("$tools/apksigner" verify --print-certs "$new" | awk '/certificate SHA-256 digest:/ {print $NF}')
+          test -n "$old_signer" && test "$old_signer" = "$new_signer"
+          "$tools/aapt" dump badging "$old" > old-badging.txt
+          "$tools/aapt" dump badging "$new" > new-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa' versionCode='31'" old-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa' versionCode='32'" new-badging.txt
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 36
+          arch: x86_64
+          target: google_apis
+          profile: pixel_5
+          emulator-options: -no-window -no-audio -no-boot-anim -gpu swiftshader_indirect -camera-back none -camera-front none
+          disable-animations: true
+          script: bash beta3/scripts/run_beta3_test_install_over.sh
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: Beta3-synthetic-upgrade-evidence
+          path: |
+            old-badging.txt
+            new-badging.txt
+            beta2-seed.txt
+            beta3-verify.txt
+            beta3-restart.txt
+          if-no-files-found: warn
+          retention-days: 7
