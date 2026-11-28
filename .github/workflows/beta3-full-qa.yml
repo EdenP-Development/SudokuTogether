@@ -75,15 +75,15 @@ jobs:
       - name: Test and assemble isolated consolidated QA
         run: |
           chmod +x gradlew
-          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta3VisualPreview=true -PgridmatesBeta3ConsolidatedQa=true -PgridmatesBeta3FullQa=true --no-daemon --max-workers=2 --console=plain
+          ./gradlew :core:test :app:testDebugUnitTest :app:compileDebugAndroidTestKotlin :app:lintDebug :app:assembleDebug -PgridmatesBeta3VisualPreview=true -PgridmatesBeta3ConsolidatedQa=true -PgridmatesBeta3FullQa=true -PgridmatesBeta3FullQa2=true --no-daemon --max-workers=2 --console=plain
       - name: Verify preview identity and signature
         run: |
           set -euo pipefail
           APK=app/build/outputs/apk/debug/app-debug.apk
           TOOLS="$ANDROID_HOME/build-tools/35.0.0"
           "$TOOLS/aapt" dump badging "$APK" > beta3-review/apk-badging.txt
-          grep -F "package: name='com.playereden.sudokutogether.qa.beta3full1'" beta3-review/apk-badging.txt
-          grep -F "versionCode='31' versionName='1.0.0-beta.2-qa.beta3full1'" beta3-review/apk-badging.txt
+          grep -F "package: name='com.playereden.sudokutogether.qa.beta3full2'" beta3-review/apk-badging.txt
+          grep -F "versionCode='31' versionName='1.0.0-beta.2-qa.beta3full2'" beta3-review/apk-badging.txt
           "$TOOLS/apksigner" verify --verbose --print-certs "$APK" > beta3-review/signature.txt
           unzip -l "$APK" | grep -F 'beta3_fox_foreground'
           unzip -l "$APK" | grep -F 'spudacus_v1_full_transparent'
@@ -110,7 +110,7 @@ jobs:
           # Owner-confirmed six-track entitlement: shared library record 3c8eedfd; full development QA authorized.
       - uses: actions/upload-artifact@v4
         with:
-          name: GridMates-Sudoku-Beta3-FullQA1-Verification
+          name: GridMates-Sudoku-Beta3-FullQA2-Verification
           path: |
             beta3-review/apk-badging.txt
             beta3-review/signature.txt
@@ -120,14 +120,14 @@ jobs:
           retention-days: 14
       - name: Prepare complete downloadable QA package
         run: |
-          cp app/build/outputs/apk/debug/app-debug.apk beta3-review/GridMates-Sudoku-Beta3-FullQA1.apk
-          (cd beta3-review && sha256sum GridMates-Sudoku-Beta3-FullQA1.apk > SHA256SUMS.txt)
-          echo 'Complete integrated QA, six bundled tracks, isolated temporary debug signer. Install alongside existing games; never uninstall or clear data to resolve conflicts. Not an official release.' > beta3-review/QA-NOTES.txt
+          cp app/build/outputs/apk/debug/app-debug.apk beta3-review/GridMates-Sudoku-Beta3-FullQA2.apk
+          (cd beta3-review && sha256sum GridMates-Sudoku-Beta3-FullQA2.apk > SHA256SUMS.txt)
+          echo 'Complete integrated QA2, six bundled tracks, isolated temporary debug signer. Stable QA secret unavailable; this is a separate temporary fallback, not an install-over update. Install alongside existing games; never uninstall or clear data to resolve conflicts. Not an official release.' > beta3-review/QA-NOTES.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: GridMates-Sudoku-Beta3-FullQA1
+          name: GridMates-Sudoku-Beta3-FullQA2
           path: |
-            beta3-review/GridMates-Sudoku-Beta3-FullQA1.apk
+            beta3-review/GridMates-Sudoku-Beta3-FullQA2.apk
             beta3-review/QA-NOTES.txt
             beta3-review/apk-badging.txt
             beta3-review/signature.txt
