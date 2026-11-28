@@ -167,6 +167,14 @@ val beta3FullQa2 = providers.gradleProperty("gridmatesBeta3FullQa2").orNull?.let
 if (beta3FullQa2) require(beta3FullQa && !beta3StableFullQa) {
     "FullQA2 requires complete assets and a separate temporary identity"
 }
+// Final owner reviewer remains separate from temporary FullQA1/2 and persistent QA.
+val beta3FullQa3 = providers.gradleProperty("gridmatesBeta3FullQa3").orNull?.let {
+    require(it == "true") { "gridmatesBeta3FullQa3 only accepts true" }
+    true
+} ?: false
+if (beta3FullQa3) require(beta3FullQa && !beta3FullQa2 && !beta3StableFullQa) {
+    "FullQA3 requires complete assets and its own isolated temporary identity"
+}
 val qaUpdateFlag = providers.gradleProperty("gridmatesQaUpdate").orNull
 if (beta3StableFullQa) require(beta3FullQa && qaUpdateFlag == "true") {
     "Stable full QA requires the complete asset build and persistent QA signer"
@@ -312,6 +320,7 @@ android {
             // threatens the existing signed app's offline records.
             applicationIdSuffix = when {
                 beta3StableFullQa -> ".qa.beta3fullstable"
+                beta3FullQa3 -> ".qa.beta3full3"
                 beta3FullQa2 -> ".qa.beta3full2"
                 beta3FullQa -> ".qa.beta3full1"
                 beta3ConsolidatedQa -> ".qa.beta3integrated1"
@@ -336,6 +345,7 @@ android {
             }
             versionNameSuffix = when {
                 beta3StableFullQa -> "-qa.beta3fullstable.$qaVersion"
+                beta3FullQa3 -> "-qa.beta3full3"
                 beta3FullQa2 -> "-qa.beta3full2"
                 beta3FullQa -> "-qa.beta3full1"
                 beta3ConsolidatedQa -> "-qa.beta3integrated1"
