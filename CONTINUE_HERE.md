@@ -1,4 +1,7 @@
 
+## STAB-09.15 — Cosmetic Collection available gallery
+Name Builder 15529a2 passed Android quality 46099707313 and unsigned audio 46099707293; instrumentation compiled, not executed. CosmeticUi 08f95bd consolidates All-family Available player icons into one existing responsive grid with heading; All items and Locked retain chapter ordering/progress, individual family filters unchanged. Existing 85 cosmetics, equip checks, previews, artwork and save data unchanged. Added CollectionPolishUiTest to verify six starter icons, no duplicate or locked items, equipped selection and chapter restoration when returning to All. Fresh CI and physical review pending. Next STAB-09.16 settings/UI consistency. Complete cumulative APK only.
+
 ## STAB-09.14 — Name Builder discoverability
 Name Album 8ba6bd3 passed Android quality 46099130438 and unsigned audio 46099130448 (instrumentation compiled, not executed). Name Builder already supported direct word selection via center button; 6d0eb35 adds visible dropdown affordance and concise guidance, explicit selected semantics and 48dp minimum menu rows; retains arrow cycling, randomizer, optional middle and existing ownership validation. Direct-selection UI regression added; fresh CI and actual runtime pending. No vocabulary, save, audio, network or signing changes. Next cosmetic Collection available-filter browsing. Complete cumulative build only.
 
