@@ -15,6 +15,9 @@ class NameAlbumUiTest {
         compose.setContent { SudokuTogetherTheme { SudokuApp(state.value, polishActions(), {}) } }
         compose.onNodeWithText("Name Collection").performScrollTo().performClick()
         compose.onNodeWithText("30 of 171 words collected").performScrollTo().assertIsDisplayed()
+        compose.onNodeWithTag("name_album_slot_first").assertTextEquals("First").assertContentDescriptionEquals("First words")
+        compose.onNodeWithTag("name_album_slot_middle").assertTextEquals("Middle").assertContentDescriptionEquals("Middle words")
+        compose.onNodeWithTag("name_album_slot_last").assertTextEquals("Last").assertContentDescriptionEquals("Last words")
         compose.onNodeWithTag("name_album_filter_available").performScrollTo().performClick()
         compose.onNodeWithText("Collected · 10").performScrollTo().assertIsDisplayed()
         compose.onNodeWithTag("name_album_word_first.happy").performScrollTo().assertIsDisplayed()
