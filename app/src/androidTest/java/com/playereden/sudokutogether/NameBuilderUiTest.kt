@@ -31,6 +31,26 @@ class NameBuilderUiTest {
         }
     }
 
+    @Test fun directPickerSelectsOwnedWordsAndAllowsRemovingMiddleWord() {
+        var result: PlayerNameSelection? = null
+        compose.setContent {
+            SudokuTogetherTheme {
+                NameBuilderDialog(LocalPlayerData(), "Happy Maple Fox", { result = it }, {})
+            }
+        }
+        compose.onNodeWithTag("name_first_picker").performScrollTo().performClick()
+        compose.onNodeWithTag("name_option_first.happy").assertIsSelected()
+        compose.onNodeWithTag("name_option_first.clever").performClick()
+        compose.onNodeWithTag("name_preview").assertTextEquals("Clever Maple Fox")
+        compose.onNodeWithTag("name_middle_picker").performScrollTo().performClick()
+        compose.onNodeWithTag("name_middle_option_none").performClick()
+        compose.onNodeWithTag("name_preview").assertTextEquals("Clever Fox")
+        compose.onNodeWithTag("name_confirm").performClick()
+        compose.runOnIdle {
+            assertEquals(PlayerNameSelection("first.clever", null, "last.fox"), result)
+        }
+    }
+
     @Test fun earnedWordsCanBeSelectedAndLargeTextRandomizerRemainsReachable() {
         val profile = LocalPlayerData(earnedAchievementIds = listOf("first-grid"))
         var result: PlayerNameSelection? = null
