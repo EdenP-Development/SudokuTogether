@@ -30,7 +30,13 @@ class Beta2ToBeta3VerifierTest {
         val current = state.profile
         assertEquals(old.playerId, current.playerId)
         assertEquals(old.records, current.records)
-        assertEquals(old.activeSolo, current.activeSolo)
+        // Activity startup/resume may advance the live timer. All other saved fields
+        // must remain identical, and elapsed time must never reset or jump excessively.
+        val oldSolo = requireNotNull(old.activeSolo)
+        val currentSolo = requireNotNull(current.activeSolo)
+        assertTrue("Solo timer must not regress", currentSolo.elapsedMs >= oldSolo.elapsedMs)
+        assertTrue("Solo timer advanced unexpectedly", currentSolo.elapsedMs - oldSolo.elapsedMs <= 120_000L)
+        assertEquals(oldSolo, currentSolo.copy(elapsedMs = oldSolo.elapsedMs))
         assertEquals(old.dailyProgress, current.dailyProgress)
         assertTrue(current.ownedCosmeticIds.containsAll(old.ownedCosmeticIds))
         assertTrue(current.earnedAchievementIds.containsAll(old.earnedAchievementIds))
