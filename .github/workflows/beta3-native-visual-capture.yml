@@ -74,18 +74,22 @@ jobs:
             adb shell wm size > visual-review/device.txt
             adb shell wm density >> visual-review/device.txt
             git rev-parse HEAD > visual-review/source-commit.txt
-            python3 - <<'PY'
-            from pathlib import Path
-            from PIL import Image
-            root = Path('visual-review')
-            names = ['01-home','02-profile','03-name-collection','04-name-builder','05-name-dropdown','06-available-icons','07-number-fonts','08-settings','09-gameplay','10-focused-coach']
-            for name in names:
-                p = root / (name + '.png')
-                assert p.stat().st_size > 10000, p
-                with Image.open(p) as im:
-                    assert im.format == 'PNG' and im.width >= 320 and im.height >= 480, p
-                    im.verify()
-            PY
+      - name: Validate captured PNG files outside emulator runner
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          from PIL import Image
+          root = Path('visual-review')
+          names = ['01-home','02-profile','03-name-collection','04-name-builder','05-name-dropdown','06-available-icons','07-number-fonts','08-settings','09-gameplay','10-focused-coach']
+          assert {p.stem for p in root.glob('*.png')} == set(names)
+          for name in names:
+              p = root / (name + '.png')
+              assert p.stat().st_size > 10000, p
+              with Image.open(p) as im:
+                  assert im.format == 'PNG' and im.width >= 320 and im.height >= 480, p
+                  im.verify()
+          print('All ten native PNG files verified.')
+          PY
       - name: Retain native screenshots and test reports
         if: always()
         uses: actions/upload-artifact@v4
