@@ -1,6 +1,9 @@
 package com.playereden.sudokutogether
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.background
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -75,6 +78,8 @@ private fun NameWordPicker(
 ) {
     val available = remember(slot, earned) { NameCollection.available(slot, earned) }
     var expanded by remember { mutableStateOf(false) }
+    var anchorWidth by remember { mutableIntStateOf(0) }
+    val menuWidth = with(LocalDensity.current) { anchorWidth.toDp() }
     val choices = if (slot == NameSlot.MIDDLE) listOf(null) + available.map { it.id } else available.map { it.id }
     val index = choices.indexOf(selected).coerceAtLeast(0)
     val currentLabel = available.firstOrNull { it.id == selected }?.label ?: "None"
@@ -86,7 +91,7 @@ private fun NameWordPicker(
                 contentPadding = PaddingValues(0.dp), modifier = Modifier.size(48.dp).testTag("name_${tag}_previous").semantics { contentDescription = "Previous ${label.lowercase()}" }) {
                 Text("‹")
             }
-            Box(Modifier.weight(1f)) {
+            Box(Modifier.weight(1f).onSizeChanged { anchorWidth = it.width }) {
                 OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("name_${tag}_picker")) {
                     Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.Center) {
@@ -96,12 +101,13 @@ private fun NameWordPicker(
                         Text("▾", modifier = Modifier.clearAndSetSemantics { })
                     }
                 }
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.heightIn(max = 320.dp)) {
-                    if (slot == NameSlot.MIDDLE) DropdownMenuItem(text = { Text("None") }, onClick = { choose(null); expanded = false },
-                        modifier = Modifier.heightIn(min = 48.dp).testTag("name_middle_option_none").semantics { this.selected = selected == null })
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false },
+                    modifier = Modifier.width(menuWidth).heightIn(max = 320.dp)) {
+                    if (slot == NameSlot.MIDDLE) DropdownMenuItem(text = { Text("None", color = Forest) }, trailingIcon = { if (selected == null) Text("✓", color = Forest, modifier = Modifier.clearAndSetSemantics {}) }, onClick = { choose(null); expanded = false },
+                        modifier = Modifier.heightIn(min = 48.dp).background(if (selected == null) GreenTint else Paper).testTag("name_middle_option_none").semantics { this.selected = selected == null })
                     available.forEach { word ->
-                        DropdownMenuItem(text = { Text(word.label) }, onClick = { choose(word.id); expanded = false },
-                            modifier = Modifier.heightIn(min = 48.dp).testTag("name_option_${word.id}").semantics { this.selected = word.id == selected })
+                        DropdownMenuItem(text = { Text(word.label, color = Forest) }, trailingIcon = { if (word.id == selected) Text("✓", color = Forest, modifier = Modifier.clearAndSetSemantics {}) }, onClick = { choose(word.id); expanded = false },
+                            modifier = Modifier.heightIn(min = 48.dp).background(if (word.id == selected) GreenTint else Paper).testTag("name_option_${word.id}").semantics { this.selected = word.id == selected })
                     }
                 }
             }
