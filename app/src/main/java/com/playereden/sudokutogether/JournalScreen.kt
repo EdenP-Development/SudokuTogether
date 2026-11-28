@@ -143,7 +143,7 @@ internal enum class ProfileSection(val title: String) {
                     Text("Change icon", style = MaterialTheme.typography.labelLarge,
                         color = actionColor)
                     Text(if (state.appearance.portrait.isEmpty() && state.appearance.emblem == "tile")
-                        "Try Owl, Fox, Octopus or Honeybee — all ready to use"
+                        "Try Owl, Fox, Octopus, Honeybee or Cow — all ready to use"
                     else "Explore portraits, boards & numbers",
                         style = MaterialTheme.typography.bodySmall,
                         color = OnForest.copy(alpha = .74f))
@@ -606,7 +606,7 @@ internal fun achievementCategoryIcon(category: String): GameSymbol = when (categ
             Text(title, color = Forest, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, lineHeight = 19.sp)
             Text(detail, color = Muted, fontSize = 12.sp, lineHeight = 17.sp)
         }
-        Switch(checked, onCheckedChange = null, enabled = enabled)
+        Switch(checked, onCheckedChange = null, enabled = enabled, colors = gameSwitchColors())
     }
 }
 
