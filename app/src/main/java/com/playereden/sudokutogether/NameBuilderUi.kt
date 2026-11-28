@@ -7,6 +7,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -42,6 +45,8 @@ internal fun NameBuilderDialog(
                     modifier = Modifier.testTag("name_preview"))
                 Text("Your name is used in your profile and nearby games. Earn more words by playing.",
                     style = MaterialTheme.typography.bodySmall)
+                Text("Tap a word to choose from your collection, or use the arrows to browse.",
+                    style = MaterialTheme.typography.bodySmall, color = Muted)
                 NameWordPicker("First word", NameSlot.FIRST, first, earned) { first = it ?: first }
                 NameWordPicker("Middle word (optional)", NameSlot.MIDDLE, middle, earned) { middle = it }
                 NameWordPicker("Last word", NameSlot.LAST, last, earned) { last = it ?: last }
@@ -83,12 +88,20 @@ private fun NameWordPicker(
             }
             Box(Modifier.weight(1f)) {
                 OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp).testTag("name_${tag}_picker")) {
-                    Text(currentLabel)
+                    Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center) {
+                        Text(currentLabel, modifier = Modifier.weight(1f, fill = false),
+                            textAlign = androidx.compose.ui.text.style.TextAlign.Center)
+                        Spacer(Modifier.width(4.dp))
+                        Text("▾", modifier = Modifier.clearAndSetSemantics { })
+                    }
                 }
                 DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }, modifier = Modifier.heightIn(max = 320.dp)) {
-                    if (slot == NameSlot.MIDDLE) DropdownMenuItem(text = { Text("None") }, onClick = { choose(null); expanded = false })
+                    if (slot == NameSlot.MIDDLE) DropdownMenuItem(text = { Text("None") }, onClick = { choose(null); expanded = false },
+                        modifier = Modifier.heightIn(min = 48.dp).testTag("name_middle_option_none").semantics { this.selected = selected == null })
                     available.forEach { word ->
-                        DropdownMenuItem(text = { Text(word.label) }, onClick = { choose(word.id); expanded = false })
+                        DropdownMenuItem(text = { Text(word.label) }, onClick = { choose(word.id); expanded = false },
+                            modifier = Modifier.heightIn(min = 48.dp).testTag("name_option_${word.id}").semantics { this.selected = word.id == selected })
                     }
                 }
             }
