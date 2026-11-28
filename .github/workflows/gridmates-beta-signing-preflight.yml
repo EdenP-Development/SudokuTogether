@@ -1,13 +1,14 @@
 name: GridMates beta signing preflight
 on:
   push:
-    branches: [feat/beta2-permanent-identity-staging]
+    branches: [feat/beta2-permanent-identity-staging, feat/beta3-foundation]
     paths: ['.github/workflows/gridmates-beta-signing-preflight.yml']
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
   verify:
+    if: github.ref == 'refs/heads/feat/beta3-foundation' || github.ref == 'refs/heads/feat/beta2-permanent-identity-staging'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -26,7 +27,10 @@ jobs:
           umask 077
           tmp=$(mktemp -d)
           trap 'rm -rf "$tmp"' EXIT
-          test -n "$BETA_KEY" && test -n "$BETA_PASSWORD"
+          if [[ -z "${BETA_KEY:-}" || -z "${BETA_PASSWORD:-}" ]]; then
+            echo "BLOCKED: Existing dedicated Beta 2 signing secrets unavailable. No APK produced; do not replace the key."
+            exit 1
+          fi
           printf '%s' "$BETA_KEY" | base64 --decode > "$tmp/key.p12"
           printf '%s' "$BETA_PASSWORD" > "$tmp/password"
           keytool -exportcert -alias gridmates-sudoku-beta -keystore "$tmp/key.p12" -storetype PKCS12 -storepass:file "$tmp/password" > "$tmp/cert.der"
